@@ -964,10 +964,10 @@ class pitmController:
 		# now start to shutdown the slave
 		self.lcdDisplay.sendMessage("       80%         ",1,importance=9)
 		if reboot:
-			os.system("ssh -lroot 192.168.1.15 sh /home/allena29/slave/stop.sh reboot")
+			os.system("ssh -lroot 192.168.1.15 sh /home/pi/brewerslab/slave/stop.sh reboot")
 			#os.system("ssh -lroot 192.168.1.15 reboot")
 		else:
-			os.system("ssh -lroot 192.168.1.15 sh /home/allena29/slave/stop.sh poweroff")
+			os.system("ssh -lroot 192.168.1.15 sh /home/pi/brewerslab/slave/stop.sh poweroff")
 			#os.system("ssh -lroot 192.168.1.15 poweroff")
 	
 		# now wait for pings to finish
@@ -985,9 +985,9 @@ class pitmController:
 		# now shutdwon ourself
 		self.lcdDisplay.sendMessage("       98%         ",1,importance=9)
 		if reboot:
-			os.system("sh /home/allena29/master/stop.sh reboot")
+			os.system("sh /home/pi/brewerslab/master/stop.sh reboot")
 		else:
-			os.system("sh /home/allena29/master/stop.sh poweroff")
+			os.system("sh /home/pi/brewerslab/master/stop.sh poweroff")
 		time.sleep(2)
 		self.lcdDisplay.sendMessage("       99%         ",1,importance=9)
 

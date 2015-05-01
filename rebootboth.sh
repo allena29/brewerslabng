@@ -1,3 +1,3 @@
 sudo rm ipc/*
-ssh -lroot 192.168.1.15 "sh /home/allena29/slave/stop.sh reboot"
-sudo sh /home/allena29/master/stop.sh reboot
+ssh -lroot 192.168.1.15 "sh /home/pi/brewerslab/slave/stop.sh reboot"
+sudo sh /home/pi/brewerslab/master/stop.sh reboot
