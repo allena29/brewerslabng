@@ -1,0 +1,485 @@
+process  : Calculating with Process 17AG12i13
+process  : brewerslabEngine rev  (DEVEL)
+process  :  - start of standalone mode to run without sql database
+process  :  - tweak of batch size for gravity calculations
+process  :    (25%% of mash tun deadspace included)
+process  :  - batchsize from recipestats
+process  : Revision (2012-11-24)
+process  :  - updated mid-gravity table
+process  :  - fix for small batch sizes, calculate number of boilers
+process  :  - implemented recipe topup
+process  :  - implemented flavourings in aroma auto steps
+process  :  - corrected bottles required
+process  :  - implemented polypins (estimated of sugar required)
+process  :    TODO: better consideration of different amounts of priming sugar may be needed
+process  :    TODO: tap water ingredient needed
+process  :  - BUGFIX: checkStockAndPrice considers kegs (and new polypins)
+process  : 2012-10-11:
+process  :  - procedural rework of calculations
+process  :  - evaporation calculations before cooling contraction
+process  :  - minimise boiler loss (50%%) by rationalising to 1 (Disabled)
+process  :  - modelling of concentration of runoff during mash (theoretical)
+process  :  - modelling of hop ibus based on different models (experimental)
+process  :  -  - hopmeasure_v2/hopaddition_v2 = 1kettle hop model
+process  :  - TODO: water based recipe.postBoilTopup not supported
+process  :  - TODO: wort topup is implicit
+batchsize: Batch Size from recipe  22 L
+batchsize:  Fermentation Bin Dead Space 2.000 -> 24.000
+batchsize: Batch Size (A)  24.000
+batchsize:  Mash Tun Dead Space 2.250 -> 26.250
+batchsize:	hop: 50gm cascade
+batchsize:	hop: 20gm cascade
+batchsize:	hop: 30gm cascade
+batchsize: Ingoring hop weight and using just boiler deadspace (2.000)
+batchsize:  Boiler Dead Space 2.500 -> 28.750
+batchsize: Batch Size (B)  28.750
+batchsize:  Boil Size 28.750
+batchsize:  Cooling Loss @ 1.03 %  0.862 -> 29.613
+batchsize: Batch Size (C)  29.613
+batchsize: Boiling Loss (15 %) ~ 4.312 L water -> 33.925
+batchsize: Batch Size (D)  33.925
+batchsize:	fermentable: 5000 Maris Otter
+batchsize:	fermentable: 150 Torrified Wheat
+mashliqid: Mash Wastage to Grain 5.150 -> 39.075
+batchsize: Batch Size (E)  39.075
+batchsize:  HLT Dead Space 3.000 -> 42.075
+batchsize: Batch Size (F)  42.075
+batchsize:  Topup 0.000 -> 42.075
+batchsize: Batch Size (G)  42.075
+mashwater: grain_thickness_ratio 1.500
+mashwater:	fermentable: 5000 Maris Otter
+mashwater:	fermentable: 150 Torrified Wheat
+mashwater: mash_liquid = 16.117
+mashwater: 16.117 = ( grain_thickness_ratio *  total_grain_weight ) / (4 * metric_lb_kg )  * metric_gal_l
+mashwater: 16.117 = ( 1.500 *  5.150 ) / (4 * 0.4536 ) * 3.7854
+mashwater: 16.117 = ( 7.7250 ) / ( 1.8144  ) * 3.7854
+mashwater: 16.117 =  4.2577  * 3.7854
+mashwater:  HLT Dead Space 3.000 -> 19.117
+mashwater: Mash Water Required  19.117
+calcferm : 	 Using batch_size + fv_dead space for gravity 27.062
+calcferm : 	  (Note: previous process used working_mash_size 28.750
+calcferm : Calculating expected  gravity based on 27.062 L
+calcferm :	fermentable: 5000 Maris Otter
+calcferm :		hwe: 315 extract: 0.0
+calcferm : 			contribution = 58.1986143187
+calcferm : 			58.1986143187 = 5.0 * 315 / 27.0625
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 58.1986
+calcferm :	fermentable: 150 Torrified Wheat
+calcferm :		hwe: 299 extract: 0.0
+calcferm : 			contribution = 1.65727482679
+calcferm : 			1.65727482679 = 0.15 * 299 / 27.0625
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 59.8559
+calcferm : 	uncorrected gravity for grain 1.060
+calcferm :	correcting gravity based on mash efficiency of 67 %
+calcferm : 		estimated_gravity_grain = 40.1034457275
+calcferm : 			40.103 = 59.856 * 0.670
+calcferm : 			1.040 = 1 + (40.103/1000) 
+calcferm : 		gravity grain = 1.0401
+calcferm : Calculating expected  gravity based on 28.750 L
+calcferm :	fermentable: 340 Honey
+calcferm :		hwe: 340 extract: 0.0
+calcferm : 			contribution = 4.02086956522
+calcferm : 			4.02086956522 = 0.34 * 340 / 28.75
+calcferm :			 fermentable.isGrain = 0
+calcferm :			 fermentable.isAdjunct = 1
+calcferm :			 fermentable.mustMash = 1
+calcferm :	total_contribution = 4.0209
+calcferm : 		estimated_gravity_nongrain = 4.02086956522
+calcferm : 		gravity adjunct = 1.0040
+calcferm : 		estimated_gravity = 1.0441
+waterreqd: Total Water Requirement:  42.075
+waterreqd: Mash Liquor Requirement:  19.117
+waterreqd: Sparge Water Requirement:  22.958
+waterreqd: Topup Water Requirement:  0.000
+waterreqd: our water needs = 19.12 (MASH)
+waterreqd: our water needs = 42.07 (SPARGE)
+waterreqd: WARNING: unable to find a water ingredient to add
+calcfgrav: Calculating Estimated Final Gravity
+calcfgrav: 		 estimated_final_gravity = 1.0092
+calcfgrav: 			 1.0092 = 1 + (estimated_gravity - (1.23 * (fermentable_grain + fermentable_nongrain ))/1000 
+calcfgrav: 			 9.1979 = 44.1243152927 - (1.23 * (25.663 + 2.733 ) 
+calcfgrav: 			 fermentable_grain = 25.663
+calcfgrav: 			 25.663 = (estimated_gravity * grain_pcnt * grain_fermentable_typical_pnct)
+calcfgrav: 			 25.663 = (44.124 * 0.938 * 0.620)
+calcfgrav: 			 fermentable_nongrain = 2.733
+calcfgrav: 			 25.663 = (estimated_gravity * nongrain_pcnt * nongrain_fermentable_typical_pnct)
+calcfgrav: 			 2.733 = (44.124 * 0.062 * 1.000)
+calcfgrav: 		 estimated_yeast_attenuation = 12.3548
+calcfgrav:			 yeast attenuation for  0.720 
+calcfgrav: 			 12.3548 = estimated_gravity * (1 - yeast_atten) 
+calcfgrav: 			 12.3548 = 44.1243 * (1 - 0.720) 
+calcfgrav: 		 Yeast Attenuation used for final gravity estimate
+calcabv  :		 Final Gravity Estimate = 1.012 
+calcabv  : Alcohol By Volume
+calcabv  :	abv = 4.162 %
+calcabv  :	4.162 % = ( original_gravity - final_gravity ) * 131
+calcabv  :	4.162 % = ( 1.0441 - 1.0124 ) * 131
+calchops : Calculating Tinseth Hop Calculation (std)
+calchops : http://www.realbeer.com/hops/research.html
+calchops : 	 Calculating with batch size of 28.750
+calchops : 	  Using 1.00 % of hop weights
+calchops : 	  Using estimated_gravity 1.0441
+tinseth  :	hop_utilisation = 0.0000 for 1.0441 @ 0.001 m 
+tinseth  :	0.0000 = 1.1098 * 0.0000 
+tinseth  : 		bigness_factor = 1.1098
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ (1.0441 - 1 )
+tinseth  : 			 1.1098 = 1.65 * 0.6726
+tinseth  : 		boil_time_factor = 0.0000
+tinseth  : 			 0.0000 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - e ^ (-0.04 * 0.001) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - e ^ (-4e-05) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - 0.9999600008 ) / 415 
+tinseth  : 			 0.0000 = ( 3.99992000106e-05 ) / 415 
+tinseth  :	hop_utilisation = 0.0024 for 1.0441 @ 60 m 
+tinseth  :	0.0024 = 1.1098 * 0.0022 
+tinseth  : 		bigness_factor = 1.1098
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ (1.0441 - 1 )
+tinseth  : 			 1.1098 = 1.65 * 0.6726
+tinseth  : 		boil_time_factor = 0.0022
+tinseth  : 			 0.0022 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - e ^ (-0.04 * 60) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - e ^ (-2.4) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - 0.0907179532894 ) / 415 
+tinseth  : 			 0.0022 = ( 0.909282046711 ) / 415 
+tinseth  :	hop_utilisation = 0.0012 for 1.0441 @ 15 m 
+tinseth  :	0.0012 = 1.1098 * 0.0011 
+tinseth  : 		bigness_factor = 1.1098
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.1098 = 1.65 * 0.000125 ^ (1.0441 - 1 )
+tinseth  : 			 1.1098 = 1.65 * 0.6726
+tinseth  : 		boil_time_factor = 0.0011
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.04 * 15) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.6) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - 0.548811636094 ) / 415 
+tinseth  : 			 0.0011 = ( 0.451188363906 ) / 415 
+calchopsW: 	0.001 IBU = 30gm cascade @ 0.001 minutes
+calchopsW: 		this_hop_ibu = 0.001
+calchopsW: 			 0.001 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 0.001 = 0.00000011 * (7 * 30 * 1000) / 28.75
+calchopsW: 	29.604 IBU = 50gm cascade @ 60 minutes
+calchopsW: 		this_hop_ibu = 29.604
+calchopsW: 			 29.604 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 29.604 = 0.00243172 * (7 * 50 * 1000) / 28.75
+calchopsW: 	5.876 IBU = 20gm cascade @ 15 minutes
+calchopsW: 		this_hop_ibu = 5.876
+calchopsW: 			 5.876 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 5.876 = 0.00120663 * (7 * 20 * 1000) / 28.75
+calchops : 35.480 IBU = Estimated Total IBUs
+calchops : Old Hops Calculations (pre-Oct-2012) 0.0000
+calcColor: Calculating Morey SRM Colours
+calcColor: http://www.brewingtechniques.com/brewingtechniques/beerslaw/morey.html
+calcColor: 		 color_srm = 0.0 for Maris Otter
+calcColor: 			 0.0 = 0.000 EBC * 0.8368  
+calcColor: 			 weighted_grain_color = 0.00 
+calcColor: 			 0.00 = (qty / 1000 / 0.454) * color_srm  
+calcColor: 			 0.00 = (5000 / 1000 / 0.454) * 0.000  
+calcColor: 			 0.00 = (11.013215859) * 0.000  
+calcColor: 		 color_srm = 0.0 for Torrified Wheat
+calcColor: 			 0.0 = 0.000 EBC * 0.8368  
+calcColor: 			 weighted_grain_color = 0.00 
+calcColor: 			 0.00 = (qty / 1000 / 0.454) * color_srm  
+calcColor: 			 0.00 = (150 / 1000 / 0.454) * 0.000  
+calcColor: 			 0.00 = (0.330396475771) * 0.000  
+calcColor: 		 calculating colour based on = 28.750 L 
+calcColor: 		 total_weighted_color = 0.00 
+calcColor: 			 0.00 = sum(weighted_color)   
+calcColor: 		 estimated srm = 0.0
+calcColor: 			 0.0 = 1.4922 * mcu ^ 0.6859
+calcColor: 			 0.0 = 1.4922 * 0.000 ^ 0.6859
+calcColor: 			 mcu = 0.000
+calcColor: 			 0.000 = weighted_grain_color / volume_gallons
+calcColor: 			 0.000 = 0.000 / 7.596
+calcColor: 			 volume_gallons =  7.596
+calcColor: 			 7.596 = (28.750) / 3.785
+calcColor: 		 estimated ebc = 0.0
+calcColor: 			 0.000 = 0.0 SRM * 1.97 
+striketmp: Calculating Strike Temperature
+striketmp: http://www.howtobrew.com/section3/chapter16-3.html
+striketmp:	 strike_temp = 81.667C
+striketmp:		 81.667C = ( ( .41 / mash_grain_ratio ) * (target_mash_temp - initial_grain_temp) ) + target_mash_temp
+striketmp:		 81.667C = ( ( .41 / 1.50 ) * (68.000C - 18.000C) ) + 68.000C
+calcgrav : Calculating Gravity throughout the process
+calcferm : Calculating expected  gravity based on 29.613 L
+calcferm :	fermentable: 5000 Maris Otter
+calcferm :		hwe: 315 extract: 0.0
+calcferm : 			contribution = 53.1869987336
+calcferm : 			53.1869987336 = 5.0 * 315 / 29.6125
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 53.1870
+calcferm :	fermentable: 150 Torrified Wheat
+calcferm :		hwe: 299 extract: 0.0
+calcferm : 			contribution = 1.5145631068
+calcferm : 			1.5145631068 = 0.15 * 299 / 29.6125
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 54.7016
+calcferm :	fermentable: 340 Honey
+calcferm :		hwe: 340 extract: 0.0
+calcferm : 			contribution = 3.90375685943
+calcferm : 			3.90375685943 = 0.34 * 340 / 29.6125
+calcferm :			 fermentable.isGrain = 0
+calcferm :			 fermentable.isAdjunct = 1
+calcferm :			 fermentable.mustMash = 1
+calcferm :	total_contribution = 58.6053
+calcferm : 	uncorrected gravity for grain 1.055
+calcferm :	correcting gravity based on mash efficiency of 67 %
+calcferm : 		estimated_gravity_grain = 36.6500464331
+calcferm : 			36.650 = 58.605 * 0.670
+calcferm : 			1.037 = 1 + (36.650/1000) 
+calcferm : 		estimated_gravity_nongrain = 3.90375685943
+calcferm : 		estimated_gravity = (36.650 + 3.904)
+calcferm : 		estimated_gravity = 40.554
+calcferm : Calculating expected All gravity based on 33.925 L
+calcferm :	fermentable: 5000 Maris Otter
+calcferm :		hwe: 315 extract: 0.0
+calcferm : 			contribution = 46.4259395726
+calcferm : 			46.4259395726 = 5.0 * 315 / 33.925
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 46.4259
+calcferm :	fermentable: 150 Torrified Wheat
+calcferm :		hwe: 299 extract: 0.0
+calcferm : 			contribution = 1.32203389831
+calcferm : 			1.32203389831 = 0.15 * 299 / 33.925
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 47.7480
+calcferm :	fermentable: 340 Honey
+calcferm :		hwe: 340 extract: 0.0
+calcferm : 			contribution = 3.40751658069
+calcferm : 			3.40751658069 = 0.34 * 340 / 33.925
+calcferm :			 fermentable.isGrain = 0
+calcferm :			 fermentable.isAdjunct = 1
+calcferm :			 fermentable.mustMash = 1
+calcferm :	total_contribution = 51.1555
+calcferm : 	uncorrected gravity for grain 1.048
+calcferm :	correcting gravity based on mash efficiency of 67 %
+calcferm : 		estimated_gravity_grain = 31.9911422255
+calcferm : 			31.991 = 51.155 * 0.670
+calcferm : 			1.032 = 1 + (31.991/1000) 
+calcferm : 		estimated_gravity_nongrain = 3.40751658069
+calcferm : 		estimated_gravity = (31.991 + 3.408)
+calcferm : 		estimated_gravity = 35.399
+calcferm : Calculating expected Grain gravity based on 33.925 L
+calcferm :	fermentable: 5000 Maris Otter
+calcferm :		hwe: 315 extract: 0.0
+calcferm : 			contribution = 46.4259395726
+calcferm : 			46.4259395726 = 5.0 * 315 / 33.925
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 46.4259
+calcferm :	fermentable: 150 Torrified Wheat
+calcferm :		hwe: 299 extract: 0.0
+calcferm : 			contribution = 1.32203389831
+calcferm : 			1.32203389831 = 0.15 * 299 / 33.925
+calcferm :			 fermentable.isGrain = 1
+calcferm :			 fermentable.isAdjunct = 0
+calcferm :			 fermentable.mustMash = 1
+calcferm : 			Including in Mash Gravity
+calcferm :	total_contribution = 47.7480
+calcferm : 	uncorrected gravity for grain 1.048
+calcferm :	correcting gravity based on mash efficiency of 67 %
+calcferm : 		estimated_gravity_grain = 31.9911422255
+calcferm : 			31.991 = 47.748 * 0.670
+calcferm : 			1.032 = 1 + (31.991/1000) 
+calcgrav :  Wort expected post boil post cool volume (28.750 L)
+calcgrav : 		gravity grain = 1.0401
+calcgrav : 		gravity adjunct = 1.0040
+calcgrav : 		estimated_gravity = 1.0441
+calcgrav :  Wort expected post boil pre cool volume (29.613 L)
+calcgrav :     gravity post boil / pre cool = 1.0406
+calcgrav :  Wort expected pre boil volume (33.925 L)
+calcgrav :     gravity pre boil post adjunct = 1.0354
+calcgrav :     gravity pre boil pre adjunct = 1.0320
+heatpower:	Warning heat power not specified for HLT
+sparge   : Sparge Water Requried 22.958 L
+sparge   :   - estimated heating time 0.0 m
+midgrav  : EXPERIMENTAL MID GRAVITY
+midgrav  : EXPERIMENTAL MID GRAVITY
+midgrav  : working_boil_volume (batch_size_D) = 33.92
+midgrav  : volume for 15l kettle = 13.0
+midgrav  : volume for 20l kettle = 16.0
+midgrav  : leftover volume after pass 1 = 4.9
+midgrav  : volume for 15l kettle = 13.0
+midgrav  : leftover volume after pass 2 = -8.1
+midgrav  : need to use 3 iterations of boiling
+midgrav   : 1.0320 / 1.0441
+midgrav   : ratio of preboil vs post boil gravity.... 1.0118
+midgrav   : calculating mid grav for 15l kettle/1  - 1L -> 14L
+midgrav  : Calculating Gravity for 1 -- 14 of 1.0320
+		...
+midgrav  : ... 1.0647 
+midgrav   : calculating mid grav for 20l kettle/1  - 14L -> 30L
+midgrav  : Calculating Gravity for 14 -- 30 of 1.0320
+		...
+midgrav  : ... 1.0333 
+midgrav   : calculating mid grav for 15l kettle/2  - 30L -> 43L
+midgrav  : Calculating Gravity for 30 -- 43 of 1.0320
+		...
+midgrav  : ... 1.0124 
+hopmodel : Kettle for Bittering Hops 20l kettle/1
+hopmodel : Kettle for Aroma Hops 15l kettle/2
+hopmodel : Kettle for Flameout Hops 15l kettle/2
+hopmodel : HOP MODEL X
+hopmodel : Gravity prediction for this kettle 1.0336
+hopmodel : Gravity prediction for this kettle with some proteins from previous kettle 1.0554
+calchops : Calculating Tinseth Hop Calculation (bittering)
+calchops : http://www.realbeer.com/hops/research.html
+calchops : 	 Calculating with batch size of 16.000
+calchops : 	  Using 1.00 % of hop weights
+calchops : 	  Using estimated_gravity 1.0554
+tinseth  :	hop_utilisation = 0.0022 for 1.0554 @ 60 m 
+tinseth  :	0.0022 = 1.0025 * 0.0022 
+tinseth  : 		bigness_factor = 1.0025
+tinseth  : 			 1.0025 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.0025 = 1.65 * 0.000125 ^ (1.0554 - 1 )
+tinseth  : 			 1.0025 = 1.65 * 0.6076
+tinseth  : 		boil_time_factor = 0.0022
+tinseth  : 			 0.0022 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - e ^ (-0.04 * 60) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - e ^ (-2.4) ) / 415 
+tinseth  : 			 0.0022 = ( 1 - 0.0907179532894 ) / 415 
+tinseth  : 			 0.0022 = ( 0.909282046711 ) / 415 
+calchopsW: 	48.050 IBU = 50gm cascade @ 60 minutes
+calchopsW: 		this_hop_ibu = 48.050
+calchopsW: 			 48.050 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 48.050 = 0.00219656 * (7 * 50 * 1000) / 16
+calchops : 48.050 IBU = Estimated Total IBUs
+hopmodel :  Bittering Hops: Gravity 1.0554
+hopmodel :  Bittering Hops: Batch Size  16.00
+hopmodel :  Bittering Hops: Weight 50.0 gm
+hopmodel :  Bittering Hops: 48.0 IBU
+calchops : Calculating Tinseth Hop Calculation (aroma)
+calchops : http://www.realbeer.com/hops/research.html
+calchops : 	 Calculating with batch size of 13.000
+calchops : 	  Using 1.00 % of hop weights
+calchops : 	  Using estimated_gravity 1.0126
+tinseth  :	hop_utilisation = 0.0016 for 1.0126 @ 15 m 
+tinseth  :	0.0016 = 1.4737 * 0.0011 
+tinseth  : 		bigness_factor = 1.4737
+tinseth  : 			 1.4737 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.4737 = 1.65 * 0.000125 ^ (1.0126 - 1 )
+tinseth  : 			 1.4737 = 1.65 * 0.8932
+tinseth  : 		boil_time_factor = 0.0011
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.04 * 15) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - e ^ (-0.6) ) / 415 
+tinseth  : 			 0.0011 = ( 1 - 0.548811636094 ) / 415 
+tinseth  : 			 0.0011 = ( 0.451188363906 ) / 415 
+calchopsW: 	17.255 IBU = 20gm cascade @ 15 minutes
+calchopsW: 		this_hop_ibu = 17.255
+calchopsW: 			 17.255 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 17.255 = 0.00160226 * (7 * 20 * 1000) / 13
+calchops : 17.255 IBU = Estimated Total IBUs
+hopmodel :  Aroma Hops: Gravity 1.0126
+hopmodel :  Aroma Hops: Batch Size  13.00
+hopmodel :  Aroma Hops: Weight 20.0 gm
+hopmodel :  Aroma Hops: 17.3 IBU
+calchops : Calculating Tinseth Hop Calculation (flameout)
+calchops : http://www.realbeer.com/hops/research.html
+calchops : 	 Calculating with batch size of 13.000
+calchops : 	  Using 1.00 % of hop weights
+calchops : 	  Using estimated_gravity 1.0126
+tinseth  :	hop_utilisation = 0.0000 for 1.0126 @ 0.001 m 
+tinseth  :	0.0000 = 1.4737 * 0.0000 
+tinseth  : 		bigness_factor = 1.4737
+tinseth  : 			 1.4737 = 1.65 * 0.000125 ^ ( 1 + estimated_gravity / 1000 )
+tinseth  : 			 1.4737 = 1.65 * 0.000125 ^ (1.0126 - 1 )
+tinseth  : 			 1.4737 = 1.65 * 0.8932
+tinseth  : 		boil_time_factor = 0.0000
+tinseth  : 			 0.0000 = ( 1 - e ^ (-0.04 * hop_boil_time) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - e ^ (-0.04 * 0.001) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - e ^ (-4e-05) ) / 415 
+tinseth  : 			 0.0000 = ( 1 - 0.9999600008 ) / 415 
+tinseth  : 			 0.0000 = ( 3.99992000106e-05 ) / 415 
+calchopsW: 	0.002 IBU = 30gm cascade @ 0.001 minutes
+calchopsW: 		this_hop_ibu = 0.002
+calchopsW: 			 0.002 = hop_utilisation_factor * (hop_alpha * qty * 1000) / batch_size
+calchopsW: 			 0.002 = 0.00000014 * (7 * 30 * 1000) / 13
+calchops : 0.002 IBU = Estimated Total IBUs
+hopmodel :  Flameout Hops: Gravity 1.0126
+hopmodel :  Flameout Hops: Batch Size  13.00
+hopmodel :  Flameout Hops: Weight 30.0 gm
+hopmodel :  Flameout Hops: 0.0 IBU
+hopmodel : Bittering 48.0 IBU  of 0.6 % --> 26.7 IBU 
+hopmodel : Aroma 17.3 IBU  of 0.5 % --> 7.8 IBU 
+hopmodel : Flameout 0.0 IBU  of 0.3 % --> 0.0 IBU 
+hopmodel : Adjusted Total  34.5 IBU 
+hopmodel : Hop Model: 2011-09  -- 0.00
+hopmodel : Hop Model: modelx  -- 34.54
+hopmodel : Hop Model: original  -- 35.48
+hopmodel : Total Models: 3
+hopmodel :  Lowest IBU : 0.00 - ['2011-09']
+hopmodel :  Highest IBU : 35.48 - ['original']
+hopmodel :  Mean IBU : 23.34
+stats    :	 precool_og = 40.5538
+stats    :	 postboilprecoolgravity = 40.5538
+stats    :	 pretopup_post_mash_og = 35.3987
+stats    :	 pretopup_estimataged_gravity_grain = 31.9911
+stats    :	 pretopup_post_mash_gravity = 31.9911
+stats    :	 pre_boil_gravity = 35.3987
+stats    :	 preboil_gravity = 35.3987
+stats    :	 mash_liquid = 19.1171
+stats    :	 sparge_water = 22.9579
+stats    :	 precoolfvvol = 29.6125
+stats    :	 sparge_heating_time = 0.0000
+stats    :	 water_in_boil = 33.9250
+stats    :	 topupvol = 0.0000
+stats    :	 water_required = 42.0750
+stats    :	 bottles_required = 45.0
+stats    :	 number_boil_passes = 3
+stats    :	 kettle1volume = 13.0
+stats    :	 kettle2volume = 16.0
+stats    :	 kettle3volume = 13.0
+stats    :	 kettle1kettle2volume = 29.0
+stats    :	 kettle1kettle2kettle3volume = 42.0
+stats    :	 kettle1preboilgravity = 1.0
+stats    :	 kettle2preboilgravity = 1.0
+stats    :	 kettle3preboilgravity = 1.0
+stats    :	 kettle1evaporation = 1.9
+stats    :	 kettle2evaporation = 2.4
+stats    :	 kettle3evaporation = 1.9
+stats    :	 stike_temp_5 = 86.7
+stats    :	 mash_liquid_6 = 25.1171
+stats    :	 target_mash_temp = 68.0000
+stats    :	 sparge_temp = 82.0000
+stats    :	 boil_vol = 33.9250
+stats    :	 estimated_og = 1.0441
+stats    :	 estimated_fg = 1.0124
+stats    :	 estimated_abv = 4.1618
+stats    :	 topupvol = 0.0000
+recipe   : Batch Size 22 L
+recipe   : ABV 4.1618
+recipe   : OG 1.0441
+recipe   : FG 1.0124
+recipe   : IBU 35.4801
+recipe   : EBC 0.0000
+recipe   : 5000.000 Maris Otter
+recipe   : 150.000 Torrified Wheat
+recipe   : 340.000 Honey
+recipe   : 50.000 60.000 cascade
+recipe   : 20.000 15.000 cascade
+recipe   : 30.000 0.001 cascade
+
