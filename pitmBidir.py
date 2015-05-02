@@ -69,7 +69,7 @@ if __name__ == '__main__':
 		if not os.path.exists("simulator"):
 			while int(x) > 0 and not  int(x) == 32 and not int(x) == 8192:
 				controller._log("attempting mount")
-				x=os.system("sudo mount 192.168.1.14:/home/allena29/piTempMonitor/master/ipc /home/allena29/piTempMonitor/slave/ipc")
+				x=os.system("sudo mount 192.168.1.14:/home/beer/brewerslab/master/ipc /home/beer/brewerslab/slave/ipc")
 				time.sleep(2)
 
 		while not controller.handshake:

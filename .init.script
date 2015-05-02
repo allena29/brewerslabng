@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:        piTempMonitorMaster
+# Provides:        piTempMonitorSlave
 # Required-Start:  $network $remote_fs $syslog
 # Required-Stop:   $network $remote_fs $syslog
 # Default-Start:   2 3 4 5
@@ -13,11 +13,11 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 case $1 in
         start)
-                sh /home/beer/brewerslab/master/start.sh
+                sh /home/beer/brewerslab/slave/start.sh
                 status=$?
                 ;;
         stop)
-		sh /home/beer/brewerslab/master/stop.sh
+		sh /home/beer/brewerslab/slave/stop.sh
                 status=$?
                 ;;
         restart)
