@@ -11,7 +11,6 @@ if len(sys.argv) > 1:
 
 #i2c=i2ctools(address=0x21)
 #go=gpiotools()
-#:wqgo2=gpiotools2()
 
 selfledFlasher=pitmLedFlasher()
 lcd=pitmLCDisplay()
@@ -73,6 +72,7 @@ lcd.sendMessage("",3)
 
 
 if testtype == "all" or testtype == "input":
+	go2=gpiotools2()
 	lcd.sendMessage("Testing",0)
 	lcd.sendMessage(" inputs",1)
 	lcd.sendMessage("",2)
@@ -109,13 +109,13 @@ if testtype == "all" or testtype == "input":
 		y=1
 		while y:
 		
-			if go.input( ii ):
+			if go2.input( ii ):
 				x=x+1	
 				print "True"
 			if x > 10:
 				y=0
-				lcd.sendMessage("Found as %s" %(go.PINS[ii]['pin']),2)
-				print "Found as %s" %(go.PINS[ii]['pin'])
+				lcd.sendMessage("Found as %s" %(go2.PINS[ii]['pin']),2)
+				print "Found as %s" %(go2.PINS[ii]['pin'])
 			time.sleep(0)
 
 	lcd.sendMessage("Rotary Encoder",2)

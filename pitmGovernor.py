@@ -455,7 +455,7 @@ class pitmController:
 		# fetch data from brewerlsab database 
 		#
 		try:
-			recipes=json.loads(urllib2.urlopen("http://192.168.1.16:54660/metroui/pitmBrewloglist.py").read())
+			recipes=json.loads(urllib2.urlopen("http://192.168.1.10:54660/metroui/pitmBrewloglist.py").read())
 		except:
 			self.error('Error:',' unable to fetch',' recipe stats','')
 
@@ -964,11 +964,9 @@ class pitmController:
 		# now start to shutdown the slave
 		self.lcdDisplay.sendMessage("       80%         ",1,importance=9)
 		if reboot:
-			os.system("ssh -lroot 192.168.1.15 sh /home/pi/brewerslab/slave/stop.sh reboot")
-			#os.system("ssh -lroot 192.168.1.15 reboot")
+			os.system("ssh 192.168.1.15 sh /home/beer/brewerslab/slave/stop.sh reboot")
 		else:
-			os.system("ssh -lroot 192.168.1.15 sh /home/pi/brewerslab/slave/stop.sh poweroff")
-			#os.system("ssh -lroot 192.168.1.15 poweroff")
+			os.system("ssh 192.168.1.15 sh /home/beer/brewerslab/slave/stop.sh poweroff")
 	
 		# now wait for pings to finish
 		self.lcdDisplay.sendMessage("       85%         ",1,importance=9)
