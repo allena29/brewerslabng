@@ -15,7 +15,7 @@ theme.bgcolor="#ffffff"
 #sys.stdout.write("Content-Type:text/html\n\n")
 grid={}
 
-db=_mysql.connect(host="localhost",user="brewerslab",password='beer',db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 
 orig=form['oldrecipe'].value

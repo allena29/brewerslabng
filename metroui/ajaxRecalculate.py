@@ -14,7 +14,7 @@ theme=webTheme()
 theme.bgcolor="#ffffff"
 sys.stdout.write("Content-Type:text/xml\n\n")
 grid={}
-db=_mysql.connect(host="localhost",user="root",db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 print "<xml><junk>"
 
 bc=brewerslabCloudApi()
