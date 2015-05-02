@@ -24,7 +24,7 @@ theme.bodytitle="%s (%s)" %(form['brewlog'].value,form['recipeName'].value)
 theme.presentHead()
 grid={}
 
-db=_mysql.connect(host="localhost",user="brewerslab",password='beer',db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 theme.presentBody()
 print "<div class=\"container\">"
