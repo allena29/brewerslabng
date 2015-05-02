@@ -5,7 +5,7 @@ import sys
 import time
 import cgi
 import mysql.connector
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
 print "Content-Type: text/plain\n\n"
 cursor=con.cursor()
@@ -15,7 +15,7 @@ print "["
 comma=" "
 for row in cursor:
 	(brewlog,recipe,brewhash)=row
-	con2=mysql.connector.connect(user='root',database="brewerslab")
+	con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 	cursor2=con2.cursor()
 	cursor2.execute("select target_mash_temp,boil_vol,mash_liquid,sparge_water,precoolfvvolume from gRecipeStats WHERE recipe='%s' AND brewlog='%s' ORDER BY entity DESC LIMIT 0,1" %(recipe,brewlog))
 	

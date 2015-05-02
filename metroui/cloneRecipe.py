@@ -6,7 +6,7 @@ import _mysql
 import mysql.connector
 from thememetro import *
 from cloudNG import *
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
 
 form=cgi.FieldStorage()
@@ -15,7 +15,7 @@ theme.bgcolor="#ffffff"
 #sys.stdout.write("Content-Type:text/html\n\n")
 grid={}
 
-db=_mysql.connect(host="localhost",user="root",db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",password='beer',db="brewerslab")
 
 
 orig=form['oldrecipe'].value

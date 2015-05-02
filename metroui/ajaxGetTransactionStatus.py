@@ -3,7 +3,7 @@ import sys
 import cgi
 import re
 import mysql.connector
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 #sys.stdout.write("Content-Type:text/plain\n\n")
 from cloudNG import *
 sys.stdout.write("Content-Type:text/xml\n\n")

@@ -7,7 +7,7 @@ import _mysql
 import mysql.connector
 from cloudNG import *
 from thememetro import *
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
 
 form=cgi.FieldStorage()
@@ -18,7 +18,7 @@ theme.goBackHome="index.py"
 theme.bodytitle="Stock"
 grid={}
 
-db=_mysql.connect(host="localhost",user="root",db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 
 if form.has_key("action"):

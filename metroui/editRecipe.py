@@ -5,8 +5,8 @@ import cgi
 import _mysql
 import mysql.connector
 from thememetro import *
-con=mysql.connector.connect(user='root',database="brewerslab")
-con2=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
 
 form=cgi.FieldStorage()
@@ -19,7 +19,7 @@ theme.bodytitle="%s" %(form['recipeName'].value)
 theme.presentHead()
 grid={}
 
-db=_mysql.connect(host="localhost",user="root",db="brewerslab")
+db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 export=False
 if form.has_key("export"):	export=True

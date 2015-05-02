@@ -6,7 +6,7 @@ import cgi
 import re
 sys.stdout.write("Content-Type:text/plain\n\n")
 from cloudNG import *
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 #sys.stdout.write(open("docs/index.html").read())
 form=cgi.FieldStorage()
 

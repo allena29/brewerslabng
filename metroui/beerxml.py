@@ -112,7 +112,7 @@ if not form.has_key("xml"):
 
 	overheadperlitre=0
 	try:
-		dbx=_mysql.connect(host="localhost",user="root",db="brewerslab")
+		dbx=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 		cursor=dbx.query("select breweryname,overheadperlitre FROM gBrewery LIMIT 0,1")
 		result=dbx.use_result()
 		row=result.fetch_row()
@@ -407,7 +407,7 @@ if form.has_key("xml"):
 #			x.put()
 	overheadperlitre=0
 	try:
-		dbx=_mysql.connect(host="localhost",user="root",db="brewerslab")
+		dbx=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 		cursor=dbx.query("select breweryname,overheadperlitre FROM gBrewery LIMIT 0,1")
 		result=dbx.use_result()
 		row=result.fetch_row()

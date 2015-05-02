@@ -6,7 +6,7 @@ import _mysql
 import mysql.connector
 from thememetro import *
 from cloudNG import *
-con=mysql.connector.connect(user='root',database="brewerslab")
+con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
 
 form=cgi.FieldStorage()

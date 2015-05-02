@@ -8,7 +8,7 @@ from cloudNG import *
 
 y=sys.stdin.readline().split(",")
 x = sys.stdin.read()
-#con=mysql.connector.connect(user='root',database="brewerslab")
+#con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 #sys.stdout.write("Content-Type:text/plain\n\n")
 sys.stdout.write("Content-Type:text/xml\n\n")
 form=cgi.FieldStorage()
