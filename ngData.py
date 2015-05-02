@@ -141,7 +141,7 @@ class db:
 
 	def connect(self):
 		try:
-			self.con = _mysql.connect('localhost', 'root','','brewerslab')
+			self.con = _mysql.connect('localhost', 'brewerslab','beer','brewerslab')
 			return True
 		except:
 			return False
