@@ -1,1 +1,0 @@
-../piTempMonitor/master/pitmCfg.py
