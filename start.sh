@@ -1,7 +1,9 @@
 #!/bin/sh
-cd /home/pi/brewerslab/master/
+cd /home/beer/brewerslab/master/
 date >/tmp/master_bootup
 ping 192.168.1.10 &
+
+mkdir ipc 2>/dev/null
 
 rm -f simulator 2>/dev/null
 
