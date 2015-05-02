@@ -455,7 +455,7 @@ class pitmController:
 		# fetch data from brewerlsab database 
 		#
 		try:
-			recipes=json.loads(urllib2.urlopen("http://192.168.1.10:54660/metroui/pitmBrewloglist.py").read())
+			recipes=json.loads(urllib2.urlopen("http://192.168.1.13:54660/metroui/pitmBrewloglist.py").read())
 		except:
 			self.error('Error:',' unable to fetch',' recipe stats','')
 
