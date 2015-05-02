@@ -1,9 +1,15 @@
 #!/bin/sh
+
 cd /home/beer/brewerslab/master/
+
 date >/tmp/master_bootup
 ping 192.168.1.10 &
 
 mkdir ipc 2>/dev/null
+
+/etc/init.d/rpcbind restart
+/etc/init.d/nfs-kernel-server restart
+
 
 rm -f simulator 2>/dev/null
 

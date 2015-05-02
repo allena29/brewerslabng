@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:        piTempMonitorMaster
+# Provides:        brewerslabMaster
 # Required-Start:  $network $remote_fs $syslog
 # Required-Stop:   $network $remote_fs $syslog
 # Default-Start:   2 3 4 5
 # Default-Stop:
-# Short-Description: Start piTempMonitor
+# Short-Description: Start piTempMonitor Master
 ### END INIT INFO
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
