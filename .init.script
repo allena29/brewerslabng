@@ -1,0 +1,31 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:        brewerslabCommander
+# Required-Start:  $network $remote_fs $syslog
+# Required-Stop:   $network $remote_fs $syslog
+# Default-Start:   2 3 4 5
+# Default-Stop:
+# Short-Description: Start brewerslab Commander
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+case $1 in
+        start)
+                sh /home/beer/brewerslab/commander/start.sh
+                status=$?
+                ;;
+        stop)
+                sh /home/beer/brewerslab/commander/stop.sh
+                status=$?
+                ;;
+        restart)
+                $0 stop && sleep 2 && $0 start
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart}"
+                exit 2
+                ;;
+esac
+
