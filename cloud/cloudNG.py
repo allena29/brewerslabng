@@ -1164,7 +1164,7 @@ class brewerslabCloudApi:
 				
 			return "%s" %( self.salifert( data0, highRes=False ))
 
-		if widgetType == "salifertAlkalinityHignRes":	# there is a typo here
+		if widgetType == "salifertAlkalinityHighRes":	# there is a typo here
 			sys.stderr.write(" slaifertAlkalinity %s\n" %( self._widgetData(username,brewlog,widgetData[0])))
 			data0=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
 			# November 2010 version
