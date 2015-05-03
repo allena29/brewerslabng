@@ -1,5 +1,5 @@
 import time
-import pickle
+import json
 import sys
 import socket
 import struct
@@ -40,7 +40,7 @@ while a:
                 data, addr = sock.recvfrom(1059)
 #               sys.stdout.write(".")
 #               sys.stdout.write(data)
-                d=pickle.loads(data)
+                d=json.loads(data)
 		sys.stdout.write("%s: " %(time.ctime()))
 		sys.stdout.write( d['_mode'] )
 		try:
