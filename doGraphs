@@ -1,12 +1,12 @@
 
 do=0
-if [ -f "/home/allena29/slave/ipc/swMash" ]
+if [ -f "/home/beer/brewerslab/slave/ipc/swMash" ]
 then
  echo "Mash"
  do=1
 fi
 
-if [ -f "/home/allena29/slave/ipc/swFerm" ]
+if [ -f "/home/beer/brewerslab/slave/ipc/swFerm" ]
 then
  echo "Fermentation"
  do=1
@@ -24,8 +24,8 @@ echo $file
 startTime=`rrdtool dump $file  | grep "row" | grep -v NaN | grep [GB][MS]T | head -n 1 | sed -e 's/.* [BG][MS]T \/ //' | sed -e 's/ .*//'`
 
 echo "Start time $startTime"
-echo python /home/allena29/slave/graph.py $file $startTime
-python /home/allena29/slave/graph.py $file $startTime
+echo python /home/beer/brewerslab/slave/graph.py $file $startTime
+python /home/beer/brewerslab/slave/graph.py $file $startTime
 sudo cp *.png /web/piTempMonitor
 
 done
