@@ -25,6 +25,7 @@ mount -t tmpfs -o size=50m tmpfs /currentdata
 echo "Mount NAS "
 mount -t nfs -o nolock 192.168.1.31:/Transient/piTempMonitor/archivedata /archivedata
 
+/etc/init.d/rpcbind restart
 
 sh temperature.sh "Launching"
 sh ssr.sh "Launching"
