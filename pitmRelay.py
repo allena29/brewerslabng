@@ -161,7 +161,7 @@ class pitmRelay:
 				#zoneDownTarget when we need to start cooling
 				#zoneUpTarget when we need to start heating
 				#zoneTarget when we need to stop cooling/heating
-				(self_zoneUpTarget,self_zoneDownTarget_self.zoneTarget) = cm['tempTargetFerm']
+				(self_zoneUpTarget,self_zoneDownTarget,self_zoneTarget) = cm['tempTargetFerm']
 				if self_zoneUpTarget < 5 or self_zoneDownTarget <5  or self_zoneTarget < 5:
 					print "Temp Target is screwed",cm['tempTargetFerm']
 				else:
