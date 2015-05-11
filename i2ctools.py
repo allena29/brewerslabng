@@ -186,6 +186,7 @@ The pattern we were following from:
 				return
 			try:
 
+#				print "I2C: ",value
 				self.bus.write_byte_data(self.address,bankAddress,value)
 			except:
 				#self.lcdDisplay.sendMessage("Error output to",0,importance=9)
