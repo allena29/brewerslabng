@@ -247,7 +247,7 @@ class pitmRelay:
 						self.gpio.output('fermHeat',1)
 						self.lcdDisplay.sendMessage(" Heating",2)
 						if self.fermCoolActiveFor == -1:
-							self.fermCoolActiveFor=time.time()
+							self.fermHeatActiveFor=time.time()
 							print " - set fermHeatActiveFor flag"
 						else:
 							print " - active for ", time.time()-self.fermHeatActiveFor
