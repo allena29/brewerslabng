@@ -27,6 +27,8 @@ class pitmRelay:
 		self.gpio = gpiotools()
 		self.lcdDisplay=pitmLCDisplay()
 		
+		self.fermCoolActiveFor=-1
+		self.fermHeatActiveFor=-1
 
 		self.fridgeCompressorDelay=300		
 		self.fridgeCool=False
@@ -163,7 +165,7 @@ class pitmRelay:
 				#zoneTarget when we need to stop cooling/heating
 				(self_zoneUpTarget,self_zoneDownTarget,self_zoneTarget) = cm['tempTargetFerm']
 				if self_zoneUpTarget < 5 or self_zoneDownTarget <5  or self_zoneTarget < 5:
-					print "Temp Target is screwed",cm['tempTargetFerm']
+					print "Temp Target is invalid ",cm['tempTargetFerm']
 				else:
 					(self.zoneUpTarget,self.zoneDownTarget,self.zoneTarget) = cm['tempTargetFerm']
 			
@@ -241,9 +243,15 @@ class pitmRelay:
 							self.fridgeHeat=True
 					
 					if self.fridgeHeat:
-						print time.time(),"ferm heat turned on"
+						print time.time(),"ferm heat turned on",
 						self.gpio.output('fermHeat',1)
 						self.lcdDisplay.sendMessage(" Heating",2)
+						if self.fermCoolActiveFor == -1:
+							self.fermCoolActiveFor=time.time()
+							print " - set fermHeatActiveFor flag"
+						else:
+							print " - active for ", time.time()-self.fermHeatActiveFor
+
 					if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
 						self._log("Cooling Required")
 						self.gpio.output('fermHeat',0)	
@@ -259,26 +267,44 @@ class pitmRelay:
 							self.gpio.output('fermCool',0)
 							self._gpioFermCool=False
 						else:
-							self.lcdDisplay.sendMessage(" Cooling",2)
-							self._gpioFermCool=True
-							print time.time(),"ferm cool turned on"
-							self.gpio.output('fermCool',1)
+							if time.time() - self.fermCoolActiveFor > 1800:
+								self.fridgeCompressorDelay=600
+								self.fermCoolActiveFor = -1
+								self._gpioFermCool=False
+								print time.time()," turned off the fridge- we have been active for 30 minutes"
+								self.gpio.output('fermCool',0)
+							else:
+								self.lcdDisplay.sendMessage(" Cooling",2)
+								self._gpioFermCool=True
+								print time.time(),"ferm cool turned on",
+								self.gpio.output('fermCool',1)
+								if self.fermCoolActiveFor == -1:
+									self.fermCoolActiveFor=time.time()
+									print " - set fermCoolActiveFor flag"
+								else:
+									print " - active for ", time.time()-self.fermCoolActiveFor
 
 					if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.05:
 						print time.time(),"ferm heat turned off"
 						self._log("Target Reached stopping heat")
 						self.fridgeHeat=False
 						self.gpio.output('fermHeat',0)
+						self.gpio.output('fermCool',0)
 						self._gpioFermHeat=False
 						self.fridgeCompressorDelay=301
+						self.fermCoolActiveFor = -1
+						self.fermHeatActiveFor = -1
 
 					if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.05:
 						self._log("Target Reached stopping cooling")
 						print time.time(),"ferm cool turned off"
 						self.fridgeCool=False
 						self.gpio.output("fermCool",0)
+						self.gpio.output("fermHeat",0)
 						self.fridgeCompressorDelay=301
 						self._gpioFermCool=False
+						self.fermCoolActiveFor = -1
+						self.fermHeatActiveFor = -1
 
 				self.fridgeCompressorDelay=self.fridgeCompressorDelay-1
 			elif self._mode.count( "pum" ):				
