@@ -117,7 +117,7 @@ class gpiotools:
 					state=1
 			GPIO.output( self.PINS[pin]['pin'],state)
 			self.PINS[pin]['state']=state
-			self._log("gpio.output %s %s" %(pin,state)
+			self._log("gpio.output %s %s" %(pin,state))
 	
 	def input(self,pin):
 		if not self.PINS.has_key(pin):
@@ -139,7 +139,7 @@ class gpiotools:
 				else:
 					return True
 
-			self._log("gpio.input %s %s" %(pin,state)
+			self._log("gpio.input %s %s" %(pin,state))
 			return state
 
 	def dump(self):
