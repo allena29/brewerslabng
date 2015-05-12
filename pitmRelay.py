@@ -157,7 +157,7 @@ class pitmRelay:
 						self.zoneTempTimestamp=time.time()
 						if ("%s" %(time.time())).split(".")[0][-3:] == "000":
 							self._log("Temp: %s Target: %s fridgeHeat: %s (active %s) fridgeCool: %s (active %s / delay %s)" %(self.zoneTemp, self.zoneTarget, self.fridgeHeat, self.fermHeatActiveFor,self.fridgeCool,self.fermCoolActiveFor, self.fridgeCompressorDelay))
-						sys.stderr.write("Temp: %s Target: %s fridgeHeat: %s (active %s) fridgeCool: %s (active %s / delay %s)\n" %(self.zoneTemp, self.zoneTarget, self.fridgeHeat, self.fermHeatActiveFor,self.fridgeCool,self.fermCoolActiveFor, self.fridgeCompressorDelay))
+						sys.stderr.write("%s: Temp: %s Target: %s fridgeHeat: %s (active %s) fridgeCool: %s (active %s / delay %s)\n" %(time.time(),self.zoneTemp, self.zoneTarget, self.fridgeHeat, self.fermHeatActiveFor,self.fridgeCool,self.fermCoolActiveFor, self.fridgeCompressorDelay))
 					else:
 						self.lcdDisplay.sendMessage("Temp Result Error",2)
 
@@ -265,7 +265,7 @@ class pitmRelay:
 							self._gpioFermCool=False
 						else:
 							if time.time() - self.fermCoolActiveFor > 1800:
-								self.fridgeCompressorDelay=600
+								self.fridgeCompressorDelay=601
 								self.fermCoolActiveFor = -1
 								self._gpioFermCool=False
 								sys.stderr.write("Fridge turned off\n")
