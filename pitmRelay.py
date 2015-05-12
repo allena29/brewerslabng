@@ -271,7 +271,7 @@ class pitmRelay:
 						else:
 							if (time.time() - self.fermCoolActiveFor > 1800) and self.fermCoolActiveFor > 0:
 								self.fridgeCompressorDelay=601
-								self._log("Cooling has been active for %s - resting fridge" %(self.fermCoolActiveFor))
+								self._log("Cooling has been active for %s - resting fridge" %(time.time()-self.fermCoolActiveFor))
 								self.fermCoolActiveFor = -1
 								self._gpioFermCool=False
 								sys.stderr.write("Fridge turned off\n")
@@ -285,7 +285,7 @@ class pitmRelay:
 									self.fermCoolActiveFor=time.time()
 
 					if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.05:
-						self._log("Target Reached stopping heat active for %s" %(self.fermHeatActiveFor))
+						self._log("Target Reached stopping heat active for %s" %(time.time()-self.fermHeatActiveFor))
 						self.fridgeHeat=False
 				
 						self.gpio.output('fermHeat',0)
@@ -296,7 +296,7 @@ class pitmRelay:
 						self.fermHeatActiveFor = -1
 
 					if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.05:
-						self._log("Target Reached stopping cooling active for %s" %(self.fermCoolActiveFor))
+						self._log("Target Reached stopping cooling active for %s" %(time.time()-self.fermCoolActiveFor))
 						self.fridgeCool=False
 						self.gpio.output("fermCool",0)
 						self.gpio.output("fermHeat",0)
