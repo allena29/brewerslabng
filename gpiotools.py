@@ -1,3 +1,4 @@
+import syslog
 import os
 import time
 import inspect
