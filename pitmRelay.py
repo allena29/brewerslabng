@@ -22,7 +22,7 @@ class pitmRelay:
 
 
 	def __init__(self):
-		self.logging=1		# 1 = syslog, 2 = stderr
+		self.logging=3		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
 		self.gpio = gpiotools()
 		self.lcdDisplay=pitmLCDisplay()
@@ -53,10 +53,10 @@ class pitmRelay:
 		
 		self._mode="UNKNOWN"
 
-		self._gpioFermCool=False
-		self._gpioFermHeat=False
-		self._gpioPump=False
-		self._gpioExtractor=False
+		self._gpioFermCool=None
+		self._gpioFermHeat=None
+		self._gpioPump=None
+		self._gpioExtractor=None
 		self.gpio.output("fermCool",0)
 		self.gpio.output('pump',0)
 		self.gpio.output('extractor',0)
@@ -91,10 +91,15 @@ class pitmRelay:
 		self.gpio.output('tSsrFan',0)	
 
 	
-	def _log(self,msg):
+	def _log(self,msg,importance=1):
 		if self.logging == 1:
-			syslog.syslog(syslog.LOG_DEBUG, msg)
+			if importance > 0:
+				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
+			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 3:
+			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+				syslog.syslog(syslog.LOG_DEBUG, msg)
 			sys.stderr.write("%s\n" %(msg))
 
 			
@@ -155,9 +160,7 @@ class pitmRelay:
 					if cm['currentResult'][self.cfg.fermProbe]['valid']:
 						self.zoneTemp = float( cm['currentResult'][self.cfg.fermProbe]['temperature'])
 						self.zoneTempTimestamp=time.time()
-						if ("%s" %(time.time())).split(".")[0][-3:] == "000":
-							self._log("Temp: %s Target: %s fridgeHeat: %s (active %s) fridgeCool: %s (active %s / delay %s)" %(self.zoneTemp, self.zoneTarget, self.fridgeHeat, self.fermHeatActiveFor,self.fridgeCool,self.fermCoolActiveFor, self.fridgeCompressorDelay))
-						sys.stderr.write("%s: Temp: %s Target: %s fridgeHeat: %s (active %s) fridgeCool: %s (active %s / delay %s)\n" %(time.time(),self.zoneTemp, self.zoneTarget, self.fridgeHeat, self.fermHeatActiveFor,self.fridgeCool,self.fermCoolActiveFor, self.fridgeCompressorDelay))
+						self._log("Temp: %s Target: %s fridgeHeat: %s/%s (active %s) fridgeCool: %s/%s (active %s / delay %s)" %(self.zoneTemp, self.zoneTarget, self.fridgeHeat,self._gpioFermHeat, self.fermHeatActiveFor,self.fridgeCool,self._gpioFermCool,self.fermCoolActiveFor, self.fridgeCompressorDelay),importance=0)
 					else:
 						self.lcdDisplay.sendMessage("Temp Result Error",2)
 
@@ -224,10 +227,12 @@ class pitmRelay:
 				self._gpioFermHeat=False
 				self._gpioExtractor=True
 			elif self._mode == "ferm":
-				self.gpio.output('pump',0)
-				self.gpio.output('extractor',0)
-				self._gpioPump=False
-				self._gpioExtractor=False
+				if self._gpioPump == None:
+					self.gpio.output('pump',0)
+					self._gpioPump=False
+				if self._gpioExtractor == None:
+					self.gpio.output('extractor',0)
+					self._gpioExtractor=False
 				if self.zoneTemp > 50 or self.zoneTemp <4:
 					self._log("Unrealistic Temperature Value %s:%s %s\n" %(self.zoneTemp,self.zoneTempTimestamp,self._mode))
 				else:
@@ -236,7 +241,7 @@ class pitmRelay:
 						if self.zoneTemp < 3:
 							self._log("not setting heat required as we have a very low temp")
 						else:
-							self._log("Heating Requied")
+							self._log("Heating Requied %s < %s" %(self.zoneTemp,self.zoneUpTarget))
 							self.gpio.output('fermCool',0)
 							self._gpioFermCool=False
 							self.fridgeCompressorDelay=300
@@ -250,7 +255,7 @@ class pitmRelay:
 							self.fermHeatActiveFor=time.time()
 
 					if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
-						self._log("Cooling Required")
+						self._log("Cooling Required %s > %s" %(self.zoneTemp,self.zoneDownTarget))
 						self.gpio.output('fermHeat',0)	
 						self._gpioFermHeat=False
 						self.fridgeCool=True
@@ -264,8 +269,9 @@ class pitmRelay:
 							self.gpio.output('fermCool',0)
 							self._gpioFermCool=False
 						else:
-							if time.time() - self.fermCoolActiveFor > 1800:
+							if (time.time() - self.fermCoolActiveFor > 1800) and self.fermCoolActiveFor > 0:
 								self.fridgeCompressorDelay=601
+								self._log("Cooling has been active for %s - resting fridge" %(self.fermCoolActiveFor))
 								self.fermCoolActiveFor = -1
 								self._gpioFermCool=False
 								sys.stderr.write("Fridge turned off\n")
@@ -281,6 +287,7 @@ class pitmRelay:
 					if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.05:
 						self._log("Target Reached stopping heat active for %s" %(self.fermHeatActiveFor))
 						self.fridgeHeat=False
+				
 						self.gpio.output('fermHeat',0)
 						self.gpio.output('fermCool',0)
 						self._gpioFermHeat=False
