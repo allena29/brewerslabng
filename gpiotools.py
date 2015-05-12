@@ -13,9 +13,12 @@ class gpiotools:
 
 
 	def __init__(self):
+		self.logging=3
+
+
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setwarnings(False)
-		
+	
 		if os.path.exists("simulator"):
 			self.simulator=True
 		else:
@@ -67,6 +70,19 @@ class gpiotools:
 		}
 
 
+	def _log(self,msg,importance=1):
+		if self.logging == 1:
+			if importance > 0:
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+		elif self.logging == 2:
+			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 3:
+			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+			sys.stderr.write("%s\n" %(msg))
+
+
+
 	def outputHigh(self,pin="<null>"):
 		self.output(pin,1)
 		if self.simulator:
@@ -101,7 +117,7 @@ class gpiotools:
 					state=1
 			GPIO.output( self.PINS[pin]['pin'],state)
 			self.PINS[pin]['state']=state
-
+			self._log("gpio.output %s %s" %(pin,state)
 	
 	def input(self,pin):
 		if not self.PINS.has_key(pin):
@@ -122,6 +138,8 @@ class gpiotools:
 					return False
 				else:
 					return True
+
+			self._log("gpio.input %s %s" %(pin,state)
 			return state
 
 	def dump(self):
