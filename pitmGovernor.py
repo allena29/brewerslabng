@@ -22,7 +22,7 @@ class pitmController:
 
 
 	def __init__(self):
-		self.logging=2		# 1 = syslog, 2 = stderr
+		self.logging=3		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
 		self.lcdDisplay = pitmLCDisplay()
 		self.ledFlasher = pitmLedFlasher()
@@ -74,12 +74,17 @@ class pitmController:
 			except:
 				pass
 		
-
-	def _log(self,msg):
+	def _log(self,msg,importance=1):
 		if self.logging == 1:
-			syslog.syslog(syslog.LOG_DEBUG, msg)
+			if importance > 0:
+				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
-			sys.stderr.write("%s,%s,governor,%s\n" %(time.ctime(),time.time(),msg))
+			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 3:
+			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+			sys.stderr.write("%s\n" %(msg))
+
 
 
 
@@ -122,7 +127,6 @@ class pitmController:
 			controlMessage['_brewlog']=self._brewlog	
 			msg= json.dumps(controlMessage)
 			msg= "%s%s" %(msg," "*(1200-len(msg))) 
-#			print "sendorder", controlMessage
 			
 			sendSocket.sendto( msg ,(self.cfg.mcastGroup,self.cfg.mcastPort))
 
@@ -390,15 +394,13 @@ class pitmController:
 			
 			if activityStillActive and not msgShown:
 				msgShown=True
-				#print "we have activities selected already"
 				self.lcdDisplay.sendMessage("Error:             ",0)
 				self.lcdDisplay.sendMessage("  De-select        ",1)
 				self.lcdDisplay.sendMessage("  activities       ",2)
 				self.lcdDisplay.sendMessage("  first            ",3)
 				self.ledFlasher.sendMessage('lSys','red')
 
-		print "Worsdell Brewing"
-
+		self._log("Worsdell Brewing")
 
 
 		self.lcdDisplay.sendMessage("                   ",0)
@@ -424,7 +426,7 @@ class pitmController:
 			self.checkShutdownRebootButtons()
 			time.sleep(0.3)
 
-		print "after button press"	
+		self._log(" - ready for brewing")
 
 		# Activate Rotary Encoder
 		self.rotary = gpioRotary()
@@ -472,9 +474,6 @@ class pitmController:
 				brewSelected=r
 	
 		while not brewSelected:
-			#print "index",indx,"star",star
-		#	if indx+star < len(recipes):
-		#		print recipes[indx+star]
 			if len(recipes) > indx:
 				if star == 0:
 					self.lcdDisplay.sendMessage("> %s %s" %(recipes[indx]['recipe'],recipes[indx]['brewlog']),1,interruptMessage="  %s" %(recipes[indx]['recipe']) )
@@ -533,7 +532,6 @@ class pitmController:
 						indx=indx+1
 
 					changeBrewScreen=True
-				print "changeBrewScreen"
 
 				self.checkShutdownRebootButtons()
 
@@ -573,8 +571,7 @@ class pitmController:
 			self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
 			self.lcdDisplay.sendMessage("        ----",2)
 		else:	
-			print "Inconsistent state - we don't have brew details"
-
+			self._log("Inconsistent state - we don't have brew details")
 
 
 
@@ -603,7 +600,6 @@ class pitmController:
 					self._log("probe,%s,temp,N/A,invalid result,%s" %(probe,result[probe]['temperature']))
 				self.zoneBprobe=probe
 
-	#	print self.probes
 
 
 
@@ -637,14 +633,10 @@ class pitmController:
 			if cm['_mode'].count("ferm"):
 				self.doMonitoring=True
 
-#		print "Mode:",cm['_mode'],zone,self.doMonitoring
 
 		if cm.has_key("currentResult"):
 			if self.doMonitoring:
-#				if zone == "A":
-#					print cm
 				self.updateResults( cm['currentResult'] ,zone)
-#				print "updateReuslts called"
 
 	def updateStatsZoneA(self):
 		self._log("Starting pitmMonitor Stats Collection for Zone A")
@@ -745,8 +737,7 @@ class pitmController:
 				self.mode="mash/dough"
 				cleanupDisplayRequired=True
 				self.lcdDisplay.sendMessage(" Mash / Dough In Grain",3)	
-
-				print "we wont have HLT support here"
+	
 			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swFerm")) and not os.path.exists("ipc/mash_toggle_type-dough"):
 				#we could just be doing a mash
 				# but not doughing in the grain
@@ -806,7 +797,7 @@ class pitmController:
 
 			elif os.path.exists("ipc/swBoil"):			
 
-				if self.boilStart == 0:
+				if self.boilStart == 0 and not os.path.exists("ipc/boil_getting-ready"):
 					self.boilStart=time.time()
 
 				# we then move onto boil only
@@ -838,7 +829,7 @@ class pitmController:
 				else:
 					self.pump=False
 					self.turnOffExtractorAfter = time.time() + 18
-					print "Setting timer for extractor power off %s" %(time.ctime( self.turnOffExtractorAfter))
+					#print "Setting timer for extractor power off %s" %(time.ctime( self.turnOffExtractorAfter))
 
 
 				time.sleep(1)
@@ -877,7 +868,6 @@ class pitmController:
 					cleanupDisplayRequired=True
 
 				if cleanupDisplayRequired:
-					print "Cleanup Display"
 					cleanupDisplayRequired=False
 					self.lcdDisplay.sendMessage( self._recipe , 0)
 					self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
@@ -914,21 +904,20 @@ class pitmController:
 			if pOk and pLeft:
 				self.pLeft=self.pLeft+1
 				self.okCount=self.okCount+1
-				#print "OK",self.pRight,"UP",self.pLeft
+				print "OK",self.pRight,"UP",self.pLeft
 			elif pOk and pRight:
 				self.okCount=self.okCount+1
 				self.pRight=self.pRight+1
-				#print "OK",self.pRight,"UP",self.pLeft
+				print "OK",self.pRight,"UP",self.pLeft
 			elif pRight:
 				self.pRight=self.pRight+1
-				#print "DOWN",self.pRight,"up",self.pLeft
-
+				print "DOWN",self.pRight,"up",self.pLeft
 			elif pLeft:
 				self.pLeft=self.pLeft+1
-				#print "down",self.pRight,"UP",self.pLeft
+				print "down",self.pRight,"UP",self.pLeft
 			elif pOk:
 				self.okCount=self.okCount+1
-				#print "OK",self.okCount
+				print "OK",self.okCount
 
 
 			if not pRight:
@@ -1064,70 +1053,81 @@ class pitmController:
 		if not self.gpio.input('pLeft') and self.pLeft:
 			self.pLeft=False			
 			if self.mode.count("ferm"):
-				#print "Reducing Fermentation Temperature Aim by 0.2"
 				self.fermLow=self.fermLow -0.2
 				self.fermHigh=self.fermHigh-0.2
 				self.fermTarget=self.fermTarget-0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
+				self._log("Reduced Ferm Temperature Aim by 0.2 %s" %(self.fermTarget))
 			elif self.mode.count("sparge"):
-				#print "Reducing Sparge Temperature Aim by 0.2"
 				self.spargeLow=self.spargeLow -0.2
 				self.spargeHigh=self.spargeHigh-0.2
 				self.spargeTarget=self.spargeTarget-0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.spargeTarget),2)
+				self._log("Reduced Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
 			elif self.mode.count("hlt"):
-				#print "Reducing HLT Temperature Aim by 0.2"
 				self.hltLow=self.hltLow -0.2
 				self.hltHigh=self.hltHigh-0.2
 				self.hltTarget=self.hltTarget-0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
+				self._log("Reduced HLT Temperature Aim by 0.2 %s" %(self.fermTarget))
 			elif self.mode.count("boil"):
-				#print "Reducing Boil Temperature Aim by 0.2"
 				self.boilLow=self.boilLow -0.2
 				self.boilHigh=self.boilHigh-0.2
 				self.boilTarget=self.boilTarget-0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
+				self._log("Reduced Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
 			if self.mode.count("dough"):
 				try:
 					os.remove("ipc/mash_toggle_type-dough")
-					print "removed ipc/mash_toggle_type-dough"
+					self._log("Removed Mash/Dough Toggle")
 				except:
 					pass
 					
+			if self.mode.count("boil"):
+				try:
+					os.remove("ipc/boil_getting-ready")
+					self._log("Removed Boil Getting Ready Flag")
+				except:
+					pass
 
 		if not self.gpio.input('pRight') and self.pRight:
 			self.pRight=False
 			if self.mode.count("ferm"):
-				#print "Increasing Fermentation Temperature Aim by 0.2"
 				self.fermLow=self.fermLow +0.2
 				self.fermHigh=self.fermHigh+0.2
 				self.fermTarget=self.fermTarget+0.2
+				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.fermTarget))
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
 			elif self.mode.count("sparge"):
-				#print "Increasing Sparge Temperature Aim by 0.2"
 				self.spargeLow=self.spargeLow +0.2
 				self.spargeHigh=self.spargeHigh+0.2
 				self.spargeTarget=self.spargeTarget+0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.spargeTarget),2)
+				self._log("Increased Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
 			elif self.mode.count("hlt"):
-				#print "Incrasing HLT Temperature Aim by 0.2"
 				self.hltLow=self.hltLow +0.2
 				self.hltHigh=self.hltHigh+0.2
 				self.hltTarget=self.hltTarget+0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
+				self._log("Increased HLT Temperature Aim by 0.2 %s" %(self.hltTarget))
 			elif self.mode.count("boil"):
-				#print "Increasing Boil Temperature Aim by 0.2"
 				self.boilLow=self.boilLow +0.2
 				self.boilHigh=self.boilHigh+0.2
 				self.boilTarget=self.boilTarget+0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
+				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
 
+			if self.mode.count("boil"):
+				try:
+					os.remove("ipc/boil_getting-ready")
+					self._log("Removed Boil Getting Ready Flag")
+				except:
+					pass
 			if self.mode.count("dough"):
 				try:
 					os.remove("ipc/mash_toggle_type-dough")
-					#print "removed ipc/mash_toggle_type-dough"
+					self._log("Removed Mash/Dough Toggle")
 				except:
 					pass
 

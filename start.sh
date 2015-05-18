@@ -29,6 +29,7 @@ modprobe i2c-dev
 mount -t tmpfs -o size=50m tmpfs /currentdata/
 
 
+touch ipc/boil_getting-ready
 touch ipc/mash_toggle_type-dough
 
 # these should transition to screen type launhces
