@@ -723,8 +723,9 @@ class pitmController:
 				hltDelay=True
 				if os.path.exists("ipc/hlt-delay-until"):
 					hltDelayTime=int(open("ipc/hlt-delay-until").read())
+					
 					self._log("HLT Delayed until %s" %(time.ctime(hltDelayTime)))
-					if time.time() > hltDelay:
+					if time.time() > hltDelayTime:
 						self._log("HLT Delayed has cleared")
 						try:
 							os.unlink("ipc/hlt-delay-until")	
@@ -733,7 +734,9 @@ class pitmController:
 				else:
 					hltDelay=False
 
-					
+				if hltDelay:
+					self.lcdDisplay.sendMessage(" HLT Delay ",3)
+	
 				if not hltDelay:
 					self.htlpower=True
 					self.mode="hlt"	
