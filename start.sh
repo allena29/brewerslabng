@@ -19,6 +19,7 @@ ntpdate -s uk.pool.ntp.org
 
 rm ipc/*
 date >ipc/handshake
+date +%s >ipc/hlt-delay-until
 
 #echo "modprobing gpio 1wire therm"
 #modprobe w1-gpio

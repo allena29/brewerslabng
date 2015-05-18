@@ -23,6 +23,7 @@ class pitmController:
 
 	def __init__(self):
 		self.logging=3		# 1 = syslog, 2 = stderr
+		self.lastLog=["","","","","","","","","","",""]	
 		self.cfg = pitmCfg()
 		self.lcdDisplay = pitmLCDisplay()
 		self.ledFlasher = pitmLedFlasher()
@@ -73,16 +74,18 @@ class pitmController:
 				os.unlink("ipc/%s" %(x))
 			except:
 				pass
+	
 		
-	def _log(self,msg,importance=1):
+	def _log(self,msg,importance=10):
 		if self.logging == 1:
-			if importance > 0:
+			if importance > 9:
 				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
 			sys.stderr.write("%s\n" %(msg))
 		elif self.logging == 3:
-			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+			if (importance > 9) or (  (("%s" %(time.time())).split(".")[0][-3:] == "000") or (not self.lastLog[importance] == msg)):
 				syslog.syslog(syslog.LOG_DEBUG, msg)
+				self.lastLog[importance]=msg
 			sys.stderr.write("%s\n" %(msg))
 
 
@@ -576,28 +579,25 @@ class pitmController:
 
 
 	def updateResults(self,result,zone="A"):
+		# NOt sure this is really used anywhere
 		for probe in result:
 			if zone == "A":
 				if result[probe]['valid'] :
-					if  result[probe]['timestamp'] <= self.zoneAtempTimestamp:
-						self._log("probe,%s,temp,N/A,status,not using temp result as it has been used before" %(probe))
-					else:
-						self._log("probe,%s,temp%s,,using temperature result - %s seconds old" %(probe,result[probe]['temperature'], time.time()-result[probe]['timestamp']))
+					if  not result[probe]['timestamp'] <= self.zoneAtempTimestamp:
+					#	self._log("probe,%s,temp%s,,using temperature result - %s seconds old" %(probe,result[probe]['temperature'], time.time()-result[probe]['timestamp']))
 						self.zoneAtempTimestamp = result[probe]['timestamp']
 						self.zoneAtemp = result[probe]['temperature'] 
-				else:
-					self._log("probe,%s,temp,N/A,invalid result,%s" %(probe,result[probe]['temperature']))
+#				else:
+#					self._log("probe,%s,temp,N/A,invalid result,%s" %(probe,result[probe]['temperature']))
 				self.zoneAprobe=probe
 			if zone == "B":
 				if result[probe]['valid'] :
-					if  result[probe]['timestamp'] <= self.zoneBtempTimestamp:
-						self._log("probe,%s,temp,N/A,status,not using temp result as it has been used before" %(probe))
-					else:
-						self._log("probe,%s,temp%s,,using temperature result - %s seconds old" %(probe,result[probe]['temperature'], time.time()-result[probe]['timestamp']))
+					if not result[probe]['timestamp'] <= self.zoneBtempTimestamp:
+						#self._log("probe,%s,temp%s,,using temperature result - %s seconds old" %(probe,result[probe]['temperature'], time.time()-result[probe]['timestamp']))
 						self.zoneBtempTimestamp = result[probe]['timestamp']
 						self.zoneBtemp= result[probe]['temperature'] 
-				else:
-					self._log("probe,%s,temp,N/A,invalid result,%s" %(probe,result[probe]['temperature']))
+#				else:
+#					self._log("probe,%s,temp,N/A,invalid result,%s" %(probe,result[probe]['temperature']))
 				self.zoneBprobe=probe
 
 
@@ -719,11 +719,27 @@ class pitmController:
 				self.pump=False
 				self.extractor=False
 				# we are heating the HLT, this will be for mash water
-				self.htlpower=True
-				self.mode="hlt"	
-				cleanupDisplayRequired=True
 
-				self.lcdDisplay.sendMessage(" Heat Mash Water",3)
+				hltDelay=True
+				if os.path.exists("ipc/hlt-delay-until"):
+					hltDelayTime=int(open("ipc/hlt-delay-until").read())
+					self._log("HLT Delayed until %s" %(time.ctime(hltDelayTime)))
+					if time.time() > hltDelay:
+						self._log("HLT Delayed has cleared")
+						try:
+							os.unlink("ipc/hlt-delay-until")	
+						except:
+							pass
+				else:
+					hltDelay=False
+
+					
+				if not hltDelay:
+					self.htlpower=True
+					self.mode="hlt"	
+					cleanupDisplayRequired=True
+
+					self.lcdDisplay.sendMessage(" Heat Mash Water",3)
 
 
 				time.sleep(1)
@@ -829,7 +845,6 @@ class pitmController:
 				else:
 					self.pump=False
 					self.turnOffExtractorAfter = time.time() + 18
-					#print "Setting timer for extractor power off %s" %(time.ctime( self.turnOffExtractorAfter))
 
 
 				time.sleep(1)

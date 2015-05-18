@@ -20,6 +20,7 @@ date >/tmp/master_bootup
 touch simulator
 rm -fr ipc/*
 date >ipc/handshake
+date +%s >ipc/hlt-delay-until
 
 touch ipc/boil_getting-ready
 touch ipc/mash_toggle_type-dough
