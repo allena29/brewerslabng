@@ -225,7 +225,7 @@ class pitmSsrRelay:
 					
 					
 					# load requiired
-					self._log("HLT: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget))
+					self._log("HLT: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget),importance=2)
 #					print "Load Required ",loadRequired,self.zoneTemp,self.zoneTarget,self.zoneToggleCount
 #					print " ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
 #					print " ZONE B", "-----",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
@@ -318,7 +318,7 @@ class pitmSsrRelay:
 						loadRequired=0.85
 					
 					# load required
-					self._log("BOIL: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget))
+					self._log("BOIL: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget),importance=2)
 #					print "BOIL:Load Required ",loadRequired,self.zoneTemp,self.zoneTarget,self.zoneToggleCount
 #					print "BOIL: ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
 #					print "BOIL: ZONE B",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
