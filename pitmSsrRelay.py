@@ -24,7 +24,8 @@ class pitmSsrRelay:
 
 
 	def __init__(self):
-		self.logging=2		# 1 = syslog, 2 = stderr, 3 = both
+		self.logging=3		# 1 = syslog, 2 = stderr
+		self.lastLog=["","","","","","","","","","",""]	
 		if not os.path.exists("simulator"):
 			self.logging=3
 			syslog.openlog( facility=syslog.LOG_LOCAL7)
@@ -95,11 +96,18 @@ class pitmSsrRelay:
 	#	self.gpio.output('tSsrFan',0)	
 
 	
-	def _log(self,msg):
-		if self.logging == 1 or self.logging==3:
-			syslog.syslog(syslog.LOG_DEBUG, msg)
-		elif self.logging == 2 or self.logging==3:
+	def _log(self,msg,importance=10):
+		if self.logging == 1:
+			if importance > 9:
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+		elif self.logging == 2:
 			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 3:
+			if (importance > 9) or (  (("%s" %(time.time())).split(".")[0][-3:] == "000") or (not self.lastLog[importance] == msg)):
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+				self.lastLog[importance]=msg
+			sys.stderr.write("%s\n" %(msg))
+
 
 			
 	def _err(self,msg):
@@ -154,7 +162,7 @@ class pitmSsrRelay:
 			# HLT (mash water) heating processing
 			#
 			if self.hltActive and not cm['_mode'].count("hlt"):
-				print "HLT Reset"
+				self._log("HLT Reset")
 				if not os.path.exists("simulator"):
 					self.lcdDisplay.sendMessage("No target/zone temp A",3,importance=-8)		# this resets the message
 				self.hltActive=False
@@ -164,9 +172,9 @@ class pitmSsrRelay:
 #				self.gpio.output('zoneBuse',0)
 
 			if cm['_mode'].count("hlt") and not self.hltActive and not cm['_mode'] == "idle":
-				print "HLT init"
-
-				print "HLT zone A/zoneB = 1"
+				self._log("HLT Init")
+				self._log(" - setting zoneA power on to HLT mode")
+				self._log(" - setting zoneB power on to HLT mode")
 				self.gpio.output('zoneA',1)
 				self.gpio.output('zoneB',1)
 				self.gpio.output('zoneAuse',0)
@@ -199,7 +207,7 @@ class pitmSsrRelay:
 
 			if spargeOrHlt:
 				if self.zoneTemp == -1 or self.zoneTarget == -1:
-					print "no target/tmep - spargeOrHlt"
+					self._log("no target temp - sparge/hlt")
 					if not os.path.exists("simulator"):
 						self.lcdDisplay.sendMessage("No target/zone temp A",3,importance=8)
 					time.sleep(3)
@@ -216,21 +224,21 @@ class pitmSsrRelay:
 						loadRequired=0.85
 					
 					
-					# load required
-					print "Load Required ",loadRequired,self.zoneTemp,self.zoneTarget,self.zoneToggleCount
-					print " ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
-					print " ZONE B", "-----",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
+					# load requiired
+					self._log("HLT: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget))
+#					print "Load Required ",loadRequired,self.zoneTemp,self.zoneTarget,self.zoneToggleCount
+#					print " ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
+#					print " ZONE B", "-----",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
 
 					if self.zoneToggleCount > 33:
-						print "ZONETOGGLECOUNT > Threshold"
 						self.zoneToggleCount=0
 						if self.useZoneA:
-							print "Switching HLT from A to B"
+							self._log("HLT: switching from A to B")
 							self.useZoneA=False
 							self.zoneAduty=0
 							self.zoneBduty=loadRequired
 						else:
-							print "Switching HLT from B to A"
+							self._log("HLT: switching from B to A")
 							self.useZoneA=True
 							self.zoneBduty=0
 							self.zoneAduty=loadRequired
@@ -258,14 +266,15 @@ class pitmSsrRelay:
 			# BOIL heating processing
 			#
 			if self.boilActive and not cm['_mode'].count("boil"):
-				print "BOIL  Reset"
+				self._log("BOIL Reset")
 				if not os.path.exists("simulator"):
 					self.lcdDisplay.sendMessage("No target/zone temp A",3,importance=-8)		# this resets the message
 				self.boilActive=False
 
 			if cm['_mode'].count("boil") and not self.boilActive and not cm['_mode'] == "idle":
-				print "BOIL init"
-				print "BOIL zone A/zoneB = 1"
+				self._log("BOIL Init")
+				self._log(" - setting zoneA power on to BOIL mode")
+				self._log(" - setting zoneB power on to BOIL mode")
 
 				self.gpio.output('zoneA',1)
 				self.gpio.output('zoneB',1)
@@ -291,7 +300,7 @@ class pitmSsrRelay:
 
 
 				if self.zoneTemp == -1 or self.zoneTarget == -1:
-					print "no target/tmep boil", self.zoneTemp,self.zoneTarget
+					self._log("boil: no target/temp")
 					if not os.path.exists("simulator"):
 						self.lcdDisplay.sendMessage("No target/zone temp A",3,importance=8)
 					time.sleep(3)
@@ -309,6 +318,7 @@ class pitmSsrRelay:
 						loadRequired=0.85
 					
 					# load required
+					self._log("BOIL: load required %s %.1f %.1f " %(loadRequired,self.zoneTemp,self.zoneTarget))
 #					print "BOIL:Load Required ",loadRequired,self.zoneTemp,self.zoneTarget,self.zoneToggleCount
 #					print "BOIL: ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
 #					print "BOIL: ZONE B",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
@@ -320,22 +330,20 @@ class pitmSsrRelay:
 						self.singleZone=False
 						self.zoneAduty=loadRequired
 						self.zoneBduty=loadRequired
-						print "BOIL: Not near our target temp yet using both elements"
 					else:
-						print "BOIL: close,sosingleelement"
 						self.singleZone=True
 					
 					if self.singleZone:	
 						if self.zoneToggleCount > 33:
 							if self.useZoneA:
-								print "Switching BOIL from A to B"
+								self._log("BOIL: switching from A to B")
 								self.useZoneA=False
 								self.useZoneB=True
 								self.zoneAduty=0
 								self.zoneBduty=loadRequired
 								self.ssrA=False
 							else:
-								print "Switching BOIl from B to A"
+								self._log("BOIL: switching from B to A")
 								self.useZoneB=False
 								self.useZoneA=True
 								self.zoneBduty=0
@@ -385,7 +393,6 @@ class pitmSsrRelay:
 			checksum = cm['_checksum']
 			cm['_checksum'] ="                                        "
 			ourChecksum = hashlib.sha1("%s%s" %(cm,self.cfg.checksum)).hexdigest()
-#			print cm['currentResult'],self.cfg.hltProbe
 			if cm['currentResult'].has_key( self.cfg.hltProbe ) and self.hltActive:
 				if cm['currentResult'][self.cfg.hltProbe]['valid']:
 					self.zoneTemp = float( cm['currentResult'][self.cfg.hltProbe]['temperature'])
@@ -405,7 +412,7 @@ class pitmSsrRelay:
 
 	
 	def zoneBssrThread(self):
-		print "zone B ssr thread active"
+		self._log("Zone B SSR Thread active")
 		while True:
 			if not self.hltActive and not self.boilActive:
 				self.gpio.output('ssrZoneB',0)
@@ -457,7 +464,7 @@ class pitmSsrRelay:
 
 	
 	def zoneAssrThread(self):
-		print "zone A ssr thread active"
+		self._log("Zone A SSR Thread active")
 		while True:
 			if not self.hltActive and not self.boilActive:
 				self.gpio.output('ssrZoneA',0)

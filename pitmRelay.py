@@ -23,6 +23,7 @@ class pitmRelay:
 
 	def __init__(self):
 		self.logging=3		# 1 = syslog, 2 = stderr
+		self.lastLog=["","","","","","","","","","",""]	
 		self.cfg = pitmCfg()
 		self.gpio = gpiotools()
 		self.lcdDisplay=pitmLCDisplay()
@@ -91,15 +92,16 @@ class pitmRelay:
 		self.gpio.output('tSsrFan',0)	
 
 	
-	def _log(self,msg,importance=1):
+	def _log(self,msg,importance=10):
 		if self.logging == 1:
-			if importance > 0:
+			if importance > 9:
 				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
 			sys.stderr.write("%s\n" %(msg))
 		elif self.logging == 3:
-			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+			if (importance > 9) or (  (("%s" %(time.time())).split(".")[0][-3:] == "000") or (not self.lastLog[importance] == msg)):
 				syslog.syslog(syslog.LOG_DEBUG, msg)
+				self.lastLog[importance]=msg
 			sys.stderr.write("%s\n" %(msg))
 
 			
@@ -170,7 +172,7 @@ class pitmRelay:
 				#zoneTarget when we need to stop cooling/heating
 				(self_zoneUpTarget,self_zoneDownTarget,self_zoneTarget) = cm['tempTargetFerm']
 				if self_zoneUpTarget < 5 or self_zoneDownTarget <5  or self_zoneTarget < 5:
-					self._log("Temp Target is invalid %s" %(cm['tempTargetFerm']))
+					self._log("Temp Target is invalid %s" %(cm['tempTargetFerm']),importance=2)
 				else:
 					(self.zoneUpTarget,self.zoneDownTarget,self.zoneTarget) = cm['tempTargetFerm']
 			
