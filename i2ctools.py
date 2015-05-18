@@ -1,6 +1,7 @@
 import os
 import time
-import smbus
+if not os.path.exists("simulator"):
+	import smbus
 import sys
 
 class i2ctools:
@@ -57,7 +58,7 @@ The pattern we were following from:
 			self.bankbVal=0x00
 
 		if os.path.exists("simulator"):
-			o=open("tmpfs/fakei2c_%s" %(self.address),"w")
+			o=open("ipc/fakei2c_%s" %(self.address),"w")
 			o.write("%s;%s;" %(self.bankaVal,self.bankbVal))
 			o.close()
 			return
@@ -111,7 +112,7 @@ The pattern we were following from:
 			bankb=0x00
 
 		if os.path.exists("simulator"):
-			o=open("tmpfs/fakei2c_%s" %(self.address),"w")
+			o=open("ipc/fakei2c_%s" %(self.address),"w")
 			o.write("%s;%s;" %(banka,bankb))
 			o.close()
 			return
@@ -180,7 +181,7 @@ The pattern we were following from:
 				self.bankbVal=value
 
 			if os.path.exists("simulator"):
-				o=open("tmpfs/fakei2c_%s" %(self.address),"w")
+				o=open("ipc/fakei2c_%s" %(self.address),"w")
 				o.write("%s;%s;" %(self.bankaVal,self.bankbVal))
 				o.close()
 				return
