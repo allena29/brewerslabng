@@ -15,6 +15,7 @@ class gpiotools:
 
 	def __init__(self):
 		self.logging=3
+		self.lastLog=["","","","","","","","","","",""]	
 
 
 		GPIO.setmode(GPIO.BOARD)
@@ -71,15 +72,16 @@ class gpiotools:
 		}
 
 
-	def _log(self,msg,importance=1):
+	def _log(self,msg,importance=10):
 		if self.logging == 1:
-			if importance > 0:
+			if importance > 9:
 				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
 			sys.stderr.write("%s\n" %(msg))
 		elif self.logging == 3:
-			if importance > 0 or ("%s" %(time.time())).split(".")[0][-3:] == "000":
+			if (importance > 9) or (  (("%s" %(time.time())).split(".")[0][-3:] == "000") or (not self.lastLog == msg)):
 				syslog.syslog(syslog.LOG_DEBUG, msg)
+				self.lastLog[importance]=msg
 			sys.stderr.write("%s\n" %(msg))
 
 
@@ -118,7 +120,7 @@ class gpiotools:
 					state=1
 			GPIO.output( self.PINS[pin]['pin'],state)
 			self.PINS[pin]['state']=state
-			self._log("gpio.output %s %s" %(pin,state))
+#			self._log("gpio.output %s %s" %(pin,state),importance=0)
 	
 	def input(self,pin):
 		if not self.PINS.has_key(pin):
@@ -140,7 +142,7 @@ class gpiotools:
 				else:
 					return True
 
-			self._log("gpio.input %s %s" %(pin,state))
+#			self._log("gpio.input %s %s" %(pin,state),importance=1)
 			return state
 
 	def dump(self):
