@@ -24,7 +24,7 @@ date >ipc/handshake
 touch ipc/boil_getting-ready
 touch ipc/mash_toggle_type-dough
 
-screen -dmS fakebutton python localweb/localserve.py
+screen -dmS localweb python localweb/localserve.py
 screen -dmS fakeheat python fakeheat.py
 
 
