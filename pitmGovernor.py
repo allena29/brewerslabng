@@ -711,7 +711,7 @@ class pitmController:
 				extractor=self.turnOffExtractorAfter
 			else:
 				extractor=False
-			self._log("mode, %s pwrhlt, %s pwrboil, %s, extractor, %s, pump, %s, fermheat, %s, fermfridge, %s " %(self.mode, self.hltpower, self.boilpower, extractor, self.pump,self.fermheat,self.fermfridge))
+			self._log("mode, %s pwrhlt, %s pwrboil, %s, extractor, %s, pump, %s, fermheat, %s, fermfridge, %s " %(self.mode, self.hltpower, self.boilpower, extractor, self.pump,self.fermheat,self.fermfridge),importance=8)
 
 			# Toggling the modes
 			if os.path.exists("ipc/swHlt") or os.path.exists("ipc/manual_swHlt"):
