@@ -829,17 +829,20 @@ class pitmController:
 					self.mode="boil/pump" 
 					self.lcdDisplay.sendMessage(" Boil/Pump Wort",3)
 				else:
-					if self.showActivityOrTime > 3:
-						MINUTES="%02d" %( self.boilDuration  /60)
-						SECONDS="%02d" %( self.boilDuration -(int(MINUTES)*60))
-						duration="%sm%ss" %(MINUTES,SECONDS)
-						MINUTES="%02d" %( (time.time()-self.boilStart  )/60)
-						SECONDS="%02d" %( (time.time()-self.boilStart ) -(int(MINUTES)*60))
-						elapsed="%sm%ss" %(MINUTES,SECONDS)
-					
-						self.lcdDisplay.sendMessage(" Boil %s/%s" %(elapsed,duration),3)
+					if os.path.exists("ipc/boil_getting-ready"):
+						self.lcdDisplay.sendMessage(" Bringing to Boil",3)
 					else:
-						self.lcdDisplay.sendMessage(" Boil The Wort",3)
+						if self.showActivityOrTime > 3:
+							MINUTES="%02d" %( self.boilDuration  /60)
+							SECONDS="%02d" %( self.boilDuration -(int(MINUTES)*60))
+							duration="%sm%ss" %(MINUTES,SECONDS)
+							MINUTES="%02d" %( (time.time()-self.boilStart  )/60)
+							SECONDS="%02d" %( (time.time()-self.boilStart ) -(int(MINUTES)*60))
+							elapsed="%sm%ss" %(MINUTES,SECONDS)
+						
+							self.lcdDisplay.sendMessage(" Boil %s/%s" %(elapsed,duration),3)
+						else:
+							self.lcdDisplay.sendMessage(" Boiling The Wort",3)
 				self.extractor=True
 				cleanupDisplayRequired=True
 				
