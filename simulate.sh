@@ -1,6 +1,7 @@
 #!/bin/sh
-cd /home/allena29/piTempMonitor/master/
+cd /home/beer/brewerslab/master/
 
+mkdir ipc 2>/dev/null
 
 #mount -t tmpfs -o size=50m tmpfs ipc
 mount | grep ipc | grep tmpfs &>/dev/null
@@ -17,7 +18,7 @@ sh killsimulate.sh
 date >/tmp/master_bootup
 
 touch simulator
-rm ipc/*
+rm -fr ipc/*
 date >ipc/handshake
 
 touch ipc/boil_getting-ready
@@ -39,7 +40,8 @@ sh button.sh "simulate"
 ################### slave
 
 date >/tmp/slave_bootup
-cd /home/allena29/piTempMonitor/slave
+cd  ../slave
+ln -s ../master/ipc 2>/dev/null
 touch simulator
 mkdir "ipc/fake1wire" 2>/dev/null
 mkdir "ipc/fake1wire/28-000003ebc866" 2>/dev/null
@@ -48,7 +50,7 @@ echo "91 01 4b 46 7f ff 0f 10 25 : t=11000" >>ipc/fake1wire/28-000003ebc866/w1_s
 mkdir "ipc/fake1wire/28-000003eba86a" 2>/dev/null
 echo "91 01 4b 46 7f ff 0f 10 25 : crc=25 YES" >ipc/fake1wire/28-000003eba86a/w1_slave
 echo "91 01 4b 46 7f ff 0f 10 25 : t=67000" >>ipc/fake1wire/28-000003eba86a/w1_slave
-mkdir "ipc/fake1wire/28-000003ebccea" r>/dev/null
+mkdir "ipc/fake1wire/28-000003ebccea" 2>/dev/null
 echo "91 01 4b 46 7f ff 0f 10 25 : crc=25 YES" >ipc/fake1wire/28-000003ebccea/w1_slave
 echo "91 01 4b 46 7f ff 0f 10 25 : t=67000" >>ipc/fake1wire/28-000003ebccea/w1_slave
 mkdir "ipc/fake1wire/28-0000044dcda4" 2>/dev/null
