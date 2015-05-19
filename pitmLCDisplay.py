@@ -33,7 +33,8 @@ class pitmLCDisplay:
 
 
 	def __init__(self,rpi=True):
-		self.logging=1		# 1 = syslog, 2 = stderr
+		self.logging=4		# 1 = syslog, 2 = stderr, 3 = supress repeat messages, 4 = every 100 seconds
+		self.lastLog=["","","","","","","","","","",""]	
 		self.cfg = pitmCfg()
 		self.mcastMembership=False
 		self._log("pitmLCDispaly")
@@ -43,12 +44,6 @@ class pitmLCDisplay:
 		self.lastLine0=None
 		self.lastLine1=None
 
-	# this cannot be used in client mode
-	# it was only used for the candy machine
-#		self.rebroadcastThread = threading.Thread(target=self.rebroadcast)
-#		self.rebroadcastThread.daemon = True
-#		self.rebroadcastThread.start()
-	
 
 	def __del__(self):
 		if self.mcastMembership:
@@ -56,11 +51,22 @@ class pitmLCDisplay:
 			self.sock.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP, socket.inet_aton(self.cfg.mcastGroup) + socket.inet_aton('0.0.0.0'))
 			self.mcastMembership=False
 			
-	def _log(self,msg):
+	def _log(self,msg,importance=10):
 		if self.logging == 1:
-			syslog.syslog(syslog.LOG_DEBUG, msg)
+			if importance > 9:
+				syslog.syslog(syslog.LOG_DEBUG, msg)
 		elif self.logging == 2:
 			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 3:
+			if (importance > 9) or  (not self.lastLog[importance] == msg):
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+			sys.stderr.write("%s\n" %(msg))
+		elif self.logging == 4:
+			if (importance > 9) or  (("%s" %(time.time())).split(".")[0][-3:] == "000") :
+				syslog.syslog(syslog.LOG_DEBUG, msg)
+				self.lastLog[importance]=msg
+			sys.stderr.write("%s\n" %(msg))
+
 
 			
 	def _err(self,msg):
@@ -95,14 +101,8 @@ class pitmLCDisplay:
 
 		while True:
 			(data, addr) = self.sock.recvfrom(1200)
-#			data=self.sock.recv(4096)
 			self.decodeMessage(data)	
-
-#			if gpio2.input('pOk') or gpio2.input('pLeft') or gpio2.input('pRight'):
-#				print "Redraw the screen as something could be corrupt"
-
 			time.sleep(0.2)
-			#self._log("Error decoding message\n%s" %(data))
 				
 	
 
@@ -122,7 +122,6 @@ class pitmLCDisplay:
 		"""
 		"""
 	
-		self._log("in decodeMessage");
 		try:
 			cm = json.loads( data )
 		except:
@@ -132,8 +131,6 @@ class pitmLCDisplay:
 		checksum = cm['_checksum']
 		cm['_checksum'] ="                                        "
 		ourChecksum = hashlib.sha1("%s%s" %(cm,self.cfg.checksum)).hexdigest()
-		self._log("Their checksum %s" %(checksum))
-		self._log("Our checksum %s" %(ourChecksum))
 		if not cm.has_key("selfGenerated"):	cm['selfGenerated'] = False
 		if not cm.has_key("autoBlank"):	cm['autoBlank'] = 0
 		if not cm.has_key("doNotScrollToStart"):	cm['doNotScrollToStart']=1
@@ -150,9 +147,9 @@ class pitmLCDisplay:
 		if cm['selfGenerated']:
 			self._log(" Filtering out self generated message")
 		else:
-			self._log(" Text: %s\n Line: %s\n autoBlank: %s\n doNotScrollToStart: %s\n alignCenter: %s\n autoWait %s\n cropText %s" %(cm['text'],cm['line'],cm['autoBlank'],cm['doNotScrollToStart'],cm['alignCenter'],cm['autoWait'],cm['cropText']))
+			#self._log(" Text: %s\n Line: %s\n autoBlank: %s\n doNotScrollToStart: %s\n alignCenter: %s\n autoWait %s\n cropText %s" %(cm['text'],cm['line'],cm['autoBlank'],cm['doNotScrollToStart'],cm['alignCenter'],cm['autoWait'],cm['cropText']))
+			self._log(" Text: %s  Line: %s" %(cm['text'],cm['line']),importance=1)
 			
-			self.lcd.scrollText( cm['text'], cm['line'], cm['autoBlank'], cm['doNotScrollToStart'],cm['alignCenter'],cm['autoWait'],cm['cropText'],cm['alert'],importance=cm['importance'],onInterruptMessage=cm['interruptMessage'])
 
 
 
