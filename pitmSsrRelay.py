@@ -342,6 +342,7 @@ class pitmSsrRelay:
 								self.zoneAduty=0
 								self.zoneBduty=loadRequired
 								self.ssrA=False
+								self.zoneToggleCount=0
 							else:
 								self._log("BOIL: switching from B to A")
 								self.useZoneB=False
@@ -349,6 +350,7 @@ class pitmSsrRelay:
 								self.zoneBduty=0
 								self.zoneAduty=loadRequired
 								self.ssrB=False
+								self.zoneToggleCount=0
 
 						else:
 							if self.useZoneA:
