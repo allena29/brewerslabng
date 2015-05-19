@@ -29,8 +29,13 @@ if not form.has_key("recipeName"):
 elif form.has_key("recipeName") and not form.has_key("brewlog"):
 	theme.goBackHome="brewerslab.py?recipeName=%s" %(form['recipeName'].value)
 	theme.bodytitle=" "
-	grid['0000_newBrewlog'] = {'url2' : 'createBrewlog.py?recipeName=%s' %(form['recipeName'].value),'text':'{ New Brewday }'}
-	grid['0000_editRecipe'] = {'url2' : 'editRecipe.py?recipeName=%s' %(form['recipeName'].value),'text':'{ Edit Recipe }'}
+	if theme.localUser:
+		grid['0000_newBrewlog'] = {'url2' : 'createBrewlog.py?recipeName=%s' %(form['recipeName'].value),'text':'{ New Brewday }'}
+
+	if theme.localUser:
+		grid['0000_editRecipe'] = {'url2' : 'editRecipe.py?recipeName=%s' %(form['recipeName'].value),'text':'{ Edit Recipe }'}
+	else:
+		grid['0000_editRecipe'] = {'url2' : 'editRecipe.py?recipeName=%s&export=1' %(form['recipeName'].value),'text':'{ View Recipe }'}
 
 	cursor=db.query("select recipe,brewlog from gBrewlogs WHERE recipe ='%s' ORDER BY brewlog" %(form['recipeName'].value))
 	result=db.use_result()

@@ -28,70 +28,71 @@ colWidth=100
 if export:
 	colWidth=10
 theme.presentBody()
-print """
-<input type=hidden id='outstandingSig' value='-1'>
 
-<script language="Javascript">
-function addItem(itemType) {
-showdeadcenterdiv(100,30,"spinner",200,50);
-document.getElementById('spinnerText').innerHTML="updating";
-d = new Date();
-document.getElementById('outstandingSig').value=d.getTime();
-document.getElementById('spinner').style.visibility="visible";
-document.getElementById('spinner').style.height="100%%";
-url="editIngredient.py?recipe=%s&action=add&type="+itemType+"&ingredient="+document.getElementById(itemType+'Item').value+"&qty="+document.getElementById(itemType+'Qty').value+"&hopAddAt="+document.getElementById('hopAddAt').value+"&outstandingSig="+document.getElementById('outstandingSig').value;
-window.location.replace(url);
-}
-
-
-function recalculate(){
-showdeadcenterdiv(100,30,"spinner",200,50);
-document.getElementById('spinnerText').innerHTML="recalculating"
-document.getElementById('spinner').style.visibility="visible";
-document.getElementById('spinner').style.height="100%%";
-xmlREQ(reloadAfterAjax,"ajaxRecalculate.py?recipe=%s");
-
-}
-
-
-function adjustBatchSize(){
-url="editIngredient.py?recipe=%s&type=null&action=changeBatchSize&batchsize="+document.getElementById('batchsize').value;
-window.location.replace(url);
-}
-
-function updateqty(itemtype,i,item,hopAddAt){
-showdeadcenterdiv(100,30,"spinner",200,50);
-d = new Date();
-document.getElementById('outstandingSig').value=d.getTime();
-document.getElementById('spinnerText').innerHTML="updating";
-document.getElementById('spinner').style.visibility="visible";
-document.getElementById('spinner').style.height="100%%";
-qty=document.getElementById(itemtype+"Qty"+i).value;
-url="editIngredient.py?recipe=%s&action=changeqty&type="+itemtype+"&ingredient="+item+"&qty="+qty+"&hopAddAt="+hopAddAt+"&outstandingSig="+document.getElementById('outstandingSig').value;
-window.location.replace(url);
-}
-
-function editqty(itemtype,i,j,k,l){
-	html="<select id='"+itemtype+"Qty"+i+"'>"
-	for(c=0;c<=750;c++){
-		if(itemtype == "fermentables"){
-			C=c*10;
-		}else{
-			C=c;
-		}
-		if(C==j){
-		html=html+"<option value="+C+" SELECTED>"+C+" gm</option>"
-		}else{
-		html=html+"<option value="+C+">"+C+" gm</option>"
-		}
+if theme.localUser:
+	print """
+	<input type=hidden id='outstandingSig' value='-1'>
+	<script language="Javascript">
+	function addItem(itemType) {
+	showdeadcenterdiv(100,30,"spinner",200,50);
+	document.getElementById('spinnerText').innerHTML="updating";
+	d = new Date();
+	document.getElementById('outstandingSig').value=d.getTime();
+	document.getElementById('spinner').style.visibility="visible";
+	document.getElementById('spinner').style.height="100%%";
+	url="editIngredient.py?recipe=%s&action=add&type="+itemType+"&ingredient="+document.getElementById(itemType+'Item').value+"&qty="+document.getElementById(itemType+'Qty').value+"&hopAddAt="+document.getElementById('hopAddAt').value+"&outstandingSig="+document.getElementById('outstandingSig').value;
+	window.location.replace(url);
 	}
-	html=html+'</select> <a href="';
-	html=html+"javascript:updateqty('"+itemtype+"','"+i+"','"+k+"',"+l+")";
-	html=html+'"><i class="icon-checkmark fg-blue"></i></a>';
-	document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
-}
-</script>
-""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+
+
+	function recalculate(){
+	showdeadcenterdiv(100,30,"spinner",200,50);
+	document.getElementById('spinnerText').innerHTML="recalculating"
+	document.getElementById('spinner').style.visibility="visible";
+	document.getElementById('spinner').style.height="100%%";
+	xmlREQ(reloadAfterAjax,"ajaxRecalculate.py?recipe=%s");
+
+	}
+
+
+	function adjustBatchSize(){
+	url="editIngredient.py?recipe=%s&type=null&action=changeBatchSize&batchsize="+document.getElementById('batchsize').value;
+	window.location.replace(url);
+	}
+
+	function updateqty(itemtype,i,item,hopAddAt){
+	showdeadcenterdiv(100,30,"spinner",200,50);
+	d = new Date();
+	document.getElementById('outstandingSig').value=d.getTime();
+	document.getElementById('spinnerText').innerHTML="updating";
+	document.getElementById('spinner').style.visibility="visible";
+	document.getElementById('spinner').style.height="100%%";
+	qty=document.getElementById(itemtype+"Qty"+i).value;
+	url="editIngredient.py?recipe=%s&action=changeqty&type="+itemtype+"&ingredient="+item+"&qty="+qty+"&hopAddAt="+hopAddAt+"&outstandingSig="+document.getElementById('outstandingSig').value;
+	window.location.replace(url);
+	}
+
+	function editqty(itemtype,i,j,k,l){
+		html="<select id='"+itemtype+"Qty"+i+"'>"
+		for(c=0;c<=750;c++){
+			if(itemtype == "fermentables"){
+				C=c*10;
+			}else{
+				C=c;
+			}
+			if(C==j){
+			html=html+"<option value="+C+" SELECTED>"+C+" gm</option>"
+			}else{
+			html=html+"<option value="+C+">"+C+" gm</option>"
+			}
+		}
+		html=html+'</select> <a href="';
+		html=html+"javascript:updateqty('"+itemtype+"','"+i+"','"+k+"',"+l+")";
+		html=html+'"><i class="icon-checkmark fg-blue"></i></a>';
+		document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
+	}
+	</script>
+	""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 cursor=con.cursor()
@@ -117,9 +118,15 @@ if not export:
 			<form method='POST' action='cgiUpdateDescription.py'>	
 				<input type='hidden' value='%s' name='recipeName'>
 				<textarea rows=4 cols=80 name="description">%s</textarea><br>
+		""" %(form['recipeName'].value,description)
+	
+	if theme.localUser:
+		print """
 				<input type='submit' value='update description'>
+		"""
+	print """
 			</form>
-	 """ %(form['recipeName'].value, description)
+	 """
 
 if export:
 	print description
@@ -148,7 +155,7 @@ if not export:
                     </div>
 """
 
-if not export:
+if not export and theme.localUser:
 	print """
                     <div class="span4">
                         <div class="panel" data-role="panel">
@@ -222,7 +229,7 @@ row=result.fetch_row()
 #result=db.use_result()
 #row=result.fetch_row()
 #
-if not export:
+if not export and theme.localUser:
 	print "<b>Batch Size:</b> <select id='batchsize'>"
 	
 	for c in range(45):
@@ -235,7 +242,7 @@ if not export:
 	print "</select>"
 	print """<a href='javascript:adjustBatchSize()'><i class="icon-checkmark fg-blue"></i></a>""";
 	print "<BR>"
-if export:
+else:
 	print "<b>Batch Size:</b> %.1f L<BR>" %(float(batchsize))
 
 print """
@@ -290,7 +297,7 @@ print """
 """ %(activeFermentables,colWidth)
 
 itemType='fermentables'
-if not export:
+if not export and theme.localUser:
 	print """
 	<tr><td><a href="javascript:addItem('%s')"><i class='icon-plus fg-green'></i></a></td>
 	<td><select id='%sQty'>""" %(itemType,itemType)
@@ -396,7 +403,7 @@ print """
 """ %(activeHops,colWidth)
 
 sumIbu=0
-if not export:
+if not export and theme.localUser:
 
 	hop_values=[0.009,0.001,5,15,60,20.222]
 	hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.001:'Flameout (0min)',0.009:'Dryhop',20.222:'First Wort Hop' }
@@ -438,7 +445,7 @@ def hops(hopAddAtA,hopAddAtB):
 	for row in cursor:
 		(recipe,ingredient,qty,hopAddAt,unit)=row
 		row=result.fetch_row()
-		if export:
+		if export or not theme.localUser:
 			print "<tr><td>&nbsp;</td>"
 			print "<td>%.0f %s</a></td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
 		else:
@@ -571,7 +578,7 @@ print """
 
 
 
-if not export:
+if not export and theme.localUser:
 	print """ 
 	    <div class="accordion-frame">
 			<a href="#" class="%sheading">Calclog</a>
@@ -624,7 +631,7 @@ print """
 """
 
 
-if not export:
+if not export and theme.localUser:
 	print "</div>"
 	print """
 	<a href="?recipeName=%s&export=True"><i class="icon-link-2"></i></a>
