@@ -6,11 +6,10 @@ import time
 print "starting fake heater"
 
 tempc={'hltSetTemp': False,'mashSetTemp':False,'boilSetTemp':False,'fermSetTemp':False}
-tempx={'hltSetTemp': 0,'mashSetTemp':0,'boilSetTemp':0,'fermSetTemp':0}
+tempx={'hltSetTemp': 0,'mashSetTemp':0,'boilSetTemp':0,'fermSetTemp':19.2}
 
 def handleTemp(probeId):
-	global tempx,tepc
-	tempc={'hltSetTemp': False,'mashSetTemp':False,'boilSetTemp':False,'fermSetTemp':False}
+	global tempx
 	if os.path.exists("ipc/fakeelement_%s" %(probeId)):
 		o=open("ipc/fakeelement_%s" %(probeId))
 		settemp=float(o.read())
@@ -31,7 +30,7 @@ def convertTemp(probe,probeid,settemp):
 	global tempc
 	settemp="%s" %(settemp)
 	tmp="%s" %( settemp )
-	print tmp
+	print probeid,tmp
 	if tmp.count(".") < 1:
 		tmp2 = "000"
 	else:
@@ -42,6 +41,8 @@ def convertTemp(probe,probeid,settemp):
 		temp="%s%s" %(tmp[-1:],tmp2[0:3])
 	else:
 		temp="%s%s" %(tmp[-2:],tmp2[0:3])
+
+	print tempc[probe]
 	if tempc[probe]:
 		try:
 			os.mkdir("ipc/fake1wire/%s/" %(probeid))
@@ -65,8 +66,6 @@ while 1:
 
 	
 	# if our elements are on then we increase temps
-#	print os.path.exists("ipc/gpioSsrA"),os.path.exists("ipc/relayZoneA"),os.path.exists("ipc/relayZoneUseA")	
-#	print os.path.exists("ipc/gpioSsrB"),os.path.exists("ipc/relayZoneB"),os.path.exists("ipc/relayZoneUseB")	
 	if not os.path.exists("ipc/relayZoneUseA") and os.path.exists("ipc/relayZoneA") and os.path.exists("ipc/gpioSsrA"):
 		if tempx['hltSetTemp'] < 95:
 			if tempx['hltSetTemp'] > 80:
@@ -117,6 +116,19 @@ while 1:
 			tempc['boilSetTemp']=True
 	
 
+	if os.path.exists("ipc/swFerm"):
+		if os.path.exists('ipc/pinfermCool'):
+			tempx['fermSetTemp']=tempx['fermSetTemp']-0.1
+			tempc['fermSetTemp']=True
+		elif os.path.exists('ipc/pinfermHeat'):
+			tempx['fermSetTemp']=tempx['fermSetTemp']+0.3
+			tempc['fermSetTemp']=True
+		elif os.path.exists("ipc/fermdone"):
+			tempx['fermSetTemp']=tempx['fermSetTemp']-0.02
+			tempc['fermSetTemp']=True
+		else:
+			tempx['fermSetTemp']=tempx['fermSetTemp']+0.02
+			tempc['fermSetTemp']=True
 
 	# now writes out the files
 	from pitmCfg import *
@@ -133,6 +145,9 @@ while 1:
 	
 	probeid=cfg.boilProbe
 	temp=convertTemp( 'boilSetTemp',probeid, tempx['boilSetTemp'] ) 
+	
+	probeid=cfg.fermProbe
+	temp=convertTemp( 'fermSetTemp',probeid, tempx['fermSetTemp'] ) 
 	
 
 	time.sleep(2)
