@@ -88,17 +88,9 @@ class gpiotools:
 
 	def outputHigh(self,pin="<null>"):
 		self.output(pin,1)
-		if self.simulator:
-			o=open("ipc/pin%s" %(pin),"w")
-			o.close()
 
 	def setLow(self,pin="<null>"):
 		self.output(pin,0)
-		if self.simulator:
-			try:
-				os.remove("ipc/pin%s" %(pin))
-			except:
-				pass
 	
 
 	def output(self,pin,state=-1):
@@ -112,6 +104,16 @@ class gpiotools:
 				else:	
 					GPIO.setup( self.PINS[pin]['pin'], 0)
 
+			if self.simulator and state:
+				o=open("ipc/pin%s" %(pin),"w")
+				o.close()
+
+
+			if self.simulator and not state:
+				try:
+					os.remove("ipc/pin%s" %(pin))
+				except:
+					pass
 
 			if self.PINS[pin]['inverse']:
 				if state == 1:
