@@ -16,7 +16,14 @@ class webTheme:
         self.goBackHome=""
         self.noHeader=False
 
-
+	self.localUser=False
+	self.localUsers=['192.168.1.34','192.168.1.36']
+	try:
+		self.localUsers.index( os.environ['REMOTE_ADDR'])
+		self.localUser=True
+	except ValueError:
+		pass
+			  
         self.toc=""
         self.tableOfContents=""
 
