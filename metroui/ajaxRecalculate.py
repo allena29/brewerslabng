@@ -8,18 +8,18 @@ from thememetro import *
 from cloudNG import *
 con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 
-
 form=cgi.FieldStorage()
 theme=webTheme()
 theme.bgcolor="#ffffff"
-sys.stdout.write("Content-Type:text/xml\n\n")
-grid={}
-db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-print "<xml><junk>"
+if theme.localUser:
+	sys.stdout.write("Content-Type:text/xml\n\n")
+	grid={}
+	db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+	print "<xml><junk>"
 
-bc=brewerslabCloudApi()
-#bc.calculateRecipe("test@example.com", form['recipe'].value)
-#bc.compile("test@example.com", form['recipe'].value,None)
-bc.calculateRecipeWrapper("test@example.com",form['recipe'].value)
+	bc=brewerslabCloudApi()
+	#bc.calculateRecipe("test@example.com", form['recipe'].value)
+	#bc.compile("test@example.com", form['recipe'].value,None)
+	bc.calculateRecipeWrapper("test@example.com",form['recipe'].value)
 
-print "</junk><complete>1</complete></xml>"
+	print "</junk><complete>1</complete></xml>"
