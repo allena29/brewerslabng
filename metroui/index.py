@@ -38,6 +38,11 @@ print """
 		<h1><a href="brewerslab.py">Recipes</a></h1>
 	</div>	
     </div>
+    <div class="slide">
+    	<div class='bg-darkGray' style='height:100%;'>
+		<h1><a href="simulator.py">Realtime View</a></h1>
+	</div>	
+    </div>
      
     <a class="controls left"><i class="icon-arrow-left-3"></i></a>
     <a class="controls right"><i class="icon-arrow-right-3"></i></a>
