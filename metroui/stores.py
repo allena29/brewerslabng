@@ -59,6 +59,10 @@ window.location.replace("storeaddpage.py?type="+i);
                     <div class="span4">
                     </div>
 
+"""
+
+if theme.localUser:
+	print """
                     <div class="span4">
                         <div class="panel" data-role="panel">
                             <div class="panel-header bg-darkRed fg-white">
@@ -73,11 +77,13 @@ window.location.replace("storeaddpage.py?type="+i);
                             </div>
                         </div>
                     </div>
+	"""
+
+print """
                 </div>
             </div>
-
-
 """
+
 
 
 
