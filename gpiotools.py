@@ -89,14 +89,14 @@ class gpiotools:
 	def outputHigh(self,pin="<null>"):
 		self.output(pin,1)
 		if self.simulator:
-			o=open("tmpfs/pin%s" %(pin),"w")
+			o=open("ipc/pin%s" %(pin),"w")
 			o.close()
 
 	def setLow(self,pin="<null>"):
 		self.output(pin,0)
 		if self.simulator:
 			try:
-				os.remove("tmpfs/pin%s" %(pin))
+				os.remove("ipc/pin%s" %(pin))
 			except:
 				pass
 	
