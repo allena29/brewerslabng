@@ -15,12 +15,13 @@ theme.bgcolor="#ffffff"
 #sys.stdout.write("Content-Type:text/html\n\n")
 grid={}
 
-db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+if theme.localUser:
+	db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 
-orig=form['oldrecipe'].value
-new=form['newrecipe'].value
+	orig=form['oldrecipe'].value
+	new=form['newrecipe'].value
 
-brewerslabCloudApi().cloneRecipe("test@example.com", orig,new)
+	brewerslabCloudApi().cloneRecipe("test@example.com", orig,new)
 
-print "Location: editRecipe.py?recipeName=%s\n" %(new)
+	print "Location: editRecipe.py?recipeName=%s\n" %(new)
