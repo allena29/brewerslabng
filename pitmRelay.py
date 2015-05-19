@@ -265,6 +265,8 @@ class pitmRelay:
 						if self.fermHeatActiveFor == -1:
 							self.fermHeatActiveFor=time.time()
 
+
+#					print self.zoneTemp,self.zoneDownTarget,self.zoneUpTarget,self.fridgeCool,self.fridgeHeat
 					if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
 						self._log("Cooling Required %s > %s" %(self.zoneTemp,self.zoneDownTarget))
 						self.gpio.output('fermHeat',0)	
@@ -283,7 +285,8 @@ class pitmRelay:
 							if (time.time() - self.fermCoolActiveFor > 1800) and self.fermCoolActiveFor > 0:
 								self.fridgeCompressorDelay=601
 								self._log("Cooling has been active for %s - resting fridge" %(time.time()-self.fermCoolActiveFor))
-								self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
+								if self.fermCoolActiveFor > 0:
+									self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
 								self._log("Cooling total active time %s" %(self.meterFermC))
 								self.fermCoolActiveFor = -1
 								self._gpioFermCool=False
@@ -305,11 +308,13 @@ class pitmRelay:
 						self.gpio.output('fermCool',0)
 						self._gpioFermHeat=False
 						self.fridgeCompressorDelay=301
-						self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
+						if self.fermCoolActiveFor > 0:
+							self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
 						self._log("Cooling total active time %s" %(self.meterFermC))
 						self.fermCoolActiveFor = -1
-						self.meterFermH=self.meterFermH+ (time.time()-self.fermHetActiveFor)
-						self._log("Heating total active time %s" %(self.meterFermH))
+						self.meterFermH=self.meterFermH+ (time.time()-self.fermHeatActiveFor)
+						if self.fermHeatActiveFor > 0:
+							self._log("Heating total active time %s" %(self.meterFermH))
 						self.fermHeatActiveFor = -1
 
 					if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.05:
@@ -319,10 +324,12 @@ class pitmRelay:
 						self.gpio.output("fermHeat",0)
 						self.fridgeCompressorDelay=301
 						self._gpioFermCool=False
-						self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
+						if self.fermCoolActiveFor > 0:
+							self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
 						self._log("Cooling total active time %s" %(self.meterFermC))
 						self.fermCoolActiveFor = -1
-						self.meterFermH=self.meterFermH+ (time.time()- self.fermHetActiveFor)
+						if self.fermHeatActiveFor > 0:
+							self.meterFermH=self.meterFermH+ (time.time()- self.fermHeatActiveFor)
 						self._log("Heating total active time %s" %(self.meterFermH))
 						self.fermHeatActiveFor = -1
 
