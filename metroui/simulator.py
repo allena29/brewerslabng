@@ -65,8 +65,43 @@ print """
             </div>
 """
 
+#
+# simulator page
+#
+#
+
+print "<table border=0 cellspacing=0 cellpadding=0>"
+print "<tr>"
+print "<td>"
 
 
+print "<td>"
+print "<td width=10>&nbsp;</td>"
+print "<td>"
+
+print "	<!-- simulator --> "
+print "	<table border=0 cellspacing=0 cellpadding=0>"
+
+print "	<tr>"
+print "	<td><img src='/metroui/realtimeview/simhltempty.png' width=90 height=126 id='hlt'></td>"
+print "	<td><img src='/metroui/realtimeview/simpowerin.png' width=91 height=126></td>"
+print "	<td><img src='/metroui/realtimeview/simrelays.png' width=130 height=126 id='relays'></td>"
+print "	<td><img src='/metroui/realtimeview/simpowersocket.png' width=136 height=126 id='socket'></td>"
+print "	</tr>"
+print "	<tr>"
+print "	<td><img src='/metroui/realtimeview/simhltstand.png' width=90 height=300 id=''></td>"
+print "	<td><img src='/metroui/realtimeview/simmash.png' width=91 height=300 id='mash'></td>"
+print "	<td><img src='/metroui/realtimeview/simkettle.png' width=130 height=300 id='relays'></td>"
+print "	<td><img src='/metroui/realtimeview/simfridge.png' width=136 height=300 id='fridge'></td>"
+print "	</tr>"
+
+print "	</table>"
+
+
+print "</td>"
+print "</tr>"
+
+print "</table>"
 
 print """
 				<!-- begin spinner -->
