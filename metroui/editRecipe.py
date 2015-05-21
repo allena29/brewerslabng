@@ -578,7 +578,7 @@ print """
 
 
 
-if not export and theme.localUser:
+if not export:
 	print """ 
 	    <div class="accordion-frame">
 			<a href="#" class="%sheading">Calclog</a>
