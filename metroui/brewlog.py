@@ -312,7 +312,9 @@ print """
 	}
 
 
-
+	""" %(process)
+	
+print """
 	// Fields
         if(parseInt(xmldoc.getElementsByTagName('fields').item(0).firstChild.data) >0){
 		replacement=replacement+"     <div class='frame' id='_fields_"+stepNum+"'>"; 
@@ -332,10 +334,20 @@ print """
 
 			if(fieldWidget=="-"){
 				replacement=replacement+"<td><input type='text' id='widget_"+stepNum+"_"+f+"' value='"+fieldValue+"'></td><td>";
+		"""
+if theme.localUser:
+	print """
 				replacement=replacement+"<input type='button' value='Save' onClick='saveField("+stepNum+","+f+",\\""+fieldKey+"\\")'>";
+	"""
+print """
 			}else{
 				replacement=replacement+"<td><input disabled type='text' id='widget_"+stepNum+"_"+f+"' value='"+fieldValue+"'></td><td>";
+	"""
+if theme.localUser:
+	print """
 				replacement=replacement+"<input type='button' value='Update' onClick='saveField("+stepNum+","+f+",\\""+fieldKey+"\\")'>";
+	"""
+print """
 			}	
 			reaplcement=replacement+"</td></tr>";
 
@@ -356,7 +368,12 @@ print """
 		}
 	}
 	replacement=replacement+"</textarea>";
+	"""
+if theme.localUser:
+	print """
 	replacement=replacement+"<p align=right><input type=button value=Update onClick='saveComments("+stepNum+")'></p>";
+	"""
+print """
 	replacement=replacement+"</div>";		//closes the tab
 
 
@@ -369,7 +386,7 @@ print """
 //	window.location.replace="?recipeName=%s&brewlog=%s&activityNum=%s#anchor"+stepNum;
      }
  }
-""" %(process, form['recipeName'].value,form['brewlog'].value,form['activityNum'].value)
+""" %(form['recipeName'].value,form['brewlog'].value,form['activityNum'].value)
 
 print """
 function stepDetails(i){
