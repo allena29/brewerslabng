@@ -203,14 +203,20 @@ print """
 	
       }
  } 
- function toggleComplete(a,y,z){
-	if(y==-1){
-        	xmlREQ(refreshStatus,"ajaxSetStepComplete.py?brewlog=%s&activityNum=%s&stepNum="+a+"&complete="+z);
-	}else{
-        	xmlREQ(refreshStatus,"ajaxSetStepComplete.py?brewlog=%s&activityNum=%s&stepNum="+a+"&complete="+z+"&subStepNum="+y);
-	}
- }
-""" %(form['brewlog'].value,form['activityNum'].value,form['brewlog'].value,form['activityNum'].value)
+	"""
+
+if theme.localUser:
+	print """
+	 function toggleComplete(a,y,z){
+		if(y==-1){
+			xmlREQ(refreshStatus,"ajaxSetStepComplete.py?brewlog=%s&activityNum=%s&stepNum="+a+"&complete="+z);
+		}else{
+			xmlREQ(refreshStatus,"ajaxSetStepComplete.py?brewlog=%s&activityNum=%s&stepNum="+a+"&complete="+z+"&subStepNum="+y);
+		}
+	 }
+	""" %(form['brewlog'].value,form['activityNum'].value,form['brewlog'].value,form['activityNum'].value)
+
+
 print """
  function stepDetail(){
       if (http_request.readyState==4 && http_request.status==200)    {
@@ -250,10 +256,21 @@ print """
 	}
         if(xmldoc.getElementsByTagName('substocomplete').item(0).firstChild.data == "False"){
         	if(xmldoc.getElementsByTagName('complete').item(0).firstChild.data == "False"){
+	"""
+
+if theme.localUser:
+	print """
 			replacement=replacement+"<p align=right><input type='button' value='Complete' onClick=toggleComplete('"+stepNum+"',-1,1) </p>";
+		"""
+print """
 			document.getElementById('star'+stepNum).className="icon-star fg-red";
 		}else{
+	"""
+if theme.localUser:
+	print """
 			replacement=replacement+"<p align=right><input type='button' value='Un Complete' onClick=toggleComplete('"+stepNum+"',-1,0) </p>";
+	"""
+print """
 			document.getElementById('star'+stepNum).className="icon-star-3 fg-green";
 		}
 	}
@@ -266,9 +283,19 @@ print """
 			replacement=replacement+"<p>" + unsafeXML(xmldoc.getElementsByTagName('subText'+c).item(0).firstChild.data ) +"</p>";
 			replacement=replacement+"</div></a></div>";
 			if(xmldoc.getElementsByTagName('subComplete'+c).item(0).firstChild.data == "False"){
+	"""
+if theme.localUser:
+	print """
 				replacement=replacement+"<p align=right><input type='button' value='Complete' onClick=toggleComplete('"+stepNum+"',"+c+",1) </p>";
+	"""
+print """
 			}else{
+	"""
+if theme.localUser:
+	print """
 				replacement=replacement+"<p align=right><input type='button' value='Un Complete' onClick=toggleComplete('"+stepNum+"',"+c+",0) </p>";
+	"""
+print """
 			}
 		}
 	}
