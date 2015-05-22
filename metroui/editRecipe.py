@@ -584,7 +584,10 @@ if not export:
 			<a href="#" class="%sheading">Calclog</a>
 			<div class="content">
 				<p>
+	""" %(activeCalclog)
 
+if not export or not theme.localUser:
+	print """
 	 <table class="table">
 				<thead>
 				<tr>
@@ -593,7 +596,7 @@ if not export:
 				</thead>
 
 				<tbody>
-	""" %(activeCalclog)
+	""" 
 
 	cursor=con.cursor()
 	cursor.execute("select recipe,calclog FROM gCalclogs WHERE recipe = '%s' ORDER BY entity DESC LIMIT 0,1" %(form['recipeName'].value))
