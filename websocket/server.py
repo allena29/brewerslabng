@@ -11,11 +11,12 @@ from pitmCfg import *
 
 cfg=pitmCfg()
 clients = []
-globalData={'_lastUpdate':0,'lcd':{}}
-
+globalData={'/simulator-lcd':[{},{},{},{} ] }
+dataLastUpdate={'/simulator-lcd':0}
+clientLastUpdate={}
 
 def lcdMcast():
-	global globalData
+	global globalData,dataLastUpdate
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
@@ -25,9 +26,12 @@ def lcdMcast():
 
 	while True:
 		(data, addr) = sock.recvfrom(1200)
-		print data
-		globalData['lcd'] = data
-		globalData['_lastUpdate']=time.time()
+		j=json.loads(data)
+		try:
+			globalData['/simulator-lcd'][ j['line'] ]  = j
+			dataLastUpdate['/simulator-lcd']=time.time()
+		except ImportError:
+			pass
 		time.sleep(0.5)		
 
 
@@ -38,32 +42,39 @@ lcdThread.start()
 
 
 def publishWs():
-	global globalData,clients
+	global globalData,clients,dataLastUpdate,clientLastUpdate
 	while 1:
 		for client in list(clients):
-			print client.address, "send Data",globalData
-			client.sendTextMessage( json.dumps( globalData ))
+			if client.request.path == "/simulator-lcd":
+				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+					for lcdLine in globalData[ client.request.path ]:
+						if lcdLine.has_key("line"):
+							sys.stderr.write("%s	%s	%s/%s\n" %(time.time(),client.address,lcdLine['text'],lcdLine['line']))
+							client.sendMessage( u"%s" %( json.dumps(lcdLine)  ))
 
 		time.sleep(1)
+
+
+
+
 publishThread = threading.Thread(target=publishWs)
 publishThread.daemon = True
 publishThread.start()
 
 
 class McastWebService(WebSocket):
-	global clientLastUpdate
-
-	def handleMessage(self):
-		for client in list(clients):
-			if client != self:
-				client.sendMessage(self.address[0] + ' - ' + self.data)
 
 	def handleConnected(self):
+		global clientLastUpdate
 		print self.address, 'connected'
+		clientLastUpdate[ "%s%s" %(self.address) ] = 0
 		clients.append(self)
 
 	def handleClose(self):
+		global clientLastUdate
 		clients.remove(self)
+		del clientLastUpdate[ "%s%s" %(self.address) ]
 		print self.address, 'closed'
 
 
