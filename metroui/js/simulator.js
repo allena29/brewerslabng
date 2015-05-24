@@ -6,5 +6,21 @@ if ('WebSocket' in window){
 }
 
 
-var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator');
-ls
+//var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator');
+var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-lcd');
+connection.onmessage = function(e){
+console.log(e.data);
+obj = JSON.parse(e.data);
+if(obj.line > -1 ){
+	document.getElementById('lcd'+obj.line).innerHTML=obj.text+"&nbsp;";
+}
+
+ 
+}
+
+connection.onclose = function(){
+	alert("Simulator session closed");
+}
+
+
+
