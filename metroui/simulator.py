@@ -187,5 +187,10 @@ print """
 
 print "</div>"
 
-theme.presentFoot()
 
+print """
+<script src='/metroui/js/simulator.js'></script>
+"""
+
+
+theme.presentFoot()
