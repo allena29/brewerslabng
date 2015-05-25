@@ -82,46 +82,58 @@ obj = JSON.parse(e.data);
 if("swHlt" in obj){
  if(obj.swHlt){
 	 document.getElementById("swHlt").src="/metroui/realtimeview/switchred.png";
+	 document.getElementById("state_swHlt").value="1"; 
  }else{
 	 document.getElementById("swHlt").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swHlt").value="0"; 
  }
 }
 if("swSparge" in obj){
  if(obj.swSparge){
 	 document.getElementById("swSparge").src="/metroui/realtimeview/switchred.png";
+	 document.getElementById("state_swSparge").value="1"; 
  }else{
 	 document.getElementById("swSparge").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swSparge").value="0"; 
  }
 }
 if("swBoil" in obj){
  if(obj.swBoil){
 	 document.getElementById("swBoil").src="/metroui/realtimeview/switchred.png";
+	 document.getElementById("state_swBoil").value="1"; 
  }else{
 	 document.getElementById("swBoil").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swBoil").value="0"; 
  }
 }
  
 if("swMash" in obj){
  if(obj.swMash){
 	 document.getElementById("swMash").src="/metroui/realtimeview/switchgreen.png";
+	 document.getElementById("state_swMash").value="1"; 
  }else{
 	 document.getElementById("swMash").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swMash").value="0"; 
  }
 }
  
 if("swFerm" in obj){
  if(obj.swFerm){
 	 document.getElementById("swFerm").src="/metroui/realtimeview/switchgreen.png";
+	 document.getElementById("state_swFerm").value="1"; 
  }else{
 	 document.getElementById("swFerm").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swFerm").value="0"; 
  }
 }
 
 if("swPump" in obj){
  if(obj.swPump){
 	 document.getElementById("swPump").src="/metroui/realtimeview/switchblue.png";
+	 document.getElementById("state_swPump").value="1"; 
  }else{
 	 document.getElementById("swPump").src="/metroui/realtimeview/pushbutton.png";
+	 document.getElementById("state_swPump").value="0"; 
  }
 }
  
@@ -137,7 +149,11 @@ function button(b){
 	host=window.location.href.split(":54660")[0];
 	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
 	if(localUser){
-		document.getElementById("buttonTarget").src=url;
+		if(document.getElementById("state_"+b).value == "0"){
+			document.getElementById("buttonTarget").src=url+"&onoff=on";
+		}else{
+			document.getElementById("buttonTarget").src=url+"&onoff=off";
+		}
 	}else{
 		alert("View-only; button disabled");	
 	}

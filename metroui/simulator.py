@@ -108,10 +108,20 @@ print "	</table>"
 
 print "<p>&nbsp;</p>"
 print "	<!-- buttons -->"
+print """
+<input type='hidden' id='state_swHlt' value='0'>
+<input type='hidden' id='state_swSparge' value='0'>
+<input type='hidden' id='state_swBoil' value='0'>
+<input type='hidden' id='state_swMash' value='0'>
+<input type='hidden' id='state_swFerm' value='0'>
+<input type='hidden' id='state_swPump' value='0'>
+
+
+"""
 print "	<table border=0 cellspacing=0 cellpadding=0 width=100%%>"
 print "	<tr>"
 print "	<td width=50 valign='center' align='center'><img id='ledSys' src='/metroui/realtimeview/ledoff.png' width=25 height=25></td>"
-print "	<td align=left><a href=javascript:button('swSys')><img src='/metroui/realtimeview/pushbutton.png' width=44 height=44 border=0></a></td>"
+print "	<td align=left>&nbsp;</td>"
 print "	<td><font size=2>System</font></td>"
 print "	</tr>"
 print "	<tr>"
