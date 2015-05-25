@@ -171,10 +171,20 @@ print "	</tr>"
 print "	<tr>"
 print "	<td><img src='/metroui/realtimeview/simhltstand.png' width=90 height=300 id=''></td>"
 print "	<td><img src='/metroui/realtimeview/simmash.png' width=91 height=300 id='mash'></td>"
-print "	<td><img src='/metroui/realtimeview/simkettle.png' width=130 height=300 id='relays'></td>"
+print "	<td><img src='/metroui/realtimeview/simkettle.png' width=130 height=300 id='kettle'></td>"
 print "	<td><img src='/metroui/realtimeview/simfridge.png' width=136 height=300 id='fridge'></td>"
 print "	</tr>"
 
+print " <tr>"
+print " <td><font size=2>HLT Temp<br><span id='hlttemp'></span></font></td>"
+print " <td><font size=2>Mash Temp<br><span id='mashtemp'></span></font></td>"
+print " <td><font size=2>Boil Temp<br><span id='boiltemp'></span></font></td>"
+print " <td><font size=2>Ferm Temp<br><span id='fermtemp'></span></font></td>"
+print " </tr>"
+
+print "<tr><td colspan=4><font size=2>Recipe: <span id='recipe'></span><br>"
+print "Brewlog: <span id='brewlog'></span><br>"
+print "Mode: <span id='mode'><span><br></font></td></tr>"
 print "	</table>"
 
 

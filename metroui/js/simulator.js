@@ -1,4 +1,42 @@
 
+mode="_idle"
+volumes = JSON.parse('{"hlt": [0, 0], "ferm": [0, 0], "boil": [0, 0], "mash": [0, 0]}');
+gpioSsrA=false;
+gpioSsrB=false;
+
+
+function redrawSim(){
+	if(mode == "idle"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
+	}else if(mode == "hlt"){
+		if(gpioSsrA==true){
+			document.getElementById("hlt").src="/metroui/realtimeview/simhlta.png";
+			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltonoff.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersockethltonoff.png";
+		}else if(gpioSsrB==true){
+			document.getElementById("hlt").src="/metroui/realtimeview/simhltb.png";
+			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltoffon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersockethltoffon.png";
+		}else{
+			document.getElementById("hlt").src="/metroui/realtimeview/simhlt.png";
+			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltoffoff.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		}
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
+
+	}	
+
+
+}
+
+
 if ('WebSocket' in window){
    /* WebSocket is supported. You can proceed with your code*/
 } else {
@@ -9,7 +47,6 @@ if ('WebSocket' in window){
 //var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator');
 var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-lcd');
 connection.onmessage = function(e){
-//console.log(e.data);
 obj = JSON.parse(e.data);
 if(obj.line > -1 ){
 	document.getElementById('lcd'+obj.line).innerHTML=obj.text+"&nbsp;";
@@ -143,9 +180,61 @@ connection3.onclose = function(){
 //	alert("Simulator session closed");
 }
 
+var connection4 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-relay');
+connection4.onmessage = function(e){
+obj = JSON.parse(e.data);
+ 
+}
+
+connection4.onclose = function(){
+//	alert("Simulator session closed");
+}
 
 
-function button(b){
+var connection5 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-ssr');
+connection5.onmessage = function(e){
+obj = JSON.parse(e.data);
+if("gpioSsrA" in obj){
+	gpioSsrA=obj.gpioSsrA;
+}
+if("gpioSsrB" in obj){
+	gpioSsrB=obj.gpioSsrB;
+}
+redrawSim(); 
+}
+
+connection5.onclose = function(){
+//	alert("Simulator session closed");
+}
+
+
+
+var connection6 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-gov');
+connection6.onmessage = function(e){
+obj = JSON.parse(e.data);
+mode=obj._mode;
+if("_mode" in obj){
+	document.getElementById("mode").innerHTML=obj._mode;
+	document.getElementById("brewlog").innerHTML=obj._brewlog;
+	document.getElementById("recipe").innerHTML=obj._recipe;
+}
+
+if("volmes" in obj){
+	volumes=obj.volumes;
+}
+}
+
+redrawSim();
+
+
+connection6.onclose = function(){
+//	alert("Simulator session closed");
+}
+
+
+
+
+function swbutton(b){
 	host=window.location.href.split(":54660")[0];
 	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
 	if(localUser){
@@ -154,6 +243,16 @@ function button(b){
 		}else{
 			document.getElementById("buttonTarget").src=url+"&onoff=off";
 		}
+	}else{
+		alert("View-only; button disabled");	
+	}
+}
+
+function button(b){
+	host=window.location.href.split(":54660")[0];
+	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
+	if(localUser){
+		document.getElementById("buttonTarget").src=url;
 	}else{
 		alert("View-only; button disabled");	
 	}
