@@ -4,10 +4,15 @@ volumes = JSON.parse('{"hlt": [0, 0], "ferm": [0, 0], "boil": [0, 0], "mash": [0
 gpioSsrA=false;
 gpioSsrB=false;
 
+lastMode="_idle"
 
 function redrawSim(){
 	if(mode == "idle"){
-		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		if(lastMode == "hlt"){
+			document.getElementById("hlt").src="/metroui/realtimeview/simhlt.png";
+		}else{	
+			document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		}
 		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
 		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
 		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
@@ -31,9 +36,19 @@ function redrawSim(){
 		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
 		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
 
+	}else if(mode == "mash/dough"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";	
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
 	}	
 
 
+	if(lastMode != mode && mode != "idle"){
+		lastMode=mode;
+	}
 }
 
 
@@ -48,21 +63,13 @@ if ('WebSocket' in window){
 var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-lcd');
 connection.onmessage = function(e){
 obj = JSON.parse(e.data);
-if(obj.line > -1 ){
-	document.getElementById('lcd'+obj.line).innerHTML=obj.text+"&nbsp;";
-}
 
- 
-}
+document.getElementById('lcd0').innerHTML=obj.lcd0.text+"&nbsp;";
+document.getElementById('lcd1').innerHTML=obj.lcd1.text+"&nbsp;";
+document.getElementById('lcd2').innerHTML=obj.lcd2.text+"&nbsp;";
+document.getElementById('lcd3').innerHTML=obj.lcd3.text+"&nbsp;";
 
-connection.onclose = function(){
-	alert("Simulator session closed");
-}
-
-
-var connection2 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-led');
-connection2.onmessage = function(e){
-obj = JSON.parse(e.data);
+obj=obj.led;
 ledFound=false;
 ledColour="";
 ledName="";
@@ -104,18 +111,80 @@ if("lFerm" in obj){
 }
 
 
+redrawSim();
  
 }
 
-connection2.onclose = function(){
+connection.onclose = function(){
+	alert("Simulator session closed");
+}
+
+
+//var connection2 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-led');
+//connection2.onmessage = function(e){
+//bj = JSON.parse(e.data);
+
+ 
+//}
+
+//connection2.onclose = function(){
+//	alert("Simulator session closed");
+//}
+
+
+//var connection3 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-button');
+//connection3.onmessage = function(e){
+//obj = JSON.parse(e.data);
+ 
+//}
+
+//connection3.onclose = function(){
+//	alert("Simulator session closed");
+//}
+
+/*var connection4 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-relay');
+connection4.onmessage = function(e){
+obj = JSON.parse(e.data);
+ 
+}
+
+connection4.onclose = function(){
+//	alert("Simulator session closed");
+}
+
+*/
+var connection5 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-ssr');
+connection5.onmessage = function(e){
+obj = JSON.parse(e.data);
+ssrObj=obj.ssr
+if("gpioSsrA" in ssrObj){
+	gpioSsrA=ssrObj.gpioSsrA;
+}
+if("gpioSsrB" in ssrObj){
+	gpioSsrB=ssrObj.gpioSsrB;
+}
+redrawSim(); 
+}
+
+connection5.onclose = function(){
 //	alert("Simulator session closed");
 }
 
 
-var connection3 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-button');
-connection3.onmessage = function(e){
-obj = JSON.parse(e.data);
 
+var connection6 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-gov');
+connection6.onmessage = function(e){
+parentobj = JSON.parse(e.data);
+
+
+if("_mode" in parentobj.gov){
+	mode=parentobj.gov._mode;
+	document.getElementById("mode").innerHTML=parentobj.gov._mode;
+	document.getElementById("brewlog").innerHTML=parentobj.gov._brewlog;
+	document.getElementById("recipe").innerHTML=parentobj.gov._recipe;
+}
+
+obj=parentobj.button._button;
 if("swHlt" in obj){
  if(obj.swHlt){
 	 document.getElementById("swHlt").src="/metroui/realtimeview/switchred.png";
@@ -172,60 +241,13 @@ if("swPump" in obj){
 	 document.getElementById("swPump").src="/metroui/realtimeview/pushbutton.png";
 	 document.getElementById("state_swPump").value="0"; 
  }
-}
- 
-}
-
-connection3.onclose = function(){
-//	alert("Simulator session closed");
-}
-
-var connection4 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-relay');
-connection4.onmessage = function(e){
-obj = JSON.parse(e.data);
- 
-}
-
-connection4.onclose = function(){
-//	alert("Simulator session closed");
-}
 
 
-var connection5 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-ssr');
-connection5.onmessage = function(e){
-obj = JSON.parse(e.data);
-if("gpioSsrA" in obj){
-	gpioSsrA=obj.gpioSsrA;
-}
-if("gpioSsrB" in obj){
-	gpioSsrB=obj.gpioSsrB;
-}
-redrawSim(); 
-}
-
-connection5.onclose = function(){
-//	alert("Simulator session closed");
-}
-
-
-
-var connection6 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-gov');
-connection6.onmessage = function(e){
-obj = JSON.parse(e.data);
-mode=obj._mode;
-if("_mode" in obj){
-	document.getElementById("mode").innerHTML=obj._mode;
-	document.getElementById("brewlog").innerHTML=obj._brewlog;
-	document.getElementById("recipe").innerHTML=obj._recipe;
-}
-
-if("volmes" in obj){
-	volumes=obj.volumes;
-}
 }
 
 redrawSim();
 
+}
 
 connection6.onclose = function(){
 //	alert("Simulator session closed");

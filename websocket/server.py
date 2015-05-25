@@ -16,12 +16,14 @@ globalData={'/simulator-lcd':[{},{},{},{} ],
 		'/simulator-ssr':{},
 		'/simulator-relay':{},
 		'/simulator-gov':{},
+		'/simulator-temp':{},
 		'/simulator-button':{}  }
 dataLastUpdate={'/simulator-lcd':0,
 		'/simulator-led':0,
 		'/simulator-ssr':0,
 		'/simulator-relay':0,
 		'/simulator-gov':0,
+		'/simulator-temp':0,
 		'/simulator-button':0}
 clientLastUpdate={}
 
@@ -70,7 +72,8 @@ def ledMcast():
 		if not j.has_key("lFerm"):	j['ledFerm']={'colour':'off'}
 		try:
 			globalData['/simulator-led'] = j
-			dataLastUpdate['/simulator-led']=time.time()
+			#dataLastUpdate['/simulator-led']=time.time()
+			dataLastUpdate['/simulator-lcd']=time.time()
 		except:
 			pass
 		time.sleep(0.2)		
@@ -96,7 +99,8 @@ def relayMcast():
 		j=json.loads(data)
 		try:
 			globalData['/simulator-relay'] = j
-			dataLastUpdate['/simulator-relay']=time.time()
+			#dataLastUpdate['/simulator-relay']=time.time()
+			dataLastUpdate['/simulator-ssr']=time.time()
 		except:
 			pass
 		time.sleep(0.8)		
@@ -177,7 +181,8 @@ def buttonMcast():
 		j=json.loads(data)
 		try:
 			globalData['/simulator-button'] = j
-			dataLastUpdate['/simulator-button']=time.time()
+			#dataLastUpdate['/simulator-button']=time.time()
+			dataLastUpdate['/simulator-gov']=time.time()
 		except:
 			pass
 		time.sleep(1)		
@@ -189,6 +194,33 @@ buttonThread.daemon = True
 buttonThread.start()
 
 
+
+def tempMcast():
+	global globalData,dataLastUpdate
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+	sock.bind(('', cfg.mcastTemperaturePort))
+	mreq = struct.pack("4sl", socket.inet_aton(cfg.mcastGroup), socket.INADDR_ANY)
+	sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+	while True:
+		(data, addr) = sock.recvfrom(1200)
+		j=json.loads(data)
+		try:
+			globalData['/simulator-temp'] = j
+			dataLastUpdate['/simulator-temp']=time.time()
+		except:
+			pass
+		time.sleep(1)		
+
+
+sys.stderr.write("Joining Multicast Temperature\n")
+tempThread = threading.Thread(target=tempMcast)
+tempThread.daemon = True
+tempThread.start()
+
+
 def publishWs():
 	global globalData,clients,dataLastUpdate,clientLastUpdate
 	while 1:
@@ -196,38 +228,66 @@ def publishWs():
 			if client.request.path == "/simulator-lcd":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-					for lcdLine in globalData[ client.request.path ]:
-						if lcdLine.has_key("line"):
-							client.sendMessage( u"%s" %( json.dumps(lcdLine)  ))
+					client.sendMessage( u"%s" %( json.dumps( {
+						'lcd0': globalData[ "/simulator-lcd"][0],
+						'lcd1': globalData[ "/simulator-lcd"][1],
+						'lcd2': globalData[ "/simulator-lcd"][2],
+						'lcd3': globalData[ "/simulator-lcd"][3],
+						'led': globalData["/simulator-led"],	
+						})  ))
+			#if client.request.path == "/simulator-lcd":
+		#		if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+		#			clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+		#			for lcdLine in globalData[ client.request.path ]:
+		#				if lcdLine.has_key("line"):
+		#					client.sendMessage( u"%s" %( json.dumps(lcdLine)  ))
+#
+#			if client.request.path == "/simulator-led":
+#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+#					if globalData[ client.request.path ].has_key("_operation"):
+#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-led']  )))
 
-			if client.request.path == "/simulator-led":
-				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-					if globalData[ client.request.path ].has_key("_operation"):
-						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-led']  )))
+#			if client.request.path == "/simulator-button":
+#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+#					if globalData[ client.request.path ].has_key("_operation"):
+#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-button']['_button']  )))
 
-			if client.request.path == "/simulator-button":
-				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-					if globalData[ client.request.path ].has_key("_operation"):
-						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-button']['_button']  )))
+#			if client.request.path == "/simulator-relay":
+#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+#					if globalData[ client.request.path ].has_key("_operation"):
+#						client.sendMessage( u"%s" %( json.dumps( globalData['/simulator-relay']  )))
+#
+#			if client.request.path == "/simulator-ssr":
+#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+#					if globalData[ client.request.path ].has_key("_operation"):
+#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-ssr']  )))
 
-			if client.request.path == "/simulator-relay":
-				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-					if globalData[ client.request.path ].has_key("_operation"):
-						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-relay']  )))
 
 			if client.request.path == "/simulator-ssr":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					if globalData[ client.request.path ].has_key("_operation"):
-						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-ssr']  )))
+						client.sendMessage( u"%s" %( json.dumps( {'ssr':globalData['/simulator-ssr'], 'relay': globalData['/simulator-relay'] } )  ))
+
+
+#			if client.request.path == "/simulator-gov":
+#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
+#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
+#					if globalData[ client.request.path ].has_key("_operation"):
+#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-gov']  )))
 			if client.request.path == "/simulator-gov":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					if globalData[ client.request.path ].has_key("_operation"):
-						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-gov']  )))
+						client.sendMessage( u"%s" %( json.dumps(
+							{  'gov':globalData['/simulator-gov'],
+							   'button':globalData['/simulator-button']
+							}  )))
+						print globalData['/simulator-button']
 
 		time.sleep(0.3)
 
