@@ -15,13 +15,13 @@ fi
 
 kill `ps -ef | grep "$cmd pitmLedFlasher.py" | grep -v SCREEN | grep -v grep | sed -e "s/$who\s*//" -e 's/\s.*//'` 2>/dev/null
 
-if [ "$1" == "kill" ]
+if [ "$1" = "kill" ]
 then
  exit 
 fi
 
 $cmd2 -dmS flasher $cmd pitmLedFlasher.py
-if [ "$1" == "" ]
+if [ "$1" = "" ]
 then 
 	sleep 1
 	$cmd2 -r flasher
