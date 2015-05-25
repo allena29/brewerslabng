@@ -187,6 +187,11 @@ print """
 
 print "</div>"
 
+
+print """
+<iframe id='buttonTarget' width=1 height=0 style='visibility: hidden'></iframe>
+"""
+
 if theme.localUser:
 	print "<script language=Javascript>localUser=true;</script>"
 else:

@@ -78,7 +78,6 @@ connection2.onclose = function(){
 var connection3 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-button');
 connection3.onmessage = function(e){
 obj = JSON.parse(e.data);
-console.log(e.data);
 
 if("swHlt" in obj){
  if(obj.swHlt){
@@ -134,10 +133,11 @@ connection3.onclose = function(){
 
 
 
-
 function button(b){
+	host=window.location.href.split(":54660")[0];
+	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
 	if(localUser){
-		alert("Do soemthign");		
+		document.getElementById("buttonTarget").src=url;
 	}else{
 		alert("View-only; button disabled");	
 	}

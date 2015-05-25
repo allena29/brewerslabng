@@ -110,21 +110,18 @@ def publishWs():
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					for lcdLine in globalData[ client.request.path ]:
 						if lcdLine.has_key("line"):
-							sys.stderr.write("%s	%s	%s/%s\n" %(time.time(),client.address,lcdLine['text'],lcdLine['line']))
 							client.sendMessage( u"%s" %( json.dumps(lcdLine)  ))
 
 			if client.request.path == "/simulator-led":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					if globalData[ client.request.path ].has_key("_operation"):
-						sys.stderr.write("%s	%s	%s/\n" %(time.time(),client.address,globalData['/simulator-led'] ))
 						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-led']  )))
 
 			if client.request.path == "/simulator-button":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					if globalData[ client.request.path ].has_key("_operation"):
-						sys.stderr.write("%s	%s	%s/\n" %(time.time(),client.address,globalData['/simulator-button'] ))
 						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-button']['_button']  )))
 
 		time.sleep(0.3)
