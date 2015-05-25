@@ -187,6 +187,10 @@ print """
 
 print "</div>"
 
+if theme.localUser:
+	print "<script language=Javascript>localUser=true;</script>"
+else:
+	print "<script language=Javascript>localUser=false;</script>"
 
 print """
 <script src='/metroui/js/simulator.js'></script>
