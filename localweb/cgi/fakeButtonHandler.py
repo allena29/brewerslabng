@@ -9,7 +9,10 @@ print
 print form["button"].value
 
 x=form['button'].value
-
+from lanauth import *
+if not lanauth().localUser:
+	print "Not authorised"
+	sys.exit(0)
 
 
 # Volume
