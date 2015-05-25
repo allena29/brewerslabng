@@ -248,6 +248,7 @@ class pitmController:
 		self._log(" waiting for grapher")
 		# Listen for Grapher
 		self.graphSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		self.graphSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.graphSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
 		self.graphSock.bind(('', self.cfg.mcastGrapherPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
@@ -265,6 +266,7 @@ class pitmController:
 		# Listen for Grapher
 		self.ssrRelaySock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 		self.ssrRelaySock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+		self.ssrRelaySock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.ssrRelaySock.bind(('', self.cfg.mcastSsrRelayPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
 		self.ssrRelaySock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
@@ -278,15 +280,16 @@ class pitmController:
 
 		self._log(" waiting for relay controller")
 		# Listen for Grapher
-		self.ssrRelaySock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.ssrRelaySock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-		self.ssrRelaySock.bind(('', self.cfg.mcastRelayPort))
+		self.relaySock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		self.relaySock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.relaySock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+		self.relaySock.bind(('', self.cfg.mcastRelayPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-		self.ssrRelaySock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+		self.relaySock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 		
 
-		(data, addr) = self.ssrRelaySock.recvfrom(1200)
+		(data, addr) = self.relaySock.recvfrom(1200)
 
 
 		self.lcdDisplay.sendMessage("         80%       ",1)
@@ -296,6 +299,7 @@ class pitmController:
 		self._log(" waiting for flasher")
 		# Listen for Grapher
 		self.flasherSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		self.flasherSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.flasherSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
 		self.flasherSock.bind(('', self.cfg.mcastFlasherPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
@@ -310,6 +314,7 @@ class pitmController:
 		self._log(" waiting for button")
 		# Listen for Grapher
 		self.buttonSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		self.buttonSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.buttonSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
 		self.buttonSock.bind(('', self.cfg.mcastButtonPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
