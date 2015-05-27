@@ -209,7 +209,8 @@ def tempMcast():
 		j=json.loads(data)
 		try:
 			globalData['/simulator-temp'] = j
-			dataLastUpdate['/simulator-temp']=time.time()
+			#dataLastUpdate['/simulator-temp']=time.time()
+			dataLastUpdate['/simulator-gov']=time.time()
 		except:
 			pass
 		time.sleep(1)		
@@ -285,7 +286,8 @@ def publishWs():
 					if globalData[ client.request.path ].has_key("_operation"):
 						client.sendMessage( u"%s" %( json.dumps(
 							{  'gov':globalData['/simulator-gov'],
-							   'button':globalData['/simulator-button']
+							   'button':globalData['/simulator-button'],
+							   'temp':globalData['/simulator-temp']
 							}  )))
 						print globalData['/simulator-button']
 

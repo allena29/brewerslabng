@@ -8,17 +8,22 @@ lastMode="_idle"
 
 function redrawSim(){
 	if(mode == "idle"){
-		if(lastMode == "hlt"){
+		if(lastMode == "hlt" || lastMode == "hlt/sparge"){
 			document.getElementById("hlt").src="/metroui/realtimeview/simhlt.png";
 		}else{	
 			document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
 		}
 		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
 		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
-		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+
+		if(lastMode == "hlt/sparge"){
+			document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";
+		}else{
+			document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+		}
 		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
 		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
-	}else if(mode == "hlt"){
+	}else if(mode == "hlt" || mode == "hlt/sparge"){
 		if(gpioSsrA==true){
 			document.getElementById("hlt").src="/metroui/realtimeview/simhlta.png";
 			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltonoff.png";
@@ -32,7 +37,12 @@ function redrawSim(){
 			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltoffoff.png";
 			document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
 		}
-		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+
+		if(mode == "hlt/sparge"){
+			document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";
+		}else{
+			document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
+		}
 		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
 		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
 
