@@ -148,6 +148,7 @@ function redrawSim(){
 
 
 if ('WebSocket' in window){
+	document.getElementById("websocketState").innerHTML="";
    /* WebSocket is supported. You can proceed with your code*/
 } else {
 	alert("Realtime view not available- web browser does not support websockets");
@@ -158,6 +159,7 @@ if ('WebSocket' in window){
 var connection = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-lcd');
 connection.onmessage = function(e){
 obj = JSON.parse(e.data);
+	document.getElementById("websocketState").innerHTML="";
 
 document.getElementById('lcd0').innerHTML=obj.lcd0.text+"&nbsp;";
 document.getElementById('lcd1').innerHTML=obj.lcd1.text+"&nbsp;";
@@ -211,43 +213,11 @@ redrawSim();
 }
 
 connection.onclose = function(){
-	alert("Simulator session closed");
+	document.getElementById("websocketState").innerHTML="<font color='red'><b>Not Connected</b></font>";
 }
 
 
-//var connection2 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-led');
-//connection2.onmessage = function(e){
-//bj = JSON.parse(e.data);
 
- 
-//}
-
-//connection2.onclose = function(){
-//	alert("Simulator session closed");
-//}
-
-
-//var connection3 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-button');
-//connection3.onmessage = function(e){
-//obj = JSON.parse(e.data);
- 
-//}
-
-//connection3.onclose = function(){
-//	alert("Simulator session closed");
-//}
-
-/*var connection4 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-relay');
-connection4.onmessage = function(e){
-obj = JSON.parse(e.data);
- 
-}
-
-connection4.onclose = function(){
-//	alert("Simulator session closed");
-}
-
-*/
 var connection5 = new WebSocket('ws://brewerslab.mellon-collie.net:54662/simulator-ssr');
 connection5.onmessage = function(e){
 obj = JSON.parse(e.data);
