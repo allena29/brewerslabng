@@ -4,7 +4,7 @@ import sys
 import cgi
 import _mysql
 from thememetro import *
-
+from pitmCfg import *
 
 form=cgi.FieldStorage()
 theme=webTheme()
@@ -218,6 +218,16 @@ if theme.localUser:
 else:
 	print "<script language=Javascript>localUser=false;</script>"
 
+cfg=pitmCfg()
+
+print """<script language=Javascript>
+probehlt="%s";
+probemashA="%s";
+probemashB="%s";
+probeboil="%s";
+probeferm="%s";
+</script>
+""" %(cfg.hltProbe,cfg.mashAProbe,cfg.mashBProbe,cfg.boilProbe,cfg.fermProbe)
 print """
 <script src='/metroui/js/simulator.js'></script>
 """
