@@ -85,7 +85,7 @@ print "	<td align=right><a href=javascript:button('pDown')><img src='/metroui/re
 print "	<td align=center><a href=javascript:button('pOk')><img src='/metroui/realtimeview/rotaryok.png' width=55 height=154 border=0></a></td>"
 print "	<td align=left><a href=javascript:button('pUp')><img src='/metroui/realtimeview/rotaryright.png' width=25 height=54 border=0></a></td>"
 print " <td width=10>&nbsp;</td>"
-print "	<td align=left><a href=javascript:button('pLeft')><img src='/metroui/realtimeview/pushbutton.png' width=44 height=44 border=0></a></td>"
+print "	<td align=left><a href=javascript:button('pRight')><img src='/metroui/realtimeview/pushbutton.png' width=44 height=44 border=0></a></td>"
 print " <td width=40>&nbsp;</td>"
 print "	</tr>"
 print "	</table>"
