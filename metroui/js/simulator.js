@@ -8,7 +8,7 @@ lastMode="_idle"
 
 function redrawSim(){
 	if(mode == "idle"){
-		if(lastMode == "hlt" || lastMode == "hlt/sparge"){
+		if(lastMode == "hlt" || lastMode == "hlt/sparge" || lastMode == "hlt/sparge/mash"){
 			document.getElementById("hlt").src="/metroui/realtimeview/simhlt.png";
 		}else{	
 			document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
@@ -16,14 +16,19 @@ function redrawSim(){
 		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
 		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
 
-		if(lastMode == "hlt/sparge"){
+		if(lastMode == "hlt/sparge" || lastMode == "hlt/sparge/mash"){
 			document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";
 		}else{
 			document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
 		}
-		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
+
+		if(lastMode == "boil" || lastMode == "boil/pump" || lastMode == "pump/cool"){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffoff.png";	
+		}else{
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";	
+		}
 		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
-	}else if(mode == "hlt" || mode == "hlt/sparge"){
+	}else if(mode == "hlt" || mode == "hlt/sparge" || mode == "hlt/sparge/mash"){
 		if(gpioSsrA==true){
 			document.getElementById("hlt").src="/metroui/realtimeview/simhlta.png";
 			document.getElementById("relays").src="/metroui/realtimeview/simrelays_hltonoff.png";
@@ -38,7 +43,7 @@ function redrawSim(){
 			document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
 		}
 
-		if(mode == "hlt/sparge"){
+		if(mode == "hlt/sparge" || mode == "hlt/sparge/mash"){
 			document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";
 		}else{
 			document.getElementById("mash").src="/metroui/realtimeview/simmash.png";
@@ -53,7 +58,64 @@ function redrawSim(){
 		document.getElementById("mash").src="/metroui/realtimeview/simmashfull.png";	
 		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
 		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
-	}	
+	}else if(mode == "boil"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";	
+		if(gpioSsrA==true && gpioSsrB == true){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleonon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboilonon.png";
+		}else if(gpioSsrA == true && gpioSsrB == false){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleonoff.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboilonoff.png";
+		}else if(gpioSsrA == false && gpioSsrB == true){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboiloffon.png";
+		}else{
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffoff.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		}
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
+	}else if(mode == "boil/pump"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";	
+		if(gpioSsrA==true && gpioSsrB == true){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleonon_pumpon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboilonon_pumpon.png";
+		}else if(gpioSsrA == true && gpioSsrB == false){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleonoff_pumpon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboilonoff_pumpon.png";
+		}else if(gpioSsrA == false && gpioSsrB == true){
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffon_pumpon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocketboiloffon_pumpon.png";
+		}else{
+			document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffoff_pumpon.png";
+			document.getElementById("socket").src="/metroui/realtimeview/simpowersocket_pumpon.png";
+		}
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridgepumpon_boil.png";
+	}else if(mode == "pump/cool"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";	
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffoff_pumpon.png";
+		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket_pumpon.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridgepumpon_boil.png";
+	}else if(mode == "ferm-wait"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";	
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettleoffoff.png";
+		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridge.png";
+	}else if(mode == "pump"){
+		document.getElementById("hlt").src="/metroui/realtimeview/simhltempty.png";
+		document.getElementById("relays").src="/metroui/realtimeview/simrelays.png";
+		document.getElementById("mash").src="/metroui/realtimeview/simmash.png";	
+		document.getElementById("kettle").src="/metroui/realtimeview/simkettle.png";
+		document.getElementById("socket").src="/metroui/realtimeview/simpowersocket.png";
+		document.getElementById("fridge").src="/metroui/realtimeview/simfridgepumpon_transfer.png";
+	}
 
 
 	if(lastMode != mode && mode != "idle"){
@@ -268,6 +330,7 @@ connection6.onclose = function(){
 
 function swbutton(b){
 	host=window.location.href.split(":54660")[0];
+	host="http://192.168.1.14";
 	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
 	if(localUser){
 		if(document.getElementById("state_"+b).value == "0"){
@@ -282,6 +345,7 @@ function swbutton(b){
 
 function button(b){
 	host=window.location.href.split(":54660")[0];
+	host="http://192.168.1.14";
 	url=host+":54661/cgi/fakeButtonHandler.py?button="+b;
 	if(localUser){
 		document.getElementById("buttonTarget").src=url;
