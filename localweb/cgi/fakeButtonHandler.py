@@ -20,7 +20,7 @@ allowed={'mashFillVol':True,'boilFillVol':True,'fermFillVol':True,'hltFillVol':T
 	'mashEmptyVol':True,'boilEmptyVol':True,'fermEmptyVol':True,'hltEmptyVol':True,}
 
 if allowed.has_key(x):
-	o=open("../ipc/%s" %(x),"w")
+	o=open("ipc/%s" %(x),"w")
 	o.close()
 
 
@@ -30,7 +30,7 @@ if allowed.has_key(x):
 #SetTemp
 allowed={'mashSetTemp' : True,'boilSetTemp':True,'fermSetTemp':True,'hltSetTemp':True}
 if allowed.has_key(x):
-	o=open("../ipc/fakeelement_%s" %(x),"w")
+	o=open("ipc/fakeelement_%s" %(x),"w")
 	o.write( form['onoff'].value )
 	o.close()
 
@@ -59,10 +59,10 @@ if allowed.has_key(x):
 	if probeid:
 		sys.stderr.write("%s\n" %(cfg))
 		try:
-			os.mkdir("../ipc/fake1wire/%s/" %(probeid))
+			os.mkdir("ipc/fake1wire/%s/" %(probeid))
 		except:
 			pass
-		o=open("../ipc/fake1wire/%s/w1_slave" %(probeid),"w")
+		o=open("ipc/fake1wire/%s/w1_slave" %(probeid),"w")
 		o.write("ff ff ff ff ff ff ff ff ff : crc=25 YES\n")
 		o.write("ff ff ff ff ff ff ff ff ff t=%s\n" %(temp))
 		o.close()
@@ -71,10 +71,10 @@ if allowed.has_key(x):
 		probeid=cfg.mashBProbe
 		sys.stderr.write("%s\n" %(cfg))
 		try:
-			os.mkdir("../ipc/fake1wire/%s/" %(probeid))
+			os.mkdir("ipc/fake1wire/%s/" %(probeid))
 		except:
 			pass
-		o=open("../ipc/fake1wire/%s/w1_slave" %(probeid),"w")
+		o=open("ipc/fake1wire/%s/w1_slave" %(probeid),"w")
 		o.write("ff ff ff ff ff ff ff ff ff : crc=25 YES\n")
 		o.write("ff ff ff ff ff ff ff ff ff t=%s\n" %(temp))
 		o.close()
@@ -85,13 +85,13 @@ allowed={'swHlt':True,'swMash':True,'swSparge':True,'swBoil':True,'swFerm':True,
 sys.stderr.write("switches %s\n" %(x))
 if allowed.has_key(x):
 	if form['onoff'].value == "on":
-		sys.stderr.write("adding %s  ../ipc/manualswitch_%s\n" %(os.getcwd(),x))
-		o=open("../ipc/manualswitch_%s" %(x),"w")
+		sys.stderr.write("adding %s  ipc/manualswitch_%s\n" %(os.getcwd(),x))
+		o=open("ipc/manualswitch_%s" %(x),"w")
 		o.close()
 	else:
 		try:
 			sys.stderr.write("removing ipc/manualswitch_%s\n" %(x))
-			os.remove("../ipc/manualswitch_%s" %(x))
+			os.remove("ipc/manualswitch_%s" %(x))
 		except:
 			pass
 
@@ -100,8 +100,8 @@ allowed={'pRotaryA':True,'pRotaryB':True,'pOk':True,'pLeft':True,'pDown':True,'p
 if allowed.has_key(x):
 	for y in allowed:
 		try:
-			os.remove("../ipc/manual_%s" %(y))
+			os.remove("ipc/manual_%s" %(y))
 		except:
 			pass
-	o=open("../ipc/manual_%s" %(form['button'].value),"w")
+	o=open("ipc/manual_%s" %(form['button'].value),"w")
 	o.close()
