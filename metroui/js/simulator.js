@@ -321,6 +321,77 @@ if("swPump" in obj){
 
 redrawSim();
 
+temphlt="&nbsp;-<BR>";
+tempmashA="&nbsp;- ";
+tempmashB="&nbsp;- <BR>";
+tempferm="&nbsp;-<BR>";
+tempboil="&nbsp;-<BR>";
+obj=parentobj.temp;
+
+if("currentResult" in obj){
+	var d = new Date();
+
+	if(mode == "boil/pump" || mode == "boil" || mode == "pump/cool" || mode =="pump" ){
+ 	if( probeboil in obj.currentResult){
+
+		if(obj.currentResult[ probeboil ].timestamp + 10 > (d.getTime()/1000)){
+			if(obj.currentResult[ probeboil ].valid){
+				tempboil=obj.currentResult[ probeboil ].temperature;
+			}
+		}
+	}
+	}
+
+	if(mode == "hlt" || mode == "hlt/sparge" || mode == "hlt/sparge/mash"){
+ 	if( probehlt in obj.currentResult){
+
+		if(obj.currentResult[ probehlt ].timestamp + 10 > (d.getTime()/1000)){
+			if(obj.currentResult[ probehlt ].valid){
+				temphlt=obj.currentResult[ probehlt ].temperature;
+			}
+		}
+	}
+	}
+
+	if(mode == "mash/dough" || mode == "hlt/sparge/mash" || mode == "mash" || lastMode == "hlt/sparge/mash"){
+ 	if( probemashA in obj.currentResult){
+
+		if(obj.currentResult[ probemashA ].timestamp + 10 > (d.getTime()/1000)){
+			if(obj.currentResult[ probemashA ].valid){
+				tempmashA=obj.currentResult[ probemashA ].temperature;
+			}
+		}
+	}
+
+ 	if( probemashB in obj.currentResult){
+
+		if(obj.currentResult[ probemashB ].timestamp + 10 > (d.getTime()/1000)){
+			if(obj.currentResult[ probemashB ].valid){
+				tempmashB=obj.currentResult[ probemashB ].temperature;
+			}
+		}
+	}
+	}
+	
+	if(mode == "ferm" || mode == "ferm-wait"){
+ 	if( probeferm in obj.currentResult){
+
+		if(obj.currentResult[ probeferm ].timestamp + 10 > (d.getTime()/1000)){
+			if(obj.currentResult[ probeferm ].valid){
+				tempferm=obj.currentResult[ probeferm ].temperature;
+			}
+		}
+	}
+	}
+	
+}
+
+
+document.getElementById("boiltemp").innerHTML=tempboil;
+document.getElementById("hlttemp").innerHTML=temphlt;
+document.getElementById("mashtemp").innerHTML=tempmashA+" / "+tempmashB;
+document.getElementById("fermtemp").innerHTML=tempferm;
+
 }
 
 connection6.onclose = function(){
