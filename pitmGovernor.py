@@ -869,6 +869,9 @@ class pitmController:
 				self.lcdDisplay.sendMessage(" Cool The Wort",3)
 
 
+			elif os.path.exists("ipc/swFerm") and os.path.exists("ipc/ferm-notstarted"):
+				self.mode="ferm-wait"
+				self.lcdDisplay.sendMessage(" Ready for Transfer",3)
 			elif os.path.exists("ipc/swFerm"):
 				self.mode="ferm"
 				if self.showActivityOrTime > 3:
@@ -1103,6 +1106,13 @@ class pitmController:
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
 				self._log("Reduced Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
+			if self.mode.count("ferm-wait"):
+				try:
+					os.remove("ipc/ferm-notstarted")
+					self._log("Removed Ferm Not Started Flag")
+				except:
+					pass
+
 			if self.mode.count("dough"):
 				try:
 					os.remove("ipc/mash_toggle_type-dough")
@@ -1142,6 +1152,14 @@ class pitmController:
 				self.boilTarget=self.boilTarget+0.2
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
 				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
+
+
+			if self.mode.count("ferm-wait"):
+				try:
+					os.remove("ipc/ferm-notstarted")
+					self._log("Removed Ferm Not Started Flag")
+				except:
+					pass
 
 
 			if self.mode.count("boil"):
