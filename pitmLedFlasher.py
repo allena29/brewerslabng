@@ -68,7 +68,7 @@ class pitmLedFlasher:
 			if os.path.exists("simulator"):
 				for x in ['lMashRed','lMashGreen','lMashBlue','lBoilRed','lBoilBlue','lBoilGreen','lHltRed','lHltGreen','lHltBlue','lFermRed','lFermGreen','lFermBlue','lSpargeRed','lSpargeGreen','lSpargeBlue','lSys','lMashPurple','lMashYellow','lMashWhite','lBoilPurple','lBoilYellow','lBoilWHite','lHltYellow','lHltPurple','lHltWhite','lFermWhite','lFermPurple','lFermYellow','lSpargeYellow','lSpargeWhite','lSpargePurple','lMashCyan','lBoilCyan','lHltCyan','lFermCyan','lSpargeCyan']:
 					try:
-						os.remove("tmpfs/fakeled_%s" %(x))
+						os.remove("ipc/fakeled_%s" %(x))
 					except:
 						pass
 
@@ -155,15 +155,15 @@ class pitmLedFlasher:
 			i2c.output("lSys",0)
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sBlue" %(led))
+					os.remove("ipc/fakeled_%sBlue" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sGreen" %(led))
+					os.remove("ipc/fakeled_%sGreen" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sRed" %(led))
+					os.remove("ipc/fakeled_%sRed" %(led))
 				except:
 					pass	
 		elif msg[led]['colour'] == "flash" and led == "lSys":
@@ -175,11 +175,11 @@ class pitmLedFlasher:
 			self.flashStatus[led]=("noflash",time.time())
 			i2c.output("lSys",1)
 			if os.path.exists("simulator"):
-				o=open("tmpfs/fakeled_%sRed" %(led),"w")
+				o=open("ipc/fakeled_%sRed" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sBlue" %(led),"w")
+				o=open("ipc/fakeled_%sBlue" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sGreen" %(led),"w")
+				o=open("ipc/fakeled_%sGreen" %(led),"w")
 				o.close()
 		if msg[led]['colour'] == "white":
 			self.flashStatus[led]=("noflash",time.time())
@@ -187,11 +187,11 @@ class pitmLedFlasher:
 			i2c.output('%sGreen' %(led),1)	
 			i2c.output('%sRed' %(led) ,1)	
 			if os.path.exists("simulator"):
-				o=open("tmpfs/fakeled_%sRed" %(led),"w")
+				o=open("ipc/fakeled_%sRed" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sBlue" %(led),"w")
+				o=open("ipc/fakeled_%sBlue" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sGreen" %(led),"w")
+				o=open("ipc/fakeled_%sGreen" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "purple":
 			self.flashStatus[led]=("noflash",time.time())
@@ -200,12 +200,12 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,1)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sGreen" %(led))
+					os.remove("ipc/fakeled_%sGreen" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sBlue" %(led),"w")
+				o=open("ipc/fakeled_%sBlue" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sRed" %(led),"w")
+				o=open("ipc/fakeled_%sRed" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "yellow":
 			self.flashStatus[led]=("noflash",time.time())
@@ -214,12 +214,12 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,1)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sBlue" %(led))
+					os.remove("ipc/fakeled_%sBlue" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sRed" %(led),"w")
+				o=open("ipc/fakeled_%sRed" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sGreen" %(led),"w")
+				o=open("ipc/fakeled_%sGreen" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "cyan":
 			self.flashStatus[led]=("noflash",time.time())
@@ -228,12 +228,12 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,0)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sRed" %(led))
+					os.remove("ipc/fakeled_%sRed" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sBlue" %(led),"w")
+				o=open("ipc/fakeled_%sBlue" %(led),"w")
 				o.close()
-				o=open("tmpfs/fakeled_%sGreen" %(led),"w")
+				o=open("ipc/fakeled_%sGreen" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "red":
 			self.flashStatus[led]=("noflash",time.time())
@@ -242,14 +242,14 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,1)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sBlue" %(led))
+					os.remove("ipc/fakeled_%sBlue" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sGreen" %(led))
+					os.remove("ipc/fakeled_%sGreen" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sRed" %(led),"w")
+				o=open("ipc/fakeled_%sRed" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "blue":
 			self.flashStatus[led]=("noflash",time.time())
@@ -258,14 +258,14 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,0)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sGreen" %(led))
+					os.remove("ipc/fakeled_%sGreen" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sRed" %(led))
+					os.remove("ipc/fakeled_%sRed" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sBlue" %(led),"w")
+				o=open("ipc/fakeled_%sBlue" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "green":
 			self.flashStatus[led]=("noflash",time.time())
@@ -274,14 +274,14 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,0)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sBlue" %(led))
+					os.remove("ipc/fakeled_%sBlue" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sRed" %(led))
+					os.remove("ipc/fakeled_%sRed" %(led))
 				except:
 					pass	
-				o=open("tmpfs/fakeled_%sGreen" %(led),"w")
+				o=open("ipc/fakeled_%sGreen" %(led),"w")
 				o.close()
 		elif msg[led]['colour'] == "flashred":
 			self.flashStatus[led] = ("Red",time.time())
@@ -305,15 +305,15 @@ class pitmLedFlasher:
 			i2c.output('%sRed' %(led) ,0)	
 			if os.path.exists("simulator"):
 				try:
-					os.remove("tmpfs/fakeled_%sBlue" %(led))
+					os.remove("ipc/fakeled_%sBlue" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sGreen" %(led))
+					os.remove("ipc/fakeled_%sGreen" %(led))
 				except:
 					pass	
 				try:
-					os.remove("tmpfs/fakeled_%sRed" %(led))
+					os.remove("ipc/fakeled_%sRed" %(led))
 				except:
 					pass	
 
@@ -323,15 +323,15 @@ class pitmLedFlasher:
 		self._log("Flashing Led required %s : uniqueId=%s" %(led,uniqueId))
 		if os.path.exists("simulator"):
 			try:
-				os.remove("tmpfs/fakeled_%sBlue" %(led))
+				os.remove("ipc/fakeled_%sBlue" %(led))
 			except:
 				pass	
 			try:
-				os.remove("tmpfs/fakeled_%sGreen" %(led))
+				os.remove("ipc/fakeled_%sGreen" %(led))
 			except:
 				pass	
 			try:
-				os.remove("tmpfs/fakeled_%sRed" %(led))
+				os.remove("ipc/fakeled_%sRed" %(led))
 			except:
 				pass	
 		
@@ -340,14 +340,14 @@ class pitmLedFlasher:
 			if uniqueId == newUniqueId:
 				self.i2c.output("%s%s" %(led,colour),1)
 				if os.path.exists("simulator"):
-					o=open("tmpfs/fakeled_%s%s" %(led,colour),"w")
+					o=open("ipc/fakeled_%s%s" %(led,colour),"w")
 					o.close()
 					time.sleep(0.4)
 			if uniqueId == newUniqueId:
 				self.i2c.output("%s%s" %(led,colour),0)	
 				if os.path.exists("simulator"):
 					try:
-						os.remove("tmpfs/fakeled_%s%s" %(led,colour))
+						os.remove("ipc/fakeled_%s%s" %(led,colour))
 					except:
 						pass	
 				time.sleep(0.4)
