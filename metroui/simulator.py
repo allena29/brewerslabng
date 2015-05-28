@@ -76,6 +76,7 @@ print "<td>"
 
 print "<!-- realtimeview -->"
 
+print "<span id='websocketState'>Not Connected</span>"
 print "	<!-- buttons --> "
 print "	<table border=0 cellspacing=0 cellpadding=0 width=100%%>"
 print "	<tr>"
