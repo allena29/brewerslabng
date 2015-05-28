@@ -8,4 +8,8 @@ echo "Starting "
 
 lighttpd -f lighttpd/brewerslab.conf
 
+cd websocket
+screen -dmS websocket python server.py
+
+
 exit 0

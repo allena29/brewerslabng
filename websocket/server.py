@@ -289,7 +289,6 @@ def publishWs():
 							   'button':globalData['/simulator-button'],
 							   'temp':globalData['/simulator-temp']
 							}  )))
-						print globalData['/simulator-button']
 
 		time.sleep(0.3)
 
