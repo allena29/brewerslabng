@@ -1316,6 +1316,8 @@ class brewerslabCloudApi:
 		thisActivity = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND stepNum = :4",username,thisProcess.process, activityName,-1).fetch(1)[0]
 		sys.stderr.write("thisActivity ... %s\n" %(thisActivity.activityNum))
 
+		if complete == "1":
+			activityStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,-1,-1).fetch(1)[0]
 
 		thisStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,int(stepNum),-1).fetch(1)[0]
 #		sumToComplete=0
@@ -1328,6 +1330,7 @@ class brewerslabCloudApi:
 			thisStep.completed=True
 			thisStep.subStepsCompleted=True
 			thisStep.stepEndTime=int(time.time())
+
 		else:
 			lastCompleted=False
 			thisStep.completed=False
@@ -1340,6 +1343,8 @@ class brewerslabCloudApi:
 		result['lastcomplete'] = lastCompleted
 		result['stepid'] = "%s" %(stepNum)
 		#self.brewlog.save()	
+		if complete == "1":
+			result['label'] = "%s / %s" %(activityStep.stepName, thisStep.stepName)
 
 		return {'operation':'setStepComplete','status':1,'json': json.dumps( {'result': result } ) }
 
@@ -1362,13 +1367,17 @@ class brewerslabCloudApi:
 		sys.stderr.write("thisActivity ... %s\n" %(thisActivity.activityNum))
 
 		
-
-
+		if completed == "1":
+			activityStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,-1,-1).fetch(1)[0]
+			parentStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,int(stepNum),-1).fetch(1)[0]		
 		thisStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,int(stepNum),int(subStepNum)).fetch(1)[0]
+
+
 		if completed == "1":
 			thisStep.completed=True
 			thisStep.stepEndTime=int(time.time())
 			lastCompleted=True
+
 		else:
 			lastCompleted=False
 			thisStep.completed=False
@@ -1376,22 +1385,8 @@ class brewerslabCloudApi:
 
 		theseSteps = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum > :5",username,brewlog,thisActivity.activityNum,int(stepNum),-1).fetch(1000)
 
-#		stepNum = int(stepNum)
-#		subStepNum = int(subStepNum)
 		sumToComplete=0
 		numCompleted=0
-
-#		step = self.activity.steps[stepNum]
-#		substep = step.substeps[subStepNum]
-		
-#		if completed == "1":
-#			lastCompleted=True
-#			substep.completed=1
-#			substep.endTime=time.time()
-#		else:
-#			lastCompleted=False
-#			substep.completed=None
-#			substep.endTime=0
 
 		for substep in theseSteps:
 			sumToComplete = sumToComplete +1
@@ -1400,8 +1395,6 @@ class brewerslabCloudApi:
 			elif substep.needToComplete == False:
 				numCompleted = numCompleted + 1
 
-		sys.stderr.write("sumToComplete %s\n" %(sumToComplete))
-		sys.stderr.write("numCompleted %s\n" %(numCompleted))
 		
 		if sumToComplete == numCompleted:
 			subStepCompletes = 100
@@ -1425,6 +1418,10 @@ class brewerslabCloudApi:
 		result['progress'] = int(subStepCompletes)
 		result['lastcomplete'] = lastCompleted
 		result['stepid'] = "%s" %(stepNum)
+
+		if completed == "1":
+			result['label'] = "%s / %s / %s" %(activityStep.stepName,parentStep.stepName, thisStep.stepName)
+
 		if sumToComplete==numCompleted:
 			result['parentComplete']=True	
 		else:

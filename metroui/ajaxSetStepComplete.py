@@ -28,5 +28,12 @@ sys.stdout.write("<xml>\n")
 sys.stdout.write(" <status>%s</status>\n" %(form['stepNum'].value))
 sys.stdout.write(" <complete>%s</complete>\n" %(comp))
 sys.stdout.write("</xml>")
+
+if not os.path.exists("progress/%s" %(form['brewlog'].value)):
+	os.mkdir("progress/%s" %(form['brewlog'].value))
+if completeStatus.has_key("label"):
+	o=open("progress/%s/last-step-complete" %(form['brewlog'].value),"w")
+	o.write( completeStatus['label'])
+	o.close()
 sys.stdout.flush()
 
