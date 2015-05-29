@@ -291,7 +291,6 @@ class pitmMonitor:
 			(targetMin,targetMax,target)=self.tempTargetMash
 
 		if self._mode.count("ferm") and probe == self.cfg.fermProbe:
-			print "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
 			probeOk=True
 			probeid="ferm :"
 			led="lFerm"
@@ -309,6 +308,11 @@ class pitmMonitor:
 				self.ledFlasher.sendMessage( 'lBoil','off')
 				self.ledFlasher.sendMessage( 'lMash','off')
 				self.ledFlasher.sendMessage( 'lFerm','off')
+
+				self.lcdDisplay.sendMessage("",0,importance=0)
+				self.lcdDisplay.sendMessage(" - no temp results -",1,importance=0)
+				self.lcdDisplay.sendMessage("",2,importance=0)
+
 			if self.doMonitoring:
 				try:
 
@@ -327,18 +331,22 @@ class pitmMonitor:
 							(probeOk,probeid,targetMin,targetMax,target,led) = self.getProbeDetail(probe)
 
 							if probeOk:
-								alarm=""
-								if self.probes[probe][-1] > targetMax:
-									alarm=">"
-									self.ledFlasher.sendMessage(led,'red')
-								elif self.probes[probe][-1] < targetMin:
-									self.ledFlasher.sendMessage(led,'blue')
-									alarm="<"
+								self._log("display,%s,current,%s,target,%s" %(probeid,self.probes[probe][-1], target))
+								if self.lastTempReading[probe] + 30  < time.time():
+									self.lcdDisplay.sendMessage("%s%sXX.X Aim:%.1f" %( probeid,alarm, target ), line,alert=alert)
+									self.ledFlasher.sendMessage(led,'purple')
 								else:
 									alarm=""
-									self.ledFlasher.sendMessage(led,'green')
-								self._log("display,%s,current,%s,target,%s" %(probeid,self.probes[probe][-1], target))
-								self.lcdDisplay.sendMessage("%s%s%.1f Aim:%.1f" %( probeid,alarm,self.probes[probe][-1], target ), line,alert=alert)
+									if self.probes[probe][-1] > targetMax:
+										alarm=">"
+										self.ledFlasher.sendMessage(led,'red')
+									elif self.probes[probe][-1] < targetMin:
+										self.ledFlasher.sendMessage(led,'blue')
+										alarm="<"
+									else:
+										alarm=""
+										self.ledFlasher.sendMessage(led,'green')
+									self.lcdDisplay.sendMessage("%s%s%.1f Aim:%.1f" %( probeid,alarm,self.probes[probe][-1], target ), line,alert=alert)
 								line=line+1
 						time.sleep(2)
 
@@ -354,17 +362,21 @@ class pitmMonitor:
 							(probeOk,probeid,targetMin,targetMax,target,led) = self.getProbeDetail(probe)
 
 							if probeOk:
-								alarm=""
-								if self.probes[probe][-1] > targetMax:
-									alarm=">"
-									self.ledFlasher.sendMessage(led,'red')
-								elif self.probes[probe][-1] < targetMin:
-									alarm="<"
-									self.ledFlasher.sendMessage(led,'blue')
-								else:
-									self.ledFlasher.sendMessage(led,'green')
 								self._log("display,%s,current,%s,maximum,%s" %(probeid,self.probes[probe][-1], max(self.probes[probe])))
-								self.lcdDisplay.sendMessage("%s%s%.1f Max:%.1f" %( probeid,alarm,self.probes[probe][-1], max(self.probes[probe])), line,alert=alert)
+								if self.lastTempReading[probe] + 30 < time.time():
+									self.ledFlasher.sendMessage(led,'purple')
+									self.lcdDisplay.sendMessage("%s%sXX.X Max:%.1f" %( probeid,alarm, max(self.probes[probe])), line,alert=alert)
+								else:
+									alarm=""
+									if self.probes[probe][-1] > targetMax:
+										alarm=">"
+										self.ledFlasher.sendMessage(led,'red')
+									elif self.probes[probe][-1] < targetMin:
+										alarm="<"
+										self.ledFlasher.sendMessage(led,'blue')
+									else:
+										self.ledFlasher.sendMessage(led,'green')
+									self.lcdDisplay.sendMessage("%s%s%.1f Max:%.1f" %( probeid,alarm,self.probes[probe][-1], max(self.probes[probe])), line,alert=alert)
 								line=line+1
 						time.sleep(2)
 						if line == 1:
@@ -381,19 +393,23 @@ class pitmMonitor:
 							(probeOk,probeid,targetMin,targetMax,target,led) = self.getProbeDetail(probe)
 
 							if probeOk:
-								alarm=""
-
-								if self.probes[probe][-1] > targetMax:
-									alarm=">"
-									self.ledFlasher.sendMessage(led,'red')
-								elif self.probes[probe][-1] < targetMin:
-									alarm="<"
-									self.ledFlasher.sendMessage(led,'blue')
-								else:
-									alarm=" "
-									self.ledFlasher.sendMessage(led,'green')
 								self._log("display,%s,current,%s,minimum,%s" %(probeid,self.probes[probe][-1], min(self.probes[probe])))
-								self.lcdDisplay.sendMessage("%s%s%.1f Min:%.1f" %(probeid,alarm, self.probes[probe][-1], min(self.probes[probe])),line,alert=alert)
+								if self.lastTempReading[probe] + 30  < time.time():
+									self.ledFlasher.sendMessage(led,'purple')
+									self.lcdDisplay.sendMessage("%s%sXX.X Min:%.1f" %(probeid,alarm, min(self.probes[probe])),line,alert=alert)
+								else:
+									alarm=""
+
+									if self.probes[probe][-1] > targetMax:
+										alarm=">"
+										self.ledFlasher.sendMessage(led,'red')
+									elif self.probes[probe][-1] < targetMin:
+										alarm="<"
+										self.ledFlasher.sendMessage(led,'blue')
+									else:
+										alarm=" "
+										self.ledFlasher.sendMessage(led,'green')
+									self.lcdDisplay.sendMessage("%s%s%.1f Min:%.1f" %(probeid,alarm, self.probes[probe][-1], min(self.probes[probe])),line,alert=alert)
 								line=line+1
 						time.sleep(2)
 
@@ -410,18 +426,22 @@ class pitmMonitor:
 							(probeOk,probeid,targetMin,targetMax,target,led) = self.getProbeDetail(probe)
 
 							if probeOk:
-								if self.probes[probe][-1] > targetMax:
-									alarm=">"
-									self.ledFlasher.sendMessage(led,'red')
-								elif self.probes[probe][-1] < targetMin:
-									alarm="<"
-									self.ledFlasher.sendMessage(led,'blue')
-								else:
-									alarm=" "
-									self.ledFlasher.sendMessage(led,'green')
 								self._log("display,%s,current,%s,average,%s" %(probeid,self.probes[probe][-1], sum(self.probes[probe])/len(self.probes[probe])))
+								if self.lastTempReading[probe] + 30  < time.time() :
+									self.ledFlasher.sendMessage(led,'purple')
 
-								self.lcdDisplay.sendMessage("%s%s%.1f Avg:%.1f" %(probeid,alarm, self.probes[probe][-1],sum(self.probes[probe])/len(self.probes[probe])),line,alert=alert)
+									self.lcdDisplay.sendMessage("%s%sXX.X Avg:%.1f" %(probeid,alarm, sum(self.probes[probe])/len(self.probes[probe])),line,alert=alert)
+								else:
+									if self.probes[probe][-1] > targetMax:
+										alarm=">"
+										self.ledFlasher.sendMessage(led,'red')
+									elif self.probes[probe][-1] < targetMin:
+										alarm="<"
+										self.ledFlasher.sendMessage(led,'blue')
+									else:
+										alarm=" "
+										self.ledFlasher.sendMessage(led,'green')
+									self.lcdDisplay.sendMessage("%s%s%.1f Avg:%.1f" %(probeid,alarm, self.probes[probe][-1],sum(self.probes[probe])/len(self.probes[probe])),line,alert=alert)
 
 								line=line+1
 						if line == 1:
