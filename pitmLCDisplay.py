@@ -90,7 +90,7 @@ class pitmLCDisplay:
 
 		self._log("Launching Multicast LCD Socket %s:%s" %(self.cfg.mcastGroup,self.cfg.mcastLcdPort))
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL,socket.SO_REUSEADDR, 4)
+		self.sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
 		self.sock.bind(('', self.cfg.mcastLcdPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
 		self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
@@ -149,7 +149,11 @@ class pitmLCDisplay:
 		else:
 			#self._log(" Text: %s\n Line: %s\n autoBlank: %s\n doNotScrollToStart: %s\n alignCenter: %s\n autoWait %s\n cropText %s" %(cm['text'],cm['line'],cm['autoBlank'],cm['doNotScrollToStart'],cm['alignCenter'],cm['autoWait'],cm['cropText']))
 			self._log(" Text: %s  Line: %s" %(cm['text'],cm['line']),importance=1)
-			
+			self.lcd.scrollText( cm['text'], cm['line'], cm['autoBlank'], cm['doNotScrollToStart'],cm['alignCenter'],cm['autoWait'],cm['cropText'],cm['alert'])
+
+
+
+		
 
 
 
