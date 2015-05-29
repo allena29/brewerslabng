@@ -185,7 +185,8 @@ print " </tr>"
 
 print "<tr><td colspan=4><font size=2>Recipe: <span id='recipe'></span><br>"
 print "Brewlog: <span id='brewlog'></span><br>"
-print "Mode: <span id='mode'><span><br></font></td></tr>"
+print "Mode: <span id='mode'></span><br>"
+print "Last Step Complete: <span id='laststep'></span></font></td></tr>"
 print "	</table>"
 
 

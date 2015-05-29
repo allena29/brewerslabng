@@ -3,6 +3,7 @@
 cd /home/beer/brewerslab/commander/
 
 mkdir lighttpd/cache 2>/dev/null
+mkdir metroui/progress  2>/dev/null
 chown beer:beer lighttpd/cache
 echo "Starting "
 

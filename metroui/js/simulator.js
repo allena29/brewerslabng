@@ -257,6 +257,9 @@ if("_mode" in parentobj.gov){
 	document.getElementById("brewlog").innerHTML=parentobj.gov._brewlog;
 	document.getElementById("recipe").innerHTML=parentobj.gov._recipe;
 }
+if("laststep" in parentobj){
+	document.getElementById("laststep").innerHTML=parentobj.laststep;
+}
 
 obj=parentobj.button._button;
 if("swHlt" in obj){

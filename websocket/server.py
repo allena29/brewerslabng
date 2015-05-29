@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import socket
 import json
 import struct
@@ -284,9 +285,16 @@ def publishWs():
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
 					if globalData[ client.request.path ].has_key("_operation"):
+						laststep=""
+						if globalData['/simulator-gov'].has_key("_brewlog"):
+							brewlog=globalData['/simulator-gov']['_brewlog']
+							if os.path.exists("../metroui/progress/%s/last-step-complete" %(brewlog)):
+								laststep=open("../metroui/progress/%s/last-step-complete" %(brewlog)).read()
+					
 						client.sendMessage( u"%s" %( json.dumps(
 							{  'gov':globalData['/simulator-gov'],
 							   'button':globalData['/simulator-button'],
+							   'laststep':laststep,
 							   'temp':globalData['/simulator-temp']
 							}  )))
 
