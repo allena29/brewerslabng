@@ -255,7 +255,7 @@ if("_mode" in parentobj.gov){
 	mode=parentobj.gov._mode;
 	document.getElementById("mode").innerHTML=parentobj.gov._mode;
 	document.getElementById("brewlog").innerHTML=parentobj.gov._brewlog;
-	document.getElementById("recipe").innerHTML=parentobj.gov._recipe;
+	document.getElementById("recipe").innerHTML="<a href='/metroui/editRecipe.py?recipeName="+parentobj.gov._recipe+"&export=1'>"+parentobj.gov._recipe+"</a>";
 }
 if("laststep" in parentobj){
 	document.getElementById("laststep").innerHTML=parentobj.laststep;

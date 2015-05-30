@@ -161,7 +161,7 @@ print "<td width=10>&nbsp;</td>"
 print "<td>"
 
 print "	<!-- simulator --> "
-print "	<table border=0 cellspacing=0 cellpadding=0>"
+print "	<table border=0 cellspacing=0 cellpadding=0 width=447>"
 
 print "	<tr>"
 print "	<td><img src='/metroui/realtimeview/simhltempty.png' width=90 height=126 id='hlt'></td>"
