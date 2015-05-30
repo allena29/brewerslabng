@@ -161,11 +161,18 @@ connection.onmessage = function(e){
 obj = JSON.parse(e.data);
 	document.getElementById("websocketState").innerHTML="";
 
+if(obj.lcd0.importance >= 0){
 document.getElementById('lcd0').innerHTML=obj.lcd0.text+"&nbsp;";
+}
+if(obj.lcd1.importance >= 0){
 document.getElementById('lcd1').innerHTML=obj.lcd1.text+"&nbsp;";
+}
+if(obj.lcd2.importance >= 0){
 document.getElementById('lcd2').innerHTML=obj.lcd2.text+"&nbsp;";
+}
+if(obj.lcd3.importance >= 0){
 document.getElementById('lcd3').innerHTML=obj.lcd3.text+"&nbsp;";
-
+}
 obj=obj.led;
 ledFound=false;
 ledColour="";
