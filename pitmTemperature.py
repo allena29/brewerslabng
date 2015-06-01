@@ -12,7 +12,7 @@ import threading
 import time
 from i2ctools import *
 from pitmCfg import pitmCfg
-
+from gpiotools import *
 
 if os.path.exists("simulator"):
 	import fakeRPi.GPIO as GPIO
@@ -29,7 +29,8 @@ class pitmTemperature:
 	def __init__(self):
 		self.logging=2		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
-		self.i2c = i2ctools()
+		#self.i2c = i2ctools()
+		self.gpio = gpiotools()
 
 		self.probesToMonitor={}
 		self.probesToMonitor[ self.cfg.hltProbe ] = False
@@ -62,18 +63,7 @@ class pitmTemperature:
 
 	def uncontrol(self):
 		print "closing off relays"
-		self.i2c.output( 'hltProbePower', False)
-		self.i2c.output( 'hltProbeData', False)
-
-		self.i2c.output( 'mashProbePower', False)
-		self.i2c.output( 'mashProbeData', False)
-
-		self.i2c.output( 'boilProbePower', False)
-		self.i2c.output( 'boilProbeData', False)
-
-		self.i2c.output( 'fermProbePower', False)
-		self.i2c.output( 'fermProbeData', False)
-
+		self.gpio.output("tempProbes",0)
 
 	
 	def __del__(self):
@@ -124,7 +114,7 @@ class pitmTemperature:
 		controlMessage['hlt']=self.cfg.hltProbe
 		controlMessage['boil']=self.cfg.boilProbe
 		controlMessage['ferm']=self.cfg.fermProbe
-		print controlMessage
+		#print controlMessage
 		checksum = "%s%s" %(controlMessage,self.cfg.checksum)
 		controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
 
@@ -149,7 +139,6 @@ class pitmTemperature:
 		# set temperature probe relays to the correct value
 		#
 		#
-		print "set relays for ",self._mode	
 		
 		hlt=False
 		mash=False
@@ -167,17 +156,14 @@ class pitmTemperature:
 		if self._mode =='ferm':
 			ferm=True
 
-		self.i2c.output( 'hltProbePower', hlt)
-		self.i2c.output( 'hltProbeData', hlt)
-
-		self.i2c.output( 'mashProbePower', mash)
-		self.i2c.output( 'mashProbeData', mash)
-
-		self.i2c.output( 'boilProbePower', boil)
-		self.i2c.output( 'boilProbeData', boil)
-
-		self.i2c.output( 'fermProbePower', ferm)
-		self.i2c.output( 'fermProbeData', ferm)
+		if ferm or hlt or mash or boil:
+		#	self.i2c.output( 'probePower', True)
+		#	self.i2c.output( 'probeData', True)
+			self.gpio.output("tempProbes",True)
+		else:	
+		#	self.i2c.output( 'probePower', False)
+		#	self.i2c.output( 'probeData', False)
+			self.gpio.output("tempProbes",False)
 
 
 		for probe in os.listdir( self.tempBaseDir ):
