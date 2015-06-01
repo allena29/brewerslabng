@@ -65,6 +65,9 @@ class gpiotools:
 			'fermCool':
 				{'input':False, 'pin':18,
 				 'setup':False,'inverse':True,'pup':True},
+			'tempProbes':
+				{'input':False, 'pin':5,
+				 'setup':False,'inverse':True,'pup':True},
 
 
 
