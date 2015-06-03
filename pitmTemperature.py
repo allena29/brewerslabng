@@ -10,7 +10,6 @@ import json
 import sys
 import threading
 import time
-from i2ctools import *
 from pitmCfg import pitmCfg
 from gpiotools import *
 
@@ -29,7 +28,6 @@ class pitmTemperature:
 	def __init__(self):
 		self.logging=2		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
-		#self.i2c = i2ctools()
 		self.gpio = gpiotools()
 
 		self.probesToMonitor={}
@@ -157,12 +155,8 @@ class pitmTemperature:
 			ferm=True
 
 		if ferm or hlt or mash or boil:
-		#	self.i2c.output( 'probePower', True)
-		#	self.i2c.output( 'probeData', True)
 			self.gpio.output("tempProbes",True)
 		else:	
-		#	self.i2c.output( 'probePower', False)
-		#	self.i2c.output( 'probeData', False)
 			self.gpio.output("tempProbes",False)
 
 
