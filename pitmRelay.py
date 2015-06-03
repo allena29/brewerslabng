@@ -85,17 +85,26 @@ class pitmRelay:
 
 
 	def __del__(self):
-
+		self._mode="shutdown"
+		self.gpio.output('fermHeat',0)
+		self.gpio.output('fermCool',0)
+		self.gpio.output('pump',0)
+		self.gpio.output('extractor',0)
 		self.gpio.output('ssrZoneA',0)
 		self.gpio.output('ssrZoneB',0)
 		self.gpio.output('tSsrFan',0)	
 
 	def uncontrol(self):
 		self._log("Uncontrol Called")
-
+		self._mode="shutdown"
+		self.gpio.output('fermHeat',0)
+		self.gpio.output('fermCool',0)
+		self.gpio.output('pump',0)
+		self.gpio.output('extractor',0)
 		self.gpio.output('ssrZoneA',0)
 		self.gpio.output('ssrZoneB',0)
 		self.gpio.output('tSsrFan',0)	
+
 
 	
 	def _log(self,msg,importance=10):
@@ -192,8 +201,8 @@ class pitmRelay:
 	def zoneThread(self):
 		while True:
 
-
-			if self._mode == "idle":
+			
+			if self._mode == "idle" or self._mode == "shutdown":
 				self.fridgeCompressorDelay=301
 				self.gpio.output("fermCool",0)
 				self.gpio.output('pump',0)
