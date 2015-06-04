@@ -22,6 +22,12 @@ grid={}
 db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 theme.presentBody()
+print """
+<script language=Javascript>
+createCooke("clientWidth",window.screen.availWidth);
+createCooke("clientHeight",window.screen.availHeight);
+</script>
+"""
 print "<div class=\"container\">"
 
 
