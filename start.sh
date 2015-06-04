@@ -15,7 +15,7 @@ modprobe i2c-dev
 modprobe w1-gpio
 modprobe w1-therm
 
-
+chown /var/log/beer -R
 
 ntpdate -s uk.pool.ntp.org
 
