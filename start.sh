@@ -12,6 +12,8 @@ mount -t tmpfs -o size=50M tmpfs ipc
 /etc/init.d/nfs-kernel-server restart
 
 
+chown beer /var/log/beer -R
+
 rm -f simulator 2>/dev/null
 
 
