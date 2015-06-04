@@ -7,6 +7,8 @@ mkdir metroui/progress  2>/dev/null
 chown beer:beer lighttpd/cache
 echo "Starting "
 
+chown beer:beer /var/log/beer -R
+
 lighttpd -f lighttpd/brewerslab.conf
 
 cd websocket
