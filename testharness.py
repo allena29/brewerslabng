@@ -2,8 +2,10 @@ import sys
 import time
 from gpiotools import *
 from pitmLCDisplay import *
+from pitmCfg import *
 lcd=pitmLCDisplay()
 gpio=gpiotools()
+cfg=pitmCfg()
 
 testtype="all"
 if len(sys.argv) > 1:
@@ -21,12 +23,11 @@ if testtype == "all" or testtype == "temp":
 
 	lcd.sendMessage(" Mash + HLT" ,2)
 
-	print "Temperature - probe port Mash + HLT" 
 	tempBaseDir="/sys/bus/w1/devices/"
 	for x in range(6000):
 		for probe in os.listdir( tempBaseDir ):
 			if probe.count("28-"):
-				print x,time.ctime(),
+				print x,cfg.probeId[probe],time.ctime(),
 				try:
 					o=open( "%s/%s/w1_slave" %(tempBaseDir,probe))
 					print probe,		
@@ -43,7 +44,7 @@ if testtype == "all" or testtype == "temp":
 
 						# fudge factor for 0 / 85 results when not connected	
 
-						lcd.sendMessage(" %s %s" %(temperature,probe[3:]),3)
+						lcd.sendMessage(" %s %s %s" %(temperature,probe[8:],cfg.probeId[probe] ),3)
 						print temperature	
 				except:
 					lcd.sendMessage(" file missing",3)

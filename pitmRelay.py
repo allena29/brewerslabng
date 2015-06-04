@@ -90,8 +90,8 @@ class pitmRelay:
 		self.gpio.output('fermCool',0)
 		self.gpio.output('pump',0)
 		self.gpio.output('extractor',0)
-		self.gpio.output('ssrZoneA',0)
-		self.gpio.output('ssrZoneB',0)
+		self.gpio.output('zoneA',0)
+		self.gpio.output('zoneB',0)
 		self.gpio.output('tSsrFan',0)	
 
 	def uncontrol(self):
@@ -101,8 +101,8 @@ class pitmRelay:
 		self.gpio.output('fermCool',0)
 		self.gpio.output('pump',0)
 		self.gpio.output('extractor',0)
-		self.gpio.output('ssrZoneA',0)
-		self.gpio.output('ssrZoneB',0)
+		self.gpio.output('zoneA',0)
+		self.gpio.output('zoneB',0)
 		self.gpio.output('tSsrFan',0)	
 
 
