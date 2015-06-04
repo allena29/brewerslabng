@@ -6,20 +6,22 @@ sh temperature.sh "kill"
 sh grapher.sh "kill"
 sh relay.sh "kill"
 
-exit
 
 sync
 
 cp /currentdata/* /archivedata/
 sync
 
+
+python relay-kill.py
+
 if [ "$1" = "reboot" ]
 then
-sudo /sbin/reboot
+/sbin/reboot
 fi
 
 if [ "$1" = "poweroff" ]
 then
-sudo /sbin/poweroff
+/sbin/poweroff
 fi
 
