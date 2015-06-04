@@ -337,7 +337,6 @@ tempmashB="&nbsp;- <BR>";
 tempferm="&nbsp;-<BR>";
 tempboil="&nbsp;-<BR>";
 obj=parentobj.temp;
-
 if("currentResult" in obj){
 	var d = new Date();
 
@@ -385,7 +384,6 @@ if("currentResult" in obj){
 	
 	if(mode == "ferm" || mode == "ferm-wait"){
  	if( probeferm in obj.currentResult){
-
 		if(obj.currentResult[ probeferm ].timestamp + 10 > (d.getTime()/1000)){
 			if(obj.currentResult[ probeferm ].valid){
 				tempferm=obj.currentResult[ probeferm ].temperature;
@@ -396,11 +394,12 @@ if("currentResult" in obj){
 	
 }
 
-
 document.getElementById("boiltemp").innerHTML=tempboil;
 document.getElementById("hlttemp").innerHTML=temphlt;
 document.getElementById("mashtemp").innerHTML=tempmashA+" / "+tempmashB;
 document.getElementById("fermtemp").innerHTML=tempferm;
+
+
 
 }
 

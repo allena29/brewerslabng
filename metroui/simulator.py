@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import re
 import sys
 import cgi
@@ -22,6 +23,28 @@ export=False
 if form.has_key("export"):	export=True
 
 theme.presentBody()
+
+
+landscape=True
+width=1
+height=0
+try:
+	for cook in (os.environ['HTTP_COOKIE']).split(";"):
+		cookie=cook.split("=")
+		if cookie[0].count("clientWidth"):
+			width=int(cookie[1])
+		if cookie[0].count("clientHeight"):
+			height=int(cookie[1])
+	if width<height:
+		landscape=False	
+except:
+	pass
+print """
+<script language=Javascript>
+createCookie("clientWidth",window.screen.availWidth);
+createCookie("clientHeight",window.screen.availHeight);
+</script>
+"""
 
 print "<div class=\"container\">"
 
@@ -156,9 +179,11 @@ print "	<td><font size=2>Pump</font></td>"
 print "	</tr>"
 print "	</table>"
 
-print "<td>"
-print "<td width=10>&nbsp;</td>"
-print "<td>"
+if landscape:
+	print "<td>"
+	print "<td width=10>&nbsp;</td>"
+	print "<td>"
+	
 
 print "	<!-- simulator --> "
 print "	<table border=0 cellspacing=0 cellpadding=0 width=447>"
@@ -189,11 +214,10 @@ print "Mode: <span id='mode'></span><br>"
 print "Last Step Complete: <span id='laststep'></span></font></td></tr>"
 print "	</table>"
 
-
-print "</td>"
-print "</tr>"
-
-print "</table>"
+if landscape:
+	print "</td>"
+	print "</tr>"
+	print "</table>"
 
 print """
 				<!-- begin spinner -->
