@@ -230,6 +230,9 @@ print """
                                 <!-- end spinner -->
 """
 
+print "<b>Log</b>"
+print "<iframe frameborder=0 src='log.py' width=100% height=410px scrolling=no></iframe>"
+
 
 print "</div>"
 
@@ -256,6 +259,4 @@ probeferm="%s";
 print """
 <script src='/metroui/js/simulator.js'></script>
 """
-
-
 theme.presentFoot()
