@@ -34,5 +34,6 @@ sh grapher.sh "Launching"
 sh bidir.sh "Launching"
 
 
+screen -dmS localweb python localweb/localserve.py
 
 
