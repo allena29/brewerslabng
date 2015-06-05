@@ -2,6 +2,7 @@
 
 # piTempMonitor Controller
 import urllib2
+import re
 import json
 import hashlib
 import os
@@ -440,7 +441,6 @@ class pitmController:
 		self.rotary = gpioRotary()
 		self.rotary.clockwise = self.rotaryUp
 		self.rotary.counterclockwise = self.rotaryDown
-
 		brewlog=self.selectBrewlog()
 
 
@@ -464,6 +464,7 @@ class pitmController:
 		# 
 		# fetch data from brewerlsab database 
 		#
+		self._log(" - select brewlog fetching stats")
 		try:
 			recipes=json.loads(urllib2.urlopen("http://192.168.1.13:54660/metroui/pitmBrewloglist.py").read())
 		except:
@@ -575,6 +576,7 @@ class pitmController:
 			self.boilTarget=86
 			self._recipe=brewSelected['recipe']
 			self._brewlog=brewSelected['brewlog']
+			self._log(" Recipe: %s Brewlog: %s" %(self._recipe,self._brewlog))
 			self.lcdDisplay.sendMessage( self._recipe , 0)
 			self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
 			self.lcdDisplay.sendMessage("        ----",2)
@@ -1079,6 +1081,74 @@ class pitmController:
 
 
 	def adjustTargets(self):
+		if os.path.exists("ipc/adjustFermTarget"):
+			newTarget="?"
+			try:
+				newTarget=float(re.compile("^\s*([0-9\.]*)\s*$").sub('\g<1>',open("ipc/adjustFermTarget").read()))
+				self.fermLow = newTarget - 0.3
+				self.fermHigh = newTarget + 0.3
+				self.fermTarget=newTarget
+				self._log("Adjusting Fermentation Target to %s" %(newTarget))
+				os.unlink("ipc/adjustFermTarget")
+				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
+			except:
+				self._log("Adjust Target invalid %s - ignoring" %(newTarget))
+				try:
+					os.unlink("ipc/adjustFermTarget")
+				except:
+					pass
+
+		if os.path.exists("ipc/adjustSpargeTarget"):
+			newTarget="?"
+			try:
+				newTarget=float(re.compile("^\s*([0-9\.]*)\s*$").sub('\g<1>',open("ipc/adjustSpargeTarget").read()))
+				self.spargeLow = newTarget - 0.3
+				self.spargeHigh = newTarget + 0.3
+				self.spargeTarget=newTarget
+				self._log("Adjusting Sparge Target to %s" %(newTarget))
+				os.unlink("ipc/adjustSpargeTarget")
+				self.lcdDisplay.sendMessage(" Target = %s" %(self.spargeTarget),2)
+			except:
+				self._log("Adjust Target invalid %s - ignoring" %(newTarget))
+				try:
+					os.unlink("ipc/adjustSpargeTarget")
+				except:
+					pass
+
+		if os.path.exists("ipc/adjustHltTarget"):
+			newTarget="?"
+			try:
+				newTarget=float(re.compile("^\s*([0-9\.]*)\s*$").sub('\g<1>',open("ipc/adjustHltTarget").read()))
+				self.hltLow = newTarget - 0.3
+				self.hltHigh = newTarget + 0.3
+				self.hltTarget=newTarget
+				self._log("Adjusting HLT Target to %s" %(newTarget))
+				os.unlink("ipc/adjustHltTarget")
+				self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
+			except:
+				self._log("Adjust Target invalid %s - ignoring" %(newTarget))
+				try:
+					os.unlink("ipc/adjustHltTarget")
+				except:
+					pass
+
+		if os.path.exists("ipc/adjustBoilTarget"):
+			newTarget="?"
+			try:
+				newTarget=float(re.compile("^\s*([0-9\.]*)\s*$").sub('\g<1>',open("ipc/adjustBoilTarget").read()))
+				self.boilLow = newTarget - 0.3
+				self.boilHigh = newTarget + 0.3
+				self.boilTarget=newTarget
+				self._log("Adjusting Boil Target to %s" %(newTarget))
+				os.unlink("ipc/adjustBoilTarget")
+				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
+			except:
+				self._log("Adjust Target invalid %s - ignoring" %(newTarget))
+				try:
+					os.unlink("ipc/adjustBoilTarget")
+				except:
+					pass
+
 		if not self.gpio.input('pLeft') and self.pLeft:
 			self.pLeft=False			
 			if self.mode.count("ferm"):
