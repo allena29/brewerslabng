@@ -44,15 +44,13 @@ print """
 
 
 print """
-<h2>Process</h2>
-<select id='process' name="process">"""
+<h2>Process</h2>"""
 cursor=con.cursor()
-cursor.execute("select owner,process FROM gProcesses ORDER BY process DESC")
+cursor.execute("select owner,process FROM gRecipes WHERE recipeName='%s' ORDER BY process DESC LIMIT 0,1" %(form['recipeName'].value))
 for row in cursor:
 	(owner,process)=row
-	print "<option>%s</option>" %(process)	
+	print "<input type='hidden' name='process' value='%s'> %s" %(process,process)
 print """
-</select>
 
 """
 

@@ -213,13 +213,13 @@ print """
 			<p>
 """ %(activeStats)
 cursor=con.cursor()
-cursor.execute("select recipeName,mash_efficiency,alkalinity from gRecipes WHERE recipeName = '%s' ;" %(form['recipeName'].value))
+cursor.execute("select recipeName,process,mash_efficiency,alkalinity from gRecipes WHERE recipeName = '%s' ;" %(form['recipeName'].value))
 mashEfficiency=0
 for row in cursor:
-	(reipceName,mashEfficiency,alkalinity)=row
+	(reipceName,process,mashEfficiency,alkalinity)=row
 
 #cursor=db.query("select recipe,batchsize,estimated_og,estimated_fg,estimated_abv,estimated_ibu,topupvol,boil_vol from gRecipeStats WHERE recipe = '%s' AND brewlog = '';" %(form['recipeName'].value))
-cursor=db.query ("select recipe, estimated_og,estimated_fg,estimated_abv,estimated_ibu,topupvol,boil_vol,batchsize from gRecipeStats WHERE recipe='%s' ORDER BY entity DESC LIMIT 0,1" %(form['recipeName'].value))
+cursor=db.query ("select recipe,estimated_og,estimated_fg,estimated_abv,estimated_ibu,topupvol,boil_vol,batchsize from gRecipeStats WHERE recipe='%s' AND process = '%s' ORDER BY entity DESC LIMIT 0,1" %(form['recipeName'].value,process))
 result=db.use_result()
 row=result.fetch_row()
 #((recipe,batchsize,estimatedOg,estimatedFg,estimatedAbv,estimatedIbu,topup,boilVolume),)=row
@@ -244,6 +244,8 @@ if not export and theme.localUser:
 	print "<BR>"
 else:
 	print "<b>Batch Size:</b> %.1f L<BR>" %(float(batchsize))
+
+print "<b>Process:</b> %s<BR>" %(process)
 
 print """
 <b>Estimated Gravity:</b> %.3f OG - %.3f FG<br>
