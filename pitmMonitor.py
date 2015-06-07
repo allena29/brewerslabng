@@ -122,6 +122,12 @@ class pitmMonitor:
 			if cm['_mode'].count("boil"):
 				self.doMonitoring=True
 			
+			if cm['_mode'].count("pump"):
+				self.doMonitoring=True
+
+			if cm['_mode'].count("cool"):
+				self.doMonitoring=True
+			
 			if cm['_mode'].count("ferm"):
 				self.doMonitoring=True
 
@@ -308,10 +314,10 @@ class pitmMonitor:
 				self.ledFlasher.sendMessage( 'lBoil','off')
 				self.ledFlasher.sendMessage( 'lMash','off')
 				self.ledFlasher.sendMessage( 'lFerm','off')
-
-				self.lcdDisplay.sendMessage("",0,importance=0)
-				self.lcdDisplay.sendMessage(" - no temp results -",1,importance=0)
-				self.lcdDisplay.sendMessage("",2,importance=0)
+				if not self._mode == "Unknown" and not self._mode == "idle":	
+					self.lcdDisplay.sendMessage("",0,importance=0)
+					self.lcdDisplay.sendMessage(" - no temp results -",1,importance=0)
+					self.lcdDisplay.sendMessage("",2,importance=0)
 
 			if self.doMonitoring:
 				try:
