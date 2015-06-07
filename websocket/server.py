@@ -149,12 +149,23 @@ def govMcast():
 	mreq = struct.pack("4sl", socket.inet_aton(cfg.mcastGroup), socket.INADDR_ANY)
 	sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
+	lastMode="__"
 	while True:
 		(data, addr) = sock.recvfrom(1200)
 		j=json.loads(data)
 		try:
 			globalData['/simulator-gov'] = j
 			dataLastUpdate['/simulator-gov']=time.time()
+			if j.has_key("_mode"):
+				if not j['_mode'] == lastMode:	
+					try:
+						o=open("mode","w")
+						o.write( j['_mode'])
+						o.close()
+						lastMode = j['_mode']
+						print "set mode to",lastMode
+					except:
+						pass
 		except:
 			pass
 		time.sleep(0.9)		
