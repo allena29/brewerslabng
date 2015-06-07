@@ -256,7 +256,18 @@ probeboil="%s";
 probeferm="%s";
 </script>
 """ %(cfg.hltProbe,cfg.mashAProbe,cfg.mashBProbe,cfg.boilProbe,cfg.fermProbe)
+
+#<div id='grxaph' style="visibility: hidden;height: 0px">
+print """
+<div id='graph' style="">
+<img id='graphimg' src='spacer.png' width=600 height=300>
+</div>"""
+
 print """
 <script src='/metroui/js/simulator.js'></script>
 """
+
+
+	
 theme.presentFoot()
+

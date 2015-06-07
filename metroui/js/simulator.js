@@ -144,6 +144,17 @@ function redrawSim(){
 	if(lastMode != mode && mode != "idle"){
 		lastMode=mode;
 	}
+
+	if(mode == "ferm"){
+		document.getElementById("graphimg").src="/metroui/graph-proxy.py";
+		document.getElementById("graph").style.height="100%%";
+		document.getElementById("graph").style.visibility="visible";		
+	}else{
+		document.getElementById("graphimg").src="/metroui/spacer.png";
+		document.getElementById("graph").style.height="0%%";
+		document.getElementById("graph").style.visibility="hidden";
+
+	}
 }
 
 
