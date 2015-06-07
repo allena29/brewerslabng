@@ -38,7 +38,9 @@ try:
 	if width<height:
 		landscape=False	
 except:
-	pass
+	pas
+
+
 print """
 <script language=Javascript>
 createCookie("clientWidth",window.screen.availWidth);
@@ -55,50 +57,31 @@ print """
 
             <div class="grid fluid">
 
-                <div class="row">
-                    <div class="span12">
-
-		</div>
-		</div>
 """
 
 
 print """
 
-                <div class="row">
-                    <div class="span4">
-
-                        <div id='calculateOutstanding' class="panel" style='visibility: hidden' onClick="recalculate()">
-                            <div class="panel-header bg-darkRed fg-white">
-                                Recalculate
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    <div class="span4">
-                    </div>
 """
 
 
-print """
-			</div>
-
-            </div>
-"""
 
 #
 # simulator page
 #
 #
 
-print "<table border=0 cellspacing=0 cellpadding=0>"
-print "<tr valign=top>"
-print "<td>"
+if landscape:
+	print """<div class="row">"""
+	print """	<div class='span3'>"""
+else:
+	print """<div class="row">"""
+	print """	<div class='span12'>"""
+
+
+
 
 print "<!-- realtimeview -->"
-
 print "<span id='websocketState'>Not Connected</span>"
 print "	<!-- buttons --> "
 print "	<table border=0 cellspacing=0 cellpadding=0 width=100%%>"
@@ -180,10 +163,29 @@ print "	</tr>"
 print "	</table>"
 
 if landscape:
-	print "<td>"
-	print "<td width=10>&nbsp;</td>"
-	print "<td>"
-	
+
+	print "		</div>"
+	print """	<div class="span9">"""
+else:
+
+	print "</div></div>"
+	print """<div class="row">"""
+	print """	<div class='span12'>"""
+
+		
+
+print """
+<div class='tab-control' data-role='tab-control'>
+	<ul class='tabs'>
+		<li><a href="#frameSimulator">Simulator</a></li>
+		<li><a href="#frameLog">Log</a></li>
+		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
+	</ul>
+
+	<div class='frames'>
+		<div class='frame' id='frameSimulator'>
+"""
+
 
 print "	<!-- simulator --> "
 print "	<table border=0 cellspacing=0 cellpadding=0 width=447>"
@@ -214,10 +216,33 @@ print "Mode: <span id='mode'></span><br>"
 print "Last Step Complete: <span id='laststep'></span></font></td></tr>"
 print "	</table>"
 
-if landscape:
-	print "</td>"
-	print "</tr>"
-	print "</table>"
+print "</div>"	# end of frameSimulator
+
+
+print """<div class='frame' id='frameLog'>"""
+
+print "<iframe frameborder=0 src='log.py' width=100% height=410px scrolling=no></iframe>"
+
+print "</div>"
+
+
+print """
+<div class='frame' id='frameGraph'>
+<img id='graphimg' src='spacer.png' width=600 height=300>
+</div>"""
+
+
+print "</div>"	# end of div/frames
+
+
+print "</div>"	# end of tabe control
+
+
+print """	</div>"""		#end of cell
+print """	</div>"""		#end of row
+
+print "</div>"		# end of grid fluid
+
 
 print """
 				<!-- begin spinner -->
@@ -230,8 +255,6 @@ print """
                                 <!-- end spinner -->
 """
 
-print "<b>Log</b>"
-print "<iframe frameborder=0 src='log.py' width=100% height=410px scrolling=no></iframe>"
 
 
 print "</div>"
@@ -258,11 +281,6 @@ probeferm="%s";
 """ %(cfg.hltProbe,cfg.mashAProbe,cfg.mashBProbe,cfg.boilProbe,cfg.fermProbe)
 
 #<div id='grxaph' style="visibility: hidden;height: 0px">
-print """
-<div id='graph' style="">
-<img id='graphimg' src='spacer.png' width=600 height=300>
-</div>"""
-
 print """
 <script src='/metroui/js/simulator.js'></script>
 """
