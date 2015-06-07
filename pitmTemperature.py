@@ -150,6 +150,8 @@ class pitmTemperature:
 			boil=True
 		if self._mode.count("cool"):
 			boil=True
+		if self._mode.count("pump"):
+			boil=True
 
 		if self._mode =='ferm':
 			ferm=True
@@ -301,6 +303,11 @@ class pitmTemperature:
 		elif cm['_mode'].count("cool"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.boilProbe ] = True
+			self._targetFerm=cm['ferm']
+		elif cm['_mode'].count("pump"):
+			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.boilProbe ] = True
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
 			self._targetFerm=cm['ferm']
 		elif cm['_mode'].count("boil"):
 			self.doTemperatureing=True
