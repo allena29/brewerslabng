@@ -32,10 +32,17 @@ class pitmCfg:
 		self.hltProbe="28-000003ebc866"
 		self.mashAProbe="28-000003eba86a"
 		self.mashBProbe="28-000003ebccea"
-#		self.boilProbe="28-0000044fb99d"
 		self.boilProbe="28-0000044dcda4"
 		self.fermProbe="28-00044efeaaff"
-#upa
+
+		self.probeId={
+			self.hltProbe : 'hlt',
+			self.mashAProbe : 'mashA',
+			self.mashBProbe : 'mashB',
+			self.boilProbe : 'boil',
+			self.fermProbe : 'ferm',
+		}
+
 		# Multicast address and port
 		self.mcastPort = 5085
 		self.mcastLcdPort = 5086
