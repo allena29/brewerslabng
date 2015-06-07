@@ -221,14 +221,15 @@ print "</div>"	# end of frameSimulator
 
 print """<div class='frame' id='frameLog'>"""
 
-print "<iframe frameborder=0 src='log.py' width=100% height=410px scrolling=no></iframe>"
+print "<iframe frameborder=0 src='log.py' width=100% height=810px scrolling=no></iframe>"
 
 print "</div>"
 
 
 print """
 <div class='frame' id='frameGraph'>
-<img id='graphimg' src='spacer.png' width=600 height=300>
+<a href='graph-proxy.py' target='graphnewtab'><img id='graphimg' src='spacer.png' width=600 height=300 border=0></a>
+
 </div>"""
 
 
