@@ -38,7 +38,8 @@ try:
 	if width<height:
 		landscape=False	
 except:
-	pas
+	pass
+
 
 
 print """
@@ -74,10 +75,28 @@ print """
 if landscape:
 	print """<div class="row">"""
 	print """	<div class='span3'>"""
-else:
+
+
+if not landscape:
 	print """<div class="row">"""
 	print """	<div class='span12'>"""
 
+	print """
+	<div class='tab-control' data-role='tab-control'>
+		<ul class='tabs'>
+
+
+		<li><a href="#framePanel">Panel</a></li>
+		<li><a href="#frameSimulator">Simulator</a></li>
+		<li><a href="#frameLog">Log</a></li>
+		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
+	</ul>
+
+	
+	<div class='frames'>
+
+		<div class='frame' id='framePanel'>
+	"""
 
 
 
@@ -168,21 +187,29 @@ if landscape:
 	print """	<div class="span9">"""
 else:
 
-	print "</div></div>"
-	print """<div class="row">"""
-	print """	<div class='span12'>"""
+	print "</div>"
 
 		
 
-print """
-<div class='tab-control' data-role='tab-control'>
-	<ul class='tabs'>
+if  landscape:
+	print """
+	<div class='tab-control' data-role='tab-control'>
+		<ul class='tabs'>
+
+
+
 		<li><a href="#frameSimulator">Simulator</a></li>
 		<li><a href="#frameLog">Log</a></li>
 		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
 	</ul>
 
+	
 	<div class='frames'>
+
+	"""
+
+
+print """
 		<div class='frame' id='frameSimulator'>
 """
 
