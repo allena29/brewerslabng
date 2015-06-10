@@ -30,11 +30,11 @@ print "<div class=\"container\">"
 
 
 print """
-	<form action='adjust.py' method=POST>
 
             <div class="grid fluid">
 		<div clas='row'>
 			<div class='span12'>
+	<form action='http://192.168.1.14:54661/cgi/adjustTarget.py' method=POST target='dummyTarget'>
 """
 
 mode=""
@@ -51,8 +51,11 @@ if mode.count("ferm"):
 
 print """
 			</div>
+	</form>
 		</div>
 	</div>
 	</div>
-	</form>
+
+<iframe name='dummyTarget' height=1 width=1 frameborder=0>
+</iframe>
 """
