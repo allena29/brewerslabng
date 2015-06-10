@@ -21,7 +21,7 @@ form=cgi.FieldStorage()
 if form.has_key("delay"):
 	updated=True
 	try:
-		delayUntil=time.mktime(time.strptime(form['delay'].value))
+		delayUntil=int(form['delay'].value)
 		o=open("../ipc/hlt-delay-until","w")
 		o.write("%s" %(int(delayUntil)))
 		o.close()
