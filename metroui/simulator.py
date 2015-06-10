@@ -46,6 +46,11 @@ print """
 <script language=Javascript>
 createCookie("clientWidth",window.screen.availWidth);
 createCookie("clientHeight",window.screen.availHeight);
+
+function reloadAdjust(){
+document.getElementById("iframeAdjust").src='adjust.py';
+}
+ 
 </script>
 """
 
@@ -90,6 +95,10 @@ if not landscape:
 		<li><a href="#frameSimulator">Simulator</a></li>
 		<li><a href="#frameLog">Log</a></li>
 		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
+		"""
+	if theme.localUser:		
+		print """	<li><a href="#frameAdjust" onClick='reloadAdjust()'>Adjustments</a></li>"""
+	print """
 	</ul>
 
 	
@@ -201,6 +210,11 @@ if  landscape:
 		<li><a href="#frameSimulator">Simulator</a></li>
 		<li><a href="#frameLog">Log</a></li>
 		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
+		"""
+	if theme.localUser:		
+		print """	<li><a href="#frameAdjust" onClick='reloadAdjust()'>Adjustments</a></li>"""
+	print """
+
 	</ul>
 
 	
@@ -258,6 +272,12 @@ print """
 <a href='graph-proxy.py' target='graphnewtab'><img id='graphimg' src='spacer.png' width=600 height=300 border=0></a>
 
 </div>"""
+	
+if theme.localUser:		
+	print """
+	<div class='frame' id='frameAdjust'>
+	<iframe id='iframeAdjust' frameborder=0 src='blank.py' width=100% height=100% scrolling=no></iframe>
+	</div>"""
 
 
 print "</div>"	# end of div/frames
