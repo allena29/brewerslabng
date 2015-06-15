@@ -248,37 +248,25 @@ def publishWs():
 						'lcd3': globalData[ "/simulator-lcd"][3],
 						'led': globalData["/simulator-led"],	
 						})  ))
-			#if client.request.path == "/simulator-lcd":
-		#		if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-		#			clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-		#			for lcdLine in globalData[ client.request.path ]:
-		#				if lcdLine.has_key("line"):
-		#					client.sendMessage( u"%s" %( json.dumps(lcdLine)  ))
-#
-#			if client.request.path == "/simulator-led":
-#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-#					if globalData[ client.request.path ].has_key("_operation"):
-#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-led']  )))
 
-#			if client.request.path == "/simulator-button":
-#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-#					if globalData[ client.request.path ].has_key("_operation"):
-#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-button']['_button']  )))
-
-#			if client.request.path == "/simulator-relay":
-#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-#					if globalData[ client.request.path ].has_key("_operation"):
-#						client.sendMessage( u"%s" %( json.dumps( globalData['/simulator-relay']  )))
-#
-#			if client.request.path == "/simulator-ssr":
-#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-#					if globalData[ client.request.path ].has_key("_operation"):
-#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-ssr']  )))
-
+				if (time.time() - dataLastUpdate[ client.request.path ] ) > 600:
+					globalData['/simulator-lcd'][0]={'importance':0,'text':' - no active lcd'}
+					globalData['/simulator-lcd'][1]={'importance':0,'text':'   messages'}
+					globalData['/simulator-lcd'][2]={'importance':0,'text':''}
+					globalData['/simulator-lcd'][3]={'importance':0,'text':''}
+					globalData['/simulator-led']={'lSys':{'colour':'red'},
+								      'lHlt':{'colour':'red'},
+								      'lSparge':{'colour':'red'},
+								      'lFerm':{'colour':'red'},
+								      'lBoil':{'colour':'red'},
+								      'lMash':{'colour':'red'} }
+					client.sendMessage( u"%s" %( json.dumps( {
+						'lcd0': globalData[ "/simulator-lcd"][0],
+						'lcd1': globalData[ "/simulator-lcd"][1],
+						'lcd2': globalData[ "/simulator-lcd"][2],
+						'lcd3': globalData[ "/simulator-lcd"][3],
+						'led': globalData["/simulator-led"],	
+						})  ))
 
 			if client.request.path == "/simulator-ssr":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
@@ -287,11 +275,6 @@ def publishWs():
 						client.sendMessage( u"%s" %( json.dumps( {'ssr':globalData['/simulator-ssr'], 'relay': globalData['/simulator-relay'] } )  ))
 
 
-#			if client.request.path == "/simulator-gov":
-#				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
-#					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
-#					if globalData[ client.request.path ].has_key("_operation"):
-#						client.sendMessage( u"%s" %( json.dumps(globalData['/simulator-gov']  )))
 			if client.request.path == "/simulator-gov":
 				if dataLastUpdate[ client.request.path ] > clientLastUpdate[ "%s%s" %(client.address) ]:
 					clientLastUpdate[ "%s%s" %(client.address) ] = dataLastUpdate[ client.request.path ]
@@ -308,6 +291,19 @@ def publishWs():
 							   'laststep':laststep,
 							   'temp':globalData['/simulator-temp']
 							}  )))
+
+				if (time.time() - dataLastUpdate[ client.request.path ] ) > 600:
+					globalData[ '/simulator-gov' ] =  {'_mode':'Lost Contact with Governer'} 
+					globalData[ '/simulator-temp' ] = {}
+					laststep="Unkown"
+					globalData['/simulator-button'] = {}
+
+					client.sendMessage( u"%s" %( json.dumps(
+						{  'gov':globalData['/simulator-gov'],
+						   'button':globalData['/simulator-button'],
+						   'laststep':laststep,
+						   'temp':globalData['/simulator-temp']
+						}  )))
 
 		time.sleep(0.3)
 
