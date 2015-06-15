@@ -94,10 +94,10 @@ if not landscape:
 		<li><a href="#framePanel">Panel</a></li>
 		<li><a href="#frameSimulator">Simulator</a></li>
 		<li><a href="#frameLog">Log</a></li>
-		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
 		"""
 	if theme.localUser:		
 		print """	<li><a href="#frameAdjust" onClick='reloadAdjust()'>Adjustments</a></li>"""
+	print """<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>"""
 	print """
 	</ul>
 
@@ -209,10 +209,10 @@ if  landscape:
 
 		<li><a href="#frameSimulator">Simulator</a></li>
 		<li><a href="#frameLog">Log</a></li>
-		<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>
 		"""
 	if theme.localUser:		
 		print """	<li><a href="#frameAdjust" onClick='reloadAdjust()'>Adjustments</a></li>"""
+	print """<li id='graphTab' style="visibility:hidden"><a href="#frameGraph">Graph</a></li>"""
 	print """
 
 	</ul>
