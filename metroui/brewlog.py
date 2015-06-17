@@ -53,6 +53,14 @@ if not form.has_key("activityNum"):
 	cursor.close()
 	theme.doGrid(grid)	
 	print "</div>"
+
+
+	print "<p><h2>Recipe</h2>"
+	print "<iframe src='editRecipe.py?recipeName=%s&export=1&noheader=1' width=100%% height=400px frameborder=no></iframe>" %(form['recipeName'].value)
+	# last.fm sql
+	if os.path.exists("../../misc/%s.lastfm.json" %(form['brewlog'].value)):
+		print "<p><h2>Music</h2>"
+		print "<iframe src='music.py?brewlog=%s' width=100%% height=400px frameborder=no></iframe>" %(form['brewlog'].value)
 	theme.presentFoot()
 	sys.exit(0)
 

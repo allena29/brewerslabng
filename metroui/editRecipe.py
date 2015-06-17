@@ -11,11 +11,14 @@ con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewers
 
 form=cgi.FieldStorage()
 theme=webTheme()
+if form.has_key("noheader"):
+	theme.noHeader=True
 theme.bgcolor="#ffffff"
 sys.stdout.write("Content-Type:text/html\n\n")
-theme.pagetitle="%s - Edit Recipe" %(form['recipeName'].value)
-theme.goBackHome="brewerslab.py?recipeName=%s" %(form['recipeName'].value)
-theme.bodytitle="%s" %(form['recipeName'].value)
+if not form.has_key("noheader"):
+	theme.pagetitle="%s - Edit Recipe" %(form['recipeName'].value)
+	theme.goBackHome="brewerslab.py?recipeName=%s" %(form['recipeName'].value)
+	theme.bodytitle="%s" %(form['recipeName'].value)
 theme.presentHead()
 grid={}
 
@@ -259,6 +262,8 @@ print """
 
 """ %(float(estimatedOg),float(estimatedFg),float(estimatedAbv),float(estimatedIbu),float(mashEfficiency),float(alkalinity),float(boilVolume),float(topup) ) 
 
+if export:
+	print "<b>Calclog:</b> <a href='calclog.py?recipeName=%s&noheader=%s'>View Log</a><BR>" %(form['recipeName'].value,form['noheader'].value)
 print """
 			</p>
 		</div>

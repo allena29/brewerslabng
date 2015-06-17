@@ -1034,7 +1034,7 @@ class brewerslabCloudApi:
 	def crsAdjustment(self,alkalinity,volume,alkalinityRequired=50):
 		sys.stderr.write(" Tested Alkalinity: %s\n" %( alkalinity))
 		sys.stderr.write(" Mash Liquid:  %s\n" %(volume))
-		
+		sys.stderr.write(" Alkalininty Required %s\n" %(alkalinityRequired))	
 		# based upon maltmiller table
 		# AMS		0.6	1.5	3	4.6	6	9.2	12.2	15.3	18.4
 		# Chloride ppm	4	9.9	19.7	29.6	39.5	59.2	78.9	98.7	118.4
