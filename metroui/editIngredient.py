@@ -20,6 +20,13 @@ if theme.localUser:
 	if form['action'].value == "changeBatchSize":
 		brewerslabCloudApi().setBatchSize("test@example.com", form['recipe'].value,float(form['batchsize'].value),doRecalculate="0")
 
+	if form['action'].value == "changestoreqty":
+		# a little step in the right direction, not using Gql Wrapper
+		con = _mysql.connect('localhost', 'brewerslab','beer','brewerslab')
+		con.query( "UPDATE gPurchases set qty=%.0f WHERE entity=%s" %( float(form['qty'].value),form['entity'].value))
+		print "Location: stores.py?active=%s\n" %(form['type'].value)
+		sys.exit(0)	
+
 	if form['action'].value == "changeqty":
 		brewerslabCloudApi().changeItemInRecipe("test@example.com", form['recipe'].value,form['type'].value, form['ingredient'].value, float(form['qty'].value), float(form['hopAddAt'].value), doRecalculate=0)
 
@@ -27,6 +34,8 @@ if theme.localUser:
 		brewerslabCloudApi().addItemToRecipe("test@example.com", form['recipe'].value,form['type'].value, form['ingredient'].value, float(form['qty'].value), float(form['hopAddAt'].value), doRecalculate=0)
 
 	if form['action'].value == "delete":
-		brewerslabCloudApi().deleteItemFromRecipe("test@example.com", form['recipe'].value, form['type'].value, form['ingredient'].value, float(form['hopAddAt'].value))
+		#brewerslabCloudApi().deleteItemFromRecipe("test@example.com", form['recipe'].value, form['type'].value, form['ingredient'].value, float(form['hopAddAt'].value))
+		con = _mysql.connect('localhost', 'brewerslab','beer','brewerslab')
+		con.query( "DELETE FROM gIngredients WHERE entity=%s" %(form['entity'].value))
 
 	print "Location: editRecipe.py?recipeName=%s&active=%s&recalc=True\n" %(form['recipe'].value,form['type'].value)

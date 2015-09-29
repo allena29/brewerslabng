@@ -26,7 +26,7 @@ print "<div class=\"container\">"
 
 
 
-
+i=0
 activeStats="active "
 activeFermentables=""
 activeHops=""
@@ -40,7 +40,45 @@ print """
 """
 
 
-
+if theme.localUser:
+	print """
+	<script language="Javascript">
+	function updatestoreqty(itemtype,i,ent){
+		showdeadcenterdiv(100,30,"spinner",200,50);
+		d = new Date();
+		document.getElementById('spinnerText').innerHTML="updating";
+		document.getElementById('spinner').style.visibility="visible";
+		document.getElementById('spinner').style.height="100%%";
+		qty=document.getElementById("Qty"+i).value;
+		url="editIngredient.py?action=changestoreqty&type="+itemtype+"&entity="+ent+"&qty="+qty;
+		window.location.replace(url);
+	}
+	function editqty(itemtype,i,j,k){
+		html="<select id='Qty"+i+"'>"
+		if(itemtype == "fermentables"){
+			limit=3000;
+		}else{
+			limit=1000;
+		}
+		for(c=0;c<=limit;c++){
+			if(itemtype == "fermentables"){
+				C=c*10;
+			}else{
+				C=c;
+			}
+			if(C==j){
+			html=html+"<option value="+C+" SELECTED>"+C+" gm</option>"
+			}else{
+			html=html+"<option value="+C+">"+C+" gm</option>"
+			}
+		}
+		html=html+'</select> <a href="';
+		html=html+"javascript:updatestoreqty('"+itemtype+"','"+i+"','"+k+"')";
+		html=html+'"><i class="icon-checkmark fg-blue"></i></a>';
+		document.getElementById('QtyCell'+i).innerHTML=html;
+	}
+	</script>
+"""
 
 
 print """
@@ -108,11 +146,15 @@ print """
 """ %(activeFermentables)
 
 cursor=con.cursor()
-cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost FROM gPurchases WHERE qty > 0 AND storecategory='fermentables' ORDER BY storeitem")
+cursor.execute("select entity,storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost FROM gPurchases WHERE qty > 0 AND storecategory='fermentables' ORDER BY storeitem")
 for row in cursor:
-	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost)=row
+	(ent,storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost)=row
 	
-	print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	if not theme.localUser:
+		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	else:
+		print "<tr><td id='QtyCell%s'><a href=\"javascript:editqty('fermentables',%s,%.0f,%s)\">%.0f %s</a></a></td><td>%s<br><small>" %(i,i,float(qty),ent,float(qty),unit, storeitem)
+		i=i+1
 	print "Purchase Date: %s<br>" %(time.ctime(purchaseDate))
 	print "Before Before: %s<br>" %(time.ctime(bestBeforeEnd))
 	print "Supplier: %s<br>" %(supplier)
@@ -160,7 +202,11 @@ cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBefo
 for row in cursor:
 	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
 	
-	print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	if not theme.localUser:
+		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	else:
+		print "<tr><td id='QtyCell%s'><a href=\"javascript:editqty('hops',%s,%.0f,%s)\">%.0f %s</a></a></td><td>%s<br><small>" %(i,i,float(qty),ent,float(qty),unit, storeitem)
+		i=i+1
 	print "Hop Alpha: %.1f %%<br>" %(hopActualAlpha)
 	print "Purchase Date: %s<br>" %(time.ctime(purchaseDate))
 	print "Before Before: %s<br>" %(time.ctime(bestBeforeEnd))
@@ -209,7 +255,11 @@ cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBefo
 for row in cursor:
 	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost)=row
 	
-	print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	if not theme.localUser:
+		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	else:
+		print "<tr><td id='QtyCell%s'><a href=\"javascript:editqty('yeast',%s,%.0f,%s)\">%.0f %s</a></a></td><td>%s<br><small>" %(i,i,float(qty),ent,float(qty),unit, storeitem)
+		i=i+1
 	print "Purchase Date: %s<br>" %(time.ctime(purchaseDate))
 	print "Before Before: %s<br>" %(time.ctime(bestBeforeEnd))
 	print "Supplier: %s<br>" %(supplier)
@@ -256,8 +306,12 @@ cursor=con.cursor()
 cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha FROM gPurchases WHERE qty > 0 AND (storecategory='consumable' OR storecategory='misc') ORDER BY storeitem")
 for row in cursor:
 	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
+	if not theme.localUser:
+		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
+	else:
+		print "<tr><td id='QtyCell%s'><a href=\"javascript:editqty('misc',%s,%.0f,%s)\">%.0f %s</a></a></td><td>%s<br><small>" %(i,i,float(qty),ent,float(qty),unit, storeitem)
+		i=i+1
 	
-	print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
 	print "Purchase Date: %s<br>" %(time.ctime(purchaseDate))
 	print "Before Before: %s<br>" %(time.ctime(bestBeforeEnd))
 	print "Supplier: %s<br>" %(supplier)
@@ -279,6 +333,16 @@ print """
 
 
 
+print """
+				<!-- begin spinner -->
+                                <div id='spinner' style='height: 0px; visibility: hidden; margin: 12px;'>
+                                        <div id='box'>
+                                                Please Wait, <span id='spinnerText'>recalculating</span> recipe<br>
+                                                <img src="images/ajax_progress2.gif">
+                                        </div>
+                                </div>
+                                <!-- end spinner -->
+"""
 
 
 
@@ -291,5 +355,8 @@ print "</div>"	# accordiain
 
 
 print "</div>"
+
+
 theme.presentFoot()
+
 

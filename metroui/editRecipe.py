@@ -63,7 +63,7 @@ if theme.localUser:
 	window.location.replace(url);
 	}
 
-	function updateqty(itemtype,i,item,hopAddAt){
+	function updateqty(ent,itemtype,i,item,hopAddAt){
 	showdeadcenterdiv(100,30,"spinner",200,50);
 	d = new Date();
 	document.getElementById('outstandingSig').value=d.getTime();
@@ -71,11 +71,11 @@ if theme.localUser:
 	document.getElementById('spinner').style.visibility="visible";
 	document.getElementById('spinner').style.height="100%%";
 	qty=document.getElementById(itemtype+"Qty"+i).value;
-	url="editIngredient.py?recipe=%s&action=changeqty&type="+itemtype+"&ingredient="+item+"&qty="+qty+"&hopAddAt="+hopAddAt+"&outstandingSig="+document.getElementById('outstandingSig').value;
+	url="editIngredient.py?entity="+ent+"&recipe=%s&action=changeqty&type="+itemtype+"&ingredient="+item+"&qty="+qty+"&hopAddAt="+hopAddAt+"&outstandingSig="+document.getElementById('outstandingSig').value;
 	window.location.replace(url);
 	}
 
-	function editqty(itemtype,i,j,k,l){
+	function editqty(ent,itemtype,i,j,k,l){
 		html="<select id='"+itemtype+"Qty"+i+"'>"
 		for(c=0;c<=750;c++){
 			if(itemtype == "fermentables"){
@@ -90,7 +90,7 @@ if theme.localUser:
 			}
 		}
 		html=html+'</select> <a href="';
-		html=html+"javascript:updateqty('"+itemtype+"','"+i+"','"+k+"',"+l+")";
+		html=html+"javascript:updateqty("+ent+",'"+itemtype+"','"+i+"','"+k+"',"+l+")";
 		html=html+'"><i class="icon-checkmark fg-blue"></i></a>';
 		document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 	}
@@ -331,16 +331,16 @@ if not export and theme.localUser:
 sumGravity=0
 i=0
 cursor=con.cursor()
-cursor.execute("select recipeName,ingredient,qty,mustMash,isGrain,isAdjunct,hwe,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'fermentables' ORDER BY qty DESC" %(form['recipeName'].value))
+cursor.execute("select entity,recipeName,ingredient,qty,mustMash,isGrain,isAdjunct,hwe,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'fermentables' ORDER BY qty DESC" %(form['recipeName'].value))
 for row in cursor:
-	(recipe,ingredient,qty,mustMash,isGrain,isAdjunct,hwe,unit)=row
+	(ent,recipe,ingredient,qty,mustMash,isGrain,isAdjunct,hwe,unit)=row
 	row=result.fetch_row()
 	if export:
 		print "<tr><td>&nbsp;</td>"
 		print "<td>%.0f %s</td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
 	else:
-		print "<tr><td><a href='editIngredient.py?action=delete&type=%s&ingredient=%s&hopAddAt=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td>" %(itemType,ingredient,0,form['recipeName'].value)
-		print "<td id='%sQtyCell%s'><a href=\"javascript:editqty('%s',%s,%.0f,'%s',%s)\">%.0f %s</a></td><td><b>%s</b><br>" %(itemType,i,itemType,i,float(qty),ingredient,0,float(qty),unit,ingredient)
+		print "<tr><td><a href='editIngredient.py?entity=%s&action=delete&type=%s&ingredient=%s&hopAddAt=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td>" %(ent,itemType,ingredient,0,form['recipeName'].value)
+		print "<td id='%sQtyCell%s'><a href=\"javascript:editqty(%s,'%s',%s,%.0f,'%s',%s)\">%.0f %s</a></td><td><b>%s</b><br>" %(itemType,i,ent,itemType,i,float(qty),ingredient,0,float(qty),unit,ingredient)
 	if isAdjunct:	print "Adjunct<br>"
 	if isGrain:	print "Grain<br>"
 	if mustMash:	print "Mash Required<br>"
@@ -448,16 +448,16 @@ def hops(hopAddAtA,hopAddAtB):
 	hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.001:'Flameout (0min)',0.009:'Dryhop',20.222:'First Wort Hop' }
 	itemType='hops'
 	cursor=con.cursor()
-	cursor.execute("select recipeName,ingredient,qty,hopAddAt,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = '%s' AND hopAddAt >=%s and hopAddAt <=%s ORDER BY hopAddAt DESC,qty DESC" %(form['recipeName'].value,itemType,hopAddAtA,hopAddAtB))
+	cursor.execute("select entity,recipeName,ingredient,qty,hopAddAt,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = '%s' AND hopAddAt >=%s and hopAddAt <=%s ORDER BY hopAddAt DESC,qty DESC" %(form['recipeName'].value,itemType,hopAddAtA,hopAddAtB))
 	for row in cursor:
-		(recipe,ingredient,qty,hopAddAt,unit)=row
+		(ent,recipe,ingredient,qty,hopAddAt,unit)=row
 		row=result.fetch_row()
 		if export or not theme.localUser:
 			print "<tr><td>&nbsp;</td>"
 			print "<td>%.0f %s</a></td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
 		else:
-			print "<tr><td><a href='editIngredient.py?action=delete&type=%s&ingredient=%s&hopAddAt=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td>" %(itemType,ingredient,hopAddAt,form['recipeName'].value)
-			print "<td id='%sQtyCell%s'><a href=\"javascript:editqty('%s',%s,%.0f,'%s',%s)\">%.0f %s</a></td><td><b>%s</b><br>" %(itemType,i,itemType,i,float(qty),ingredient,hopAddAt,float(qty),unit,ingredient)
+			print "<tr><td><a href='editIngredient.py?entity=%s&action=delete&type=%s&ingredient=%s&hopAddAt=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td>" %(ent,itemType,ingredient,hopAddAt,form['recipeName'].value)
+			print "<td id='%sQtyCell%s'><a href=\"javascript:editqty(%s,'%s',%s,%.0f,'%s',%s)\">%.0f %s</a></td><td><b>%s</b><br>" %(itemType,i,ent,itemType,i,float(qty),ingredient,hopAddAt,float(qty),unit,ingredient)
 
 		if hop_labels.has_key( hopAddAt ):
 			print "%s - " %(hop_labels[hopAddAt])
@@ -520,9 +520,9 @@ print """
 """ %(activeYeast,colWidth)
 
 cursor=con.cursor()
-cursor.execute("select recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'yeast' ORDER BY qty DESC" %(form['recipeName'].value))
+cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'yeast' ORDER BY qty DESC" %(form['recipeName'].value))
 for row in cursor:
-	(recipe,ingredient,qty,unit)=row
+	(ent,recipe,ingredient,qty,unit)=row
 	row=result.fetch_row()
 	print "<tr><td>&nbsp;</td><td>%.0f %s</td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
 	print "</td></tr>"
@@ -562,9 +562,9 @@ print """
 """ %(activeMisc,colWidth)
 
 cursor=con.cursor()
-cursor.execute("select recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'misc' ORDER BY qty DESC" %(form['recipeName'].value))
+cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'misc' ORDER BY qty DESC" %(form['recipeName'].value))
 for row in cursor:
-	(recipe,ingredient,qty,unit)=row
+	(ent,recipe,ingredient,qty,unit)=row
 	row=result.fetch_row()
 	print "<tr><td>&nbsp;</td><td>%.0f %s</td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
 	print "</td></tr>"
