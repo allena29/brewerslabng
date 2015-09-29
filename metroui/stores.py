@@ -198,9 +198,9 @@ print """
 """ %(activeHops)
 
 cursor=con.cursor()
-cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha FROM gPurchases WHERE qty > 0 AND storecategory='hops' ORDER BY storeitem")
+cursor.execute("select entity,storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha FROM gPurchases WHERE qty > 0 AND storecategory='hops' ORDER BY storeitem")
 for row in cursor:
-	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
+	(ent,storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
 	
 	if not theme.localUser:
 		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
@@ -251,9 +251,9 @@ print """
 """ %("")
 
 cursor=con.cursor()
-cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost FROM gPurchases WHERE qty > 0 AND storecategory='yeast' ORDER BY storeitem")
+cursor.execute("select entity,storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost FROM gPurchases WHERE qty > 0 AND storecategory='yeast' ORDER BY storeitem")
 for row in cursor:
-	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost)=row
+	(ent,storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost)=row
 	
 	if not theme.localUser:
 		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
@@ -303,9 +303,9 @@ print """
 """ %(activeHops)
 
 cursor=con.cursor()
-cursor.execute("select storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha FROM gPurchases WHERE qty > 0 AND (storecategory='consumable' OR storecategory='misc') ORDER BY storeitem")
+cursor.execute("select entity,storeitem,qty,purchaseQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha FROM gPurchases WHERE qty > 0 AND (storecategory='consumable' OR storecategory='misc') ORDER BY storeitem")
 for row in cursor:
-	(storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
+	(ent,storeitem,qty,purchasedQty,unit,stocktag,supplier,bestBeforeEnd,purchaseDate,purchaseCost,hopActualAlpha)=row
 	if not theme.localUser:
 		print "<tr><td>%.0f %s</td><td>%s<br><small>" %(float(qty),unit, storeitem)
 	else:
