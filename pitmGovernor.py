@@ -573,7 +573,7 @@ class pitmController:
 
 			self.boilLow=85
 			self.boilHigh=87
-			self.boilTarget=86
+			self.boilTarget=95
 			self._recipe=brewSelected['recipe']
 			self._brewlog=brewSelected['brewlog']
 			self._log(" Recipe: %s Brewlog: %s" %(self._recipe,self._brewlog))
@@ -674,7 +674,6 @@ class pitmController:
 		self.fermheat=False
 		self.fermfridge=False
 		self.turnOffExtractorAfter=0	
-		cleanupDisplayRequired=False
 
 		self.zoneAtempTimestamp=0
 		self.zoneBtempTimestamp=0
@@ -720,6 +719,8 @@ class pitmController:
 				extractor=False
 			self._log("mode, %s pwrhlt, %s pwrboil, %s, extractor, %s, pump, %s, fermheat, %s, fermfridge, %s " %(self.mode, self.hltpower, self.boilpower, extractor, self.pump,self.fermheat,self.fermfridge),importance=8)
 
+
+			#
 			# Toggling the modes
 			if os.path.exists("ipc/swHlt") or os.path.exists("ipc/manual_swHlt"):
 				self.boilpower=False
@@ -747,7 +748,6 @@ class pitmController:
 				if not hltDelay:
 					self.htlpower=True
 					self.mode="hlt"	
-					cleanupDisplayRequired=True
 
 					self.lcdDisplay.sendMessage(" Heat Mash Water",3)
 
@@ -761,7 +761,6 @@ class pitmController:
 				self.hltpower=False
 				self.boilpower=False
 				self.mode="mash/dough"
-				cleanupDisplayRequired=True
 				self.lcdDisplay.sendMessage(" Mash / Dough In Grain",3)	
 	
 			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swFerm")) and not os.path.exists("ipc/mash_toggle_type-dough"):
@@ -772,7 +771,6 @@ class pitmController:
 				self.hltpower=False
 				self.boilpower=False
 				self.mode="mash"
-				cleanupDisplayRequired=True
 			
 				if self.mashStart == 0:
 					self.mashStart=time.time()	
@@ -814,7 +812,6 @@ class pitmController:
 			elif os.path.exists("ipc/swSparge"):
 				self.mode="hlt/sparge"
 
-
 				self.hltpower=True				
 				self.lcdDisplay.sendMessage(" Heat Sparge Water",3)
 
@@ -851,7 +848,6 @@ class pitmController:
 						else:
 							self.lcdDisplay.sendMessage(" Boiling The Wort",3)
 				self.extractor=True
-				cleanupDisplayRequired=True
 				
 				if os.path.exists("ipc/buttonpump"):
 					self.pump=True
@@ -874,6 +870,7 @@ class pitmController:
 			elif os.path.exists("ipc/swFerm") and os.path.exists("ipc/ferm-notstarted"):
 				self.mode="ferm-wait"
 				self.lcdDisplay.sendMessage(" Ready for Transfer",3)
+
 			elif os.path.exists("ipc/swFerm"):
 				self.mode="ferm"
 				if self.showActivityOrTime > 3:
@@ -895,15 +892,14 @@ class pitmController:
 
 			else:
 
-				if not self.mode == "idle":
-					cleanupDisplayRequired=True
 
-				if cleanupDisplayRequired:
-					cleanupDisplayRequired=False
+				if self._mode == "idle":
 					self.lcdDisplay.sendMessage( self._recipe , 0)
 					self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
 					self.lcdDisplay.sendMessage("        ----",2)
 					self.lcdDisplay.sendMessage("  Select Activity",3)
+
+
 				self.mode="idle"
 				self.hltpower=False
 				self.boilpower=False

@@ -132,7 +132,7 @@ class pitmMonitor:
 				self.doMonitoring=True
 
 #		print "Mode:",cm['_mode'],zone,self.doMonitoring
-		print cm
+#		print cm
 
 		if cm.has_key("tempTargetHlt"):
 			self.tempTargetHlt=cm['tempTargetHlt']
@@ -302,7 +302,6 @@ class pitmMonitor:
 			led="lFerm"
 			(targetMin,targetMax,target)=self.tempTargetFerm
 
-		print "getProbeDetail --->", (probeOk,probeid, targetMin,targetMax, target,led),self._mode,probe
 		return (probeOk,probeid, targetMin,targetMax, target,led)
 
 	def updateDisplay(self):
@@ -354,7 +353,7 @@ class pitmMonitor:
 										self.ledFlasher.sendMessage(led,'green')
 									self.lcdDisplay.sendMessage("%s%s%.1f Aim:%.1f" %( probeid,alarm,self.probes[probe][-1], target ), line,alert=alert)
 								line=line+1
-						time.sleep(2)
+						time.sleep(3)
 
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
@@ -384,7 +383,7 @@ class pitmMonitor:
 										self.ledFlasher.sendMessage(led,'green')
 									self.lcdDisplay.sendMessage("%s%s%.1f Max:%.1f" %( probeid,alarm,self.probes[probe][-1], max(self.probes[probe])), line,alert=alert)
 								line=line+1
-						time.sleep(2)
+						time.sleep(3)
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
 							self.lcdDisplay.sendMessage("",2,importance=0)
@@ -417,7 +416,7 @@ class pitmMonitor:
 										self.ledFlasher.sendMessage(led,'green')
 									self.lcdDisplay.sendMessage("%s%s%.1f Min:%.1f" %(probeid,alarm, self.probes[probe][-1], min(self.probes[probe])),line,alert=alert)
 								line=line+1
-						time.sleep(2)
+						time.sleep(3)
 
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
@@ -457,7 +456,7 @@ class pitmMonitor:
 							self.lcdDisplay.sendMessage("",2,importance=0)
 				except ImportError:
 					print "Dictionary might have changed sized .. passing"	
-			time.sleep(2)
+			time.sleep(3)
 
 
 

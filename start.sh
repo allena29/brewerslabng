@@ -46,5 +46,5 @@ sh monitor.sh "Launching"
 sh button.sh "Launching"
 
 # Start  local server
-screen -dmS localweb python localweb/localserve.py
+sudo -u beer screen -dmS localweb python localweb/localserve.py
 
