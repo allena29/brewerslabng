@@ -357,8 +357,9 @@ class pitmMonitor:
 
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
+						if line == 1 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
-						if line == 2:
+						if line == 2 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
 						line=0
 						for probe in self.probes:
@@ -386,8 +387,9 @@ class pitmMonitor:
 						time.sleep(3)
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
+						if line == 1 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
-						if line == 2:
+						if line == 2 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
 
 
@@ -420,8 +422,9 @@ class pitmMonitor:
 
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
+						if line == 1 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
-						if line == 2:
+						if line == 2 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
 
 						line=0
@@ -451,8 +454,9 @@ class pitmMonitor:
 								line=line+1
 						if line == 1:
 							self.lcdDisplay.sendMessage("",1,importance=0)
+						if line == 1 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
-						if line == 2:
+						if line == 2 and not self._mode == "ferm":
 							self.lcdDisplay.sendMessage("",2,importance=0)
 				except ImportError:
 					print "Dictionary might have changed sized .. passing"	
