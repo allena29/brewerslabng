@@ -248,6 +248,10 @@ class pitmRelay:
 				self._gpioFermHeat=False
 				self._gpioExtractor=True
 			elif self._mode == "ferm":
+
+				if not self.fridgeHeat and not self.fridgeCool:
+					self.lcdDisplay.sendMessage("",2)
+
 				if self._lastValidReading['ferm'] == -1:
 					self._lastValidReading['ferm'] = time.time()
 				print self._lastValidReading['ferm'] + 10, time.time(),  self._lastValidReading['ferm'] + 10 < time.time()
