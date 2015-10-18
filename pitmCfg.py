@@ -39,8 +39,10 @@ class pitmCfg:
 		# dict key = probeId
 		# dict val = list of 3 tuple elements
 		#			(temp >= X, temp < X, tempAdjustment)
+		#			between 60 and 75 there is a 1.5deg
 		self.probeAdjustments={
-			"28-00044efeaaff"	:	[ (19,20, 0.01), (20,99, 0.02), (-99,19,0)	],
+			"28-000003eba86a"	:	[ (60,75, 1.5), (75,80, 2), (80,99,2.5), (50,60,1) ],
+			"28-000003ebccea"	:	[ (60,75, 1.5), (75,80, 2), (80,99,2.5), (50,60,1) ],
 
 		} 
 		self.probeId={
