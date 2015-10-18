@@ -209,9 +209,30 @@ class pitmTemperature:
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
 								elif temperature == 0 and ( (self.lastResult[probe] >0 and self.lastResult[probe] <0)):
 									self._log("Accepting result %s lastResult %s" %(temperature,self.lastResult[probe]))
+
+									adjust=0
+									if self.cfg.probeAdjustments.has_key(probe):
+										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
+											if temperature >= adjustMin and temperature < adjustMax:
+												adjust=adjustAmount
+												break
+									if not adjust == 0:
+										self._log("Adjusting temperature by %s" %(adjust))
+										temperature=temperature+adjust
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
 								elif temperature == 85 and ( (self.lastResult[probe] > 85 and self.lastResult[probe] <85)):
 									self._log("Accepting result %s lastResult %s" %(temperature,self.lastResult[probe]))
+
+									adjust=0
+									if self.cfg.probeAdjustments.has_key(probe):
+										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
+											if temperature >= adjustMin and temperature < adjustMax:
+												adjust=adjustAmount
+												break
+									if not adjust == 0:
+										self._log("Adjusting temperature by %s" %(adjust))
+										temperature=temperature+adjust
+
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
 								elif temperature == 0 and self.lastResult[probe] == 0:
 									self._log("Cannot have 0 in concurrent readings")
@@ -221,6 +242,16 @@ class pitmTemperature:
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}								
 								else:	
 									self._log("Probe: %s Temperature: %s" %(probe,temperature))
+
+									adjust=0
+									if self.cfg.probeAdjustments.has_key(probe):
+										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
+											if temperature >= adjustMin and temperature < adjustMax:
+												adjust=adjustAmount
+												break
+									if not adjust == 0:
+										self._log("Adjusting temperature by %s" %(adjust))
+										temperature=temperature+adjust
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
 					
 								self.lastResult[probe]=temperature
