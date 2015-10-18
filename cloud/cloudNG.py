@@ -69,6 +69,7 @@ class brewerslabCloudApi:
 		self.keg_sugar_proportion = 0.8
 		self.bottle_sugar_proportion=1
 		self.polypin_sugar_proportion=0.3
+		self.strikeTempSkew=1		# reduce strike temp by this many degC
 
 		self.dbWrapper= db()
 		self.userid="allena29"
@@ -2594,8 +2595,11 @@ class brewerslabCloudApi:
 		#pickle:self.calclog = self.calclog + "process  : Calculating with Process %s\n" %(self.process.name)
 		#gqlself.calclog = self.calclog + "process  : Calculating with Process %s\n" %(revcipe.process)
 		self.calclog = self.calclog + "process  : Calculating with Process %s\n" %(recipe.process)	#pickql	
-		self.calclog = self.calclog + "process  :  - Basic water treatment\n"
 		self.calclog = self.calclog + "process  :  - TODO:: make sure hopAlpha comes from stock not preset\n"
+		self.calclog = self.calclog + "process  : brewerslabEngine rev xxx (2015-10-18)\n"
+		self.calclog = self.calclog + "process  :  - strikeTempSkew (hardcoded in cloudNG.py)\n"
+		self.calclog = self.calclog + "process  : brewerslabEngine rev xxx (2015-01-25)\n"
+		self.calclog = self.calclog + "process  :  - Basic water treatment with salifert alkalinity and AMS\n"
 		self.calclog = self.calclog + "process  : brewerslabEngine rev 554 (2014-11-2)\n"
 		self.calclog = self.calclog + "process  :  - support for First Wort Hopping, hopAddAt = 20.22\n"
 		self.calclog = self.calclog + "process  :  - BUGFIX: transient results for gravity contributions no longer stored in gContributions\n"
@@ -3722,11 +3726,12 @@ class brewerslabCloudApi:
 		strike_temp = ( ( .41 / self.recipe.mash_grain_ratio) * ((self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak)  - self.recipe.initial_grain_temp) ) + self.recipe.target_mash_temp
 		self.target_mash_temp=self.recipe.target_mash_temp
 		
-		self.calclog = self.calclog + "striketmp:\t strike_temp = %.3fC\n" %(strike_temp) 
-		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / mash_grain_ratio ) * (target_mash_temp - initial_grain_temp) ) + target_mash_temp\n" %(strike_temp) 
-		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / %.2f ) * (%.3fC - %.3fC) ) + %.3fC\n" %(strike_temp,self.recipe.mash_grain_ratio,(self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak),self.recipe.initial_grain_temp,self.recipe.target_mash_temp) 
-		
-		return strike_temp
+		self.calclog = self.calclog + "striketmp:\t strike_temp = %.3fC  (before skew %.3fC)\n" %(strike_temp-self.strikeTempSkew,strike_temp) 
+		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / mash_grain_ratio ) * (target_mash_temp - initial_grain_temp) ) + target_mash_temp\n" %(strike_temp-self.strikeTempSkew) 
+		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / %.2f ) * (%.3fC - %.3fC) ) + %.3fC\n" %(strike_temp-self.strikeTempSkew,self.recipe.mash_grain_ratio,(self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak),self.recipe.initial_grain_temp,self.recipe.target_mash_temp) 
+	
+	
+		return strike_temp - self.strikeTempSkew
 		
 
 
@@ -4900,73 +4905,6 @@ class brewerslabCloudApi:
 		cost_result['consumables']['__total__'] = 0	
 		stock_result['consumables'] = {}
 		stock_result['consumables']['__total__'] = 0
-
-		"""
-		#
-		#	Note in 2015 processes we don't appear to have Process Consumables  below
-		#
-	
-#		sys.stderr.write("\n\nStart of Process Costing\n----------------\n\n")
-		# Process Costing
-
-		for activity in self.ourActivities:
-			ourRecipeConsumables = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND processIngredient = :3 AND processConsumable = :4 AND process = :5",username,recipeName,1,1,process)
-			for ingredient in ourRecipeConsumables.fetch(2000):
-				sys.stderr.write(" --- Process Ingredient %s\n" %(ingredient.ingredient))
-				qty = ingredient.qty
-
-				ourStockCheck = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2",username,ingredient.ingredient)
-				ourStock = ourStockCheck.fetch(20000)
-
-				if len(ourStock) == 0:
-					storeQty=0
-				else:
-					storeQty = 0
-					storeCost = 0 
-
-					for purchasedItem in ourStock:
-					#for purchase in self.Consumable[ haveStock ]:
-						storeQty = storeQty + purchase.qty
-						storeCost = storeCost + purchase.price
-					if storeQty > 0:
-						cost_per_unit = storeCost / storeQty
-					else:
-						cost_per_unit = 0
-
-					cost_for_consumable = qty * cost_per_unit
-					cost_result['consumables']['__total__'] = cost_result['consumables']['__total__'] + cost_for_consumable
-					cost_result['consumables'][ ingredient.ingredient ] = cost_for_consumable
-					if storeQty > 0:
-						stock_result['__pcnt_left__'][ ingredient.ingredient ] = 1-(qty/storeQty)
-					else:
-						stock_result['__pcnt_left__'][ ingredient.ingredient ] = 1-0
-					stock_result['__qty_available__'][ ingredient.ingredient ] = storeQty
-					stock_result['__qty_required__'][ ingredient.ingredient ] = qty
-
-
-				stock_result['consumables'][ ingredient.ingredient ] = qty
-				stock_result['consumables']['__total__'] = stock_result['consumables']['__total__'] + qty
-
-				if qty > storeQty:
-					stock_result['__pcnt_left__'][ ingredient.ingredient ] = 0
-					stock_result['__stockrequirements__'].append( [ingredient.ingredient ,storeQty,qty])
-					stock_result['__out_of_stock__'].append( ingredient.ingredient )
-					stock_result['__qty_available__'][ ingredient.ingredient ] = storeQty
-					stock_result['__qty_required__'][ ingredient.ingredient ] = qty
-	
-
-		#
-		#	Note in 2015 processes we don't appear to have Process Consumables  above
-		#
-
-
-		
-
-
-
-
-#		sys.stderr.write("\n\nEnd of Process Costing\n----------------\n\n")
-		"""
 
 
 

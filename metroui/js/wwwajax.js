@@ -1,11 +1,21 @@
+function safeXML(content){
+         var content2 = content.replace( /&/g, '{:ampersand:}');
+         var content3 = content2.replace( /</g, '{:leftbracket:}');
+         var content4 = content3.replace( />/g, '{:rightbracket:}');
+         var content5 = content4.replace(  /\//g, '{:forwardslash:}');
+         var content6 = content5.replace( /\n/g, '{:slashn:}');
+         var content7 = content6.replace( /\r/g, '{:slashn:}');
+         return content7;
+}
 function unsafeXML(content){
          var content2 = content.replace( /{:ampersand:}/g, '&');
          var content3 = content2.replace( /{:leftbracket:}/g, '<');
          var content4 = content3.replace( /{:rightbracket:}/g, '>');
          var content5 = content4.replace( /{:forwardslash:}/g, '/');
-         return content5;
+         var content6 = content5.replace( /{:slashn:}/g, '\n');
+         var content7 = content6.replace( /{:slashn:}/g, '\r');
+         return content7;
 }
-
 
 
 function getXHTMLRequest(){
