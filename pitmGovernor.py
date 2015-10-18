@@ -869,7 +869,7 @@ class pitmController:
 
 			elif os.path.exists("ipc/swFerm") and os.path.exists("ipc/ferm-notstarted"):
 				self.mode="ferm-wait"
-				self.lcdDisplay.sendMessage(" Ready for Transfer",3)
+				self.lcdDisplay.sendMessage(" Pitch the Yeast",3)
 
 			elif os.path.exists("ipc/swFerm"):
 				self.mode="ferm"
