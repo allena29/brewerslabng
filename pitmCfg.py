@@ -35,6 +35,14 @@ class pitmCfg:
 		self.boilProbe="28-0000044dcda4"
 		self.fermProbe="28-00044efeaaff"
 
+		# Probe Adjutment Tweak
+		# dict key = probeId
+		# dict val = list of 3 tuple elements
+		#			(temp >= X, temp < X, tempAdjustment)
+		self.probeAdjustments={
+			"28-00044efeaaff"	:	[ (19,20, 0.01), (20,99, 0.02), (-99,19,0)	],
+
+		} 
 		self.probeId={
 			self.hltProbe : 'hlt',
 			self.mashAProbe : 'mashA',
