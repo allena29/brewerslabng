@@ -1,6 +1,32 @@
 from __future__ import division
 
 
+"""
+
+
+This code has been through a number of iterations.
+
+First as a PyGTK+ application, which used object representation of data
+principly documented in brewerslabData.py
+
+This started to transition to a GoogleAppEngine application, however this
+became a difficult converstion.
+
+Somewhere along the way an android app was created.
+
+ngData.py was introduced via to bridge the google app engine calls via a 
+mysql backend. The frontend then started to move into it's current 
+web based form in the metroui directory.
+
+
+The metroui doesn't support creating processes, these are best done via
+testRecipe.py which generated the mysql statements.
+
+
+
+
+"""
+
 public =1 
 
 
