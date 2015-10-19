@@ -39,29 +39,6 @@ import time
 
 
 
-"""
-Currently converting from python pickles to google app engine datastore.
-
-In future it should be fairly straightforward to convert to SQL after this has been done
-
-
-In an operation header we need username as the first parameter (wasn't the case before)
-We need to be sure to send nothign to stdout (it will break JSON decoding in the android app
-
-
-approx line numbers
-
-
-doCalculate() 
- 2499
- - calculateGravity
- - getStrikeTemperature
- - calculateHops
-   - _tinsethUtilisation
- 3367
-
-
-"""
 
 class brewerslabCloudApi:
 	
@@ -4197,6 +4174,25 @@ class brewerslabCloudApi:
 				hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.001:'Flameout (0min)',0.0001:'Dryhop' ,'20.222':'First Wort Hop'}
 
 				if step.auto:
+					if step.auto == "gatherthegrain":
+						sys.stderr.write("We don't need to do stock allocation here  addStockToBrewlog does this\n")
+						sys.stderr.write(" but we do need to add in substeps\n")
+
+						ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND isAdjunct = :3 AND ingredientType = :4", username,recipeName,0,'fermentables').fetch(4344)
+		
+						ssnumFIX=1
+						for recipe in ourRecipe:
+
+							estep = gBrewlogStep(brewlog=brewlog,owner=username,activityNum=activity.activityNum,stepNum=step.stepNum,subStepNum=ssnumFIX)		
+							estep.db=self.dbWrapper
+							estep.compileStep=True
+							estep.stepName="Measure %.1f%s of %s" %(recipe.qty,recipe.unit,recipe.ingredient)
+							estep.needToComplete=True
+							estep.put()
+							ssnumFIX=ssnumFIX+1
+
+
+
 					if step.auto == "sterilise":
 						ourEquipment = self.dbWrapper.GqlQuery("SELECT * FROM gEquipment WHERE owner = :1 AND process = :2",username,self.Process.process).fetch(32434)
 						if len(ourEquipment):
@@ -4417,16 +4413,16 @@ class brewerslabCloudApi:
 						HOPS={}
 						for orh in ourRecipeHops:
 							if not HOPS.has_key( orh.hopAddAt ):
-								sys.stderr.write("dryhop   :   %s/%s/%s \n" %(orh.ingredient,orh.qty,orh.hopAddAt))
+#								sys.stderr.write("dryhop   :   %s/%s/%s \n" %(orh.ingredient,orh.qty,orh.hopAddAt))
 								if orh.hopAddAt < 0.001 and orh.hopAddAt > -1:
-									sys.stderr.write("dryhop:   this is dry hop %s\n" %(orh.qty))
+#									sys.stderr.write("dryhop:   this is dry hop %s\n" %(orh.qty))
 									HOPS[orh.hopAddAt]=[]
 									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
-						sys.stderr.write("dryhop : %s\n" %(hopaddsorted))
+						haveDryHops=False
 						for hopAddAt in hopaddsorted:
 							if hop_labels.has_key(hopAddAt):
 								additions=hop_labels[ hopAddAt ]
@@ -4445,8 +4441,15 @@ class brewerslabCloudApi:
 								estep.needToComplete=True
 								estep.put()
 								ssnumFIX=ssnumFIX+1
-
-
+								haveDryHops=True
+						
+						# hide a step if we don't have dry-hop involved
+						if not haveDryHops:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							disableStep[0].activityNum=-9
+							disableStep[0].put()
+							sys.stderr.write("removed dry-hop step as we don't have dry-hops\n")
+						
 
 
 
