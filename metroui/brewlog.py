@@ -56,11 +56,20 @@ if not form.has_key("activityNum"):
 
 
 	print "<p><h2>Recipe</h2>"
-	print "<iframe src='editRecipe.py?recipeName=%s&export=1&noheader=1' width=100%% height=400px frameborder=no></iframe>" %(form['recipeName'].value)
+	from editRecipe import editRecipe
+	r=editRecipe()
+	r.recipeName=form['recipeName'].value
+	r.localUser=False
+	r.displayRecipe()
+
+	# Will Wheaton inspire mashup 
 	# last.fm sql
 	if os.path.exists("../../misc/%s.lastfm.json" %(form['brewlog'].value)):
-		print "<p><h2>Music</h2>"
-		print "<iframe src='music.py?brewlog=%s' width=100%% height=400px frameborder=no></iframe>" %(form['brewlog'].value)
+		print "<p>&nbsp;</p><p><h2>Music</h2><blockquote>"
+		from music import music
+		m=music()	
+		m.brewlog=form['brewlog'].value
+		m.show()
 	theme.presentFoot()
 	sys.exit(0)
 

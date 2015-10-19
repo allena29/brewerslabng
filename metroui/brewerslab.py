@@ -48,8 +48,20 @@ elif form.has_key("recipeName") and not form.has_key("brewlog"):
 
 
 
+
+
+
 theme.presentHead()
 theme.presentBody()
 theme.doGrid(grid)
+
+
+if form.has_key("recipeName") and not form.has_key("brewlog"):
+	print "<p><h2>Recipe</h2>"
+	from editRecipe import editRecipe
+	r=editRecipe()
+	r.recipeName=form['recipeName'].value
+	r.localUser=False
+	r.displayRecipe()
 theme.presentFoot()
 
