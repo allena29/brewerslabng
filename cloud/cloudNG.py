@@ -4816,7 +4816,7 @@ class brewerslabCloudApi:
 				qty = ingredient.qty
 	
 
-				
+				sys.stderr.write("checkStockAndPrice %s\n" %(ingredient.ingredient))
 				ourStockCheck = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2",username,ingredient.ingredient)
 				ourStock = ourStockCheck.fetch(20000)
 				
@@ -5467,61 +5467,42 @@ class brewerslabCloudApi:
 		# will need to build this in
 		# if ITEM.category != "bottle" and ITEM.category != "bottlecaps":
 
-
 		for ITEM in ourRecipeIngredients.fetch(40000):
 			qty = ITEM.qty
 			ourStockCheck = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2",username,ITEM.ingredient)
 			ourStock = ourStockCheck.fetch(20000)
 			if len(ourStock) == 0:
 #US.has_key( ITEM ):
-				# let's call this out because it has been needed
-				print """
-				***********************************************************************************************
-
-	
-			
-				brewerslabEngine Exception in _stockBestBefore
-				unable to find the stock we needed and this is a bad way to
-				deal with it
-				(this might be because we don't have an overview entry (hopAdd=-1) for hops
-
-
-				***********************************************************************************************
-				"""
-				return {}	# should not be needed
+				sys.stderr.write("************* FOR recipe item we don't have purchases %s\n" %(ITEM.ingredient))
 			else:
 			
 
 #				if ITEM.category != "bottle" and ITEM.category != "bottlecaps":
-
+				sys.stderr.write(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> %s %s\n" %(ITEM.ingredient,ITEM.qty))
 				qtyNeeded = qty
 				# A future improvement might attempt to use whole bags rather than
 				# cause leaving opened packets.
 				best_before_dates_obj = {}
 				best_before_dates = []
-#				if dbg:	print "hhdbg",US[haveStock]
 
 				for purchasedItem in ourStock:
-#					if dbg:	print "hhdbg",purchasedItem.supplier.name,purchasedItem.qty,time.ctime(purchasedItem.best_before_date)
 					if not best_before_dates_obj.has_key( purchasedItem.bestBeforeEnd ):
 						best_before_dates_obj[ purchasedItem.bestBeforeEnd ] = []
 						best_before_dates.append( purchasedItem.bestBeforeEnd )
 					best_before_dates_obj[ purchasedItem.bestBeforeEnd].append( purchasedItem )
 				
-#				if dbg:	print "hhdbg",best_before_dates
 				
 				# soonest best before end date first
 				best_before_dates.sort()
-
+				sys.stderr.write(" best before dates %s\n" %(best_before_dates))
 				#uMake the qty required tenfold as we would really like to know 
 				# how muct we can adjust up to.
 				if dummyAllocate:	qtyNeeded = qtyNeeded * 100
 
 				for best_before_date in best_before_dates:
 					for item in best_before_dates_obj[ best_before_date ]:	
-							
+						sys.stderr.write("   item.qty %s qtyNeeded %s\n" %(item.qty,qtyNeeded))		
 						if item.qty > 0 and qtyNeeded >0:
-#							sys.stderr.write("ITEM item is of type %s\n" %(item))
 							if not stock_result[ stockType ].has_key( item.storeitem ):
 								stock_result[ stockType ][ item.storeitem ] = []	
 
@@ -5535,9 +5516,9 @@ class brewerslabCloudApi:
 
 									if not dummyAllocate:
 										item.qty= item.qty - qtyUsed
-#										sys.stderr.write("Setting QTY of %s/%s to %s\n" %(item.storeitem,item.stocktag,item.qty-qtyUsed))										
-#										item.put()
-									#item.qty= item.qty - qtyNeeded
+										sys.stderr.write("Setting QTY of %s/%s to %s\n" %(item.storeitem,item.stocktag,item.qty-qtyUsed))										
+										# Note: we don't put() the item the object is passed back
+										# to the caller which will do the put()
 								else:
 								# Check the wastage in this step.
 									if not dummyAllocate:
@@ -5545,8 +5526,9 @@ class brewerslabCloudApi:
 										item.qty= item.qty - item.wastageFixed
 										if item.qty < 0:
 											item.qty = 0
-#											item.put()
-#											sys.stderr.write("Setting QTY of %s/%s to %s (Wastage)\n" %(item.storeitem,item.stocktag,0))										
+											# Note: we don't put() the item the object is passed back
+											# to the caller which will do the put()
+											sys.stderr.write("Setting QTY of %s/%s to %s (Wastage)\n" %(item.storeitem,item.stocktag,0))										
 									
 								qtyNeeded = 0
 							else:
@@ -5556,9 +5538,12 @@ class brewerslabCloudApi:
 								stock_result[ stockType ][ item.storeitem ].append( (1,item.qty, item.stocktag,item.storeitem,item) )
 								if not dummyAllocate:
 									item.qty = float(0)	
-#									item.put()
-#									sys.stderr.write("Setting QTY of %s/%s to %s (Used All)\n" %(item.storeitem,item.stocktag,0))										
+									# Note: we don't put() the item the object is passed back
+									# to the caller which will do the put()
+									sys.stderr.write("Setting QTY of %s/%s to %s (Used All)\n" %(item.storeitem,item.stocktag,0))										
 
+						else:
+							sys.stderr.write(">>>>>>>>>>>> UNABLE TO GET INGREDIENTS %s\n" %(item.storeitem))
 
 		return stock_result
 
@@ -5611,28 +5596,29 @@ class brewerslabCloudApi:
 
 
 		stock_result= {}
-
 		stock_result = self._stockBestBefore(username,stock_result, "fermentables",recipeName)
-		
-	
 		stock_result = self._stockBestBefore(username,stock_result, "hops",recipeName)
 		stock_result = self._stockBestBefore(username,stock_result, "yeast", recipeName)
 		stock_result = self._stockBestBefore(username,stock_result, "misc", recipeName)
 
-		# For consumables we don't really need to have  best before ordering, but 
-		# it won't hurt
-		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3 AND subStepNum = :4 ORDER BY activityNum", username,process,-1,-1).fetch(4234)
-
-
-#		# reduce qty of stock 
+		# reduce qty of stock 
+		# during  the _stockBestBefore we don't actually resduce the qty. 
 		for storeType in stock_result:
 			for a in stock_result[storeType]:
 				for (pcnt,qty,stocktag,name,purchaseObj) in  stock_result[storeType][a]:
 #
 					purchaseItem = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND stocktag = :2", username,stocktag).fetch(1)[0]
-					sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, float(purchaseItem.qty)-qty))
-					purchaseItem.qty = float(purchaseItem.qty )	-qty
+					sys.stderr.write("takeStock : %s %s %s   - stock qty %s\n" %(purchaseItem.storeitem, purchaseItem.qty, float(purchaseItem.qty)-qty, qty))
+					purchaseItem.qty = float(purchaseItem.qty )-qty
 					purchaseItem.put()
+
+
+
+
+		# For consumables we don't really need to have  best before ordering, but 
+		# it won't hurt
+		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3 AND subStepNum = :4 ORDER BY activityNum", username,process,-1,-1).fetch(4234)
+
 
 
 		# intelligentBottle
