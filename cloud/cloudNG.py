@@ -1944,13 +1944,6 @@ class brewerslabCloudApi:
 			
 				ourstock=self.takeStock( username,recipeName,existingBrewlog[0].process )
 		
-				# not have an artifical early return  in takeStock
-				# ~line 3415 in _stockBestBefore will adjust qty of the ingredients 
-				# takeStock will adjust qty of priming sugar etc
-	#			print "\n"
-	#			print ourstock
-		
-	#				resu.delete()
 
 				sys.stderr.write("for storeType in ourstock\n")
 				for storeType in ourstock:
@@ -4467,7 +4460,8 @@ class brewerslabCloudApi:
 									hopaddsorted.append( orh.hopAddAt )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
-
+						
+						haveFWH=False
 						for hopAddAt in hopaddsorted:
 							if hop_labels.has_key(hopAddAt):
 								additions=hop_labels[ hopAddAt ]
@@ -4475,7 +4469,7 @@ class brewerslabCloudApi:
 								additions='%s min' %(hopAddAt)
 
 							for hop in HOPS[ hopAddAt ]:
-								
+								haveFWH=True					
 								percentage = 1
 								hopqty = hop.qty * percentage
 
@@ -4487,6 +4481,10 @@ class brewerslabCloudApi:
 								estep.put()
 								ssnumFIX=ssnumFIX+1
 
+						if not haveFWH:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							disableStep[0].activityNum=-9
+							disableStep[0].put()
 
 
 
@@ -4505,6 +4503,7 @@ class brewerslabCloudApi:
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
+						haveFlameout=False
 						for hopAddAt in hopaddsorted:
 							if hop_labels.has_key(hopAddAt):
 								additions=hop_labels[ hopAddAt ]
@@ -4512,7 +4511,7 @@ class brewerslabCloudApi:
 								additions='%s min' %(hopAddAt)
 
 							for hop in HOPS[ hopAddAt ]:
-								
+								haveFlameout=True
 								percentage = 1
 								hopqty = hop.qty * percentage
 
@@ -4524,6 +4523,10 @@ class brewerslabCloudApi:
 								estep.put()
 								ssnumFIX=ssnumFIX+1
 
+						if not haveFlameout:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							disableStep[0].activityNum=-9
+							disableStep[0].put()
 
 
 
@@ -4792,51 +4795,6 @@ class brewerslabCloudApi:
 		stock_result['ingredients'] = {}
 		stock_result['ingredients']['__total__'] = 0
 
-		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3 AND activityNum >= :4",username,process,-1,0)
-		self.ourActivities =  ourActivities.fetch(2000)
-		for activity in self.ourActivities:
-		
-			#
-			# Turns out this has never been used in processes to date
-			# disabling this. although we have a data structure 
-			# and import support for this in the future if needed
-			#
-			"""
-			for (ingredient,qty) in activity.ingredients:
-				if self.Consumable.has_key( ingredient ):
-
-					storeQty = 0
-					storeCost = 0 
-
-					for purchase in self.Ingredients[ ingredient ]:
-						storeQty = storeQty + purchase.qty
-						storeCost = storeCost + purchase.price
-					
-					if storeQty > 0:
-						cost_per_unit = storeCost / storeQty
-					else:
-						cost_per_unit = 0
-
-					cost_for_ingredient = qty * cost_per_unit
-					cost_result['ingredients']['__total__'] = cost_result['ingredients']['__total__'] + cost_for_ingredient
-					cost_result['ingredients'][ ingredient.uid ] = cost_for_ingredient
-					if storeQty > 0:
-						stock_result['__pcnt_left__'][ ingredient.uid ] = 1-(qty/storeQty)
-					else:
-						stock_result['__pcnt_left__'][ ingredient.uid ] = 1-0
-
-					stock_result['ingredients'][ ingredient.uid ] = qty
-					stock_result['ingredients']['__total__'] = stock_result['ingredients']['__total__'] + qty
-
-					if qty > storeQty:
-						stock_result['__pcnt_left__'][ ingredient.uid ] = 0
-						stock_result['__out_of_stock__'].append( ingredient.uid )
-						stock_result['__qty_available__'][ ingredient.uid ] = storeQty
-						stock_result['__qty_required__'][ ingredient.uid ] = qty
-		
-		cost_result['__total__'] = total_cost	
-		"""
-
 
 
 
@@ -4978,6 +4936,7 @@ class brewerslabCloudApi:
 			qtyRequired=0
 			qtyAvailable
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
+			sys.stderr.write("takeStock(): priming_sugar_reqd %s (POLYPIN)\n" %(priming_sugar_reqd))
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
 				if purchase.qty	> 0 and priming_sugar_reqd > 0:
@@ -4991,8 +4950,10 @@ class brewerslabCloudApi:
 				priming_sugar_reqd = priming_sugar_reqd - qtyNeeded
 				qtyRequired = qtyRequired + qtyNeeded
 
+			
 			if priming_sugar_reqd > 0:
 				try:
+					sys.stderr.write("takeStock(): priming_sugar_reqd %s (POLYPIN - not enough)\n" %(priming_sugar_reqd))
 					stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
 					stock_result['__out_of_stock__'].append( purchase.storeitem )
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
@@ -5039,7 +5000,7 @@ class brewerslabCloudApi:
 						cost_result['consumables'][keg.name] =0
 					cost_result['consumables'][ keg.name ] = cost_result['consumables'][ keg.name ] + (purchase.purchaseCost * qtyNeeded)
 					cost_result['consumables']['__total__'] = cost_result['consumables']['__total__'] + (purchase.purchaseCost * qtyNeeded)
-					totalKegVol=totalKegVol+purchase.qty
+					totalKegVol=totalKegVol+purchase.volume
 
 					keg_volume_required = keg_volume_required - (qtyNeeded * vol )
 					qtyRequired = qtyRequired + qtyNeeded
@@ -5072,25 +5033,26 @@ class brewerslabCloudApi:
 
 
 		if co2_required > 0:
-#			sys.stderr.write("doing out of stock stuff\n")
 			stock_result['__pcnt_left__'][ co2.name ] = 0
 			stock_result['__stockrequirements__'].append( [co2.name,qtyAvailable, total_kegs])
 			stock_result['__out_of_stock__'].append( co2.name )
 			stock_result['__qty_available__'][ co2.name ] = qtyAvailable
 			stock_result['__qty_required__'][ co2.name ] = total_kegs
 
-
-		totalKegVol + totalPolypinVol 
-
+#		totalKegVol + totalPolypinVol 
 
 
 
+
+		sys.stderr.write("takeStock(): (KEG co2_required %s)\n" %(co2_required))
 
 		# And priming sugar for kegs
-		if recipe.priming_sugar_qty > 0 and co2_required>0:
+		if recipe.priming_sugar_qty > 0 and totalKegVol > 0:
+			sys.stderr.write("recipe.priming_sugar_qty %s %s \n" %(recipe.priming_sugar_qty,totalKegVol))
 			priming_sugar_reqd =   totalKegVol * recipe.priming_sugar_qty  * 0.002
 			qtyRequired=0
 			qtyAvailable
+			sys.stderr.write("takeStock(): priming_sugar_reqd %s (KEG)\n" %(priming_sugar_reqd))
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
@@ -5107,6 +5069,7 @@ class brewerslabCloudApi:
 
 			if priming_sugar_reqd > 0:
 				try:
+					sys.stderr.write("takeStock(): priming_sugar_reqd %s (KEG - not enough)\n" %(priming_sugar_reqd))
 					stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
 					stock_result['__out_of_stock__'].append( purchase.storeitem )
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
@@ -5204,6 +5167,7 @@ class brewerslabCloudApi:
 				qtyRequired = qtyRequired + qtyNeeded
 
 		if total_caps > 0:
+			sys.stderr.write("totalcaps - no enough\n")
 			stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
 			stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
 			stock_result['__out_of_stock__'].append( purchase.storeitem )
@@ -5217,6 +5181,7 @@ class brewerslabCloudApi:
 			priming_sugar_reqd = (total_bottles + 5) * recipe.priming_sugar_qty 
 			qtyRequired=0
 			qtyAvailable=0
+			sys.stderr.write("takeStock(): priming_sugar_reqd %s (BOTTLES)\n" %(priming_sugar_reqd))
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
@@ -5231,7 +5196,9 @@ class brewerslabCloudApi:
 				priming_sugar_reqd = priming_sugar_reqd - qtyNeeded
 				qtyRequired = qtyRequired + qtyNeeded
 
+
 			if priming_sugar_reqd > 0:
+				sys.stderr.write("takeStock(): priming_sugar_reqd %s (BOTTLES - not enough)\n" %(priming_sugar_reqd))
 				try:
 					stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
 					stock_result['__out_of_stock__'].append( purchase.storeitem )
@@ -5248,7 +5215,8 @@ class brewerslabCloudApi:
 					stock_result['__qty_required__'][ "__PRIMING_SUGAR__" ] = qtyRequired
 
 
-
+		sys.stderr.write("before water treatment\n")
+		sys.stderr.write(" %s \n\n\n" %(stock_result['__out_of_stock__']))
 
 		#
 		#
@@ -5258,9 +5226,9 @@ class brewerslabCloudApi:
 		# we will always do it 
 		ourRecipeStats =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2", username,recipeName).fetch()[0]
 		crsAdjust=self.crsAdjustment(315, float(ourRecipeStats.mash_liquid_6)+float(ourRecipeStats.sparge_water),50)
-		
+		purchase=None
 		sys.stderr.write(" guessing CRS based on 315 adjustment %.2f\n" %( crsAdjust))
-		ourCrs = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemsubcategory = :2 AND storeitem = :3", username,"watertreatment","AMS (CRS)")
+		ourCrs = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemsubcategory = :2 AND storeitem = :3", username,"watertreatment","AMS")
 		total_crs=0	# the amount we have allocated throughout
 		qtyRequired=crsAdjust	# total qty we require
 		qtyAvailable=0
@@ -5283,16 +5251,22 @@ class brewerslabCloudApi:
 
 
 		if qtyRequired > 0:
-			stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
-			stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
-			stock_result['__out_of_stock__'].append( purchase.storeitem )
-			stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
-			stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
-	
-		else:
-			sys.stderr.write("we have neought crs\n")
+			try:
+				stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
+				stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
+				stock_result['__out_of_stock__'].append( purchase.storeitem )
+				stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
+				stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
+			except:	
+				stock_result['__pcnt_left__'][ "__AMS__" ] = 0
+				stock_result['__stockrequirements__'].append( ['__AMS__' ,qtyAvailable,qtyRequired] )
+				stock_result['__out_of_stock__'].append( "__AMS__" )
+				stock_result['__qty_available__'][ "__AMS__" ] = qtyAvailable
+				stock_result['__qty_required__'][ "__AMS__" ] = qtyRequired
 
 
+		sys.stderr.write("after water treatment\n")
+		sys.stderr.write(" %s \n\n\n" %(stock_result['__out_of_stock__']))
 
 
 		completeVolume=keg_volume_required=polypin_volume_required-totalPolypinVol + totalBottleVol
@@ -5329,7 +5303,7 @@ class brewerslabCloudApi:
 					#	purchase.qty = purchase.qty - consumableQtyRequired			# don't do this in checkStock
 					# 	purhcase.put()								# don't do this in checkStock
 					else:
-						sys.stderr.write("*** simpliied process consumables - we don't have qty availble on this purchase\n" )
+						sys.stderr.write("*** simpliied process consumables - we don't have qty availble on this purchase (%s)\n"  %(purchase.storeitem))
 					if not cost_result['consumables'].has_key( purchase.storeitem ):	
 						cost_result['consumables'][purchase.storeitem] =0
 					cost_result['consumables'][ purchase.storeitem ] = cost_result['consumables'][ purchase.storeitem ] + (purchase.purchaseCost * qtyNeeded)
@@ -6051,6 +6025,7 @@ vol	recipe 	proprotion of sugar	sugar	num of 500ml units	priming solution	water
 					purchase.qty = float(purchase.qty-qtyRequired)
 					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,"dbg:purchase.purchasedItem",purchase))
 				else:
+					sys.stderr.write("takeStock(): trying to get stock %s - taking all of this\n" %(purchase.storeitem))
 					qtyNeeded = purchase.qty
 					purchase.qty=float(0)
 					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,"dbg:purchase.purchasedItem",purchase))
