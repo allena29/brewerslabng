@@ -337,7 +337,7 @@ print """
 				<!-- begin spinner -->
                                 <div id='spinner' style='height: 0px; visibility: hidden; margin: 12px;'>
                                         <div id='box'>
-                                                Please Wait, <span id='spinnerText'>recalculating</span> recipe<br>
+                                                Please Wait, <span id='spinnerText'>recalculating</span> qty<br>
                                                 <img src="images/ajax_progress2.gif">
                                         </div>
                                 </div>
