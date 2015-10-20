@@ -127,7 +127,7 @@ print """
 
 print """
     <div class="accordion-frame">
-	    	<a href="#" class="%sheading">Fermentbales</a>
+	    	<a href="#" class="%sheading">Fermentables</a>
 
 	    	<div class="content">
 			<p>
