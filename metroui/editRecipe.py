@@ -133,6 +133,14 @@ class editRecipe:
 
 		"""
 
+		# set defaults for when a recipe is created
+		batchsize=0
+		estimatedOg=0
+		estimatedFg=0
+		estimatedAbv=0
+		estimatedIbu=0	
+		boilVolume=0
+		topup=0
 
 		print """
 		    <div class="accordion-frame">
@@ -153,7 +161,7 @@ class editRecipe:
 		try:
 			((recipe,estimatedOg,estimatedFg,estimatedAbv,estimatedIbu,topup,boilVolume,batchsize),)=row
 		except:
-			print "recipe appears to have been deleted"
+			pass
 
 		#result=db.use_result()
 		#row=result.fetch_row()
