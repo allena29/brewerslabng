@@ -17,12 +17,12 @@ db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewersla
 
 
 if not form.has_key("recipeName"):
+
 	theme.bodytitle="Select Recipe"
 	cursor=db.query("select recipeName,description from gRecipes ORDER BY recipeName")
 	result=db.use_result()
 	row=result.fetch_row()
 	while row:
-		
 		((recipeName,description),)=row
 		grid[recipeName]={'url2':'brewerslab.py?recipeName=%s' %(recipeName),'text':'%s' %(recipeName)}
 		row=result.fetch_row()
@@ -53,6 +53,31 @@ elif form.has_key("recipeName") and not form.has_key("brewlog"):
 
 theme.presentHead()
 theme.presentBody()
+	
+if not form.has_key("recipeName"):
+
+	if theme.localUser:
+		print """
+
+			    <div class="grid fluid">
+				<div class="row">
+				    <div class="span8">
+					</div>
+			    <div class="span4">
+				<div class="panel" data-role="panel">
+				    <div class="panel-header bg-darkRed fg-white">
+					Create New Recipe
+				    </div>
+				    <div class="panel-content" style="display:none">
+					<form method=POST action='createRecipe.py'>
+					<input type='text' name='newrecipe' id='newrecipe' value=''> <input type='submit' value='Create'>
+					</form>
+				    </div>
+				</div>
+			    </div>
+			</div>
+		</div>
+	""" 
 theme.doGrid(grid)
 
 

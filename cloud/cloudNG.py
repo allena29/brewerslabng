@@ -3748,6 +3748,39 @@ class brewerslabCloudApi:
 				return None
 
 
+	def createBlankRecipe(self,username,recipeNewName):
+		sys.stderr.write("createBlankRecipe %s\n" %(recipeNewName))
+
+		status=0
+
+		try:
+			ourRecipes = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeNewName)
+			for recipe in ourRecipes.fetch(2000):
+				recipe.delete()
+
+			
+			R=gRecipes(recipename=recipeNewName,owner=username )
+			R.db=self.dbWrapper
+#			for ri in recipe.__dict__:
+#				if ri != "entity" and ri != "recipename":
+#					R.__dict__[ri] = recipe.__dict__[ri]
+			R.recipename=recipeNewName
+			R.put()	
+
+			ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND processIngredient = :3", username,recipeNewName,0)
+			for ingredient in ourIngredients.fetch(2000):
+				ingredient.delete()
+						
+
+			status=1
+		except ImportError:
+			sys.stderr.write("EXCEPTION in createBlankRecipe\n")
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
+		
+		return {'operation' : 'createBlankRecipe', 'status' : status ,'json':{}}
+
+
 	def cloneRecipe(self,username,recipeOrigName,recipeNewName):
 		sys.stderr.write("cloneRecipe %s/%s\n" %(recipeOrigName,recipeNewName))
 
@@ -3773,7 +3806,6 @@ class brewerslabCloudApi:
 				ingredient.delete()
 						
 
-			sys.stderr.write("harrypotter\n")
 
 
 			ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND processIngredient = :3", username,recipeOrigName,0)
