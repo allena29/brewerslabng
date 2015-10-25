@@ -179,10 +179,23 @@ class editRecipe:
 				print "<option value='%s' %s>%s L</option>" %(C,selected,C)
 
 			print "</select>"
-			print """<a href='javascript:adjustBatchSize()'><i class="icon-checkmark fg-blue"></i></a>""";
+			print """<a href='javascript:adjustBatchSize()'><i class="icon-checkmark fg-blue"></i></a>"""
 			print "<BR>"
 		else:
 			print "<b>Batch Size:</b> %.1f L<BR>" %(float(batchsize))
+
+		if self.editable:	
+			print "<b>Mash Efficiency:</b> <select id='efficiency'>"
+			for c in range(40):
+				selected=""
+				if float(c+55) == float(mashEfficiency):
+					selected="SELECTED" 
+				print "<option value='%s' %s>%s %%</option>" %(c+55,selected,c+55)
+			print "</select>"
+			print """<a href='javascript:adjustMashEfficiency()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+		else:
+			print "<b>Mash Efficiency:</b> %.0f %%<br>" %(float(mashEfficiency))
+
 
 		print "<b>Process:</b> %s<BR>" %(process)
 
@@ -190,13 +203,18 @@ class editRecipe:
 		<b>Estimated Gravity:</b> %.3f OG - %.3f FG<br>
 		<b>Estimated ABV:</b> %.1f %%<br>
 		<b>Estimated IBU:</b> %.0f IBU<br>
-		<b>Mash Efficiency:</b> %.1f %%<br>
+		""" %(float(estimatedOg),float(estimatedFg),float(estimatedAbv),float(estimatedIbu))
+		  
+	
+
+
+
+		print """
 		<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>
 		<b>Boil Volume:</b> %.1f L<br>
 		<b>Topup Volume:</b> %.1f L<br>
 		  
-
-		""" %(float(estimatedOg),float(estimatedFg),float(estimatedAbv),float(estimatedIbu),float(mashEfficiency),float(alkalinity),float(boilVolume),float(topup) ) 
+		""" %(float(alkalinity),float(boilVolume),float(topup) ) 
 
 		if not self.export and not self.editable:
 			print "<b>Calclog:</b> <a href='calclog.py?recipeName=%s&noheader=%s'>View Log</a><BR>" %(self.recipeName,'True')
@@ -644,6 +662,10 @@ if __name__ == '__main__':
 		}
 
 
+		function adjustMashEfficiency(){
+		url="editIngredient.py?recipe=%s&type=null&action=changeMashEfficiency&mashefficiency="+document.getElementById('efficiency').value;
+		window.location.replace(url);
+		}
 		function adjustBatchSize(){
 		url="editIngredient.py?recipe=%s&type=null&action=changeBatchSize&batchsize="+document.getElementById('batchsize').value;
 		window.location.replace(url);
@@ -681,7 +703,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"

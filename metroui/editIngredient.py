@@ -20,6 +20,10 @@ if theme.localUser:
 	if form['action'].value == "changeBatchSize":
 		brewerslabCloudApi().setBatchSize("test@example.com", form['recipe'].value,float(form['batchsize'].value),doRecalculate="0")
 
+
+	if form['action'].value == "changeMashEfficiency":
+		brewerslabCloudApi().setMashEfficiency("test@example.com", form['recipe'].value,float(form['mashefficiency'].value),doRecalculate="0")
+
 	if form['action'].value == "changestoreqty":
 		# a little step in the right direction, not using Gql Wrapper
 		con = _mysql.connect('localhost', 'brewerslab','beer','brewerslab')
