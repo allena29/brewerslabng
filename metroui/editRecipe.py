@@ -400,7 +400,7 @@ class editRecipe:
 		"""
 
 
-
+		itemType="yeast"
 		print """ 
 		    <div class="accordion-frame">
 				<a href="#" class="%sheading">Yeast</a>
@@ -419,12 +419,36 @@ class editRecipe:
 					<tbody>
 		""" %(self.activeYeast,self.colWidth)
 
+
+		if self.editable:
+			print """
+			<tr><td><a href="javascript:addItem('%s')"><i class='icon-plus fg-green'></i></a></td>
+			<td><select id='%sQty'>""" %(itemType,itemType)
+			for c in range(7):
+				print "<option value='%s'>%s pkt</option>" %(c,c)
+			print """</select><td><select id='%sItem'>""" %(itemType)
+			cursor=con.cursor()
+			cursor.execute("select idx,name FROM gItems where majorcategory ='%s' order by name" %(itemType))
+			for row in cursor: 
+				(idx,name) = row
+				row=result.fetch_row()
+				val="%s" %(name)
+				key=name
+				print "<option value=\"%s\">%s</option>" %(key,val)
+			print "</select>"
+
+			print """<td><td></td></tr>
+			"""
+
 		cursor=con.cursor()
 		cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'yeast' ORDER BY qty DESC" %(self.recipeName))
 		for row in cursor:
 			(ent,recipe,ingredient,qty,unit)=row
 			row=result.fetch_row()
-			print "<tr><td>&nbsp;</td><td>%.0f %s</td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
+			if self.export:
+				print "<tr><td>&nbsp;</td><td>%.0f %s</td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
+			else:
+				print "<tr><td><a href='editIngredient.py?entity=%s&action=delete&type=%s&ingredient=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td><td>%.0f %s</td><td><b>%s</b><br>" %(ent,itemType,ingredient,self.recipeName,float(qty),unit,ingredient)
 			print "</td></tr>"
 		cursor.close()
 

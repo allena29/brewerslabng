@@ -4113,7 +4113,7 @@ class brewerslabCloudApi:
 				I.ingredient=item
 				I.processIngredient=False
 				if category == "Yeast" or category == "yeast":			
-					I.atten=preset[0].atten
+					I.atten=preset[0].attenuation
 				if category == "Hops" or category =="hops":
 					I.hopAlpha=preset[0].hopAlpha
 					I.hopUse=preset[0].hopUse
