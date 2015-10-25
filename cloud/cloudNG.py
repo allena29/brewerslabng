@@ -377,8 +377,8 @@ class brewerslabCloudApi:
 			for recipe in ourRecipe.fetch(500):
 				recipe.calculationOutstanding=True
 				recipe.put()
-			
-
+			sys.stderr.write("recipeBatchSize set on gRecipes and gRecipStats\n")	
+		
 #			tmp = self.viewRecipe(username,recipeName,category,1)
 #
 			status=1
@@ -2473,12 +2473,12 @@ class brewerslabCloudApi:
 
 
 	def doCalculate(self,username,recipeName):
-		
-		#self.docalculateV1(username,recipeName)
-		#self.calclog=self.calclog+"_________________________ "
+	
+		#
+		# This is the main calcualte code here
+		#	
 		self.calclog = "         : %s\n" %(time.ctime())
 		self.old_estimated_ibu = 0
-#		self.old_estimated_ibu = self.estimated_ibu
 
 		self.calculated=1
 		self.recipeName=recipeName
@@ -2501,13 +2501,13 @@ class brewerslabCloudApi:
 		#
 
 
-		sys.stderr.write("Deleting gContributions")
+		sys.stderr.write("\n\n")
+		sys.stderr.write("Deleting gContributions\n")
 		
 		ourContributions = self.dbWrapper.GqlQuery("SELECT * FROM gContributions WHERE owner = :1 AND recipeName = :2", username,recipeName)
 		for x in ourContributions.fetch(2000):
 			x.delete()
 	
-		# this oes delete verythingsys.exit(0)
 		ourHops = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND processIngredient = :4 AND hopAddAt > :5", username,recipeName,'hops',0,-1.00)
 		self.hops=ourHops.fetch(555)
 	
@@ -2519,9 +2519,10 @@ class brewerslabCloudApi:
 		self.recipe=recipe
 		recipe.calculationOutstanding=False
 		recipe.put()
-		sys.stderr.write("Cannot calcualte becase we don't know which process to use\n")
+
 
 		if len(recipe.process) < 1:
+			sys.stderr.write("Cannot calcualte becase we don't know which process to use {%s}\n" %(recipe.process))
 			return "Cannot calculate because we don't know which process to use"
 
 	
@@ -2619,6 +2620,7 @@ class brewerslabCloudApi:
 		#
 
 		# working_batch_size = amount required out of boil
+		sys.stderr.write( "batchsize: Batch Size from recipe  %.0f L\n" %(recipe.batch_size_required))
 		self.calclog = self.calclog + "batchsize: Batch Size from recipe  %.0f L\n" %(recipe.batch_size_required)
 		working_batch_size = recipe.batch_size_required - recipe.postBoilTopup
 		if not self.standalonemode:
@@ -2744,7 +2746,6 @@ class brewerslabCloudApi:
 		
 
 
-
 		# 
 		# Mash Wastage
 		#
@@ -2838,8 +2839,6 @@ class brewerslabCloudApi:
 
 		self.calclog = self.calclog + "calcferm : \t\testimated_gravity = %.4f\n" %( 1+(estimated_gravity/1000) )
 		
-
-
 
 
 
@@ -3412,6 +3411,7 @@ class brewerslabCloudApi:
 			
 
 
+		sys.stderr.write("\n\n\nEnd of doCalcualte()\n\n\n") 
 
 
 
@@ -3778,6 +3778,9 @@ class brewerslabCloudApi:
 
 	
 			R=gRecipes(recipename=recipeNewName,owner=username )
+			R.mash_grain_ratio=1.5
+			R.mash_efficiency=70
+			R.alkalinity = 50
 			R.process=newestProcess
 			R.db=self.dbWrapper
 #			for ri in recipe.__dict__:
@@ -3856,8 +3859,13 @@ class brewerslabCloudApi:
 
 
 	def calculateRecipeWrapper(self,username,recipeName,activeCategory=""):
+		#
+		#
+		# compile + viewRecipe			(compile also calcualtes)
+		#
+		#
 		sys.stderr.write("calculateRecipeWrapper %s/%sn" %(recipeName,activeCategory))
-		self.calculateRecipe(username,recipeName)
+		#self.calculateRecipe(username,recipeName)		# compile calls doCalculate() 
 		self.compile(username,recipeName,None)
 		tmp = self.viewRecipe(username,recipeName,activeCategory,1)
 		
@@ -4176,21 +4184,10 @@ class brewerslabCloudApi:
 		"""
 
 		errstatus = self.doCalculate(username,recipeName)
-		
-
-		#NOV2017 do we have a brewlog here or not... we added it in  at 2017.
-		# This wasn't the cause, but it does feel better to have brewlog in here
-		# Maybe we had two issues
-		# 1) lack of brelog here
-		# 2) populate() in ngData for gRecipeStats() did not have kettle1evaporation in place
-		# but we can't calculate a recipe here because we don't have a brewlog
-#		if len(brewlog) > 1:
-#			ourStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND process = :2 AND recipe = :3 AND brewlog = :4",username,self.Process.process,recipeName,brewlog).fetch(4324)
-#		else:
-
-		#NOV2017v2  - back to putting in a brewlog
-		# this was underneath the step auto pieces before
-		# now it's up here.
+	
+		if not brewlog:
+			brewlog=""
+	
 		ourStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND process = :2 AND recipe = :3 AND brewlog = :4",username,self.Process.process,recipeName,brewlog).fetch(4324)
 		for stat in ourStats:	stat.delete()
 

@@ -246,8 +246,86 @@ caragold.isGrain=1
 caragold.mustMash=0
 caragold.category="Grain"
 caragold.subcategory="Speciality"
+thermometer=presets.getEquipment("Digital Thermometer")
+thermometer.mustSterilise=1
+jug=presets.getEquipment("Jug (1.5L)")
+jug.mustSterilise=1
+saucepan=presets.getEquipment("Saucepan")
+bottler=presets.getEquipment("Little Bottler")
+funnel=presets.getEquipment("Funnel")
+syringe=presets.getEquipment("2.5ml Syringe")
+filteringFunnel=presets.getEquipment("Filtering Funnel")
+filteringFunnel.mustSterilise=1
+smalljug=presets.getEquipment("Small Jug")
+smalljug.mustSterilise=1
+plastictapfilter=presets.getEquipment("Plastic Tap Filter")
+plastictapfilter.mustSterilise=1
+fermentationbin6gal=presets.getEquipment("Fermentation Bin (6 Gal)")
+fermentationbin6gal.mustSterilise=1
+fermentationbin6gal.subEquipment.append( plastictapfilter )
+fermentationbin6gal.weight=1125	# weight in grames wihtout lid, but with taps etc
+fermentationbin6gal.weightlids=1131 # weight in grames with lid
+fermentationbin6gal.dead_space=1.5	# litres		measured		
+fermentationbin=presets.getEquipment("Fermentation Bin")
+fermentationbin.mustSterilise=1
+fermentationbin.subEquipment.append( plastictapfilter )
+fermentationbin.weight=873	# weight in grames
+fermentationbin.deadspace=3.34	# litres		measured 30thJan2010
+fermentationbin.dead_space=2	
+sparge_arm=presets.getEquipment("Sparge Arm")
+sparge_arm.mustSterilise=1
+sterilisingPowder = presets.getConsumable("Sterilising Powder")
+sterilisingPowder.dosage=4.5
+sterilisingPowder.unit="tsp"
+timer =presets.getEquipment("Timer")
+
+jerry10l =presets.getEquipment("10l Kettle")
+jerry10l.volume=10
+jerry10l.mustSterilise=0
+jerry10l.dead_space=0
+
 
 copperkettle=presets.getSupplier("Copper Kettle Homebrewing")
+mash_tun_tap=presets.getEquipment("Mash Tun Tap")
+mash_tun_tap.mustSterilise=1
+
+saucepan=presets.getEquipment("Saucepan")
+saucepan.mustSterilise=1
+mashpaddle=presets.getEquipment("Mash Paddle")
+mashpaddle.mustSterilise=1
+
+hydrometer=presets.getEquipment("Hydrometer")
+hydrometer.mustSterilise=1
+trialjar=presets.getEquipment("Trial Jar")
+trialjar.mustSterilise=1
+slottedspoon=presets.getEquipment("Slotted Spoon")
+slottedspoon.mustSterilise=1
+thermometer3=presets.getEquipment("Thermometer")
+thermometer3.mustSterilise=1
+thermometer2=presets.getEquipment("Thermometer")
+thermometer2.mustSterilise=1
+immersionchiller=presets.getEquipment("Immersion Chiller")
+immersionchiller.mustSterilise=1
+immersionheater=presets.getEquipment("Immersion Heater")
+immersionheater.mustSterilise=1
+largepaddle=presets.getEquipment("Large Paddle")
+largepaddle.mustSterilise=1
+mash_tun=presets.getEquipment("Mash Tun")
+mash_tun.mustSterilise=1
+mash_tun.dead_space=2.25
+mash_tun.subEquipment.append( mash_tun_tap )
+hlt=presets.getEquipment("Hot Liquor Tank")
+hlt.image="images/hlt.png"
+hlt.mustSterilise=1
+hlt.heatPower=1.6
+hlt.description="A Hot Liquor Tank is used to heat water."
+hlt.instructions="A Hot Liquor Tank can be made from a fermentation bin with electric kettles installed."
+hlt.dead_space=3.5
+kettle70l =presets.getEquipment("70l Kettle")
+kettle70l.volume=70
+kettle70l.mustSterilise=1
+kettle70l.dead_space=2		# estimate 30/1/2010
+kettle70l.boilVolume=60
 
 purchase=brwlabPurchase( caragold )
 purchase.qty=1000
@@ -540,7 +618,6 @@ step = myprocessK.brewday.newstep("Clean Equipment")
 step.text="Clean equipment with a mild detergent. It is important to clean equipment before use, any equipment used before the boil only needs to be cleaned as the wort will be sterilised during the boil. Equipment used after the boil must either be sterilised with sterilising solution, or limited equipment may be sterilised in the boiler. Note: don't use 2 real taps for the HLT, use one dummy tap. The equipment to clean is: hlt, sparge arm, mash tun, jug, large paddle, thermometer, stoarge box, kettles and jerry can. "
 step.addEquipment( mashpaddle )
 step.addEquipment( hlt )
-step.addEquipment( atc800) 
 step.addEquipment( sparge_arm )
 step.addEquipment( mash_tun )
 step.addEquipment( jug ) # try do without a jug
@@ -549,8 +626,31 @@ step.addEquipment( largepaddle )
 step.addEquipment( thermometer )
 #step.addEquipment( storagebox )
 #step.addEquipment( filteringFunnel )
-step.addEquipment( kettle20l )
-step.addEquipment( kettle15l )
+jar2l=presets.getConsumable("2l Jar")
+jar2l.muststerilise=1
+jar400ml=presets.getConsumable("400ml Jar")
+jar400ml.muststerilise=1
+pfte=presets.getConsumable("PFTE Tape")
+pfte.unit="m"
+measuringspoon=presets.getEquipment("Measuring Spoon")
+crowncaps=presets.getConsumable("Crown Caps")
+crowncaps.category="bottlecaps"
+bottles=presets.getConsumable("500ml glass bottle")
+bottles.volume=474
+bottles.fullvolume=500
+bottles.caprequired=1
+bottles.category="bottle"
+muslinbag=presets.getConsumable("Muslin Bag")
+measuringspoon=presets.getEquipment("Measuring Spoon")
+crowncaps=presets.getConsumable("Crown Caps")
+crowncaps.category="bottlecaps"
+bottles=presets.getConsumable("500ml glass bottle")
+bottles.volume=474
+bottles.fullvolume=500
+bottles.caprequired=1
+bottles.category="bottle"
+muslinbag=presets.getConsumable("Muslin Bag")
+bottlebrush=presets.getEquipment("Bottle Brush")
 step.addEquipment( jerry10l )
 step.newSubStep( ("Clean HLT",{'complete':1}) )
 step.newSubStep( ("Clean FV",{'complete':1}) )
@@ -562,11 +662,6 @@ step = myprocessK.brewday.newstep("Clean Work Area")
 step.text="Clean the entire work area with mild detergent. It is important to ensure the entire work area is clean before commencing the brew day"
 
 
-# Setup Equipment
-#step = myprocessK.brewday.newstep("Setup Equipment")
-#step.text="The hot liquor tank must be positioned higher than the mash tun with the sparge arm assembled. The brewing kettle is positoned the lowest."
-#step.newSubStep( ("Setup the equipment as pictured",{'complete':1}) )
-#step.newSubStep( ("Plug in the ATC-800+ temperature controller and set to ...strike_temp_5...degC. Ensure the supply is off and then connect the power leads from the controller to the elements on the HLT.",{'complete':1}))
 
 step.img=["sterilise_setup1.png"]
 
@@ -646,7 +741,7 @@ step.img = ['mash.png']
 step = myprocessK.brewday.newstep("Fill the mash tun with mash liquid")# and set aside the grain. During this step the mash tun should be well insulated to maintain a stable temperature")
 step.text="Fill the mashtun with the mash liquor in order the water is to ...strike_temp_5...C (Strike Temp ...strike_temp...C). The water in the HLT should be heated to 5degC higher than strke temp to account for some losses while transferring the liquid, however the temperature should be monitored. Note: if more water is used in the mash tun the strike temperature should be lower, if less water is used then the strike temperature should be higer."
 step.prereq="Mash Water is at ...strike_temp_5...C"
-step.newSubStep( ("Discard the water used for preheating the mash tun into the 20l kettle",{'complete':1}))
+step.newSubStep( ("Discard the water used for preheating the mash tun",{'complete':1}))
 step.newSubStep( ("Fill the mash tun with  ...mash_liquid...L of water heated to ...strike_temp_5...C.", {'complete':1}) )
 step.newSubStep( ("Set aside 1.7L of boiling water and 1.7L of cold water which may optionally may be used for adjustment of temperature/consistency", {'complete':1}))
 step.attention="If the grain temperature is not between 15-20 degC then the calculations should be re-run to provide a hotter/colder strike temp."
@@ -723,59 +818,6 @@ step.auto="hopmeasure_v3"
 step.img=["boil.png"]
 
 
-# Begin sterilising remaining equipment
-step = myprocessK.brewday.newstep("Sterilise Equipment")
-step.text="It is important throughout the brew day to keep any equipment which will come into contact with the wort post-boil sterilised. Equipment used before the boil does not need to be sterilised but does need to be clean. Note: the silicone tube used for transferring wort from the boiler into the fermentation bin will be sanitised in a later step."
-step.newSubStep( ("Fill the fermentation bin with 10 litres of warm water and 2 tsp of sterilising powder.",{'complete':1}))
-
-# track somehow if the fermentation bin has a tap on the bottom
-
-#step.newSubStep( ("Add hydrometer,large spoon,trial jar, thermometer probe, and a glass jug into the fermentation bin.",{'complete':1}))
-#step.newSubStep( ("Add hydrometer,large spoon,trial jar, thermometer and a glass jug into the fermentation bin.",{'complete':1}))
-#step.newSubStep( ("Add equipment that will be used post boil. Small Jug, Hydrometer, Trial Jar, Thermometer",{'complete':1}))
-#step.newSubStep( ("Ensure fermentation bin is fully sterilised with equipment, after 10 minutes of sterilising equipment place equipment in the small storage stockport.",{'complete':1}))
-step.newSubStep( ("Ensure fermentation bin is fully sterilised with equipment.",{'complete':1}))
-step.newSubStep( ("Ensure a 'filter' is added to the back of the fermentation bin tap",{'complete':1}))
-step.newSubStep( ("Ensure all the feremntation bin has been sterilised and empty solution into the small stock pot.",{'complete':1}))
-step.img=['sterilise1step.png']
-step.attention="Be careful to monitor the temperature during the mash, if the mash tun is well insulated it may be that the temperature rises not falls. Temperature must not rise above 70C. High temperautere 68.5-70C results in more unfermentables, 67-68.5 will result in medium body beers."
-
-
-
-step.addEquipment( smalljug )
-step.addEquipment( fermentationbin6gal )
-step.addEquipment( hydrometer )
-step.addEquipment( trialjar )
-#step.addEquipment( thermometer3 )
-step.addEquipment( thermometer2 )
-#step.addEquipment( immersionchiller )
-myprocessK.immersionchiller = immersionchiller
-#step.addConsumable( pfte, 0.5 )
-step.fields.append(('(MID2) Mash Temp Acheived','mash_mid2_temp',''))
-step.fields.append(('(MID3) Mash Temp Acheived','mash_mid3_temp',''))
-step.fields.append(('(MID4) Mash Temp Acheived','mash_mid4_temp',''))
-step.fields.append(('(MID5) Mash Temp Acheived','mash_mid5_temp',''))
-step.fields.append(('(MID6) Mash Temp Acheived','mash_mid6_temp',''))
-step.fields.append(('(MID7) Mash Temp Acheived','mash_mid7_temp',''))
-
-
-
-# Rinse Equipment
-step = myprocessK.brewday.newstep("Rinse Equipment")
-step.text="Rinse Equipment in the same way as sterilising, equipment should be rinsed with 25 litres of cold water."
-
-
-step.attention="Be careful to monitor the temperature during the mash, if the mash tun is well insulated it may be that the temperature rises not falls. Temperature must not rise above 70C. High temperautere 68.5-70C results in more unfermentables, 67-68.5 will result in medium body beers."
-
-step.fields.append(('(MID8) Mash Temp Acheived','mash_mid8_temp',''))
-step.fields.append(('(MID9) Mash Temp Acheived','mash_mid9_temp',''))
-step.fields.append(('(MID10) Mash Temp Acheived','mash_mid10_temp',''))
-step.fields.append(('(MID11) Mash Temp Acheived','mash_mid11_temp',''))
-step.fields.append(('(MID12) Mash Temp Acheived','mash_mid12_temp',''))
-step.fields.append(('(MID13) Mash Temp Acheived','mash_mid13_temp',''))
-step.fields.append(('(MID14) Mash Temp Acheived','mash_mid14_temp',''))
-
-
 # Monitor Mash Equipment
 step = myprocessK.brewday.newstep("Monitor the Mash")
 step.text="Monitor the temperature of the mash."
@@ -823,7 +865,6 @@ step = myprocessK.brewday.newstep("Start Fly Sparging")
 step.text="(SPARGE) Sparging will drain the sugar from the grain providing us with wort. The process of sparging should be carried out slowly. The temperature of the gain bed will be raised during this proess (note there is no instant change of temperature). The grain bed should stay below 76 deg C. We need to aim for a boil volume of ...boil_vol...L. General wisdom is to keep 1 inch of water above the grain bed- however there is a trade off (the more water above the grain bed the smaller/slower temperature rise of the grain bed, the less water above the grain bed the bigger/quicker temperature rise of the grain bed."
 #Throughout the process monitor flow of liquid into and out of the mash tun to try maintain an equilibrium"
 step.newSubStep( ("Collect sample of sparge water to measure PH",{'complete':1}))
-
 step.img=["dosparge.png"]
 
 
@@ -863,6 +904,34 @@ step.fields.append( ('Final Gravity Required','__topupgravityrequired','') )
 
 
 
+# Begin sterilising remaining equipment
+step = myprocessK.brewday.newstep("Sterilise Equipment")
+step.text="It is important throughout the brew day to keep any equipment which will come into contact with the wort post-boil sterilised. Equipment used before the boil does not need to be sterilised but does need to be clean. Note: the silicone tube used for transferring wort from the boiler into the fermentation bin will be sanitised in a later step."
+step.newSubStep( ("Fill the fermentation bin with 10 litres of warm water and 2 tsp of sterilising powder.",{'complete':1}))
+step.newSubStep( ("Ensure fermentation bin is fully sterilised with equipment.",{'complete':1}))
+step.newSubStep( ("Ensure a 'filter' is added to the back of the fermentation bin tap",{'complete':1}))
+step.img=['sterilise1step.png']
+
+
+
+step.addEquipment( fermentationbin6gal )
+
+# Rinse Equipment
+step = myprocessK.brewday.newstep("Rinse Equipment")
+step.text="Rinse Equipment in the same way as sterilising, equipment should be rinsed with 25 litres of cold water."
+
+
+step.attention="Be careful to monitor the temperature during the mash, if the mash tun is well insulated it may be that the temperature rises not falls. Temperature must not rise above 70C. High temperautere 68.5-70C results in more unfermentables, 67-68.5 will result in medium body beers."
+
+step.fields.append(('(MID8) Mash Temp Acheived','mash_mid8_temp',''))
+step.fields.append(('(MID9) Mash Temp Acheived','mash_mid9_temp',''))
+step.fields.append(('(MID10) Mash Temp Acheived','mash_mid10_temp',''))
+step.fields.append(('(MID11) Mash Temp Acheived','mash_mid11_temp',''))
+step.fields.append(('(MID12) Mash Temp Acheived','mash_mid12_temp',''))
+step.fields.append(('(MID13) Mash Temp Acheived','mash_mid13_temp',''))
+step.fields.append(('(MID14) Mash Temp Acheived','mash_mid14_temp',''))
+
+
 step.img=["sighttube.png"]
 
 
@@ -873,7 +942,6 @@ step.condition=[]
 step.text="Once the wort is at a rolling boil the hops can be added and the lid should be left half covered."
 step.img=["boil.png"]
 step.newSubStep(("Start timer for 45 minutes after which the protofloc copper finings will be added",{'complete':1,'kitchentimer' : ('b',3600) }))
-step.newSubStep(("Turn on the fridge with ATC Control to 20 degC",{'complete':1}))
 step.auto="hopaddBittering_v3_withadjuncts"
 
 
@@ -961,7 +1029,7 @@ step.fields.append( ('Tmp Pre Cool Gravity','2precoolgravity','') )
 
 # Cool Wort
 step = myprocessK.brewday.newstep("Topup")
-step.text="As the wort is cooling a decision should be made on the gravity of the resulting wort. It is hard to increase the gravity (as the high gravity wort is already used) but easy to reduce the gravity (as diluted wort/sterilised water will be easily available). It is best to make the decision when the wort is as cool as possible to reduce the effect of the hydrometer adjustments. If there was a high mash temperature factor in high final gravity when trying to calculate alcohol. Too severe a dilution will reduce the bittering/hop aroma. Planned volume in the fermenter (pretopup)....precoolfvvolume... with a later topup of ...topupvol...L, planed original gravity ...postboil_precool_og.../...estimated_og... (precool/cool)  planned final gravity ...estimated_fg... planned abv ....estimated_abv..."
+step.text="As the wort is cooled a decision should be made on the gravity of the resulting wort. It is hard to increase the gravity (as the high gravity wort is already used) but easy to reduce the gravity (as diluted wort/sterilised water will be easily available). It is best to make the decision when the wort is as cool as possible to reduce the effect of the hydrometer adjustments. If there was a high mash temperature factor in high final gravity when trying to calculate alcohol. Too severe a dilution will reduce the bittering/hop aroma. Planned volume in the fermenter (pretopup)....precoolfvvolume... with a later topup of ...topupvol...L, planed original gravity ...postboil_precool_og.../...estimated_og... (precool/cool)  planned final gravity ...estimated_fg... planned abv ....estimated_abv..."
 step.fields.append( ('Fermentation Bin Pre Topup Temp)','fvpretopuptemp','') )
 step.fields.append( ('Fermentation Bin Pre Topup Gravity','fvpretopupgrav','') )
 step.widgets['fvpretopupadjusted'] = ('gravityTempAdjustment',['fvpretopuptemp','fvpretopupgrav'])
@@ -987,6 +1055,9 @@ step.fields.append( ('Post Topup Post Cool Gravity','fvpostuppostcoolgravity',''
 
 
 
+# Measure
+step = myprocessK.brewday.newstep("Clean")
+step.text="Throughout the brewday it is a good idea to have been cleaning equipment, it's only at this stage that it is practical to clean the pump by cycling boiling water through it."
 
 
 # Measure
@@ -1010,14 +1081,6 @@ step.fields.append( ('Spargewater PH','spargeWaterPH','') )
 step.fields.append( ('Finished Wort PH','wortPH','') )
 
 
-## Move Fermentation Bin
-#step = myprocessK.brewday.newstep("Move Fermentation Bin")
-#step.newSubStep(("Setup temperature controller for the fermentation fridge and set the temperature to 20degC. The temperature probe must be insulated against the side of the fermentation bin in order to measure the wort temperature as accurately as possible",{'complete':1})) 
-#step.text="Move the fermentation bin to a suitable location for the duration of fermentation (ideally a stable temperature). It may help to tranfer some of the COOLED wort into the 15L kettle before moving, and then recombining into the fermentation bin. At this stage of the process aeration is ok."
-#step.attention="The 15L kettle must remain sterile and should be emptitied of all hot-break/hops before using it"
-#step.img=['tempcontrol.png']
-#
-
 
 # Pitch
 step = myprocessK.brewday.newstep("Pitch Yeast")
@@ -1028,7 +1091,8 @@ step.addConsumable(yeastvit,0.5)
 step.newSubStep(("Pitch the yeast",{'complete':1}))
 step.newSubStep(("Add half a teaspoon of yeastvit",{'complete':1}))
 
-
+step = myprocessK.brewday.newstep("Relax!")
+step.text="Finished the brewday"
 
 ###########################
 #Post Brew Day
@@ -1105,7 +1169,7 @@ step.auto="gathertheminikegs"
 step.stockDependency=["keg"]	# check based on category. if none found in this category then the compile() should remove this step
 # not sure stock dependency work... should deprecate it in any case
 step.text="Gather Minikegs with bungs/safety vent bungs\n"
-step.newSubStep(("Gather ...minikegqty... polypins",{'complete':1 }))
+step.newSubStep(("Gather ...minikegqty... minikegs",{'complete':1 }))
 	# need to think about removing this step if no stock of mini kegs available
 
 
@@ -1220,11 +1284,13 @@ step.text="Fill the mini kegs with sterilising solution from the bottles. Once t
 step = myprocessK.bottlingAndKegging.newstep("Empty Polypins")
 step.img=['bottlingempty.png']
 step.condition=[]
+step.auto="empty_polypin"
 step.condition.append(['polypinqty','>',0])
 step.text="Empty the sterilising solution from the polypins, using the taps"
 
 step = myprocessK.bottlingAndKegging.newstep("Empty Minikegs")
 step.img=['bottlingempty.png']
+step.auto="empty_minikeg"
 step.condition=[]
 step.condition.append(['minikegqty','>',0])
 step.text="Empty the sterilising solution from the minikegs, using the taps"
@@ -1241,6 +1307,7 @@ step.newSubStep(("Shake each bottle and empty the water.",{'complete':1}))
 step = myprocessK.bottlingAndKegging.newstep("Rinse Polypins")
 #step.img['bottlingrinse.png']
 step.condition=[]
+step.auto="rinse_polypin"
 step.condition.append(['polypinqty','>',0])
 step.text="Polypins need to be well rinsed to ensure traces of the sterilising solution are rinsed"
 step.newSubStep(("Fill each  polypin a third full with cold water",{'complete':1}))
@@ -1250,6 +1317,7 @@ step.newSubStep(("Shake each polypin and empty via the tap.",{'complete':1}))
 step = myprocessK.bottlingAndKegging.newstep("Rinse Minikegs")
 #step.img['bottlingrinse.png']
 step.condition=[]
+step.auto="rinse_minikeg"
 step.condition.append(['minikegqty','>',0])
 step.text="Minikegs need to be well rinsed to ensure traces of the sterilising solution are rinsed"
 step.newSubStep(("Fill each  minikeg a third full with cold water",{'complete':1}))
@@ -1267,10 +1335,12 @@ step.text="Stir the priming and then add 15ml of priming solution to each bottle
 
 step = myprocessK.bottlingAndKegging.newstep("Add priming solution to each polypin")
 step.text="Stir the priming and then add 45ml of priming solution to each polypin"
+step.auto="prime_polypin"
 step.condition=[]
 step.condition.append(['polypinqty','>',0])
 
 step = myprocessK.bottlingAndKegging.newstep("Add priming solution to each minikeg")
+step.auto="prime_minikeg"
 step.text="Stir the priming and then add 120ml of priming solution to each minikeg"
 step.condition=[]
 step.condition.append(['minikegqty','>',0])
@@ -1279,6 +1349,7 @@ step.condition.append(['minikegqty','>',0])
 # Fill polypins kegs first
 step = myprocessK.bottlingAndKegging.newstep("Fill Polypins")
 step.condition=[]
+step.auto="fill_polypin"
 step.condition.append(['polypinqty','>',0])
 step.stockDependency=["keg"]		# check based on category
 step.text="The polypins should be filled with a little bottler, leaving half an inch of headspace."
@@ -1289,6 +1360,7 @@ step.attention="While bottling every effort must be taken not to introduce oxyge
 
 step = myprocessK.bottlingAndKegging.newstep("Fill Mini Kegs")
 step.condition=[]
+step.auto="fill_minikeg"
 step.condition.append(['miniqty','>',0])
 step.stockDependency=["keg"]		# check based on category
 step.text="The minikegs should be filled with a little bottler, leaving an inch of headspace."

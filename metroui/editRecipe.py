@@ -39,6 +39,8 @@ class editRecipe:
 		self.con=con
 		self.con2=con2
 
+		recipeName=self.recipeName
+		description=""
 		cursor=con.cursor()
 		cursor.execute("select recipeName,description from gRecipes WHERE recipeName = '%s' ;" %( self.recipeName))
 		for row in cursor:
@@ -322,7 +324,7 @@ class editRecipe:
 		#
 		#
 		#
-
+		itemType="hops"
 		print """ 
 		    <div class="accordion-frame">
 				<a href="#" class="%sheading">Hops</a>
