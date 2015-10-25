@@ -2516,13 +2516,13 @@ class brewerslabCloudApi:
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 		recipe=ourRecipe.fetch(1)[0]
 
-
 		self.recipe=recipe
 		recipe.calculationOutstanding=False
 		recipe.put()
+		sys.stderr.write("Cannot calcualte becase we don't know which process to use\n")
+
 		if len(recipe.process) < 1:
 			return "Cannot calculate because we don't know which process to use"
-
 
 	
 		ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND brewlog = :3", username,recipeName,"")
@@ -2957,9 +2957,12 @@ class brewerslabCloudApi:
 				grain = grain + fermentable.qty
 			else:
 				nongrain = nongrain + fermentable.qty
-		
-		grain_pcnt = grain / (grain + nongrain)
-		nongrain_pcnt = nongrain / (grain + nongrain)
+	
+		grain_pcnt=0
+		nongrain_pcnt=0
+		if grain+nongrain >0:	
+			grain_pcnt = grain / (grain + nongrain)
+			nongrain_pcnt = nongrain / (grain + nongrain)
 
 		self.grain_weight=grain
 		self.nongrain_weight=nongrain
@@ -3692,8 +3695,10 @@ class brewerslabCloudApi:
 		#1 US quart = 0.946352946 litres
 		#1.18294118 
 
-		
-		strike_temp = ( ( .41 / self.recipe.mash_grain_ratio) * ((self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak)  - self.recipe.initial_grain_temp) ) + self.recipe.target_mash_temp
+	
+		strike_temp =0
+		if self.recipe.mash_grain_ratio > 0:	
+			strike_temp = ( ( .41 / self.recipe.mash_grain_ratio) * ((self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak)  - self.recipe.initial_grain_temp) ) + self.recipe.target_mash_temp
 		self.target_mash_temp=self.recipe.target_mash_temp
 		
 		self.calclog = self.calclog + "striketmp:\t strike_temp = %.3fC  (before skew %.3fC)\n" %(strike_temp-self.strikeTempSkew,strike_temp) 
@@ -3773,6 +3778,7 @@ class brewerslabCloudApi:
 
 	
 			R=gRecipes(recipename=recipeNewName,owner=username )
+			R.process=newestProcess
 			R.db=self.dbWrapper
 #			for ri in recipe.__dict__:
 #				if ri != "entity" and ri != "recipename":
@@ -3864,14 +3870,13 @@ class brewerslabCloudApi:
 		status=0
 		try:
 			result={}
-
 			errstatus = self.doCalculate(username,recipeName)
 			result['calclog']=self.calclog	
 			status=1
 			return {'operation' : 'calculateRecipe', 'status' : status ,'json':json.dumps( result ) }
 
 
-		except: 
+		except ImportError: 
 			sys.stderr.write("EXCEPTION in calculateRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -4484,9 +4489,9 @@ class brewerslabCloudApi:
 						# hide a step if we don't have dry-hop involved
 						if not haveDryHops:
 							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
-							disableStep[0].activityNum=-9
-							disableStep[0].put()
-							sys.stderr.write("removed dry-hop step as we don't have dry-hops\n")
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
 						
 
 
@@ -4528,8 +4533,9 @@ class brewerslabCloudApi:
 
 						if not haveFWH:
 							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
-							disableStep[0].activityNum=-9
-							disableStep[0].put()
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
 
 
 
@@ -4570,8 +4576,9 @@ class brewerslabCloudApi:
 
 						if not haveFlameout:
 							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
-							disableStep[0].activityNum=-9
-							disableStep[0].put()
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
 
 
 
