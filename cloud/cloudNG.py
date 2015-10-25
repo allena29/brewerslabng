@@ -387,7 +387,7 @@ class brewerslabCloudApi:
 			result['stats']['batch_size_required']=int(newBatchSize)
 
 			return {'operation' : 'setBatchSize','status' :status , 'json': json.dumps(result)  }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION in setBatchSize\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -423,7 +423,7 @@ class brewerslabCloudApi:
 			result['stats']={}
 			result['stats']['postBoilTopup']=float(topupVol)
 			status=1
-		except ImportError:
+		except:
 			pass
 		#print "setTopupVolume <- "
 		return {'operation' : 'setTopupVolume','status' :status , 'json': json.dumps(result)  }
@@ -3758,7 +3758,20 @@ class brewerslabCloudApi:
 			for recipe in ourRecipes.fetch(2000):
 				recipe.delete()
 
-			
+			# delete recipeStats just incase
+			ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2", username,recipeNewName)
+			for recipe in ourRecipes.fetch(2000):
+				recipe.delete()
+
+			# Find newest process
+			newestProcess="unknown-process"
+			ourProcesses= self.dbWrapper.GqlQuery("SELECT * FROM gProcesses WHERE owner = :1 ORDER BY entity DESC",username)
+			for p in ourProcesses.fetch(1):
+				newestProcess=p.process
+			stat = gRecipeStats(owner=username,process=newestProcess,recipe=recipeNewName)
+			stat.put()
+
+	
 			R=gRecipes(recipename=recipeNewName,owner=username )
 			R.db=self.dbWrapper
 #			for ri in recipe.__dict__:
@@ -3773,7 +3786,7 @@ class brewerslabCloudApi:
 						
 
 			status=1
-		except ImportError:
+		except:
 			sys.stderr.write("EXCEPTION in createBlankRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3858,7 +3871,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'calculateRecipe', 'status' : status ,'json':json.dumps( result ) }
 
 
-		except ImportError:
+		except: 
 			sys.stderr.write("EXCEPTION in calculateRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
