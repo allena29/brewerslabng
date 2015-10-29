@@ -70,18 +70,20 @@ class brewerslabCloudApi:
 
 
 	def listRecipes(self, username):
+		sys.stderr.write("\nSTART: listRecipes()\n")
 		try:
-			sys.stderr.write("listRecipes() ->\n")
 
 			recipeList=[]
 			ourRecipes = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1", username)
 			for recipe in ourRecipes.fetch(2000):
 				recipeList.append( recipe.recipename )
 			recipeList.sort()
-			sys.stderr.write("listRecipes() <- %s\n" %(recipeList))
-			return {'operation' : 'listRecipes', 'status' : 1, 'json' : json.dumps( {'result': recipeList} ) }
 
-		except ImportError:
+
+			sys.stderr.write("END: listRecipes()\n")
+			return {'operation' : 'listRecipes', 'status' : 1, 'json' : json.dumps( {'result': recipeList} ) }
+		except:
+			sys.stderr.write("EXCEPTION: listRecipes()\n")
 			return {'operation' : 'listRecipes', 'status' : 0}
 
 
@@ -93,12 +95,12 @@ class brewerslabCloudApi:
 		
 		returns standard header
 		"""
+		sys.stderr.write("\nSTART: listActivitiesFromBrewlog() -> %s\n" %(brewlog))
 
 		#
 		# Note: recipe isn't really needed here but we have retained it to keep cloudApi
 		# aligned with the previous xmlrpc 
 		#
-		sys.stderr.write("listActivitiesFromBrewlog() -> %s,%s\n" %(process,brewlog))
 		try:
 
 	
@@ -106,7 +108,6 @@ class brewerslabCloudApi:
 
 			ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2", username,brewlog).fetch(1)[0]
 			process = ourProcess.process
-			sys.stderr.write("over-riding process to %s\n" %(ourProcess.process))
 		
 			activities=[]
 			completeactivities=[]
@@ -127,10 +128,10 @@ class brewerslabCloudApi:
 			result['recipe']=recipe
 			result['process']=process
 			result['brewlog']=brewlog
-			sys.stderr.write( " result: %s\n" %(json.dumps(result))	)
+			sys.stderr.write("END: listActivitiesFromBrewlog() -> %s\n" %(brewlog))
 			return {'operation' : 'listActivitiesFromBrewlog', 'status' : 1, 'json' : json.dumps( {'result': result} ) }
 		except:
-			sys.stderr.write("EXCEPTION in listActivitiesFromBrewlog\n")
+			sys.stderr.write("EXCEPTION: listActivitiesFromBrewlog()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 
@@ -139,7 +140,7 @@ class brewerslabCloudApi:
 
 	
 	def listBrewlogsByRecipe(self,username,recipeName,raw=False):
-		sys.stderr.write("listBrewlogsByRecipes() -> %s\n" %(recipeName))
+		sys.stderr.write("\nSTART: listBrewlogsByRecipes() -> %s\n" %(recipeName))
 		try:
 			existingBrewlog = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,"__dummy").fetch(100000)
 			for eB in existingBrewlog:	eB.delete()
@@ -186,13 +187,14 @@ class brewerslabCloudApi:
 			processList.reverse()
 
 
+			sys.stderr.write("END: listBrewlogsByRecipe()\n")
 			if raw:	
 				return {'result':brewlogList,'result2':processList}
 
 			return {'operation' : 'listBrewlogByRecipe', 'status' : 1, 'json' : json.dumps( {'result': brewlogList,'result2':processList} ) }
 
 		except:
-			sys.stderr.write("listBrewlogsByRecipe() Exception\n")
+			sys.stderr.write("EXCEPTION: listBrewlogsByRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s\n" %(e))
 
@@ -201,151 +203,6 @@ class brewerslabCloudApi:
 			return {'operation' : 'listBrewlogByRecipe', 'status' : 0}
 
 
-	def closeRecipe(self):
-		print "closeRceipe() -> "
-		self.recipe = None
-		print "closeRecipe() <-"
-		return {'operation' : 'closeRecipe', 'status' : 1 }
-
-
-	def openRecipe(self,recipe):
-		print "openRecipe() -> %s" %(recipe)
-		status = 0
-		try:
-			o=open("recipes/%s/%s" %(self.userid, re.compile("[^a-zA-Z0-9]").sub('_',recipe)))
-			self.recipe = pickle.loads( o.read() )
-			o.close()
-			status = 1
-		except:
-			print "EXCEPTION"
-#			exc_type, exc_value, exc_traceback = sys.exc_info()
-#			for e in traceback.format_tb(exc_traceback):	print e
-			pass
-			
-		print "openRecipe() <- %s" %(status)
-		
-		return {'operation' : 'openRecipe', 'status' : status  }
-
-
-
-	def currentRecipe(self):
-		print "currentRecipe() ->"
-		status=0
-		try:
-			print "currentReipce() <- %s " %(self.recipe.name)
-			return {'operation' : 'currentRecipe', 'status' : 1, 'json' : "%s" %( {'result':self.recipe.name}   )}
-		except:
-			pass			
-		print "currentReipce() <- %s" %(status)
-		return {'operation' : 'currentRecipe', 'status' : status }
-
-
-
-	def newRecipe(self, recipe):
-		print "newRecipe() -> %s" %(recipe)
-		status=0
-		try:
-			recipeFile = re.compile("[^a-z0-9A-Z]").sub('_', recipe.lower() )
-			if os.path.exists("recipes/%s/%s" %(self.userid,recipeFile)):
-				print "newRecipe() false" 
-				return {'operation' : 'newRecipe', 'status' : 0  }
-			self.recipe = brwlabRecipe()
-			self.recipe.name = recipe
-			self.recipe.userid = self.userid
-			self.recipe.calculationOutstanding=True
-			self.recipe.save( "recipes/%s/%s" %(self.userid,recipeFile))
-
-			status = 1
-		except:
-			pass
-
-		print "newRecipe() %s" %(status) 
-		return {'operation' : 'newRecipe', 'status' : status }
-	
-
-	def setRecipeDescription(self,description):
-		print "setRecipeDescription() -> %s " %(description)	
-		status=0
-		try:
-			self.recipe.description = description
-			status=1
-		except:
-			pass
-		return {'operation' : 'setRecipeDescription','status':status}
-
-	def saveStore(self):
-		print "saveStore() <>"
-		status=0
-		try:
-			o=open("store/%s/store" %(self.userid),"w")
-			o.write(pickle.dumps(self.stores))
-			o.close()
-			status =1
-		except:
-			pass
-		return {'operation' : 'saveStore', 'status' : status }
-
-
-	def saveBrewlog(self):
-		print "saveBrewlog() <>"
-		status=0
-		try:
-			self.brewlogfilename= "brewlog/%s/%s/%s/%s" %(self.userid, re.compile("[^A-Za-z0-9]").sub('_',self.process.name), re.compile("[^A-Za-z0-9]").sub("_",self.recipe.name.lower()), re.compile("[^A-Za-z0-9]").sub('_',self.brewlog.name.lower()))
-			print "saving to ",self.brewlogfilename
-			o=open(self.brewlogfilename,"w")
-			o.write(pickle.dumps(self.brewlog))
-			o.close()
-			status =1
-		except:
-			pass
-		return {'operation' : 'saveBrewlog', 'status' : status }
-
-
-
-	def saveRecipe(self):
-		print "saveRecipe() <>"
-		status=0
-		try:
-			recipeFile = re.compile("[^a-z0-9A-Z]").sub('_', self.recipe.name.lower() )
-			self.recipe.save( "recipes/%s/%s" %(self.userid,recipeFile))
-			status = 1
-		except:
-			pass
-
-		print "saveRecipe() %s" %(status) 
-		return {'operation' : 'saveRecipe', 'status' : status }
-		
-
-	def getRecipe(self):
-		"""
-		getRecipe()
-		
-		return: current recipe encoded in JSON format
-		"""
-
-		print "getRecipe() <> "
-		status=0
-		if not self.recipe:
-			return {'operation' : 'getRecipe', 'status' : 0}
-		return { 'operation' : 'getRecipe', 'status' : 1, 
-				'json' : json.dumps( self.recipe.dumpJSON() )  
-			}
-
-
-	def getCalcLog(self):
-		"""
-		getCalcLog()
-	
-		return: string calclog
-		"""
-		print "getCalcLog <>"
-		try:
-			return {'operation' : 'getCalcLog','status' : 1,
-				'json' : json.dumps({'result':"         :\n%s\n\n\n          :\n%s\n\n" %( self.recipe.calclog,self.stores.calclog)})}
-
-		except:
-			return {'operation' : 'getCalcLog','status': 0}
-			
 		
 	def setMashEfficiency(self,username,recipeName, newMashEfficiency,doRecalculate="1"):
 		if 1==1:
@@ -367,7 +224,7 @@ class brewerslabCloudApi:
 		
 		return: standard api header
 		"""
-		sys.stderr.write("setBatchSize recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
+		sys.stderr.write("\nSTART: setBatchSize()  recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
 		status=0
 
 
@@ -388,25 +245,27 @@ class brewerslabCloudApi:
 			# flag recipe rcalc at the recipe level
 			ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 			for recipe in ourRecipe.fetch(500):
+				recipe.batch_size_required=int(newBatchSize)
 				recipe.calculationOutstanding=True
 				recipe.put()
 			sys.stderr.write("recipeBatchSize set on gRecipes and gRecipStats\n")	
 		
-#			tmp = self.viewRecipe(username,recipeName,category,1)
-#
 			status=1
 			result={}
 			result['stats']={}
 			result['stats']['batch_size_required']=int(newBatchSize)
 
+			sys.stderr.write("END: setBatchSize()  recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
 			return {'operation' : 'setBatchSize','status' :status , 'json': json.dumps(result)  }
-		except ImportError:
-			sys.stderr.write("EXCEPTION in setBatchSize\n")
+		except:
+			sys.stderr.write("EXCEPTION: setBatchSize()  recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 
 
 		return {'operation' : 'setBatchSize','status' : status}
+
+
 
 
 	def setTopupVolume(self,username, recipeName,topupVol,doRecalculate="1"):
@@ -417,13 +276,12 @@ class brewerslabCloudApi:
 
 		return: standard api header
 		"""
-		sys.stderr.write("setTopupVolume -> %s" %(topupVol))
+		sys.stderr.write("\nSTART: setTopupVolume -> %s\n" %(topupVol))
 		status=0
 		result={}
 		try:
 			ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 			for recipe in ourRecipe.fetch(500):
-				#recipe.batch_size_required=int(newBatchSize)
 				recipe.postBoilTopup = float(topupVol)
 				if doRecalculate == "0":	recipe.calculationOutstanding=True
 				recipe.put()
@@ -436,10 +294,12 @@ class brewerslabCloudApi:
 			result['stats']={}
 			result['stats']['postBoilTopup']=float(topupVol)
 			status=1
+			sys.stderr.write("END: setTopupVolume -> %s\n" %(topupVol))
 		except:
-			pass
-		#print "setTopupVolume <- "
+			sys.stderr.write("EXCEPTION: setTopupVolume -> %s\n" %(topupVol))
 		return {'operation' : 'setTopupVolume','status' :status , 'json': json.dumps(result)  }
+
+
 
 
 	def listIngredients(self,category):
@@ -449,15 +309,16 @@ class brewerslabCloudApi:
 			
 		return: list of ingredients from the presets file
 		"""
-
-		print "listIngredients -> %s" %(category)
+		sys.stderr.write("\nSTART: listIngredients()\n")
 		status=0
-
 		try:
-			return {'operation' : 'listIngredients', 'status' : 1,
+			response = {'operation' : 'listIngredients', 'status' : 1,
 					'json' : "%s" %( self.data.dumpJSON( category )  ) 
 				}
+			sys.stderr.write("END: listIngredients()\n")
+			return response
 		except:	pass
+		sys.stderr.write("EXCEPTION: listIngredients()\n")
 		return {'operation' : 'listIngredients', 'status' : status }
 
 
@@ -470,15 +331,17 @@ class brewerslabCloudApi:
 			
 		return: dict of ingredient detail
 		"""
-
-		print "listIngredients -> %s" %(category)
+		sys.stderr.write("\nSTART: listIngredientsDetails()\n")
 		status=0
 
 		try:
-			return {'operation' : 'listIngredientDetail', 'status' : 1,
+			response = {'operation' : 'listIngredientDetail', 'status' : 1,
 					'json' : "%s" %( self.data.dumpDetailJSON( category, ingredient )  ) 
 				}
+			sys.stderr.write("END: listIngredientsDetails()\n")
+			return response
 		except:	pass
+		sys.stderr.write("EXCEPTION: listIngredientsDetails()\n")
 		return {'operation' : 'listIngredients', 'status' : status }
 
 
@@ -489,6 +352,7 @@ class brewerslabCloudApi:
 
 		return: list of processes
 		"""
+		sys.stderr.write("\nSTART: listProcess()\n")
 		p=[]
 		sys.stderr.write("listProcess\n")
 		ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gProcesses WHERE owner = :1",username)
@@ -496,6 +360,7 @@ class brewerslabCloudApi:
 			p.append(process.process)
 
 		p.sort()
+		sys.stderr.write("END: listProcess()\n")
 		return {'operation' : 'listProcess', 'status' : 1,'json':json.dumps( {'result': p}  ) }
 
 
@@ -507,8 +372,7 @@ class brewerslabCloudApi:
 		return:	standard header
 		"""
 		status=0
-		print "setProcess -> %s" %(process)
-
+		sys.stderr.write("\nSTART: setProcess()\n")
 		try:
 	
 			myprocess = pickle.loads(open("process/%s/%s" %(self.userid,process)).read())
@@ -516,7 +380,7 @@ class brewerslabCloudApi:
 			status=1
 		except: 
 			traceback.print_exc()
-		print "setProcess <- "
+		sys.stderr.write("END: setProcess()\n")
 		return {'operation' :'setProcess','status':status}
 
 
@@ -530,7 +394,7 @@ class brewerslabCloudApi:
 		return:	standard header
 		"""
 		status=0
-		print "addHopIngredientToRecipe() -> %s %s %s" %(ingredient,qty,hopAddition)
+		sys.stderr.write("\nSTART: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 		try:
 			if self.recipe:
 				recipeObject = self.data.getHop( ingredient )
@@ -538,14 +402,16 @@ class brewerslabCloudApi:
 				try:
 					self.recipe.calculate()
 				except:
-					print self.recipe.calclog	
+					sys.stderr.write("EXCEPTION2: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 					traceback.print_exc()
 					status=0
 				status =1
-		except:	pass
-		print "addHopIngredientToRecipe() <- .."
+		except:
+			sys.stderr.write("EXCEPTION: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 
+		sys.stderr.write("END: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 		return {'operation' : 'addHopIngredientToRecipe','status':status}
+
 
 	def addIngredientToRecipe(self, category, ingredient, qty):
 		"""
@@ -557,8 +423,8 @@ class brewerslabCloudApi:
 		return:	standard header
 		"""
 
+		sys.stderr.write("\nSTART: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 		status=0
-		print "addIngredientToRecipe() -> %s %s" %(ingredient,qty)
 		try:
 			if self.recipe:
 				recipeObject = None
@@ -572,13 +438,14 @@ class brewerslabCloudApi:
 					try:
 						self.recipe.calculate()
 					except:
-						print self.recipe.calclog	
+						sys.stderr.write("EXCEPTION2: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 						traceback.print_exc()
 						status=0
 					status =1
-		except:	pass
-		print "addIngredientToRecipe() <- .."
+		except:
+			sys.stderr.write("EXCEPTION: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 
+		sys.stderr.write("END: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 		return {'operation' : 'addIngredientToRecipe','status':status}
 
 
@@ -589,17 +456,21 @@ class brewerslabCloudApi:
 		return:	integer of total water required for the brew in litres
 		"""
 
-		print "getWaterRequired() -> "
+		sys.stderr.write("\nSTART: getWaterRequried()\n")
 		if self.recipe:
 			try:
 				waterRequired = self.recipe.calculate()
 			except:
+				sys.stderr.write("EXCEPTION: getWaterRequried()\n")
 				traceback.print_exc()
 				return {'operation' : 'addIngredientToRecipe','status':0}
 			waterRequired= self.recipe.waterRequirement()
+			sys.stderr.write("END: getWaterRequried()\n")
 			return {'operation' : 'getWaterRequired', 'status' : 1, 'json' : json.dumps( {"result":waterRequired} ) }
 
+		sys.stderr.write("EXCEPTION0: getWaterRequried()\n")
 		return {'operation' : 'addIngredientToRecipe','status':0}
+
 
 
 	def scaleAlcohol(self,newABV):
@@ -610,13 +481,14 @@ class brewerslabCloudApi:
 		return:	float with response
 		"""
 
-		print "scaleAlcohol() -> %s " %(newABV)
+		sys.stderr.write("\nSTART: scaleAlochol() %s\n" %(newABV))
 		if self.recipe:
 			try:
 				self.recipe.scaleAlcohol( newABV )
+				sys.stderr.write("END: scaleAlochol() %s\n" %(newABV))
 				return {'operation' : 'scaleAlcohol', 'status' : 1, 'json' : json.dumps( {"result": self.recipe.estimated_abv } ) }
 			except:
-				print self.recipe.calclog	
+				sys.stderr.write("EXCEPTION: scaleAlochol() %s\n" %(newABV))
 				traceback.print_exc()
 
 		return {'operation' : 'scaleAlcohol','status':0}
@@ -631,14 +503,14 @@ class brewerslabCloudApi:
 		return:	float with response
 		"""
 
-		sys.stderr.write( "scaleIBU() -> %s\n" %(newIBU))
+		sys.stderr.write( "\nSTART: scaleIBU() -> %s\n" %(newIBU))
 
 		#
 		#	 note this should probably use gContributions to do the scaling
 		#
 
 		return {'operation' : 'scaleIBU','status':-5}		# NOT SUPPOrtED
-
+		"""
 
 
 		try:
@@ -676,6 +548,7 @@ class brewerslabCloudApi:
 
 
 
+		"""
 
 
 
@@ -687,7 +560,7 @@ class brewerslabCloudApi:
 
 		return: standard response header
 		"""
-		sys.stderr.write("startNewBrewlog %s/%s/%s /%s" %(name,recipeName,process,reset))
+		sys.stderr.write("\nSTART: startNewBrewlog() %s/%s/%s /%s\n" %(name,recipeName,process,reset))
 		status = 0
 
 
@@ -723,23 +596,18 @@ class brewerslabCloudApi:
 			brwlog.put()	
 		
 
-
-
-		# keep a copy of our RecipeStats safe from future recipe updates
-		sys.stderr.write("gRecipeStats; we are taking in original gRecipeStats as ourRecipeStats (where brewlog=\"\") \n")
 		try:
+			# keep a copy of our RecipeStats safe from future recipe updates
 			# we might not actually have recipeStats for this process yet. So this should have been a best effort attempt
 			ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND brewlog = :3 AND process = :4",username,recipeName,"",process).fetch(500000)[0]
 		except:
 			pass
 
-		sys.stderr.write("gRecipeStats; created a newRecipeStats (with brewlog = %s)\n" %(name))
 		newRecipeStats = gRecipeStats(owner=username,process=process,recipe=recipeName)
 		newRecipeStats.db=self.dbWrapper
 		try:
 			for x in ourRecipeStats.__dict__:
 				if x != "entity":
-					sys.stderr.write("gRecipeStats; Copying %s = %s\n" %(x, ourRecipeStats.__dict__[x]))
 					newRecipeStats.__dict__[x] = ourRecipeStats.__dict__[x]		
 		except:
 			pass
@@ -750,47 +618,18 @@ class brewerslabCloudApi:
 
 		ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum > :3",username,process,-1).fetch(500000)
 		sortIndex=0
-		# sortIndex is a complete random thing as MySQL is in control of sorting out the order
-
 		for processStep in ourProcess:
 
-			# doing conditionals
-			dostep=1
-			if processStep.conditional:
-				dostep=0
-				try:
-					sys.stderr.write(" Process Step : %s" %(processStep.conditional[0]))
-					valX = ourRecipeStats.__dict__[ processStep.conditional[0] ]	
-					sys.stderr.write("              : %s" %(valX))
-					valY = int(ourRecipeStats.__dict__[ processStep.conditional[2] ])
-					sys.stderr.write("              : %s" %(valY))
-					if processStep.conditional[1] == ">":
-						if valX > valY:	doStep=1
-					if processStep.conditional[1] == ">=":
-						if valX >= valY:	doStep=1
-					if processStep.conditional[1] == "<":
-						if valX < valY:	doStep=1
-					if processStep.conditional[1] == "<=":
-						if valX <= valY:	doStep=1
-					if processStep.conditional[1] == "==":
-						if valX == valY:	doStep=1
-					if processStep.conditional[1] == "!=":
-						if valX != valY:	doStep=1
-					sys.stderr.write("              : dostep %s" %(doStep))
-				except:
-					dostep=1
-
-
-			# didn't realise conditional where in place
-			if dostep:	
-				stp = gBrewlogStep(recipe=recipeName,brewlog=name,activityNum=processStep.activityNum, stepNum=processStep.stepNum, subStepNum=processStep.subStepNum,owner=username,sortIndex=sortIndex )
-				stp.db=self.dbWrapper
-				stp.stepName=processStep.stepName
-				stp.completed=False
-				stp.numSubSteps=processStep.numSubSteps
-				stp.needToComplete=processStep.needToComplete
-				stp.put()
-				sortIndex=sortIndex+1
+			# OCT2015 removed conditionals becuase they didn't work
+			# and we have started to use step.auto instead
+			stp = gBrewlogStep(recipe=recipeName,brewlog=name,activityNum=processStep.activityNum, stepNum=processStep.stepNum, subStepNum=processStep.subStepNum,owner=username,sortIndex=sortIndex )
+			stp.db=self.dbWrapper
+			stp.stepName=processStep.stepName
+			stp.completed=False
+			stp.numSubSteps=processStep.numSubSteps
+			stp.needToComplete=processStep.needToComplete
+			stp.put()
+			sortIndex=sortIndex+1
 
 
 		ourFields=self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND process = :2",username,process).fetch(4324234)	
@@ -800,13 +639,13 @@ class brewerslabCloudApi:
 			blankfield.brewlog=name
 			blankfield.fieldKey=field.fieldKey
 			blankfield.fieldWidget=field.fieldWidget
-			#blankfield.parent=field.parent		# parent not seen anywhere else
 			blankfield.fieldTimestamp=field.fieldTimestamp
 			blankfield.put()
 
 		status =1
 			
 		
+		sys.stderr.write("END: startNewBrewlog %s/%s/%s /%s\n" %(name,recipeName,process,reset))
 		return {'operation' : 'startNewBrewLog','status':status,'json': json.dumps({}) }
 			
 
@@ -821,52 +660,22 @@ class brewerslabCloudApi:
 		call selectProcess() first
 		return: standard response header
 		"""
-		print "listActivities <"
+		sys.stderr.write("\nSTART: listActivities()\n")
 		status=0
 		activities=[]
 		try:
 			for activity in self.process.activities:
 				activities.append(activity.activityTitle)
+			sys.stderr.write("END: listActivities()\n")
 			return {'operation' : 'listActivities', 'status' : 1, 'json' : json.dumps( {"result": activities } ) }
 		except:
-			print "exception in listActivities"
+			sys.stderr.write("EXCEPTION: listActivities()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
 
-	
-		return {'operation' : 'listActivities','status':status}
 
 
 
-
-	def selectActivity(self,username,activityName):
-		"""
-		selectActivity()
-			string activity
-	
-		return: standard response header
-
-
-		Note this will be a dummy method as well.
-		"""
-
-		
-		sys.stderr.write("selectActivity <- %s\n"  %(activityName))
-		status=1
-#		try:
-#			print "self.process",self.process
-#			for activity in self.process.activities:
-#				print activity.activityTitle
-#				if activity.activityTitle == activityName:	
-#					self.activity = activity
-#					status=1
-#		except:
-#			print "exception in selectActivity"
-#			exc_type, exc_value, exc_traceback = sys.exc_info()
-#			traceback.print_tb(exc_traceback)
-
-	
-		return {'operation' : 'selectActivity','status':status,'json':json.dumps({})}
 
 
 
@@ -883,7 +692,7 @@ class brewerslabCloudApi:
 
 		"""
 
-		sys.stderr.write("listActivitySteps %s/%s\n" %(process,activity))
+		sys.stderr.write("\nSTART: listActivitySteps %s/%s\n" %(process,activity))
 
 		try:
 			steps=[]
@@ -912,9 +721,10 @@ class brewerslabCloudApi:
 
 
 				steps.append(newstep)
+				sys.stderr.write("END: listActivitySteps %s/%s\n" %(process,activity))
 			return {'operation':'listActivitySteps','status':1,'json' : json.dumps( {'result': steps } ) }
 		except:
-			sys.stderr.write("exception in listActivitySteps\n\n\n")
+			sys.stderr.write("EXCEPTION: listActivitySteps %s/%s\n" %(process,activity))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
 
@@ -922,23 +732,6 @@ class brewerslabCloudApi:
 
 
 
-	def openBrewlog(self,username,process,recipe,brewlog):
-		"""
-		openBrewlog()
-			string process
-			string recipe
-			string brewlog
-
-		note: sets process and recipe to those in the brew log
-		return: standard response header
-
-
-		Note: in cloud api this is a dummy method, but left for now
-		"""
-		sys.stderr.write("openBrewlog() <> %s/%s/%s\n" %(process,recipe,brewlog))
-		
-		status=1
-		return {'operation' : 'openBrewlog','status' :status,'json':json.dumps({})}
 
 	def listProcesses(self):
 		"""
@@ -947,17 +740,17 @@ class brewerslabCloudApi:
 		return: list with processes in resonse header
 		"""
 		try:
-			print "listProcesses() -> "
+			sys.stderr.write("\nSTART: listProcesses\n")
 			processList=[]
 			for process in os.listdir( "process/%s/" %(self.userid) ):
 				tmp = pickle.loads(open("process/%s/%s" %(self.userid,process)).read())
 				processList.append( tmp.name )
 			processList.sort()
 			
-			
-			print "listProcesses() <- " %(processList)
+			sys.stderr.write("END: listProcesses\n")
 			return {'operation' : 'listProcesses', 'status' : 1, 'json' : json.dumps( {'result': processList} ) }
 		except:
+			sys.stderr.write("EXCEPTION: listProcesses\n")
 			return {'operation' : 'listProcesses', 'status' : 0}
 
 
@@ -970,9 +763,7 @@ class brewerslabCloudApi:
 			Integer: guiId 		<passed back transparently>
 		"""
 
-		sys.stderr.write("setFieldWidget %s %s %s %s %s %s %s\n" %("process no longer used",brewlog,activityNum,stepNum,fieldKey,fieldVal,guiId))
-#		ourActivity =self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum > :3 AND stepName = :4",username,process,-1,activity).fetch(1)[0]
-#		stepNum=int(stepNum)
+		sys.stderr.write("\nSTART: setFieldWidget() %s %s %s %s %s %s %s\n" %("process no longer used",brewlog,activityNum,stepNum,fieldKey,fieldVal,guiId))
 
 
 		ourField=self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND fieldKey = :5",username,brewlog,activityNum,stepNum,fieldKey).fetch(1)[0]
@@ -992,12 +783,13 @@ class brewerslabCloudApi:
 			ourField.put()
 
 
+		sys.stderr.write("END: setFieldWidget() %s %s\n" %(fieldKey,fieldVal))
 		return {'operation':'setFieldWidget','status':1,'json': json.dumps( {'result': result } ) }
 			
 
 
 	def _widgetData(self,username,brewlog,field):
-		sys.stderr.write("widgetdata %s %s %s\n" %(username,brewlog,field))
+		sys.stderr.write("\nSTART: _widgetData() %s %s\n" %(brewlog,field))
 		FIELD=field
 		field =field.lower()
 		
@@ -1008,7 +800,7 @@ class brewerslabCloudApi:
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND fieldKey = :3",username,brewlog,field).fetch(1)
 
 		if len(ourData):
-			sys.stderr.write(" result from field data %s\n"  %(ourData[0].fieldVal))
+			sys.stderr.write("END: _widgetData() %s %s %s\n" %(brewlog,field,ourData[0].fieldVal))
 			return ourData[0].fieldVal
 
 
@@ -1018,14 +810,12 @@ class brewerslabCloudApi:
 		ourData =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND process = :3 AND brewlog = :4",username,ourBrewlog.realrecipe,ourBrewlog.process,brewlog).fetch(1)[0]
 		
 		if ourData.__dict__.has_key("_%s" %(field)):
-			sys.stderr.write(" result from recipe stats %s\n"  %(ourData.__dict__["_%s" %(field)]))
+			sys.stderr.write("END: _widgetData() %s %s %s\n" %(brewlog,field,ourData.__dict__["_%s" %(field)]))
 			return ourData.__dict__["_%s" %(field)]
 
 
 	def crsAdjustment(self,alkalinity,volume,alkalinityRequired=50):
-		sys.stderr.write(" Tested Alkalinity: %s\n" %( alkalinity))
-		sys.stderr.write(" Mash Liquid:  %s\n" %(volume))
-		sys.stderr.write(" Alkalininty Required %s\n" %(alkalinityRequired))	
+		sys.stderr.write("\nSTART: crsAdjustment() %s %s %s\n" %(alkalinity,volume,alkalinityRequired))
 		# based upon maltmiller table
 		# AMS		0.6	1.5	3	4.6	6	9.2	12.2	15.3	18.4
 		# Chloride ppm	4	9.9	19.7	29.6	39.5	59.2	78.9	98.7	118.4
@@ -1036,15 +826,14 @@ class brewerslabCloudApi:
 		crsPer10Ml=-18.425733243061									
 
 		reductionRequired=alkalinityRequired-alkalinity
-		sys.stderr.write(" Reduction required: %s\n" %(reductionRequired))
 		crsRequired=reductionRequired /crsPer10Ml
-		sys.stderr.write(" Reduction required per 10L %.3f\n" %(crsRequired))
 		crsRequired=reductionRequired / crsPer10Ml/10
-		sys.stderr.write(" CRS required per L: %.2f ml \n" %(crsRequired))	
+		sys.stderr.write("END: crsAdjustment() %.2f ml\n" %( crsRequired))
 		return crsRequired * volume
 
 
 	def salifert(self,reagentLeft,highRes=False):
+		sys.stderr.write("\nSTART: salifert() %s %s\n" %(reagentLeft,highRes))
 		# takes in reagent remaining in the syringe in ml and returns hardness as CAC03
 
 		salifert=[	(0,5.59),
@@ -1108,12 +897,12 @@ class brewerslabCloudApi:
 			answer=answer*2
 		# answer is meq/L, but we want CaCO3
 		answer=answer*50
-		sys.stderr.write(" - answer for salifert() %s\n" %(answer))
+		sys.stderr.write("END: salifert() %s\n" %(answer))
 		return answer
 
 
 	def _widgets(self,username,process,brewlog,widget):
-		sys.stderr.write("_widgets %s %s %s %s\n" %(username,process,brewlog,widget))
+		sys.stderr.write("\nSTART: _widgets() %s %s %s %s\n" %(username,process,brewlog,widget))
 		ourWidget = self.dbWrapper.GqlQuery("SELECT * FROM gWidgets WHERE owner = :1 AND process = :2 AND widgetName = :3",username,process,widget).fetch(1)[0]
 
 		widgetType=ourWidget.widget		
@@ -1124,120 +913,102 @@ class brewerslabCloudApi:
 			alkalinity=float(ourData.__dict__['fieldVal'])
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)[0]
 			mashLiquid6=ourData.__dict__["mash_liquid_6"]
-
-			sys.stderr.write( "75%% %.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 ))
-			sys.stderr.write( "100%% %.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*1 ))
-			return "%.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 )
+			answer = "%.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 )
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 		if  widget == "mashCrsAdjustmentRetest":
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND fieldKey = :3",username,brewlog,"mashAlkalinityRetest").fetch(1)[0]
 			alkalinity=float(ourData.__dict__['fieldVal'])
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)[0]
 			mashLiquid6=ourData.__dict__["mash_liquid_6"]
-
-			sys.stderr.write( "75%% %.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 ))
-			sys.stderr.write( "100%% %.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*1 ))
-			return "%.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 )
-
+			answer = "%.2f" %( self.crsAdjustment(alkalinity,mashLiquid6)*.75 )
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 		if widget == "spargeCrsAdjustment":
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND fieldKey = :3",username,brewlog,"spargeAlkalinity").fetch(1)[0]
 			alkalinity=float(ourData.__dict__['fieldVal'])
 			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)[0]
 			spargeWater=ourData.__dict__["sparge_water"]
-
-			return "%.2f" %( self.crsAdjustment(alkalinity,spargeWater) )
+			answer ="%.2f" %( self.crsAdjustment(alkalinity,spargeWater) )
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 			
 		if widgetType == "salifertAlkalinity":
 			sys.stderr.write(" slaifertAlkalinity %s\n" %( self._widgetData(username,brewlog,widgetData[0])))
 			data0=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
 			# November 2010 version
-				
-			return "%s" %( self.salifert( data0, highRes=False ))
+			answer = "%s" %( self.salifert( data0, highRes=False ))
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
+
 
 		if widgetType == "salifertAlkalinityHighRes" or widgetType == "salifertAlkalinityHignRes":	# there is a typo here
 			sys.stderr.write(" slaifertAlkalinity %s\n" %( self._widgetData(username,brewlog,widgetData[0])))
 			data0=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
 			# November 2010 version
-				
-			return "%s" %( self.salifert( data0,highRes=True ))
+			answer = "%s" %( self.salifert( data0, highRes=True ))
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
-
-
-		if widgetType == "add2number":
+		if widgetType == "add2number" or widgetType == "add2numbers":
 			data0=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
 			data1=float( self._widgetData(username,brewlog,widgetData[1]))		# gravity of topup
-			sys.stderr.write("add2number %s %s \n" %(data0,data1))
-			return "%s" %(data0+data1)
-		if widgetType == "add2numbers":
-			data0=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
-			data1=float( self._widgetData(username,brewlog,widgetData[1]))		# gravity of topup
-			sys.stderr.write("add2number %s %s \n" %(data0,data1))
-			return "%s" %(data0+data1)
-#
-#
-#					got here
-#
-			return float( self._widgetData(username,brewlog,data0) ) + float( self._widgetData(username,brewlog,data1))
+			answer = "%s" %(data0+data1)
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 		if widgetType == "gravityVolAdjustment":
-
 			g=float( self._widgetData(username,brewlog,widgetData[0]))		# gravity of main wort
 			h=float( self._widgetData(username,brewlog,widgetData[1]))		# gravity of topup
 			v=float( self._widgetData(username,brewlog,widgetData[2]))	#vol1
 			x=float( self._widgetData(username,brewlog,widgetData[3])) # gravity target
-#			vol2=float( self._widgetData(username,brewlog,widgetData[3]))
-			sys.stderr.write("grav/grav/vol/target %s/%s/%s/%s\n" %(g,h,v,x))				
+			answer = "%.4f" %( -( (v*x)-(g*v) )/ (x-h) )
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
-			return "%.4f" %( -( (v*x)-(g*v) )/ (x-h) )
-
-
-			return "%.4f" %(g1+g2)
 		if widgetType == "combineMultipleGravity":
 			grav1=float( self._widgetData(username,brewlog,widgetData[0]))
 			grav2=float( self._widgetData(username,brewlog,widgetData[1]))
 			vol1=float( self._widgetData(username,brewlog,widgetData[2]))
 			vol2=float( self._widgetData(username,brewlog,widgetData[3]))
-			sys.stderr.write("grav/grav/vol/vol %s/%s/%s/%s\n" %(grav1,grav2,vol1,vol2))				
-
 			totalvol=vol1+vol2
 			g1 = (vol1/totalvol) * grav1
 			g2 = (vol2/totalvol) * grav2
-			return "%.4f" %(g1+g2)
+			answer= "%.4f" %(g1+g2)
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 			
 		if widgetType == "abvCalculation":
 			og= float(self._widgetData(username,brewlog,widgetData[0]))
-			sys.stderr.write( "do we have a fg??? %s\n" %(self._widgetData(username,brewlog,widgetData[1])))
 			fg= float(self._widgetData(username,brewlog,widgetData[1]))
-#			og=float(dataDict[widgetData[0]])
-#			fg=float(dataDict[widgetData[1]])
-		
-			return "%.1f" %((og-fg)	 * 131)
+			answer = "%.1f" %((og-fg)	 * 131)
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 		sys.stderr.write( "widget type _%s_\n" %(widgetType))
 		if widgetType == "gravityTempAdjustment" or widgetType == " gravityTempAdjustment":
 			intemp= float(self._widgetData(username,brewlog,widgetData[0]))
 			gravity= float(self._widgetData(username,brewlog,widgetData[1]))
 			answer=self.gravityTempAdjustment(intemp,gravity)
-
-#			temp = ( intemp *1.8)+32
-#			caltemp = 68
-#			answer = gravity * (1.00130346 - 1.34722124E-4 * temp + 2.04052596E-6 * temp * temp - 2.32820948E-9 * temp * temp * temp) / (1.00130346 - 1.34722124E-4 * caltemp + 2.04052596E-6 * caltemp * caltemp - 2.32820948E-9 * caltemp * caltemp * caltemp)
-
-			return "%.4f" %(answer)
-
+			answer = "%.4f" %(answer)
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 		if widgetType == "inverseGravityTempAdjustment":
 			intemp= float(self._widgetData(username,brewlog,widgetData[0]))
 			gravity= float(self._widgetData(username,brewlog,widgetData[1]))
 			answer=self.gravityTempAdjustment(intemp,gravity,-68)
-			return "%.4f" %(answer)
+			answer = "%.4f" %(answer)
+			sys.stderr.write("END: _widgets() %s %s\n" %(widget,answer))
+			return answer
 
 
-
-		sys.stderr.write("widgetType %s unsupported\n" %(widgetType))
+		sys.stderr.write("END: _widgets() %s %s\n" %(widget,'<unsupported widget>'))
 		return "unsupported"
-				
+		
+		
 
 	def saveComment(self,username,brewlog,activityNum,stepNum,comment):
 		"""
@@ -1247,14 +1018,8 @@ class brewerslabCloudApi:
 		return standard response header
 		"""
 
-		sys.stderr.write("saveComment %s/%s/%s/%s\n" %(brewlog,"process not used anymore",activityNum,stepNum))
+		sys.stderr.write("\nSTART: saveComment %s/%s/%s/%s\n" %(brewlog,"process not used anymore",activityNum,stepNum))
 
-#		ourActivity =self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum > :3 AND stepName = :4",username,process,-1,activityName).fetch(1)[0]
-#		sumToComplete=0
-#		numCompleted=0
-#		stepNum=int(stepNum)
-
-		
 		#step = self.activity.steps[stepNum]
 		existingField = self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND fieldKey = :5", username,brewlog,activityNum,stepNum,'notepage').fetch(1)
 		if len(existingField):
@@ -1270,26 +1035,9 @@ class brewerslabCloudApi:
 		com.fieldTimestamp = int(time.time())
 		com.put()	
 
-#		print  "stepid", self.activity.steps[stepNum].stepid
-#		if not self.brewlog.notes.has_key( self.activity.steps[stepNum].stepid ):
-#			self.brewlog.notes[self.activity.steps[stepNum].stepid] = {}
-			
-#		print "setting notepage with id %s" %(self.activity.steps[stepNum].stepid)
-#		self.brewlog.notes[self.activity.steps[stepNum].stepid]['notepage'] = comment
-
-		# Note the web interface sometimes uses the stepid from a substep
-#		for substep in step.substeps:
-#			if self.brewlog.notes.has_key( substep.stepid ):
-#				if self.brewlog.notes.has_key[substep.stepid].has_key("notepage"):
-#					self.brewlog.notes.has_key[substep.stepid]['notepage'] =""
-						
-
-#		self.saveBrewlog()
-		#self.brewlog.save()	
+		sys.stderr.write("END: saveComment()\n")
 		return {'operation':'saveComment','status':1 ,'json':json.dumps({})}
 
-
-#		return {'operation':'saveComment','status':0}
 
 
 
@@ -1301,20 +1049,14 @@ class brewerslabCloudApi:
 			Boolean:  complete or not complete	
 		return standard response header
 		"""
-		sys.stderr.write("setStepComplete %s/%s/%s/%s\n" %(brewlog,activityName,stepNum,complete))
+		sys.stderr.write("\nSTART: setStepComplete() %s/%s/%s/%s\n" %(brewlog,activityName,stepNum,complete))
 		thisProcess = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)[0]
-		sys.stderr.write("thisProcess ... %s\n" %(thisProcess.process))
 		thisActivity = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND stepNum = :4",username,thisProcess.process, activityName,-1).fetch(1)[0]
-		sys.stderr.write("thisActivity ... %s\n" %(thisActivity.activityNum))
-
 		if complete == "1":
 			activityStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,-1,-1).fetch(1)[0]
 
 		thisStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,int(stepNum),-1).fetch(1)[0]
-#		sumToComplete=0
-#		numCompleted=0
 		stepNum=int(stepNum)
-#		step = self.activity.steps[stepNum]
 		
 		if complete == "1":
 			lastCompleted=True
@@ -1337,6 +1079,7 @@ class brewerslabCloudApi:
 		if complete == "1":
 			result['label'] = "%s / %s" %(activityStep.stepName, thisStep.stepName)
 
+		sys.stderr.write("END: setStepComplete() %s/%s/%s/%s\n" %(brewlog,activityName,stepNum,complete))
 		return {'operation':'setStepComplete','status':1,'json': json.dumps( {'result': result } ) }
 
 
@@ -1350,13 +1093,10 @@ class brewerslabCloudApi:
 			Boolean:  complete or not complete	
 		return standard response header with percentage for progress bar and lastcompletestatus
 		"""
-		sys.stderr.write("setSubStepComplete %s/%s/%s/%s/%s\n" %(brewlog,activityName,stepNum,subStepNum,completed))
+		sys.stderr.write("\nSTART: setSubStepComplete %s/%s/%s/%s/%s\n" %(brewlog,activityName,stepNum,subStepNum,completed))
 
 		thisProcess = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)[0]
-		sys.stderr.write("thisProcess ... %s\n" %(thisProcess.process))
 		thisActivity = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND stepNum = :4",username,thisProcess.process, activityName,-1).fetch(1)[0]
-		sys.stderr.write("thisActivity ... %s\n" %(thisActivity.activityNum))
-
 		
 		if completed == "1":
 			activityStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5",username,brewlog,thisActivity.activityNum,-1,-1).fetch(1)[0]
@@ -1418,8 +1158,8 @@ class brewerslabCloudApi:
 		else:
 			result['parentComplete']=False
 
-#		self.saveBrewlog()
-#		self.brewlog.save()	
+
+		sys.stderr.write("END: setSubStepComplete %s/%s/%s/%s/%s\n" %(brewlog,activityName,stepNum,subStepNum,completed))
 		return {'operation':'setSubStepComplete','status':1,'json': json.dumps( {'result': result } ) }
 
 		return {'operation':'setSubStepComplete','status':0}
@@ -1430,34 +1170,23 @@ class brewerslabCloudApi:
 
 				
 	def _newVariableSub(self,username,toReplace,activityNum,stepNum,stepText,recipeName,process,brewlog,begin="",finish=""):
-		sys.stderr.write("\nnewVariableSub %s/%s/%s/%s/%s/ \n\trecipeName=%s process=%s brewlog=%s\n" %(username,toReplace,activityNum,stepNum,stepText,recipeName,process,brewlog))
+		sys.stderr.write("\nSTART: newVariableSub %s/%s/%s/%s/%s/\n" %(username,toReplace,activityNum,stepNum,stepText))
 		stat = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND process = :3 AND brewlog = :4",username,recipeName,process,brewlog).fetch(1)
 		if len(stat) == 0:
 			return stepText		
 		stat = stat[0]
-
-
-		# useful debug
-
-	#	sys.stderr.write("newvariableSub stat %s\n" %(stat))
-	#	sys.stderr.write(" toReplace: %s\n" %(toReplace))
-	#	sys.stderr.write(" activityNum: %s\n" %(activityNum))
-	#	sys.stderr.write(" stepNum: %s\n" %(stepNum))
-	#	sys.stderr.write(" stat.__dict__: %s\n" %(stat.__dict__))
 
 		for tr in toReplace:
 			if not stat.__dict__.has_key("%s" %(tr)):
 				val="?"
 			else:
 				val = stat.__dict__["%s" %(tr)]
-#			sys.stderr.write("\t%s\n" %(val))
 
 			val="%s%s%s" %(begin,val,finish)
 			stepText=re.compile("\.\.\.%s\.\.\." %(tr)).sub("%s" %(val),stepText)
 			
 
-
-
+		sys.stderr.write("END: newVariableSub()\n")
 		return stepText
 
 
@@ -1467,9 +1196,11 @@ class brewerslabCloudApi:
 
 
 	def getSubStepDetail(self,username,process,activityNum,brewlog,stepNum,recipeName,subStepNum):
-		# wrapper around getStepDetail
+		sys.stderr.write("\nSTART: getSubStepDetail()\n")
 		r=self.getStepDetail(username,process,activityNum,brewlog,stepNum,recipeName,subStepNum)
+		sys.stderr.write("END: getSubStepDetail()\n")
 		return {'operation':'getSubStepDetail','status':1,'json': r['json'] }
+
 
 	def getStepDetail(self,username,process,activityNum,brewlog,stepNum,recipeName,subStepNum=-1):
 		"""
@@ -1478,7 +1209,7 @@ class brewerslabCloudApi:
 			
 		return data in response header
 		"""
-		sys.stderr.write("getStepDetail %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
+		sys.stderr.write("\nSTART: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 		ourActivity =self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND stepNum = :4",username,process,activityNum,-1).fetch(1)[0]
 
 		stepNum = int(stepNum)
@@ -1574,11 +1305,9 @@ class brewerslabCloudApi:
 
 			# if it#s a widget add the detail in the fields
 			newfields=[]	
-			# 
 			for field in ourFields:
 				if field.fieldKey != "notepage":
 					if field.fieldWidget:
-						#label,???,value,widgetName
 						if field.fieldVal:
 							newfields.append( (field.fieldKey,field.fieldKey,field.fieldVal,field.fieldWidget) )
 						else:
@@ -1591,14 +1320,15 @@ class brewerslabCloudApi:
 							newfields.append( (field.fieldKey,field.fieldKey,"","") )
 			newStep['fields'] = newfields
 			newStep['process']=process
-#			sys.stderr.write("Img: %s\n" %( newStep['img']))
+			sys.stderr.write("END: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 			return {'operation':'getStepDetail','status':1,'json':json.dumps( {'result' : newStep} ) }
 		except:	
-			print "exception in selectProcess"
+			sys.stderr.write("EXCEPTION: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
 			for e in traceback.format_tb(exc_traceback):	print e
 		
+		sys.stderr.write("END: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 		return {'operation':'getStepDetail','status':0}
 
 
@@ -1610,49 +1340,28 @@ class brewerslabCloudApi:
 
 		return: list images used in a response header
 		"""
-		sys.stderr.write("listProcessImages <- %s\n" %(process))
+		sys.stderr.write("\nSTART: listProcessImages <- %s\n" %(process))
 		try:
 			tmpimages={}
 			ourImages = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2",username,process)
 			for image in ourImages.fetch(4555):
 				for img in image.img:
 					tmpimages[img]=1
-#			tmpprocess = pickle.loads(open("process/%s/%s" %(self.userid,process)).read())
-#			for activity in tmpprocess.activities:
-#'				for step in activity.steps:	
-#					for img in step.img:
-#						tmpimages[img]=1
 			images=[]
 			for img in tmpimages:		
 				images.append(img)
 
 			status =1
 
+			sys.stderr.write("END: listProcessImages <- %s\n" %(process))
 			return {'operation' : 'listProcessImages', 'status':1,'json' : json.dumps( {'result': images } ) }
 		
 		except:
+			sys.stderr.write("EXCEPTION: listProcessImages <- %s\n" %(process))
 			return {'operation' : 'listProcessImages', 'status':0}
 
-	def selectProcess(self,processName):
-		"""
-		selectProcess()
-			string name of process as per listProcesses
-		
-		return: standard response
-		"""
-		print "selectProcess() -> %s" %(processName)
-		status=0
-		try:
-			o=open("process/%s/%s" %(self.userid,processName))
-			self.process = pickle.loads( o.read() )
-			o.close()
-			status=1
-		except:	
-			print "exception in selectProcess"
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			traceback.print_tb(exc_traceback)
-			for e in traceback.format_tb(exc_traceback):	print e
-		return {'operation':'selectProcess','status':status}
+
+
 
 
 
@@ -1664,7 +1373,7 @@ class brewerslabCloudApi:
 
 		return: standard response
 		"""
-		sys.stderr.write("setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
+		sys.stderr.write("\nSTART: setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
 		status=0
 		try:
 
@@ -1684,8 +1393,10 @@ class brewerslabCloudApi:
 			result={}
 			result['stats']={}
 			result['stats']['mash_efficiency']=recipe.mash_efficiency
+			sys.stderr.write("END: setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
 			return {'operation':'setMashEfficiency','status':status,'json':json.dumps(result) }
 		except:
+			sys.stderr.write("EXCEPTION: setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
 			sys.stderr.write("setMashEfficiency() Exception\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s\n" %(e))
@@ -1694,91 +1405,9 @@ class brewerslabCloudApi:
 		return {'operation':'setMashEfficiency','status':status}
 
 
-	def findStock(self):
-		"""
-		findStock()
-		
-		return: stock details in standard response header
-		"""
-		print "findStock() ->"
-		status=0
-		try:
-			result=self.stores.jsonStockAndPrice( self.recipe )
-			return {'operation' : 'findStock', 'status' : 1, 'json' : json.dumps( {"result": result  } ) }
-
-		except:
-			print "EXCEPTION"
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			for e in traceback.format_tb(exc_traceback):	print e
-#			return {'operation':'findStock','status':status,'exception':format_tb(exc_traceback) }
-
-		return {'operation':'findStock','status':status}
 
 		
 
-	def resetBrewlog(self,username,recipe,brewlog):
-		"""
-		a wrapper just for the android app
-		"""
-
-		# if we have any dummy brewlog get rid of it		
-		#addStockToBrewlog(username,brewlog,recipeName=recipe,process=process,checkStock=1)
-		sys.stderr.write("resetBrewlog %s/%s\n" %(recipe,brewlog))
-		sys.stderr.write("NOT SUPPORTED ANYMORE\n\n")	
-		sys.exit(99)
-	
-		try:
-			result={}
-
-
-
-			#
-			# check if the brewlog already exists
-			#
-			existingBrewlog = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)
-#			if not len(existingBrewlog):
-##				return {'operation' : 'resetBrewlog', 'status' : -3, 'json' : json.dumps( { } ) }
-			process = existingBrewlog[0].process
-
-
-
-
-			#
-			# RESET THE BREWLOG
-			#
-			self.startNewBrewlog(username,brewlog,recipe,process,reset=1)
-
-		
-			# reset the stock on the brewlog
-			self.addStockToBrewlog(username,brewlog,recipeName=recipe,process=process,checkStock=0,reset=1)
-		
-
-			# this may not be required after all		
-			# update RecipeStats with our new stock details
-			ourData =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND process = :3 AND brewlog = :4",username,recipe,process,brewlog).fetch(1)[0]
-			ourData.polypinqty = float( self.total_polypins)
-			ourData.minikegqty = float( self.total_kegs)
-			ourData.bottles_required=float(self.total_bottles)
-			ourData.num_crown_caps=float(self.total_bottles+5)
-			ourData.primingsugartotal=float(self.priming_sugar_reqd)
-			ourData.primingwater = float((self.priming_sugar_reqd*15)-self.priming_sugar_reqd)
-			ourData.priming_sugar_qty=float(15)
-		
-			#
-			# now compile the recipe/brewlog
-			#	
-			self.compile(username,recipe,brewlog)
-			
-			sys.stderr.write("compile of resetBrewlog done\n")
-			result={}
-
-			return {'operation' : 'resetBrewlog', 'status' : 1, 'json' : json.dumps( result   ) }
-
-		except:
-			print "EXCEPTION"
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			for e in traceback.format_tb(exc_traceback):	print e
-			return {'operation':'resetBrewlog','status': -6,'exception':'exception unknown what though' }
 
 
 
@@ -1786,13 +1415,9 @@ class brewerslabCloudApi:
 
 	def createBrewlogWrapper(self,username,recipe,brewlog,process):
 		"""
-		a wrapper just for the android app
+		a wrapper with creating a brewlog, and then calculating/compiling it
 		"""
-
-		# if we have any dummy brewlog get rid of it		
-		#addStockToBrewlog(username,brewlog,recipeName=recipe,process=process,checkStock=1)
-
-
+		sys.stderr.write("\nSTART: createBrewlogWrapper()\n")
 	
 		try:
 			result={}
@@ -1804,6 +1429,7 @@ class brewerslabCloudApi:
 			#
 			existingBrewlog = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)
 			if len(existingBrewlog):
+				sys.stderr.write("END: createBrewlogWrapper()  .. already exists\n")
 				return {'operation' : 'createBrewlogWrapper', 'status' : -3, 'json' : json.dumps( { } ) }
 
 
@@ -1820,6 +1446,7 @@ class brewerslabCloudApi:
 				result['stock_status']=False
 				result['out_of_stock']=True	
 				result['out_of_date_stock']=False
+				sys.stderr.write("END: createBrewlogWrapper()  .. stock issue\n")
 				return {'operation' : 'createBrewlogWrapper', 'status' : 2, 'json' : json.dumps( {"result": result  } ) }
 
 	
@@ -1834,10 +1461,7 @@ class brewerslabCloudApi:
 				result['out_of_date_stock']=True
 				result['oldstock'] = toclear['__oldstock__']
 				result['oldstockindex'] = toclear['__oldstockindex__']
-				sys.stderr.write("Out of Date Stock")
-				sys.stderr.write( "Early %s\n" %(toclear['__earlythreshold__']))
-				sys.stderr.write( "Over %s\n" %(toclear['__overthreshold__']))
-				sys.stderr.write( "  %s\n" %(toclear))
+				sys.stderr.write("END: createBrewlogWrapper()  .. stock age issue\n")
 				return {'operation' : 'createBrewlogWrapper', 'status' : 3, 'json' : json.dumps( {"result": result } ) }
 
 			
@@ -1845,17 +1469,13 @@ class brewerslabCloudApi:
 			#
 			# start new brewlog
 			#
-			sys.stderr.write("\n-\nSTART OF startNewBrewlog\n")
 			self.startNewBrewlog(username,brewlog,recipe,process)
-			sys.stderr.write("\n-\nEND OF startNewBrewlog\n")
 
 			
 			#
 			# add new brewlog stock into it
 			#
-			sys.stderr.write("\n-\nSTART OF addStockToBrewlog\n")
 			self.addStockToBrewlog(username,brewlog)
-			sys.stderr.write("\n-\nEND OF addStockToBrewlog\n")
 
 
 			#
@@ -1867,9 +1487,8 @@ class brewerslabCloudApi:
 			#
 			# Calculate and Recompile 
 			#
-			sys.stderr.write("\n-\n START of doCalculate\n")
 			self.doCalculate(username,recipe)
-			sys.stderr.write("\n-\n END of doCalculate\n")
+
 
 			# save the calclog to the database
 			brewlogCalclog = self.dbWrapper.GqlQuery("SELECT * FROM gCalclogs WHERE owner = :1 AND brewlog = :2 AND recipe = :3",username,brewlog,recipe).fetch(4444)
@@ -1887,19 +1506,18 @@ class brewerslabCloudApi:
 			#
 			# now compile the recipe/brewlog
 			#	
-			sys.stderr.write("\n-\n START of compile\n")
 			self.compile(username,recipe,brewlog)
-			sys.stderr.write("\n-\n END of compile\n")
 
 			result={}
 			result['result'] = resultX['result']		# list of brewlogs
 			result['result2'] = resultX['result2']		# list of recipes
 			result['stock_status']=True
 
-			return {'operation' : 'createBrewlogWrapper', 'status' : 1, 'json' : json.dumps( result   ) }
 
+			sys.stderr.write("END: createBrewlogWrapper()\n")
+			return {'operation' : 'createBrewlogWrapper', 'status' : 1, 'json' : json.dumps( result   ) }
 		except:
-			print "EXCEPTION"
+			sys.stderr.write("EXCEPTION: createBrewlogWrapper()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	print e
 			return {'operation':'createBrewlogWrapper','status': -6,'exception':traceback.format_tb(exc_traceback) }
@@ -1918,7 +1536,7 @@ class brewerslabCloudApi:
 		return: standard json activity
 		"""
 
-		sys.stderr.write("\n\n\naddStockToBrewlog %s\n" %(brewlog))
+		sys.stderr.write("\nSTART: addStockToBrewlog() %s\n" %(brewlog))
 		status=0
 		try:
 
@@ -1926,11 +1544,11 @@ class brewerslabCloudApi:
 				if not checkStock:
 					existingBrewlog = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,brewlog).fetch(1)
 					if len(existingBrewlog) < 1:
+						sys.stderr.write("END: addStockToBrewlog() %s .. not existing brewlog ..\n" %(brewlog))
 						return {'operation' : 'addStockToBrewlog','status':-1}
 
 					recipeName = existingBrewlog[0].recipe
 					process = existingBrewlog[0].process
-					sys.stderr.write("username %s/recipeName %s/process %s\n" %(username,recipeName,existingBrewlog[0].process))
 
 
 
@@ -1958,9 +1576,7 @@ class brewerslabCloudApi:
 				ourstock=self.takeStock( username,recipeName,existingBrewlog[0].process )
 		
 
-				sys.stderr.write("for storeType in ourstock\n")
 				for storeType in ourstock:
-					sys.stderr.write("storeType %s\n" %(storeType))
 					for a in ourstock[storeType]:
 						sys.stderr.write(" %s\n" %(a))
 						for (pcnt,qty,stocktag,name,purchaseObj) in  ourstock[storeType][a]:
@@ -1972,7 +1588,6 @@ class brewerslabCloudApi:
 							newstock.cost=purchaseObj.purchaseCost * qty
 							newstock.storecategory=purchaseObj.storecategory
 							newstock.unit=purchaseObj.unit
-	#						newstcok.subcategor
 							newstock.stocktag=stocktag
 							newstock.put()
 
@@ -1993,8 +1608,6 @@ class brewerslabCloudApi:
 
 
 			# add a gBrewlogStep details
-			sys.stderr.write("   - gather than grain\n")
-			sys.stderr.write("finding gProcess gather steps for %s %s \n" %(username,process))
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto = :3",username,process,"gatherthegrain").fetch(400)
 			for gatherStep in ourSteps:
 			
@@ -2005,21 +1618,11 @@ class brewerslabCloudApi:
 				else:
 					ssNum=int(tmpSSNUM[0].subStepNum)
 
-#				sys.stderr.write("  gatherstep %s" %(gatherStep.activityNum,gatherStep.stepNum))
-#				for storeType in ourstock:
-#					for a in ourstock[storeType]:
-#						for (pcnt,qty,stocktag,name,purchaseObj) in  ourstock[storeType][a]:
-#							sys.stderr.write("acti %s step %s substep %s  madeup %s\n" %(gatherStep.activityNum, gatherStep.stepNum,gatherStep.subStepNum,ssNum))
 				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND storecategory = :3",username,brewlog,'fermentables').fetch(5000)
 				for purchaseObj in ourIngs:
 					ssNum=ssNum+1
 					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
 					x.db=self.dbWrapper
-					sys.stderr.write("%s\n" %(purchaseObj))
-					sys.stderr.write("%s\n" %(purchaseObj.qty))
-					sys.stderr.write("%s\n" %(purchaseObj.unit))
-					sys.stderr.write("%s\n" %(purchaseObj.stock))
-					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
 					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
 					x.completed=False
 					x.stepStartTime=0
@@ -2033,8 +1636,6 @@ class brewerslabCloudApi:
 
 #
 			# add a gBrewlogStep details
-			sys.stderr.write("   - gather than bottles\n")
-			sys.stderr.write("finding gProcess gather steps for %s %s \n" %(username,process))
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto = :3",username,process,"gatherthebottles").fetch(400)
 			for gatherStep in ourSteps:
 			
@@ -2065,8 +1666,6 @@ class brewerslabCloudApi:
 
 
 			# add a gBrewlogStep details
-			sys.stderr.write("   - gather than minikegs\n")
-			sys.stderr.write("finding gProcess gather steps for %s %s \n" %(username,process))
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto = :3",username,process,"gathertheminikegs").fetch(400)
 			for gatherStep in ourSteps:
 			
@@ -2094,11 +1693,8 @@ class brewerslabCloudApi:
 					x.subStepsCompleted=False
 					x.compileStep=gatherStep.compileStep
 					x.put()
-#i
 
 			# add a gBrewlogStep details
-			sys.stderr.write("   - gather than polypins\n")
-			sys.stderr.write("finding gProcess gather steps for %s %s \n" %(username,process))
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto = :3",username,process,"gatherthepolypins").fetch(400)
 			for gatherStep in ourSteps:
 			
@@ -2129,9 +1725,11 @@ class brewerslabCloudApi:
 
 
 			if reset:
+				sys.stderr.write("END: addStockToBrewlog() %s .. reset..\n" %(brewlog))
 				return # early
 
 			if len(ourstock) < 1:
+				sys.stderr.write("END: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
 				return {'operation':'addStockToBrewlog','status':-3}		# out of stock or out of date stock
 
 			# need to add our stock into the databser
@@ -2149,13 +1747,13 @@ class brewerslabCloudApi:
 						substock['qty']=b
 						substock['barcode']=c
 						substock['item']=e.storeitem
-#						print stockItem,ourstock[stockType][stockItem]
+						print stockItem,ourstock[stockType][stockItem]
 						result[stockType][stockItem].append( substock)
 
-			sys.stderr.write("\n-\n  NO EXCEPTION IN addStockToBrewlog\n")
+			sys.stderr.write("END: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
 			return {'operation':'addStockToBrewlog','status' :1,'json' : json.dumps( {"result": result})}
-		except:	
-			sys.stderr.write("EXCEPTION in addStockToBrewlog\n")
+		except:
+			sys.stderr.write("EXCEPTION: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write(e)
 			return {'operation':'addStockToBrewlog','status':status }
@@ -2163,17 +1761,6 @@ class brewerslabCloudApi:
 		return {'operation':'addStockToBrewlog','status':status}
 		
 	
-	def listStoreCategories(self,username):
-		"""
-		listStoreCategories()
-			Provides a list of the categories we can use
-		
-		return: standard json wiht categories
-		"""
-
-		sys.stderr.write("listStoreCategoriesk() <>\n")
-		result=['Fermentables','Hops','Yeast','Consumables','Other']
-		return {'operation':'listStoreCategories','status' :1,'json' : json.dumps( {"result": result})}
 
 
 	def listStoreItems(self,username,category):
@@ -2185,7 +1772,7 @@ class brewerslabCloudApi:
 
 		return: standard json with simple list of stock itmes
 		"""
-		sys.stderr.write("listStoreItems() <- %s\n" %(category))
+		sys.stderr.write("\nSTART: listStoreItems() <- %s\n" %(category))
 		
 		try:
 			items = {}
@@ -2214,181 +1801,20 @@ class brewerslabCloudApi:
 				stockitems.append( items[s] )
 
 			result = {'category' : category, 'items':stockitems}
-			sys.stderr.write("about to return a result of %s\n\n" %(result))
-			sys.stderr.write("listStoreItems() > status=1\n")
+			sys.stderr.write("END: listStoreItems() > status=1\n")
 			return {'operation':'listStoreItems','status' :1,'json' : json.dumps( {"result": result})}
 		except:
-
-			sys.stderr.write("listStoreItems() > status=0\n")
+			sys.stderr.write("EXCEPTION: listStoreItems() > status=0\n")
 			return {'operation':'listStoreItems','status' :0  }
 
 
 
-	def _getStoreAndData(self,category):
-		store=None
-		if category=="Fermentables":	store=self.stores.Fermentables
-		if category=="Hops":	store=self.stores.Hops
-		if category=="Yeast":	store=self.stores.Yeast
-		if category=="Consumables":	store=self.stores.Consumable
-		if category=="Other":	store=self.stores.Misc
-
-		data=None
-		if category=="Fermentables":	data=self.data.getFermentable
-		if category=="Hops":	data=self.data.getHop
-		if category=="Yeast":	data=self.data.getYeast
-		if category=="Misc":	data=self.data.getMisc
-		if category=="Consumable":	data=self.data.getConsumable
-		return (store,data)
 	
 
-
-
-
-	
-	def getStockFullDetails(self,username,category,itemName):
-		"""
-		getStockFullDetails()
-			Provides a list of stock in the store
-
-			string: category as per listStoreCategories
-			string: item as per listStoreItems
-
-		return: standard json with details of the stock item
-		"""
-		#print "getStockFullDetails() <- %s,%s" %(category,itemName)
-		theitem={}
-		theitem['category'] = category
-		theitem['purchases']=[]
-		if category == "Consumables":	category="consumable"
-		if category == "Other":	category="misc"
-
-		ourPurchases = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storecategory = :2 AND storeitem = :3 AND qty > :4", username ,category.lower(),itemName,0.003)
-
-
-		purchasedQty=0
-		purchasedCost=0
-		for purchase in ourPurchases.fetch(34840):
-			if purchase.qty > 0:
-				purchasedQty = purchasedQty + float(purchase.qty)
-				purchasedCost = purchasedCost + (float(purchase.purchaseCost) * float(purchase.qty))
-
-			theitem['name'] =purchase.storeitem
-			if category == "Hops":
-				theitem['hopalpha']=-1
-			theitem['purchases'].append( {} )
-			theitem['purchases'][-1]['purchasedQty'] = purchase.qty
-			theitem['purchases'][-1]['purchasedBestBefore'] = purchase.bestBeforeEnd
-			theitem['purchases'][-1]['purchasedStockTag'] = purchase.stocktag
-			theitem['purchases'][-1]['purchasedPurchased'] = purchase.purchaseDate
-			theitem['purchases'][-1]['purchasedCost'] = float(purchase.purchaseCost) * float(purchase.qty)
-			theitem['purchases'][-1]['purchasedSupplier'] = purchase.supplier
-			if category == "Hops":
-				theitem['purchases'][-1]['hopalpha'] =purchase.hopActualAlpha
-				if purchase.hopActualAlpha == 0:	
-					theitem['purchases'][-1]['hopalpha'] = theitem['hopalpha']
-		theitem['cost']=purchasedCost
-		theitem['unit'] = purchase.unit
-		theitem['totalqty'] = purchasedQty
-		theitem['description']="{description}"
-		result=theitem
-
-
-		result = {'category' : category,'items': theitem }
-		sys.stderr.write("getStockFullDetails() -> status=1\n")
-		return {'operation':'getStockFullDetails','status' :1,'json' : json.dumps( {"result": result})}
-
-
-		sys.stderr.write("getStockFullDetails() -> status=0")
-		return {'operation':'getStockFullDetails','status' :0  }
-
-
-
-                              #            1       2         3       4           5
-	def changeItemQty(self,username,category,itemName,stockTag,newQty,resetBestBefore):
-		"""
-		changeItemQty()
-			Provides a list of stock in the store
-
-			string: category as per listStoreCategories
-			string: item as per listStoreItems
-
-		return: standard json with details of the stock item
-		"""
-		sys.stderr.write("changeItemQty < %s,%s,%s,%s" %(category,itemName,stockTag,newQty))
-		status=0
-		try:
-			stockItem = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND stocktag = :2",username,stockTag).fetch(1)
-			if len(stockItem) < 1:
-				return {'operation':'changeItemQty','status':-2}	# can't find item
-			
-
-			if resetBestBefore == "Y":
-				stockItem[0].bestBeforeEnd = int(time.time()+(86400*7))
-			stockItem[0].qty=float(newQty)
-			stockItem[0].put()
-			status = 1
-		except:
-			sys.stderr.write("EXCEPTION in changeItemQty\n")
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			for e in traceback.format_tb(exc_traceback):	sys.stderr.write( e )
-
-		return {'operation' : 'changeItemQty', 'status' : status ,'json':json.dumps( {} ) }
-
-
-
-	
-	def listIngredientsAndSuppliers(self,username,category,item):
-		"""
-		listIngredientsAndSuppliers(category)
-			category = 	fermentable,hop,yeast,misc,consumable
-			
-		Note: this is similair to listIngredients but provided as a convenience
-		return: list of ingredients from the presets file
-		"""
-
-		sys.stderr.write("listIngredientsAndSuppliers -> %s/%s\n" %(category,item))
-		status=0
-
-		try:
-
-
-		
-
-
-			result={}
-			result['category'] = category
-			#result['items'] =  self.data.dumpJSON( category )
-			result['items'] = []
-
-			if item == "":
-				ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND majorcategory = :2", username, category.lower())
-				for ingredient in ourIngredients.fetch(2000):
-					result["items"].append(ingredient.name)
-			else:
-				result['items'].append(item)
-			result['items'].sort()
-
-			ourSuppliers = self.dbWrapper.GqlQuery("SELECT * FROM gSuppliers WHERE owner = :1", username)
-			result['suppliers'] = []
-			for supplier in ourSuppliers.fetch(2000):
-				result['suppliers'].append(supplier.supplierName)
-			result['suppliers'].sort()
-
-			return {'operation' : 'listIngredientsAndSuppliers', 'status' : 1,
-					'json' : "%s" %( json.dumps( {'result':result} )  ) 
-				}
-		except:	
-			print "EXCEPTION"
-			exc_type, exc_value, exc_traceback = sys.exc_info()
-			for e in traceback.format_tb(exc_traceback):	print e
-		return {'operation' : 'listIngredientsAndSuppliers', 'status' : status }
 
 
 	def addNewStock(self,username,brewlog,recipe,container,location,qty):
-		sys.stderr.write("addNewSotck %s %s %s %s %s\n" %(brewlog,recipe,container,location,qty))
-
-		
-		
+		sys.stderr.write("\nSTART: addNewSotck() %s %s %s %s %s\n" %(brewlog,recipe,container,location,qty))
 		beerstock=gBeerStock()
 		beerstock.owner=username
 		beerstock.recipe=recipe
@@ -2397,14 +1823,14 @@ class brewerslabCloudApi:
 		beerstock.location=location
 		beerstock.qty=qty
 		beerstock.put()
+		sys.stderr.write("END: addNewSotck() %s %s %s %s %s\n" %(brewlog,recipe,container,location,qty))
 		return {'operation':'addNewStock','status':1}
 	
 
 	def addNewPurchase(self,username,category,itemtext,qty,cost,day,month,year,suppliertext,numpurchased,hopalpha):
 		"""
 		"""
-
-		sys.stderr.write("addNewPurchase -> %s/%s/%s....\n" %(category,itemtext,qty))		
+		sys.stderr.write("\nSTART: addNewPurchase -> %s/%s/%s....\n" %(category,itemtext,qty))		
 		status = 0
 		
 		try:
@@ -2460,11 +1886,12 @@ class brewerslabCloudApi:
 				sys.stderr.write("stocktag:%s\n" %(purchase.stocktag))
 				sys.stderr.write("hopactualalpha:%s\n" %(purchase.hopActualAlpha))
 			status = 1
+			sys.stderr.write("END: addNewPurchase -> %s/%s/%s....\n" %(category,itemtext,qty))		
 			return {'operation' : 'addNewPurchases', 'status' : status ,'json':json.dumps( {} ) }
 
 		
 		except:
-			sys.stderr.write("EXCEPTION in addNewPurchase\n")
+			sys.stderr.write("EXCEPTION: addNewPurchase -> %s/%s/%s....\n" %(category,itemtext,qty))		
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
@@ -2473,20 +1900,11 @@ class brewerslabCloudApi:
 
 
 
-	def docalculateV1(self,username,recipeName):
-		if not username == "test@example.com":	return
-		print self,"inside cloudNG"
-		from calculatev1 import calculatev1
-		x = calculatev1(self)
-		print x.self,"inside cloudNG"
-		sys.exit(4)	
-
-
 
 
 
 	def doCalculate(self,username,recipeName):
-	
+		sys.stderr.write("\nSTART: doCalculate() %s\n" %(recipeName))	
 		#
 		# This is the main calcualte code here
 		#	
@@ -2536,6 +1954,7 @@ class brewerslabCloudApi:
 
 		if len(recipe.process) < 1:
 			sys.stderr.write("Cannot calcualte becase we don't know which process to use {%s}\n" %(recipe.process))
+			sys.stderr.write("END: doCalculate() %s .. no process ..\n" %(recipeName))	
 			return "Cannot calculate because we don't know which process to use"
 
 	
@@ -3393,21 +2812,6 @@ class brewerslabCloudApi:
 
 
 
-
-		# Recipe Size
-		#self.calclog = self.calclog + "recipe   : Batch Size %.0f L\n" %(recipe.batch_size_required)
-
-
-
-
-
-
-
-
-		sys.stderr.write("CALCLOG\n%s\n\n" %(self.calclog))
-
-
-
 		# save the calclog to the database
 		standardCalclog = self.dbWrapper.GqlQuery("SELECT * FROM gCalclogs WHERE owner = :1 AND brewlog = :2 AND recipe = :3",username,"",recipeName).fetch(4444)
 		for x in standardCalclog:
@@ -3420,39 +2824,7 @@ class brewerslabCloudApi:
 		standardCalclog.calclog=self.calclog
 		standardCalclog.put()
 
-#		recipeStats[0].put()
-			
-
-
-		sys.stderr.write("\n\n\nEnd of doCalcualte()\n\n\n") 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		sys.stderr.write("END: doCalculate() %s .. no process ..\n" %(recipeName))	
 
 
 
@@ -3460,6 +2832,7 @@ class brewerslabCloudApi:
 
 
 	def calculateHops(self,working_hop_size,estimated_gravity,title="",doContribution=0,percentage=1,onlyHopAddAt=-1,tweakHopAddAt=-1):
+		sys.stderr.write("\nSTART: calculateHoops()\n")
 		#
 		# Hops Bitterness
 		#
@@ -3598,6 +2971,7 @@ class brewerslabCloudApi:
 				self.calclog = self.calclog + "calchopsI: \tUpdated Recipe Hop Qty %.3f %s %s \n" %( working_total_hop_qty[ HOP ], HOP.unit, HOP.name)
 
 		self.calclog = self.calclog + "calchops : %.3f IBU = Estimated Total IBUs\n" %(total_hop_ibu)
+		sys.stderr.write("END: calculateHoops()\n")
 		return (total_hop_ibu,grand_total_hop_weight)
 
 
@@ -3609,6 +2983,7 @@ class brewerslabCloudApi:
 
 
 	def calculateGravity(self,batchsize,adjunctOnly=0,grainOnly=0,title="",doContributionsForGrain=0,doContributionsForAdjunct=0):
+		sys.stderr.write("\nSTART: calculateGravity()\n")
 		#
 		# Calcualte Grain Gravity
 		#
@@ -3660,6 +3035,7 @@ class brewerslabCloudApi:
 			self.calclog = self.calclog + "calcferm : \t\testimated_gravity_grain = %s\n" %(estimated_gravity_grain)
 			self.calclog = self.calclog + "calcferm : \t\t\t%.3f = %.3f * %.3f\n" %(estimated_gravity_grain,total_contribution, self.mash_efficiency/100)
 			self.calclog = self.calclog + "calcferm : \t\t\t%.3f = 1 + (%.3f/1000) \n" %(1+(estimated_gravity_grain/1000),estimated_gravity_grain)	
+			sys.stderr.write("END: calculateGravity()\n")
 			return estimated_gravity_grain
 
 
@@ -3680,17 +3056,20 @@ class brewerslabCloudApi:
 			self.calclog = self.calclog + "calcferm : \t\testimated_gravity = (%.3f + %.3f)\n" %(estimated_gravity_grain,total_contribution - total_contribution_grain )
 			self.calclog = self.calclog + "calcferm : \t\testimated_gravity = %.3f\n" %( estimated_gravity_grain + (total_contribution - total_contribution_grain) )
 
+			sys.stderr.write("END: calculateGravity()\n")
 			return estimated_gravity_grain + (total_contribution - total_contribution_grain)
 
 
 		else:
 			self.calclog = self.calclog + "calcferm : \t\testimated_gravity_nongrain = %s\n" %(total_contribution - total_contribution_grain )
+			sys.stderr.write("END: calculateGravity()\n")
 			return total_contribution-total_contribution_grain
 
 
 
 
-	def getStrikeTemperature(self):
+	def getStrikeTemperature(self):	
+		sys.stderr.write("\nSTART: getStrikeTemperature()\n")
 		#NOTE: These equations also work for degrees Celsius, liters and kilograms. The only difference is that the thermodynamic constant of .2 changes to .41.
 
 		#Strike Water Temperature Tw = (.2/r)(T2 - T1) + T2
@@ -3719,6 +3098,7 @@ class brewerslabCloudApi:
 		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / %.2f ) * (%.3fC - %.3fC) ) + %.3fC\n" %(strike_temp-self.strikeTempSkew,self.recipe.mash_grain_ratio,(self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak),self.recipe.initial_grain_temp,self.recipe.target_mash_temp) 
 	
 	
+		sys.stderr.write("END: getStrikeTemperature()\n")
 		return strike_temp - self.strikeTempSkew
 		
 
@@ -3730,6 +3110,7 @@ class brewerslabCloudApi:
 			hop_boil_time		- time in minutes
 			estimated_gravity	-	degress (e.g. 50, no 1.050)
 		"""
+		sys.stderr.write("\nSTART: _tinsethUtilisation() hop_boil_time=%s estimated_gravity=%s\n" %(hop_boil_time,estimated_gravity))
 
 
 		bigness_factor = 1.65 * math.pow(0.000125, (1+(estimated_gravity)/1000)-1)
@@ -3750,6 +3131,7 @@ class brewerslabCloudApi:
 		self.calclog = self.calclog + "tinseth  : \t\t\t %.4f = ( 1 - %s ) / 415 \n" %(boil_time_factor, math.exp((-0.04*hop_boil_time))) 
 		self.calclog = self.calclog + "tinseth  : \t\t\t %.4f = ( %s ) / 415 \n" %(boil_time_factor, 1-(math.exp((-0.04*hop_boil_time))) )
 
+		sys.stderr.write("END: _tinsethUtilisation\n")
 		return hop_utilisation
 
 
@@ -3767,7 +3149,7 @@ class brewerslabCloudApi:
 
 
 	def createBlankRecipe(self,username,recipeNewName):
-		sys.stderr.write("createBlankRecipe %s\n" %(recipeNewName))
+		sys.stderr.write("\nSTART: createBlankRecipe %s\n" %(recipeNewName))
 
 		status=0
 
@@ -3793,6 +3175,7 @@ class brewerslabCloudApi:
 			R=gRecipes(recipename=recipeNewName,owner=username )
 			R.mash_grain_ratio=1.5
 			R.mash_efficiency=70
+			R.priming_sugar_qty=2
 			R.alkalinity = 50
 			R.process=newestProcess
 			R.db=self.dbWrapper
@@ -3808,16 +3191,19 @@ class brewerslabCloudApi:
 						
 
 			status=1
+			sys.stderr.write("END: in createBlankRecipe\n")
 		except:
-			sys.stderr.write("EXCEPTION in createBlankRecipe\n")
+			sys.stderr.write("EXCEPTION: in createBlankRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
 		return {'operation' : 'createBlankRecipe', 'status' : status ,'json':{}}
 
 
+
+
 	def cloneRecipe(self,username,recipeOrigName,recipeNewName):
-		sys.stderr.write("cloneRecipe %s/%s\n" %(recipeOrigName,recipeNewName))
+		sys.stderr.write("\nSTART: cloneRecipe %s/%s\n" %(recipeOrigName,recipeNewName))
 
 		status=0
 
@@ -3845,17 +3231,13 @@ class brewerslabCloudApi:
 
 			ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND processIngredient = :3", username,recipeOrigName,0)
 			for ingredient in ourIngredients.fetch(2000):
-				sys.stderr.write("IIII %s\n" %(ingredient.ingredient))
 				I=gIngredients(recipename=recipeNewName,owner=username )
 				I.db=self.dbWrapper
 				for ii in ingredient.__dict__:
 					if ii != "entity" and ii != "recipename":
 						I.__dict__[ii] = ingredient.__dict__[ii]
-				sys.stderr.write("gIngredients ---> ingredient.mustMash %s " %(ingredient.mustMash))
-				sys.stderr.write("gIngredients ---> I.mustMash %s" %(I.mustMash))
 				I.recipename=recipeNewName
 				I.put()	
-				sys.stderr.write("gIngredients ---> I.mustMash %s (after post)" %(I.mustMash))
 
 
 			# fix for broken recipes
@@ -3863,8 +3245,9 @@ class brewerslabCloudApi:
 			errstatus = self.compile(username,recipeNewName,None)  #compile new recipe
 
 			status=1
+			sys.stderr.write("END: in cloneRecipe\n")
 		except:
-			sys.stderr.write("EXCEPTION in cloneRecipe\n")
+			sys.stderr.write("EXCEPTION: in cloneRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
@@ -3877,36 +3260,36 @@ class brewerslabCloudApi:
 		# compile + viewRecipe			(compile also calcualtes)
 		#
 		#
-		sys.stderr.write("calculateRecipeWrapper %s/%sn" %(recipeName,activeCategory))
-		#self.calculateRecipe(username,recipeName)		# compile calls doCalculate() 
+		sys.stderr.write("\nSTART: calculateRecipeWrapper() %s/%sn" %(recipeName,activeCategory))
 		self.compile(username,recipeName,None)
 		tmp = self.viewRecipe(username,recipeName,activeCategory,1)
-		
-		sys.stderr.write("Returning %s\n" %(tmp['json']))
+		sys.stderr.write("END: calculateRecipeWrapper()\n")
 		return {'operation' : 'calculateRecipeWrapper','status':1,'json' : tmp['json'] }
 	
 
 	def calculateRecipe(self,username,recipeName):
-		sys.stderr.write("calculateRecipe-> %s/.\n" %(recipeName))
+		sys.stderr.write("\nSTART: calculateRecipe() -> %s/.\n" %(recipeName))
 		status=0
 		try:
 			result={}
 			errstatus = self.doCalculate(username,recipeName)
 			result['calclog']=self.calclog	
 			status=1
+			sys.stderr.write("END: calculateRecipe()\n")
 			return {'operation' : 'calculateRecipe', 'status' : status ,'json':json.dumps( result ) }
 
 
-		except ImportError: 
-			sys.stderr.write("EXCEPTION in calculateRecipe\n")
+		except: 
+			sys.stderr.write("EXCEPTION: in calculateRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
 		return {'operation' : 'calculateRecipe', 'status' : status }
 
 
+
 	def deleteRecipe(self,username,recipeName):
-		sys.stderr.write("deleteRecipe-> %s....\n" %(recipeName))
+		sys.stderr.write("\nSTART: deleteRecipe() -> %s....\n" %(recipeName))
 		status=0
 		try:
 			result={}
@@ -3925,10 +3308,11 @@ class brewerslabCloudApi:
 		
 
 		except:
-			sys.stderr.write("EXCEPTION in deleteRecipe\n")
+			sys.stderr.write("EXCEPTION: deleteRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
+		sys.stderr.write("END: deleteRecipe()\n")
 		return {'operation' : 'deleteRecipe', 'status' : status }
 
 
@@ -3937,17 +3321,12 @@ class brewerslabCloudApi:
 
 
 	def changeItemInRecipe(self,username,recipeName,category,item,newqty,hopAddAt="0",doRecalculate="1"):
-		sys.stderr.write("changeItemFromRecipe-> recipeName %s/ category %s/%s/%s/%s....\n" %(recipeName,category,item,newqty,hopAddAt))
+		sys.stderr.write("\nSTART: changeItemFromRecipe-> recipeName %s/ category %s/%s/%s/%s....\n" %(recipeName,category,item,newqty,hopAddAt))
 		status=0
 		try:
 			result={}
 	
 			if category == "Hops" or category=="hops":		# this is set as hops in android client not Hops
-				sys.stderr.write(":2 %s\n" %(recipeName))
-				sys.stderr.write(":3 %s\n" %(item))
-				sys.stderr.write(":4 %s\n" %(hopAddAt))
-				sys.stderr.write(":5 %s\n" %(category.lower()))
-			
 				if float(hopAddAt) == 0.009:
 					sys.stderr.write("hopAddAt Float wrokaround for flameout");
 					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.005),float(0.01),category.lower(),0)
@@ -3960,9 +3339,6 @@ class brewerslabCloudApi:
 				else:
 					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt = :4 AND ingredientType = :5 AND processIngredient = :6",username,recipeName,item,float(hopAddAt),category.lower(),0)
 			else:
-				sys.stderr.write(":2 %s\n" %(recipeName))
-				sys.stderr.write(":3 %s\n" %(item))
-				sys.stderr.write(":4 %s\n" %(category.lower()))
 				ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND ingredientType = :4 AND processIngredient = :5",username,recipeName,item,category.lower(),0)
 			ingredient = ourIngredients.fetch(100)
 			for i in ingredient:	#i.delete()
@@ -3990,16 +3366,17 @@ class brewerslabCloudApi:
 
 
 		except:
-			sys.stderr.write("EXCEPTION in changeItemInRecipe\n")
+			sys.stderr.write("EXCEPTION: changeItemInRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
+		sys.stderr.write("END: changeItemInRecipe\n")
 		return {'operation' : 'changeItemInRecipe', 'status' : status }
 
 
 
 	def fixRecipe(self,username,recipeName,category="<NULL>"):
-		sys.stderr.write("fixRecipe-> %s/%s....\n" %(recipeName,category))
+		sys.stderr.write("\nSTART: fixRecipe() -> %s/%s....\n" %(recipeName,category))
 		status=0
 		try:
 			result={}
@@ -4035,11 +3412,12 @@ class brewerslabCloudApi:
 
 			status=1
 			tmp = self.viewRecipe(username,recipeName,category,1)
+			sys.stderr.write("END: fixRecipe \n")
 			return {'operation' : 'fixRecipe', 'status' : status ,'json':tmp['json'] }
 
 
-		except ImportError:
-			sys.stderr.write("EXCEPTION in fixRecipe \n")
+		except:
+			sys.stderr.write("EXCEPTION: fixRecipe \n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
@@ -4048,7 +3426,7 @@ class brewerslabCloudApi:
 
 
 	def deleteItemFromRecipe(self,username,recipeName,category,item,hopAddAt=0):
-		sys.stderr.write("deleteItemFromRecipe-> %s/%s/%s/%s....\n" %(recipeName,category,item,hopAddAt))
+		sys.stderr.write("\nSTART: deleteItemFromRecipe-> %s/%s/%s/%s....\n" %(recipeName,category,item,hopAddAt))
 		status=0
 		try:
 			result={}
@@ -4072,12 +3450,12 @@ class brewerslabCloudApi:
 			result['calclog']=self.calclog
 			tmp = self.viewRecipe(username,recipeName,category,1)
 			self.compile(username,recipeName,None)
-#			return {'operation' : 'calculateRecipeWrapper','status':1,json:tmp['json']}
+			sys.stderr.write("END: deleteItemFromRecipe()\n")
 			return {'operation' : 'deleteItemFromRecipe', 'status' : status ,'json':tmp['json'] }
 
 
 		except:
-			sys.stderr.write("EXCEPTION in deleteItemFromRecipe\n")
+			sys.stderr.write("EXCEPTION: deleteItemFromRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
@@ -4086,8 +3464,7 @@ class brewerslabCloudApi:
 
 
 	def addItemToRecipe(self,username,recipeName,category,item,qty,hopAddAt=0,doRecalculate="1"):
-
-		sys.stderr.write("addItemToRecipe-> %s/%s/%s/%s/%s....\n" %(recipeName,category,item,qty,hopAddAt))
+		sys.stderr.write("\nSTART: addItemToRecipe-> %s/%s/%s/%s/%s....\n" %(recipeName,category,item,qty,hopAddAt))
 		status = 0		
 		
 		try:
@@ -4109,10 +3486,6 @@ class brewerslabCloudApi:
 				ourExistingIngredient = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND ingredient = :4 AND processIngredient = :5",username,recipeName,category.lower(),item,0)
 			existingIngredients = ourExistingIngredient.fetch(1)
 
-
-			sys.stderr.write("len(existingIngredients) %s\n" %(len(existingIngredients)))
-			sys.stderr.write(" preset[0].hopAlphas %s\n" %(preset[0].hopAlpha))
-			sys.stderr.write(" category %s\n" %(category))
 
 			if len(existingIngredients) > 0:
 				I = existingIngredients[0]
@@ -4162,13 +3535,12 @@ class brewerslabCloudApi:
 
 
 			tmp = self.viewRecipe(username,recipeName,category,1)
+			sys.stderr.write("END: addItemToRecipe\n")
 			return {'operation' : 'addItemToRecipe', 'status' : status ,'json': tmp }
-
-
 
 		
 		except:
-			sys.stderr.write("EXCEPTION in addItemToRecipe\n")
+			sys.stderr.write("EXCEPTION: addItemToRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
 		
@@ -4195,7 +3567,7 @@ class brewerslabCloudApi:
 
 
 		"""
-
+		sys.stderr.write("\nSTART: compile() %s/%s\n" %(recipeName,brewlog))
 		errstatus = self.doCalculate(username,recipeName)
 	
 		if not brewlog:
@@ -4204,6 +3576,7 @@ class brewerslabCloudApi:
 		ourStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND process = :2 AND recipe = :3 AND brewlog = :4",username,self.Process.process,recipeName,brewlog).fetch(4324)
 		for stat in ourStats:	stat.delete()
 
+		# remove stats 
 		stat = gRecipeStats(owner=username,process=self.Process.process,recipe=recipeName)
 		stat.db=self.dbWrapper
 
@@ -4710,6 +4083,20 @@ class brewerslabCloudApi:
 
 
 
+					elif step.auto == "gatherthepolypins":
+						polypins=True
+						try:
+							if self.TAKESTOCK_polypins == 0:
+								polypins=False
+						except:
+							pass
+						if not polypins:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
+					
+
 					else:
 						sys.stderr.write("Unable to complete the logic for step.auto %s\n" %(step.auto))
 			
@@ -4808,15 +4195,15 @@ class brewerslabCloudApi:
 			pass
 		stat.put()
 	
-		sys.stderr.write("GOT AFtEr sTAT  gRecipeStats process=%s recipe=%s\n" %(stat.process, stat.recipe))
 	
+		sys.stderr.write("END: compile() %s/%s\n" %(recipeName,brewlog))
 		return {'operation' : 'compile', 'status' : 1 }
 
 
 
 
 	def checkStockAndPrice(self, username,recipeName,process,raw=False):
-		sys.stderr.write("checkStockAndPrice %s/%s\n" %(recipeName,process))
+		sys.stderr.write("\nSTART: checkStockAndPrice %s/%s\n" %(recipeName,process))
 		"""
 		given a brwlabRecipe object checks to see if all ingredients are available.
 
@@ -5151,7 +4538,6 @@ class brewerslabCloudApi:
 
 
 		bottle_volume_required = keg_volume_required - totalKegVol
-#		sys.stderr.write("BOTTLE VOLUME REQUIRED %s\n" %(bottle_volume_required))
 
 		totalBottleVol=0
 		ourBottles = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND category = :2", username,"bottle")
@@ -5160,8 +4546,8 @@ class brewerslabCloudApi:
 		bottle_vols.sort()
 		bottle_vols.reverse()
 	
-#		sys.stderr.write("Bottle vols\n")
-#		sys.stderr.write("%s\n\n" %(bottle_vols))		
+		sys.stderr.write("Bottle vols\n")
+		sys.stderr.write("%s\n\n" %(bottle_vols))		
 		for (vol,bottle) in bottle_vols:
 			qtyAvailable = 0
 			qtyRequired = 0
@@ -5192,7 +4578,6 @@ class brewerslabCloudApi:
 		# if this is a tiny bottle this will be odd,... but variabile  volume bottles isn't perfect
 		# if we have multiple types of bottles we don't ask for the full volume, we only ask for the 
 		# missing bit
-#		sys.stderr.write("bottle volume required after loop %s\n" %(bottle_volume_required))
 		if bottle_volume_required > 0:
 #			sys.stderr.write("doing out of stock stuff\n")
 			stock_result['__pcnt_left__'][ bottle.name ] = 0
@@ -5289,7 +4674,6 @@ class brewerslabCloudApi:
 		ourRecipeStats =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2", username,recipeName).fetch()[0]
 		crsAdjust=self.crsAdjustment(315, float(ourRecipeStats.mash_liquid_6)+float(ourRecipeStats.sparge_water),50)
 		purchase=None
-		sys.stderr.write(" guessing CRS based on 315 adjustment %.2f\n" %( crsAdjust))
 		ourCrs = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemsubcategory = :2 AND storeitem = :3", username,"watertreatment","AMS")
 		total_crs=0	# the amount we have allocated throughout
 		qtyRequired=crsAdjust	# total qty we require
@@ -5299,10 +4683,8 @@ class brewerslabCloudApi:
 			qtyAvailable = qtyAvailable + purchase.qty
 			if purchase.qty > 0 and qtyRequired > 0:
 				if purchase.qty > qtyRequired:
-		#			sys.stderr.write(" we have %s of %s nd need %s\n" %(purchase.qty,purchase.storeitem,qtyRequired))
 					qtyNeeded= qtyRequired
 				else:
-		#			sys.stderr.write(" we have %s of %s nd need %s\n" %(purchase.qty,purchase.storeitem,qtyRequired))
 					qtyNeeded = purchase.qty
 				if not cost_result['consumables'].has_key( purchase.storeitem ):
 					cost_result['consumables'][ purchase.storeitem ] = 0
@@ -5346,8 +4728,6 @@ class brewerslabCloudApi:
 		# sterilising fluid
 				#30gm for fermenter, + 6gm teaspoon for each 5 bottles
 		sterilisingPowder= 30 + (total_bottles / 5)*6  
-#		sys.stderr.write(" Sterilising Powder based on %s = %s\n" %(total_bottles,sterilisingPowder))
-#		sterilisingPowder= 300000000
 		yeastVit=5
 		salifert=3
 		protofloc=1
@@ -5362,10 +4742,6 @@ class brewerslabCloudApi:
 				if purchase.qty > 0 and consumableQtyRequired > 0:
 					if (purchase.qty) > consumableQtyRequired:
 						qtyNeeded = consumableQtyRequired
-					#	purchase.qty = purchase.qty - consumableQtyRequired			# don't do this in checkStock
-					# 	purhcase.put()								# don't do this in checkStock
-					else:
-						sys.stderr.write("*** simpliied process consumables - we don't have qty availble on this purchase (%s)\n"  %(purchase.storeitem))
 					if not cost_result['consumables'].has_key( purchase.storeitem ):	
 						cost_result['consumables'][purchase.storeitem] =0
 					cost_result['consumables'][ purchase.storeitem ] = cost_result['consumables'][ purchase.storeitem ] + (purchase.purchaseCost * qtyNeeded)
@@ -5383,16 +4759,14 @@ class brewerslabCloudApi:
 				stock_result['__qty_required__'][ item ] = qtyRequired
 	
 	
-		# protofloc
-
-
-		sys.stderr.write("\n\ntakeStock : debugging takeStock - we are getting to the end of CheckStockAndPrice\n\n\n")
 
 		result = {}
 		result['cost_result'] = cost_result
 		result['stock_result'] = stock_result
 		if raw:
+			sys.stderr.write("END: checkStockAndPrice()\n")
 			return (cost_result,stock_result)	
+		sys.stderr.write("END: checkStockAndPrice()\n")
 		return {'operation' : 'checkStockAndPrice', 'status' : 1, 'json' : json.dumps( {'result': result } ) }
 
 
@@ -5409,7 +4783,7 @@ class brewerslabCloudApi:
 
 
 	def deleteBrewlog(self,owner,brewlog):
-		sys.stderr.write("deleteBrewlog %s\n" %(brewlog))
+		sys.stderr.write("\nSTART: deleteBrewlog() %s\n" %(brewlog))
 		ourOldRecords = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2",owner,brewlog)
 		for oldRecord in ourOldRecords.fetch(234898):	oldRecord.delete()
 
@@ -5425,11 +4799,13 @@ class brewerslabCloudApi:
 		ourOldRecords = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2",owner,brewlog)
 		for oldRecord in ourOldRecords.fetch(234898):	oldRecord.delete()
 
-
+		sys.stderr.write("END: deleteBrewlog()\n")
 		return {'operation':'deleteBrewlog','satus':1}
 
+
+
 	def changeProcess(self,username,recipeName,newProcess,activeCategory=""):
-		sys.stderr.write("changeProcess %s/%s\n" %(recipeName,newProcess))
+		sys.stderr.write("\nSTART: changeProcess() %s/%s\n" %(recipeName,newProcess))
 
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 		for recipe in ourRecipe.fetch(500):
@@ -5443,15 +4819,18 @@ class brewerslabCloudApi:
 		self.compile(username,recipeName,None)
 		tmp = self.viewRecipe(username,recipeName,activeCategory,1)
 
+		sys.stderr.write("END: changeProcess()\n")
 		return {'operation' : 'changeProcess', 'status' : 1 ,'json' : tmp['json'] }
 	
+
+
 	
 	def listClearanceStock(self,username):
 		"""
 		Builds a list of stock items which are out of date, and soon out of date
 		"""
 	
-		sys.stderr.write("listClearanceStock\n")
+		sys.stderr.write("\nSTART: listClearanceStock()\n")
 
 		bestBeforeThreshold = time.time()
 		bestBeforeEarlyThreshold = time.time()-(86400*6)
@@ -5496,7 +4875,7 @@ class brewerslabCloudApi:
 		toclear['__oldstock__'] = oldstock
 		toclear['__oldstockindex__'] = OLDSTOCKINDEX
 
-
+		sys.stderr.write("END: listClearanceStock()\n")
 		return toclear
 
 	
@@ -5513,7 +4892,7 @@ class brewerslabCloudApi:
 
 		stockBestBefore doesn't seem to actually save anything in the database
 		"""
-
+		sys.stderr.write("\nSTART: _stockBestBefore() %s %s\n" %(stockType,stock_result))
 		# just a bit of protection
 		if not stock_result.has_key( stockType ):
 			stock_result[ stockType ] = {}
@@ -5524,6 +4903,7 @@ class brewerslabCloudApi:
 			ourRecipeIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND hopAddAt <= :4",username,recipeName,stockType,0.0)
 		else:
 			ourRecipeIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3",username,recipeName,stockType)
+
 		# gIngredients will NOT catch both real recipe ingredients and consumables
 		# need something more but lets get ingredients done first
 		# will need to build this in
@@ -5533,14 +4913,8 @@ class brewerslabCloudApi:
 			qty = ITEM.qty
 			ourStockCheck = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2",username,ITEM.ingredient)
 			ourStock = ourStockCheck.fetch(20000)
-			if len(ourStock) == 0:
+			if len(ourStock) > 0 :
 #US.has_key( ITEM ):
-				sys.stderr.write("************* FOR recipe item we don't have purchases %s\n" %(ITEM.ingredient))
-			else:
-			
-
-#				if ITEM.category != "bottle" and ITEM.category != "bottlecaps":
-				sys.stderr.write(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> %s %s\n" %(ITEM.ingredient,ITEM.qty))
 				qtyNeeded = qty
 				# A future improvement might attempt to use whole bags rather than
 				# cause leaving opened packets.
@@ -5556,14 +4930,12 @@ class brewerslabCloudApi:
 				
 				# soonest best before end date first
 				best_before_dates.sort()
-				sys.stderr.write(" best before dates %s\n" %(best_before_dates))
 				#uMake the qty required tenfold as we would really like to know 
 				# how muct we can adjust up to.
 				if dummyAllocate:	qtyNeeded = qtyNeeded * 100
 
 				for best_before_date in best_before_dates:
 					for item in best_before_dates_obj[ best_before_date ]:	
-						sys.stderr.write("   item.qty %s qtyNeeded %s\n" %(item.qty,qtyNeeded))		
 						if item.qty > 0 and qtyNeeded >0:
 							if not stock_result[ stockType ].has_key( item.storeitem ):
 								stock_result[ stockType ][ item.storeitem ] = []	
@@ -5578,7 +4950,7 @@ class brewerslabCloudApi:
 
 									if not dummyAllocate:
 										item.qty= item.qty - qtyUsed
-										sys.stderr.write("Setting QTY of %s/%s to %s\n" %(item.storeitem,item.stocktag,item.qty-qtyUsed))										
+										sys.stderr.write("\tdbg:_stockBestBefore() Setting QTY of %s/%s to %s\n" %(item.storeitem,item.stocktag,item.qty-qtyUsed))										
 										# Note: we don't put() the item the object is passed back
 										# to the caller which will do the put()
 								else:
@@ -5590,7 +4962,7 @@ class brewerslabCloudApi:
 											item.qty = 0
 											# Note: we don't put() the item the object is passed back
 											# to the caller which will do the put()
-											sys.stderr.write("Setting QTY of %s/%s to %s (Wastage)\n" %(item.storeitem,item.stocktag,0))										
+											sys.stderr.write("\tdbg:_stockBestBefore() Setting QTY of %s/%s to %s (Wastage)\n" %(item.storeitem,item.stocktag,0))										
 									
 								qtyNeeded = 0
 							else:
@@ -5602,11 +4974,11 @@ class brewerslabCloudApi:
 									item.qty = float(0)	
 									# Note: we don't put() the item the object is passed back
 									# to the caller which will do the put()
-									sys.stderr.write("Setting QTY of %s/%s to %s (Used All)\n" %(item.storeitem,item.stocktag,0))										
+									sys.stderr.write("\tdbg:_stockBestBefore() Setting QTY of %s/%s to %s (Used All)\n" %(item.storeitem,item.stocktag,0))										
 
-						else:
-							sys.stderr.write(">>>>>>>>>>>> UNABLE TO GET INGREDIENTS %s\n" %(item.storeitem))
 
+
+		sys.stderr.write("END: _stockBestBefore() %s\n" %(stockType))
 		return stock_result
 
 
@@ -5616,7 +4988,7 @@ class brewerslabCloudApi:
 
 
 	def takeStock(self, username, recipeName,process,ignoreOutOfStock=0,cost_result=None,stock_result=None,doNotAllocate=0):
-		sys.stderr.write("takeStock %s/%s\n" %(recipeName,process))
+		sys.stderr.write("\nSTART: takeStock %s/%s\n" %(recipeName,process))
 		"""
 		given a brwlabRecipe object a list of stockTag's focusing on returning the oldest stock
 		first. 
@@ -5640,8 +5012,7 @@ class brewerslabCloudApi:
 
 
 		if len(stock_result['__out_of_stock__']) > 0:
-			sys.stderr.write("Out of Stock")
-			sys.stderr.write( "%s\n" %(stock_result['__out_of_stock__']))
+			sys.stderr.write("END: takeStock %s/%s ... out of stock ...\n" %(recipeName,process))
 			return {}		# out of stock / or out of date
 
 
@@ -5682,29 +5053,12 @@ class brewerslabCloudApi:
 		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3 AND subStepNum = :4 ORDER BY activityNum", username,process,-1,-1).fetch(4234)
 
 
-
 		# intelligentBottle
 		# look out for "Gather Bottles" step and find bottles
 		# this is going to have to double up checkStockAndPrice somehow
-		enableIntelligentBottle=0
-		enableIntelligentKeg=0
-		enableIntellignetPolypin=0
-		ourAutoSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto != :3",username,process,'')
-		for step in ourAutoSteps.fetch(500):
-			if step.auto == "gather2":
-				enableIntelligentBottle = 1
-			if step.auto == "gather3":
-				enableIntelligentKeg = 1
-		
-			if step.auto == "gather4":
-				enableIntelligentPolypin = 1
-	
-		sys.stderr.write("takeStock:  enableIntellgientBottle %s\n" %(enableIntelligentBottle))	
-		sys.stderr.write("takeStock:  enableIntellgientKeg %s\n" %(enableIntelligentKeg))	
-		sys.stderr.write("takeStock:  enableIntellgientPolypin %s\n" %(enableIntelligentPolypin))	
-
-
-
+		enableIntelligentBottle=1
+		enableIntelligentKeg=1
+		enableIntelligentPolypin=1
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2",username,recipeName).fetch(1)[0]
 
 		for activity in  ourActivities:
@@ -5745,13 +5099,13 @@ class brewerslabCloudApi:
 								total_keg_volume = total_keg_volume + vol
 								qtyNeeded =math.ceil( bottle_volume_required / vol )
 										
-								stock_result['consumables'][ keg.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ keg.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, purchaseItem.storeitem, purchase) )
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, float(purchaseItem.qty)-qtyNeeded))
 								purchase.qty = float(purchase.qty - qtyNeeded)
 							else:
 								total_keg_volume = total_keg_volume + vol
 								qtyNeeded = purchase.qty
-								stock_result['consumables'][ keg.storeitem ].append( (1 , qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ keg.storeitem ].append( (1 , qtyNeeded, purchase.stocktag,   prchase.storeitem, purchase) )
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 								purchase.qty = float(0)
 							purchase.put()
@@ -5774,12 +5128,12 @@ class brewerslabCloudApi:
 						if not stock_result['consumables'].has_key( co2.storeitem ):
 							stock_result['consumables'][ co2.storeitem ] = []
 						if (purchase.qty) > total_kegs:	# need a proportion
-							stock_result['consumables'][ co2.storeitem ].append( ( total_kegs/purchase.qty, total_kegs, purchase.stocktag, "dbg:purchase.purchasedItem", purchase ) )
+							stock_result['consumables'][ co2.storeitem ].append( ( total_kegs/purchase.qty, total_kegs, purchase.stocktag, purchase.storeitem, purchase ) )
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-total_kegs))
 							purchase.qty = float(purchase.qty - total_kegs)
 							total_kegs = 0 
 						else:		# meed all this purchase
-							stock_result['consumables'][ co2.storeitem ].append( (1, purchase.qty, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+							stock_result['consumables'][ co2.storeitem ].append( (1, purchase.qty, purchase.stocktag, purchase.storeitem, purchase) )
 							total_kegs = total_kegs - purchase.qty
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 							purchase.qty = float(0)
@@ -5833,13 +5187,13 @@ class brewerslabCloudApi:
 								total_polypin_volume = total_polypin_volume + vol
 								qtyNeeded =math.ceil( bottle_volume_required / vol )
 										
-								stock_result['consumables'][ polypin.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ polypin.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, purchase.storeitem, purchase) )
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-qtyNeeded))
 								purchase.qty = float(purchase.qty - qtyNeeded)
 							else:
 								total_polypin_volume = total_polypin_volume + vol
 								qtyNeeded = purchase.qty
-								stock_result['consumables'][ polypin.storeitem ].append( (1 , qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ polypin.storeitem ].append( (1 , qtyNeeded, purchase.stocktag, purchase.storeitem, purchase) )
 								purchase.qty = float(0)
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 							purchase.put()
@@ -5903,13 +5257,13 @@ class brewerslabCloudApi:
 
 								qtyNeeded =math.ceil( bottle_volume_required / vol )
 										
-								stock_result['consumables'][ bottle.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ bottle.storeitem ].append( (qtyNeeded/ purchase.qty, qtyNeeded, purchase.stocktag, purchase.storeitem, purchase) )
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-qtyNeeded))
 								purchase.qty = float(purchase.qty - qtyNeeded)
 								total_bottle_volume = total_bottle_volume = qtyNeeded
 							else:
 								qtyNeeded = purchase.qty
-								stock_result['consumables'][ bottle.storeitem ].append( (1 , qtyNeeded, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+								stock_result['consumables'][ bottle.storeitem ].append( (1 , qtyNeeded, purchase.stocktag, purchase.storeitem, purchase) )
 								total_bottle_volume = total_bottle_volume = purchase.qty
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 								purchase.qty = float(0)
@@ -5938,12 +5292,12 @@ class brewerslabCloudApi:
 						if not stock_result['consumables'].has_key( bottlecap.storeitem ):
 							stock_result['consumables'][ bottlecap.storeitem ] = []
 						if (purchase.qty) > bottle_caps_required:	# need a proportion
-							stock_result['consumables'][ bottlecap.storeitem ].append( ( bottle_caps_required/purchase.qty, bottle_caps_required, purchase.stocktag, "dbg:purchase.purchasedItem", purchase ) )
+							stock_result['consumables'][ bottlecap.storeitem ].append( ( bottle_caps_required/purchase.qty, bottle_caps_required, purchase.stocktag, purchae.storeitem, purchase ) )
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-bottle_caps_required))
 							purchase.qty = float(purchase.qty - bottle_caps_required)
 							bottle_caps_required = 0
 						else:		# meed all this purchase
-							stock_result['consumables'][ bottlecap.storeitem ].append( (1, purchase.qty, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+							stock_result['consumables'][ bottlecap.storeitem ].append( (1, purchase.qty, purchase.stocktag, purchase.storeitem, purchase) )
 							bottle_caps_required = float(bottle_caps_required - purchase.qty)
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 							purchase.qty = 0
@@ -5971,12 +5325,12 @@ class brewerslabCloudApi:
 						if not stock_result['consumables'].has_key( primingsugar.storeitem):
 							stock_result['consumables'][ primingsugar.storeitem ] = []
 						if (purchase.qty) > priming_sugar_reqd:
-							stock_result['consumables'][ primingsugar.storeitem ].append( (priming_sugar_reqd/purchase.qty, priming_sugar_reqd, purchase.stocktag, "dbg:purchase.purchasedItem", purchase ))
+							stock_result['consumables'][ primingsugar.storeitem ].append( (priming_sugar_reqd/purchase.qty, priming_sugar_reqd, purchase.stocktag, purchase.storeitem, purchase ))
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-priming_sugar_reqd))
 							purchase.qty = float(purchase.qty - priming_sugar_reqd)
 							priming_sugar_reqd = 0
 						else:
-							stock_result['consumables'][ primingsugar.storeitem ].append( (1,purchase.qty, purchase.stocktag, "dbg:purchase.purchasedItem", purchase) )
+							stock_result['consumables'][ primingsugar.storeitem ].append( (1,purchase.qty, purchase.stocktag, purchase.storeitem, purchase) )
 							priming_sugar_reqd = float(priming_sugar_reqd - purchase.qty)
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 							purchase.qty = float(0	)
@@ -6008,7 +5362,9 @@ vol	recipe 	proprotion of sugar	sugar	num of 500ml units	priming solution	water
 	This is sugar
 		priming_sugar_reqd = (total_polypin_volume) *  ( (float(ourRecipe.priming_sugar_qty)/500) * self.polypin_sugar_proportion )   # this is a guess
 		"""
-		
+	
+		keg_num500ml_units = 0
+		sys.stderr.write('ourRecipe.priming_sugar_qty %s\n' %(ourRecipe.priming_sugar_qty))
 		keg_num500ml_units = math.ceil( keg_priming_sugar / ( ourRecipe.priming_sugar_qty / self.keg_sugar_proportion ) )
 		keg_priming_solution_required = keg_num500ml_units * self.keg_sugar_proportion * 15
 		keg_priming_water_required = keg_priming_solution_required - keg_priming_sugar
@@ -6057,7 +5413,6 @@ vol	recipe 	proprotion of sugar	sugar	num of 500ml units	priming solution	water
 		ourRecipeStats =self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2", username,recipeName).fetch()[0]
 		crsAdjust=self.crsAdjustment(315, float(ourRecipeStats.mash_liquid_6)+float(ourRecipeStats.sparge_water),50)
 		
-		sys.stderr.write(" guessing CRS based on 315 adjustment %.2f\n" %( crsAdjust))
 		ourCrs = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemsubcategory = :2 AND storeitem = :3", username,"watertreatment","AMS (CRS)")
 		total_crs=0	# the amount we have allocated throughout
 		qtyRequired=crsAdjust	# total qty we require
@@ -6071,12 +5426,12 @@ vol	recipe 	proprotion of sugar	sugar	num of 500ml units	priming solution	water
 				if purchase.qty > qtyRequired:
 					qtyNeeded= qtyRequired
 					purchase.qty = float(purchase.qty-qtyRequired)
-					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,"dbg:purchase.purchasedItem",purchase))
+					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,purchase.storeitem,purchase))
 				else:
 					sys.stderr.write("takeStock(): trying to get stock %s - taking all of this\n" %(purchase.storeitem))
 					qtyNeeded = purchase.qty
 					purchase.qty=float(0)
-					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,"dbg:purchase.purchasedItem",purchase))
+					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,purchase.storeitem,purchase))
 
 				qtyRequired = qtyRequired - qtyNeeded
 				total_crs = total_crs + qtyNeeded
@@ -6109,13 +5464,13 @@ vol	recipe 	proprotion of sugar	sugar	num of 500ml units	priming solution	water
 						cost_result['consumables'][purchase.storeitem] =0
 					if not stock_result['consumables'].has_key( purchase.storeitem ):	
 						stock_result['consumables'][purchase.storeitem] =[]
-					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,"dbg:purchase.purchasedItem",purchase))
+					stock_result['consumables'][ purchase.storeitem ].append( (qtyRequired/purchase.qty, qtyRequired, purchase.stocktag,purchase.storeitem,purchase))
 					cost_result['consumables'][ purchase.storeitem ] = cost_result['consumables'][ purchase.storeitem ] + (purchase.purchaseCost * qtyNeeded)
 					cost_result['consumables']['__total__'] = cost_result['consumables']['__total__'] + (purchase.purchaseCost * qtyNeeded)
 
 					qtyRequired = qtyRequired - qtyNeeded
 					
-
+		print self.calclog
 		return stock_result
 
 
