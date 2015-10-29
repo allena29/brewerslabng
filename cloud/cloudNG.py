@@ -82,7 +82,7 @@ class brewerslabCloudApi:
 
 			sys.stderr.write("END: listRecipes()\n")
 			return {'operation' : 'listRecipes', 'status' : 1, 'json' : json.dumps( {'result': recipeList} ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listRecipes()\n")
 			return {'operation' : 'listRecipes', 'status' : 0}
 
@@ -130,7 +130,7 @@ class brewerslabCloudApi:
 			result['brewlog']=brewlog
 			sys.stderr.write("END: listActivitiesFromBrewlog() -> %s\n" %(brewlog))
 			return {'operation' : 'listActivitiesFromBrewlog', 'status' : 1, 'json' : json.dumps( {'result': result} ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listActivitiesFromBrewlog()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -141,11 +141,7 @@ class brewerslabCloudApi:
 	
 	def listBrewlogsByRecipe(self,username,recipeName,raw=False):
 		sys.stderr.write("\nSTART: listBrewlogsByRecipes() -> %s\n" %(recipeName))
-		try:
-			existingBrewlog = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogs WHERE owner = :1 AND brewlog = :2",username,"__dummy").fetch(100000)
-			for eB in existingBrewlog:	eB.delete()
-		except:
-			pass
+
 		try:
 			ourRecipes = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 			tmp = ourRecipes.fetch(1)[0]
@@ -193,7 +189,7 @@ class brewerslabCloudApi:
 
 			return {'operation' : 'listBrewlogByRecipe', 'status' : 1, 'json' : json.dumps( {'result': brewlogList,'result2':processList} ) }
 
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listBrewlogsByRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s\n" %(e))
@@ -257,7 +253,7 @@ class brewerslabCloudApi:
 
 			sys.stderr.write("END: setBatchSize()  recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
 			return {'operation' : 'setBatchSize','status' :status , 'json': json.dumps(result)  }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: setBatchSize()  recipeName %s newBatchSize %s\n" %(recipeName,newBatchSize));
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -295,7 +291,7 @@ class brewerslabCloudApi:
 			result['stats']['postBoilTopup']=float(topupVol)
 			status=1
 			sys.stderr.write("END: setTopupVolume -> %s\n" %(topupVol))
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: setTopupVolume -> %s\n" %(topupVol))
 		return {'operation' : 'setTopupVolume','status' :status , 'json': json.dumps(result)  }
 
@@ -317,7 +313,7 @@ class brewerslabCloudApi:
 				}
 			sys.stderr.write("END: listIngredients()\n")
 			return response
-		except:	pass
+		except ImportError:	pass
 		sys.stderr.write("EXCEPTION: listIngredients()\n")
 		return {'operation' : 'listIngredients', 'status' : status }
 
@@ -340,7 +336,7 @@ class brewerslabCloudApi:
 				}
 			sys.stderr.write("END: listIngredientsDetails()\n")
 			return response
-		except:	pass
+		except ImportError:	pass
 		sys.stderr.write("EXCEPTION: listIngredientsDetails()\n")
 		return {'operation' : 'listIngredients', 'status' : status }
 
@@ -378,7 +374,7 @@ class brewerslabCloudApi:
 			myprocess = pickle.loads(open("process/%s/%s" %(self.userid,process)).read())
 			self.recipe.attachProcess( myprocess )
 			status=1
-		except: 
+		except ImportError: 
 			traceback.print_exc()
 		sys.stderr.write("END: setProcess()\n")
 		return {'operation' :'setProcess','status':status}
@@ -401,12 +397,12 @@ class brewerslabCloudApi:
 				self.recipe.addIngredient( recipeObject, qty, hopAddition )	
 				try:
 					self.recipe.calculate()
-				except:
+				except ImportError:
 					sys.stderr.write("EXCEPTION2: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 					traceback.print_exc()
 					status=0
 				status =1
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
 
 		sys.stderr.write("END: addHopIngredientToRecipe() -> %s %s %s\n" %(ingredient,qty,hopAddition))
@@ -437,12 +433,12 @@ class brewerslabCloudApi:
 					self.recipe.addIngredient( recipeObject, qty )	
 					try:
 						self.recipe.calculate()
-					except:
+					except ImportError:
 						sys.stderr.write("EXCEPTION2: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 						traceback.print_exc()
 						status=0
 					status =1
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
 
 		sys.stderr.write("END: addIngredientToRecipe() -> %s %s\n" %(ingredient,qty))
@@ -460,7 +456,7 @@ class brewerslabCloudApi:
 		if self.recipe:
 			try:
 				waterRequired = self.recipe.calculate()
-			except:
+			except ImportError:
 				sys.stderr.write("EXCEPTION: getWaterRequried()\n")
 				traceback.print_exc()
 				return {'operation' : 'addIngredientToRecipe','status':0}
@@ -487,7 +483,7 @@ class brewerslabCloudApi:
 				self.recipe.scaleAlcohol( newABV )
 				sys.stderr.write("END: scaleAlochol() %s\n" %(newABV))
 				return {'operation' : 'scaleAlcohol', 'status' : 1, 'json' : json.dumps( {"result": self.recipe.estimated_abv } ) }
-			except:
+			except ImportError:
 				sys.stderr.write("EXCEPTION: scaleAlochol() %s\n" %(newABV))
 				traceback.print_exc()
 
@@ -535,7 +531,7 @@ class brewerslabCloudApi:
 			status=1
 
 			return {'operation' : 'scaleIBU','status' :status , 'json': json.dumps(result)  }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION in setBatchSize\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -596,12 +592,9 @@ class brewerslabCloudApi:
 			brwlog.put()	
 		
 
-		try:
-			# keep a copy of our RecipeStats safe from future recipe updates
-			# we might not actually have recipeStats for this process yet. So this should have been a best effort attempt
-			ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND brewlog = :3 AND process = :4",username,recipeName,"",process).fetch(500000)[0]
-		except:
-			pass
+		# keep a copy of our RecipeStats safe from future recipe updates
+		# we might not actually have recipeStats for this process yet. So this should have been a best effort attempt
+		ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND recipe = :2 AND brewlog = :3 AND process = :4",username,recipeName,"",process).fetch(500000)[0]
 
 		newRecipeStats = gRecipeStats(owner=username,process=process,recipe=recipeName)
 		newRecipeStats.db=self.dbWrapper
@@ -609,7 +602,7 @@ class brewerslabCloudApi:
 			for x in ourRecipeStats.__dict__:
 				if x != "entity":
 					newRecipeStats.__dict__[x] = ourRecipeStats.__dict__[x]		
-		except:
+		except ImportError:
 			pass
 		newRecipeStats.brewlog=name
 		newRecipeStats.put()	
@@ -668,7 +661,7 @@ class brewerslabCloudApi:
 				activities.append(activity.activityTitle)
 			sys.stderr.write("END: listActivities()\n")
 			return {'operation' : 'listActivities', 'status' : 1, 'json' : json.dumps( {"result": activities } ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listActivities()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
@@ -723,7 +716,7 @@ class brewerslabCloudApi:
 				steps.append(newstep)
 				sys.stderr.write("END: listActivitySteps %s/%s\n" %(process,activity))
 			return {'operation':'listActivitySteps','status':1,'json' : json.dumps( {'result': steps } ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listActivitySteps %s/%s\n" %(process,activity))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
@@ -749,7 +742,7 @@ class brewerslabCloudApi:
 			
 			sys.stderr.write("END: listProcesses\n")
 			return {'operation' : 'listProcesses', 'status' : 1, 'json' : json.dumps( {'result': processList} ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listProcesses\n")
 			return {'operation' : 'listProcesses', 'status' : 0}
 
@@ -1322,7 +1315,7 @@ class brewerslabCloudApi:
 			newStep['process']=process
 			sys.stderr.write("END: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 			return {'operation':'getStepDetail','status':1,'json':json.dumps( {'result' : newStep} ) }
-		except:	
+		except ImportError:	
 			sys.stderr.write("EXCEPTION: getStepDetail() %s/%s/%s/%s/%s" %(process,activityNum,brewlog,stepNum,recipeName))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			traceback.print_tb(exc_traceback)
@@ -1356,7 +1349,7 @@ class brewerslabCloudApi:
 			sys.stderr.write("END: listProcessImages <- %s\n" %(process))
 			return {'operation' : 'listProcessImages', 'status':1,'json' : json.dumps( {'result': images } ) }
 		
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listProcessImages <- %s\n" %(process))
 			return {'operation' : 'listProcessImages', 'status':0}
 
@@ -1395,7 +1388,7 @@ class brewerslabCloudApi:
 			result['stats']['mash_efficiency']=recipe.mash_efficiency
 			sys.stderr.write("END: setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
 			return {'operation':'setMashEfficiency','status':status,'json':json.dumps(result) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: setMashEfficiency() -> %s/%s\n" %(recipeName,efficiency))
 			sys.stderr.write("setMashEfficiency() Exception\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -1516,7 +1509,7 @@ class brewerslabCloudApi:
 
 			sys.stderr.write("END: createBrewlogWrapper()\n")
 			return {'operation' : 'createBrewlogWrapper', 'status' : 1, 'json' : json.dumps( result   ) }
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: createBrewlogWrapper()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	print e
@@ -1752,7 +1745,7 @@ class brewerslabCloudApi:
 
 			sys.stderr.write("END: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
 			return {'operation':'addStockToBrewlog','status' :1,'json' : json.dumps( {"result": result})}
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write(e)
@@ -1803,7 +1796,7 @@ class brewerslabCloudApi:
 			result = {'category' : category, 'items':stockitems}
 			sys.stderr.write("END: listStoreItems() > status=1\n")
 			return {'operation':'listStoreItems','status' :1,'json' : json.dumps( {"result": result})}
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: listStoreItems() > status=0\n")
 			return {'operation':'listStoreItems','status' :0  }
 
@@ -1867,7 +1860,7 @@ class brewerslabCloudApi:
 				purchase.purchaseCost = float(cost)/float(qty)
 				try:
 					purchase.volume=ingredient.volume
-				except:
+				except :
 					pass
 				purchase.stocktag= "0"*(6-len("%s" %(stocktag+c)))
 				purchase.stocktag = "BRI%s%s" %(purchase.stocktag, stocktag+c)
@@ -1890,7 +1883,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'addNewPurchases', 'status' : status ,'json':json.dumps( {} ) }
 
 		
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: addNewPurchase -> %s/%s/%s....\n" %(category,itemtext,qty))		
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -2757,7 +2750,7 @@ class brewerslabCloudApi:
 
 		try:
 			self.calclog=self.calclog +"stats    :\t number_boil_passes = %s\n" %(PASS)
-		except:
+		except :
 			pass
 		self.calclog=self.calclog +"stats    :\t kettle1volume = %.1f\n" %(self.kettle1volume)
 		self.calclog=self.calclog +"stats    :\t kettle2volume = %.1f\n" %(self.kettle2volume)
@@ -2772,7 +2765,7 @@ class brewerslabCloudApi:
 			self.calclog=self.calclog +"stats    :\t kettle1evaporation = %.1f\n" %(self.kettle1evaporation)
 			self.calclog=self.calclog +"stats    :\t kettle2evaporation = %.1f\n" %(self.kettle2evaporation)
 			self.calclog=self.calclog +"stats    :\t kettle3evaporation = %.1f\n" %(self.kettle3evaporation)
-		except:
+		except :
 			pass
 		self.calclog=self.calclog+ "stats    :\t stike_temp_5 = %.1f\n" %(self.strike_temp_5)
 		self.calclog=self.calclog +"stats    :\t mash_liquid_6 = %.4f\n" %(self.mash_liquid_6)
@@ -3144,7 +3137,7 @@ class brewerslabCloudApi:
 		else:
 			try:
 				return equipments[0]
-			except:
+			except ImportError:
 				return None
 
 
@@ -3192,7 +3185,7 @@ class brewerslabCloudApi:
 
 			status=1
 			sys.stderr.write("END: in createBlankRecipe\n")
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: in createBlankRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3246,7 +3239,7 @@ class brewerslabCloudApi:
 
 			status=1
 			sys.stderr.write("END: in cloneRecipe\n")
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: in cloneRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3279,7 +3272,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'calculateRecipe', 'status' : status ,'json':json.dumps( result ) }
 
 
-		except: 
+		except ImportError: 
 			sys.stderr.write("EXCEPTION: in calculateRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3307,7 +3300,7 @@ class brewerslabCloudApi:
 
 		
 
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: deleteRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3365,7 +3358,7 @@ class brewerslabCloudApi:
 
 
 
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: changeItemInRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3416,7 +3409,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'fixRecipe', 'status' : status ,'json':tmp['json'] }
 
 
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: fixRecipe \n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3454,7 +3447,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'deleteItemFromRecipe', 'status' : status ,'json':tmp['json'] }
 
 
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: deleteItemFromRecipe()\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -3539,7 +3532,7 @@ class brewerslabCloudApi:
 			return {'operation' : 'addItemToRecipe', 'status' : status ,'json': tmp }
 
 		
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION: addItemToRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
@@ -4165,33 +4158,33 @@ class brewerslabCloudApi:
 		stat.dryhop=self.dryhop		# set by calculate
 		try:
 			stat.minikegqty=float(self.TAKESTOCK_kegs )
-		except:
+		except ImportError:
 			pass
 		try:
 			stat.bottles_required=float( self.TAKESTOCK_bottles )
-		except:
+		except ImportError:
 			pass
 		try:
 			stat.polypinqty = float(self.TAKESTOCK_polypins)
-		except:
+		except ImportError:
 			pass
 #		stat.polypinqty=float(self.total_polypins)
 		try:
 			stat.num_crown_caps=float(self.TAKESTOCK_bottles+5)
-		except:
+		except ImportError:
 			pass	
 		try:	
 			stat.primingsugarqty = float( self.TAKESTOCK_priming_sugar_qty )
-		except: 
+		except ImportError: 
 			pass
 		try:
 			stat.primingsugartotal = float( self.TAKESTOCK_priming_sugar_reqd ) 
-		except:
+		except ImportError:
 			pass
 		
 		try:
 			stat.primingwater = float( self.TAKESTOCK_priming_water_required )
-		except:
+		except ImportError:
 			pass
 		stat.put()
 	
@@ -4408,7 +4401,7 @@ class brewerslabCloudApi:
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
 					stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
 					stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
-				except:
+				except ImportError:
 					# we probably don' thave any type of priming sugar
 					# so we make this up instead
 					stock_result['__pcnt_left__'][ "__PRIMING_SUGAR__" ] = 0
@@ -4524,7 +4517,7 @@ class brewerslabCloudApi:
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
 					stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
 					stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
-				except:
+				except ImportError:
 					# we probably don' thave any type of priming sugar
 					# so we make this up instead
 					stock_result['__pcnt_left__'][ "__PRIMING_SUGAR__" ] = 0
@@ -4652,7 +4645,7 @@ class brewerslabCloudApi:
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
 					stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
 					stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
-				except:
+				except ImportError:
 					# we probably don' thave any type of priming sugar
 					# so we make this up instead
 					stock_result['__pcnt_left__'][ "__PRIMING_SUGAR__" ] = 0
@@ -4701,7 +4694,7 @@ class brewerslabCloudApi:
 				stock_result['__out_of_stock__'].append( purchase.storeitem )
 				stock_result['__qty_available__'][ purchase.storeitem ] = qtyAvailable
 				stock_result['__qty_required__'][ purchase.storeitem ] = qtyRequired
-			except:	
+			except ImportError:	
 				stock_result['__pcnt_left__'][ "__AMS__" ] = 0
 				stock_result['__stockrequirements__'].append( ['__AMS__' ,qtyAvailable,qtyRequired] )
 				stock_result['__out_of_stock__'].append( "__AMS__" )
@@ -5105,7 +5098,7 @@ class brewerslabCloudApi:
 							else:
 								total_keg_volume = total_keg_volume + vol
 								qtyNeeded = purchase.qty
-								stock_result['consumables'][ keg.storeitem ].append( (1 , qtyNeeded, purchase.stocktag,   prchase.storeitem, purchase) )
+								stock_result['consumables'][ keg.storeitem ].append( (1 , qtyNeeded, purchase.stocktag,   purchase.storeitem, purchase) )
 								sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, 0))
 								purchase.qty = float(0)
 							purchase.put()
@@ -5292,7 +5285,7 @@ class brewerslabCloudApi:
 						if not stock_result['consumables'].has_key( bottlecap.storeitem ):
 							stock_result['consumables'][ bottlecap.storeitem ] = []
 						if (purchase.qty) > bottle_caps_required:	# need a proportion
-							stock_result['consumables'][ bottlecap.storeitem ].append( ( bottle_caps_required/purchase.qty, bottle_caps_required, purchase.stocktag, purchae.storeitem, purchase ) )
+							stock_result['consumables'][ bottlecap.storeitem ].append( ( bottle_caps_required/purchase.qty, bottle_caps_required, purchase.stocktag, purchase.storeitem, purchase ) )
 							sys.stderr.write("takeStock : %s %s %s\n" %(purchaseItem.storeitem, purchaseItem.qty, purchase.qty-bottle_caps_required))
 							purchase.qty = float(purchase.qty - bottle_caps_required)
 							bottle_caps_required = 0
@@ -5579,7 +5572,7 @@ a compiled recipe which is recompiled seems to cause problems
 				result['stats']['totalAdjuncts']=stats.nongrain_weight
 				result['stats']['totalHops']=stats.hops_weight
 				result['stats']['this_batch_size'] = stats.batchsize
-			except:
+			except ImportError:
 				result['stats']['this_estimated_abv'] = 0	
 				result['stats']['this_estimated_fg'] = 0 
 				result['stats']['this_estimated_og'] = 0
@@ -5691,7 +5684,7 @@ a compiled recipe which is recompiled seems to cause problems
 			return {'operation' : 'viewRecipe', 'status' : status ,'json':json.dumps( result ) }
 
 		
-		except:
+		except ImportError:
 			sys.stderr.write("EXCEPTION in viewRecipe\n")
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
