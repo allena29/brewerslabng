@@ -154,8 +154,8 @@ class db:
 			query="%s LIMIT 0,%s" %(self.query,numResults)
 			ourResults=[]
 			if self.dbg > 0:	sys.stderr.write("MYSQL: %s\n" %(query))
-
-#			sys.stderr.write(query)
+		
+			#sys.stderr.write(query+"\n")
 			self.con.query( query)
 
 			result = self.con.use_result()
@@ -171,20 +171,13 @@ class db:
 
 
 		if not mysql:
-			#using mysql shim
-#			print self.argAssignments
-#			print self.query
 			tableName = self.query.split("FROM ")[1].split(" WHERE")[0]
-#]			print "_%s_"% (tableName)	
 			# not going to win any prizes for efficiency, but would rather take 5 minutes
 			# and not have to keep re-writing things..... double shims dont' come for free
 
 			# set a blank set of results
 			ourResults=[]
-			#print "using dict ", 		### mmmm :
-			#print tableName
 			ourDict=self.__dict__["_%s" %(tableName) ]
-#			print ourDict,"<<<<<<<<<<,ourDict"
 			for candidate in ourDict:
 				if self.dbg:	print candidate,"<<<<<<<candidate",candidate.entity
 #
@@ -203,18 +196,13 @@ class db:
 					# this must work differently because we can't pop
 					# as the list is by reference not by value
 
-#					print c,self.argAssignments[c]
-	#				print "do we like ",argAssignments[c],c
 					if self.argAssignments[c].count(":") == 1:
 						valIndex=self.argAssignments[c]
 					elif self.argAssignments[c].count("="):
 						valComparison=self.argAssignments[c]
 					elif self.argAssignments[c].count("AND"):
-#						argAssignments.pop(c)
 						AND="IMPLICT"
-						# AND will be implicti
 					elif self.argAssignments[c].count("OR"):
-#						argAssignments.pop(c)
 						print "OR arguments cannot be supported now"
 						sys.exit(9999)
 					elif self.argAssignments[c].count(">"):
@@ -248,12 +236,10 @@ class db:
 						valIndex=None
 						valComparison=None
 						valVariable=None
-#						print "now",valMatch
-#				print candidate,valMatch
 				if valMatch and candidate.entity > 0:
 					ourResults.append( candidate )
-#			print "why do we get a lot of stuff???"	
-#			sys.exit(4)
+
+
 		return ourResults
 
 
@@ -272,9 +258,6 @@ class db:
 		if self.dbg > 0:	sys.stderr.write("Query: %s\n" %(query))		
 		# need to handle arguments
 		g = self.get(query)
-	
-#		print "starting query"
-#		print query
 		ar=0
 		if len(queryargs) > 0:
 			argAssignments=query.split(" ORDER ")[0].split("WHERE ")[1].split(" ")
@@ -282,16 +265,11 @@ class db:
 			if self.dbg > 1:	sys.stderr.write("pre-argargumnets: %s\n" %(argAssignments))
 			c = len(argAssignments) -1 
 
-#			print argAssignments
-
 
 			# There is probably an assumption built in here that the first 
 			# argument for the query is *always* owner.
 			# in fetch() we've used c >= 0 as it seems to make more sense
 			while c > 0:
-
-#				print c,argAssignments[c]
-#				print "do we like ",argAssignments[c],c
 				if argAssignments[c].count(":") == 1:
 					argAssignments.pop(c)
 				elif argAssignments[c].count("="):
@@ -311,32 +289,24 @@ class db:
 				elif argAssignments[c].count("<="):
 					argAssignments.pop(c)
 				c=c -1
-#			print argAssignments
 			
 			if self.dbg > 0:	sys.stderr.write("post-argargumnets: %s\n" %(argAssignments))
 
 		# queryargs <---- this gives us the avlues for our query	
-#		print "queryargs",queryargs	
 		self.queryargs=queryargs		# we need this later in our shim
 		for queryArg in queryargs:
 			ar=ar+1
-#			print "have queryarg to substitute %s - %s" %(queryArg, ar)
-#			print argAssignments
-		
 			argn = re.compile('\s').sub('',argAssignments[ ar-1 ])
-#			print argn
 			
 			if g.types[argn] == "char":
 				query =re.compile(" :%s" %(ar)).sub("'%s'" %(queryargs[ar-1]), query)
 			else:
 				query =re.compile(" :%s" %(ar)).sub("%s" %(queryargs[ar-1]),query)
 
-#
 
 		if len(queryargs) > 0 and self.dbg >0 :	sys.stderr.write("QUERY: %s\n" %(query))
-#		print "finishing query"
-#		print query
 		self.query=query
+#		sys.stderr.write("QUERY: %s\n" %(query))
 		return self
 
 
@@ -2409,7 +2379,7 @@ class gRecipeStats(db):
 		self.kettle3preboilgravity=float(kettle3preboilgravity)
 		self.postboilprecoolgravity=float(postboilprecoolgravity)
 		self.preboil_gravity=float(preboil_gravity)
-		self.minkegqty=float(minikegqty)
+		self.minikegqty=float(minikegqty)
 		self.polypinqty=float(polypinqty)
 		self.batchsize=float(batchsize)
 		self.dryhop=int(dryhop)
