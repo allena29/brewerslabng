@@ -1164,9 +1164,7 @@ step.newSubStep(("Gather ...polypinqty... polypins",{'complete':1 }))
 
 step = myprocessK.bottlingAndKegging.newstep("Gather Mini Kegs")
 step.condition=[]
-step.condition.append(['minikegqty','>',0])
 step.auto="gathertheminikegs"
-step.stockDependency=["keg"]	# check based on category. if none found in this category then the compile() should remove this step
 # not sure stock dependency work... should deprecate it in any case
 step.text="Gather Minikegs with bungs/safety vent bungs\n"
 step.newSubStep(("Gather ...minikegqty... minikegs",{'complete':1 }))
@@ -1180,7 +1178,7 @@ step.auto="gatherthebottles"
 step.stockDependency=["bottle"]	# check based on category. if none found in this category then the compile() should remove this step
 # not sure stock dependency work... should deprecate it in any case
 step.text="Gather Bottles\n"
-step.newSubStep(("Gather ...bottleqty... bottles",{'complete':1 }))
+step.newSubStep(("Gather ...bottles_required... bottles",{'complete':1 }))
 	# need to think about removing this step if no stock of mini kegs available
 
 #step = myprocessK.bottlingAndKegging.newstep("Move fermentation bin")

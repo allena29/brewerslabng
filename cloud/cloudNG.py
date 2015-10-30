@@ -1169,11 +1169,29 @@ class brewerslabCloudApi:
 			return stepText		
 		stat = stat[0]
 
+		"""
+Bug with Mini-keg qty here:
+START: newVariableSub test@example.com/[u'minikegqty']/2/2/Gather ...minikegqty... minikegs/
+QUERY: SELECT * FROM gRecipeStats WHERE owner ='test@example.com' AND recipe ='zzzz' AND process ='40AG' AND brewlog ='29.10.2015'
+        dbg:_newVariableSub() trying to replace 'minikegqty' - in gRecipeStats as '0.0'
+END: newVariableSub()
+
+mysql>  SELECT minikegqty FROM gRecipeStats WHERE owner ='test@example.com' AND recipe ='zzzz' AND process ='40AG' AND brewlog ='29.10.2015';
++------------+
+| minikegqty |
++------------+
+|          1 |
++------------+
+
+issue is within ngData.py not within logic of cloudNG
+"""
 		for tr in toReplace:
 			if not stat.__dict__.has_key("%s" %(tr)):
 				val="?"
+				sys.stderr.write("\tdbg:_newVariableSub() trying to replace '%s' - not in gRecipeStats\n" %(tr))
 			else:
 				val = stat.__dict__["%s" %(tr)]
+				sys.stderr.write("\tdbg:_newVariableSub() trying to replace '%s' - in gRecipeStats as '%s'\n" %(tr,val))
 
 			val="%s%s%s" %(begin,val,finish)
 			stepText=re.compile("\.\.\.%s\.\.\." %(tr)).sub("%s" %(val),stepText)
@@ -1276,17 +1294,11 @@ class brewerslabCloudApi:
 				newStep['warning'] = theStep.attention
 			else:
 				newStep['warning'] = ""
-	
-
 			newStep['commentsTimestamp']=""
-
 			comments="-"
 		
 		
 			fieldValues={}
-#			fields=step.fields
-
-
 			ourFields =self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4",username,brewlog,ourActivity.activityNum,stepNum).fetch(545551)
 			for field in ourFields:
 				if field.fieldKey == "notepage":
@@ -1743,7 +1755,7 @@ class brewerslabCloudApi:
 						print stockItem,ourstock[stockType][stockItem]
 						result[stockType][stockItem].append( substock)
 
-			sys.stderr.write("END: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
+			sys.stderr.write("END: addStockToBrewlog() %s .. have stock..\n" %(brewlog))
 			return {'operation':'addStockToBrewlog','status' :1,'json' : json.dumps( {"result": result})}
 		except ImportError:
 			sys.stderr.write("EXCEPTION: addStockToBrewlog() %s .. no stock..\n" %(brewlog))
@@ -4077,6 +4089,7 @@ class brewerslabCloudApi:
 
 
 					elif step.auto == "gatherthepolypins":
+						sys.stderr.write("\tdbg:compile() step/auto/gatherthepolypins %s\n" %(self.TAKESTOCK_polypins))
 						polypins=True
 						try:
 							if self.TAKESTOCK_polypins == 0:
@@ -4084,6 +4097,21 @@ class brewerslabCloudApi:
 						except:
 							pass
 						if not polypins:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
+
+
+					elif step.auto == "gathertheminikegs":
+						sys.stderr.write("\tdbg:compile() step/auto/gathertheminikegs %s\n" %(self.TAKESTOCK_kegs))
+						kegs=True
+						try:
+							if self.TAKESTOCK_kegs == 0:
+								kegs=False
+						except :
+							pass
+						if not kegs:
 							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
 							if len(disableStep):
 								disableStep[0].activityNum=-9
@@ -4140,12 +4168,8 @@ class brewerslabCloudApi:
 		stat.postboilprecoolgravity=float(self.precool_og)
 		stat.preboil_gravity=float(self.pre_boil_gravity)
 		stat.batchsize=float(self.requested_batch_size)
-#		stat.minikegqty=float(self.minikegqty)
-#		stat.polypinqty=float(self.polypinqty)
-#		stat.num_crown_caps=float(self.num_crown_caps)
-		
-#		stat.primingwater=float(self.priming_sugar_water)	
 		stat.process=self.Process.process
+#		stat.primingwater=float(self.priming_sugar_water)	
 #		stat.primingsugarqty = float(self.primingsugarqty)
 #		stat.primingsugartotal=float(self.primingsugartotal)
 
@@ -4153,7 +4177,7 @@ class brewerslabCloudApi:
 
 
 
-
+		sys.stderr.write("\tdbg:compile() vessels %s %s %s\n" %(self.TAKESTOCK_bottles,self.TAKESTOCK_kegs, self.TAKESTOCK_polypins))
 		# more work added after NOV2012v2
 		stat.dryhop=self.dryhop		# set by calculate
 		try:
@@ -4258,7 +4282,7 @@ class brewerslabCloudApi:
 				qty = ingredient.qty
 	
 
-				sys.stderr.write("checkStockAndPrice %s\n" %(ingredient.ingredient))
+				sys.stderr.write("\tdbg:checkStockAndPrice() %s\n" %(ingredient.ingredient))
 				ourStockCheck = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2",username,ingredient.ingredient)
 				ourStock = ourStockCheck.fetch(20000)
 				
@@ -4378,7 +4402,7 @@ class brewerslabCloudApi:
 			qtyRequired=0
 			qtyAvailable
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
-			sys.stderr.write("takeStock(): priming_sugar_reqd %s (POLYPIN)\n" %(priming_sugar_reqd))
+			sys.stderr.write("\tdbg:checkStockAndPrice() priming_sugar_reqd %s (POLYPIN)\n" %(priming_sugar_reqd))
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
 				if purchase.qty	> 0 and priming_sugar_reqd > 0:
@@ -4395,7 +4419,7 @@ class brewerslabCloudApi:
 			
 			if priming_sugar_reqd > 0:
 				try:
-					sys.stderr.write("takeStock(): priming_sugar_reqd %s (POLYPIN - not enough)\n" %(priming_sugar_reqd))
+					sys.stderr.write("\tdbg:checkStockAndPrice() priming_sugar_reqd %s (POLYPIN - not enough)\n" %(priming_sugar_reqd))
 					stock_result['__pcnt_left__'][ purchase.storeitem ] = 0
 					stock_result['__out_of_stock__'].append( purchase.storeitem )
 					stock_result['__stockrequirements__'].append( [purchase.storeitem ,qtyAvailable,qtyRequired] )
@@ -4434,10 +4458,8 @@ class brewerslabCloudApi:
 				if purchase.qty > 0 and keg_volume_required > 0:					
 					if (purchase.qty * vol) > keg_volume_required:
 						qtyNeeded =math.ceil( keg_volume_required / vol )
-#						sys.stderr.write(" qty Of this keg %s\n" %(qtyNeeded))
 					else:
 						qtyNeeded = purchase.qty
-#						sys.stderr.write(" qty Of this keg %s (all)\n" %(qtyNeeded))
 					if not cost_result['consumables'].has_key(keg.name):	
 						cost_result['consumables'][keg.name] =0
 					cost_result['consumables'][ keg.name ] = cost_result['consumables'][ keg.name ] + (purchase.purchaseCost * qtyNeeded)
@@ -4453,7 +4475,7 @@ class brewerslabCloudApi:
 
 		ourco2s = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND category = :2", username,"co2").fetch(54355)
 		co2_required=total_kegs
-		sys.stderr.write("co2 required %s\n" %(co2_required))
+		sys.stderr.write("\tdbg:checkStockAndPrice(): co2 required %s\n" %(co2_required))
 		for co2 in ourco2s:
 			qtyAvailable = 0
 			qtyRequired = 0
@@ -4486,15 +4508,15 @@ class brewerslabCloudApi:
 
 
 
-		sys.stderr.write("takeStock(): (KEG co2_required %s)\n" %(co2_required))
+		sys.stderr.write("\tdbg:checkStockAndPrice( )(KEG co2_required %s)\n" %(co2_required))
 
 		# And priming sugar for kegs
 		if recipe.priming_sugar_qty > 0 and totalKegVol > 0:
-			sys.stderr.write("recipe.priming_sugar_qty %s %s \n" %(recipe.priming_sugar_qty,totalKegVol))
+			sys.stderr.write("\tdbg:checkStockAndPrice() recipe.priming_sugar_qty %s %s \n" %(recipe.priming_sugar_qty,totalKegVol))
 			priming_sugar_reqd =   totalKegVol * recipe.priming_sugar_qty  * 0.002
 			qtyRequired=0
 			qtyAvailable
-			sys.stderr.write("takeStock(): priming_sugar_reqd %s (KEG)\n" %(priming_sugar_reqd))
+			sys.stderr.write("\tdbg:checkStockAndPrice() priming_sugar_reqd %s (KEG)\n" %(priming_sugar_reqd))
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
@@ -4539,8 +4561,6 @@ class brewerslabCloudApi:
 		bottle_vols.sort()
 		bottle_vols.reverse()
 	
-		sys.stderr.write("Bottle vols\n")
-		sys.stderr.write("%s\n\n" %(bottle_vols))		
 		for (vol,bottle) in bottle_vols:
 			qtyAvailable = 0
 			qtyRequired = 0
@@ -4549,13 +4569,10 @@ class brewerslabCloudApi:
 			for purchase in ourBottlePurchases.fetch(5000):
 				qtyAvailable = qtyAvailable + purchase.qty
 				if purchase.qty > 0 and bottle_volume_required > 0:					
-		#			sys.stderr.write("volume in this type fo bottle %s\n" %(vol))
 					if (purchase.qty * vol) > bottle_volume_required:
 						qtyNeeded =math.ceil( bottle_volume_required / vol )
-						sys.stderr.write(" qty Of this bottle %s\n" %(qtyNeeded))
 					else:
 						qtyNeeded = purchase.qty
-#						sys.stderr.write(" qty Of this bottle %s (all)\n" %(qtyNeeded))
 					if not cost_result['consumables'].has_key(bottle.name):	
 						cost_result['consumables'][bottle.name] =0
 					cost_result['consumables'][ bottle.name ] = cost_result['consumables'][ bottle.name ] + (purchase.purchaseCost * qtyNeeded)
@@ -4582,8 +4599,14 @@ class brewerslabCloudApi:
 			stock_result['__qty_required__'][ bottle.name ] = math.ceil(bottle_volume_required / vol ) + qtyRequired
 			### out of stock
 
-		sys.stderr.write("Polypins: %s/%s Kegs: %s/%s Bottles: %s/%s\n" %(total_polypins,totalPolypinVol,total_kegs,totalKegVol,total_bottles,totalBottleVol ))
+		sys.stderr.write("\tdbg:checkStockAndPrice() Polypins: %s/%s Kegs: %s/%s Bottles: %s/%s\n" %(total_polypins,totalPolypinVol,total_kegs,totalKegVol,total_bottles,totalBottleVol ))
 		purchase=None
+
+
+		# OCT2015 moved from takeStock 
+		self.TAKESTOCK_kegs=total_kegs
+		self.TAKESTOCK_polypins=total_polypins
+		self.TAKESTOCK_bottles=total_bottles
 
 		# Now do crown caps
 		total_caps = total_bottles  + 4
@@ -4621,7 +4644,7 @@ class brewerslabCloudApi:
 			priming_sugar_reqd = (total_bottles + 5) * recipe.priming_sugar_qty 
 			qtyRequired=0
 			qtyAvailable=0
-			sys.stderr.write("takeStock(): priming_sugar_reqd %s (BOTTLES)\n" %(priming_sugar_reqd))
+			sys.stderr.write("\tdbg:checkStockAndPrice(): priming_sugar_reqd %s (BOTTLES)\n" %(priming_sugar_reqd))
 			ourPrimingSugar = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2", username,"primingsugar")
 			for purchase in ourPrimingSugar.fetch(50000):
 				qtyAvailable = qtyAvailable + purchase.qty
@@ -4655,8 +4678,6 @@ class brewerslabCloudApi:
 					stock_result['__qty_required__'][ "__PRIMING_SUGAR__" ] = qtyRequired
 
 
-		sys.stderr.write("before water treatment\n")
-		sys.stderr.write(" %s \n\n\n" %(stock_result['__out_of_stock__']))
 
 		#
 		#
@@ -4702,8 +4723,6 @@ class brewerslabCloudApi:
 				stock_result['__qty_required__'][ "__AMS__" ] = qtyRequired
 
 
-		sys.stderr.write("after water treatment\n")
-		sys.stderr.write(" %s \n\n\n" %(stock_result['__out_of_stock__']))
 
 
 		completeVolume=keg_volume_required=polypin_volume_required-totalPolypinVol + totalBottleVol
@@ -4727,7 +4746,6 @@ class brewerslabCloudApi:
 		campden=2
 		# consumableProcessIngredients - checkStock
 		for (consumableQtyRequired,item) in [(sterilisingPowder,'Sterilising Powder'),(yeastVit,'Yeast Vit'),(salifert,'Salifert Alkaline Test') ,(protofloc,'Protofloc'),(campden,'Campden Tablets')]:
-			sys.stderr.write("CHecking COnsumable Process %s %s\n" %(item,consumableQtyRequired))
 			qtyRequired=consumableQtyRequired
 			ourConsumablePurchases = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND storeitem = :2", username,item)
 			for purchase in ourConsumablePurchases.fetch(5000):
@@ -4885,7 +4903,7 @@ class brewerslabCloudApi:
 
 		stockBestBefore doesn't seem to actually save anything in the database
 		"""
-		sys.stderr.write("\nSTART: _stockBestBefore() %s %s\n" %(stockType,stock_result))
+		sys.stderr.write("\nSTART: _stockBestBefore() %s\n" %(stockType))
 		# just a bit of protection
 		if not stock_result.has_key( stockType ):
 			stock_result[ stockType ] = {}
@@ -5111,7 +5129,6 @@ class brewerslabCloudApi:
 				self.calclog = self.calclog + "kegfilling: total_kegs %s\n" %(total_kegs)
 				TOTAL_KEGS=total_kegs
 				self.total_kegs=TOTAL_KEGS
-				self.TAKESTOCK_kegs=TOTAL_KEGS
 
 
 				ourCO2 = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1 AND itemcategory = :2 AND qty > :3",username,"keg",0).fetch(345345)
@@ -5198,7 +5215,6 @@ class brewerslabCloudApi:
 				self.calclog = self.calclog + "polyfill  : total_polypins %s\n" %(total_polypins)
 				TOTAL_PINS=total_polypins
 				self.total_polypins=TOTAL_PINS
-				self.TAKESTOCK_polypins=TOTAL_PINS
 
 				#  priming sugar
 				# note; priming sugar in recipe is against a 500ml bottle size
@@ -5275,7 +5291,6 @@ class brewerslabCloudApi:
 				self.calclog = self.calclog + "bottlebank: total_bottles = %s\n" %(total_bottles)
 				TOTAL_BOTTLES=total_bottles
 				self.total_bottles=TOTAL_BOTTLES
-				self.TAKESTOCK_bottles = TOTAL_BOTTLES
 
 
 
