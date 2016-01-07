@@ -60,6 +60,13 @@ class brewerslabCloudApi:
 		self.stores=None
 #		self.stores= pickle.loads( open("store/%s/store" %(self.userid)).read() )
 
+		self.TAKESTOCK_kegs=-1
+		self.TAKESTOCK_bottles=-1
+		self.TAKESTOCK_polypins=-1
+		self.TAKESTOCK_priming_sugar_reqd=-1
+		self.TAKESTOCK_priming_sugar_qty=-1
+		self.TAKESTOCK_priming_water_required=-1
+	
 	def dbgRestart(self):
 		self.recipe=None
 		self.brewlog=None
