@@ -10,6 +10,9 @@ class pitmCfg:
 
 	def __init__(self):
 
+		self.tweetProgress="allena29"		# username to tweet updates to
+
+
 		self.activities = {
 			'Mash' : {'min':65,'max':69,'lowalarm':True,'highalarm':True,'sleep':False},
 			'Fermentation':{'min':18,'max':21,'lowalarm':False,'highalarm':False,'sleep':True},
