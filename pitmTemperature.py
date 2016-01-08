@@ -10,6 +10,7 @@ import json
 import sys
 import threading
 import time
+import re
 from pitmCfg import pitmCfg
 from gpiotools import *
 
@@ -29,6 +30,7 @@ class pitmTemperature:
 		self.logging=2		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
 		self.gpio = gpiotools()
+		self.rxTemp=re.compile("^.*t=(\d+)")
 
 		self.probesToMonitor={}
 		self.probesToMonitor[ self.cfg.hltProbe ] = False
@@ -181,11 +183,11 @@ class pitmTemperature:
 							if text.count("NO"):
 								self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':0,'valid':False}				
 								print
-							if text.count("YES"):		# CRC=NO for failed results	
-								print temp
-								#temperature = float(temp.split(" ")[9][2:])/1000
-								temperature = float(temp.split("=")[1][0:3])/10
-
+							if text.count("YES") and self.rxTemp.match(temp):		# CRC=NO for failed results	
+								#rxTemp=re.compile("^.*t=(\d+)")
+								
+								(temp,)=self.rxTemp.match(temp).groups()
+								temperature=int(temp)/1000
 
 								if not self.lastResult.has_key(probe):
 									self.lastResult[probe]=0
