@@ -12,7 +12,8 @@ import syslog
 import sys
 import threading
 import time
-
+import twitter
+from tweetAuth import tweetAuth
 from pitmCfg import pitmCfg
 from pitmLCDisplay import pitmLCDisplay
 from pitmLedFlasher import *
@@ -68,6 +69,15 @@ class pitmController:
 		self.boilTargetVol=0
 		self.fermTargetVol=0
 
+
+		self.twitterApi=None
+		try:
+			import twitter
+			from tweetAuth import tweetAuth
+			self.twitterApi = tweetAuth().api	
+		except:
+			pass
+		print "Have a twitter api of",self.twitterApi
 
 		# Remove temporary flags
 		for x in ['doshutdown','buttonhlt','buttonmash','buttonboil','buttonferm','buttonpump','manbuttonhlt','manbuttonmash','manbuttonboil','manbuttonferm','manbuttonpump']:
@@ -580,6 +590,13 @@ class pitmController:
 			self.lcdDisplay.sendMessage( self._recipe , 0)
 			self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
 			self.lcdDisplay.sendMessage("        ----",2)
+			if not os.path.exists("ipc/tweeted-brewstart"):
+				flag=open("ipc/tweeted-brewstart","w")
+				flag.close()
+				try:
+					self.twitterApi.PostUpdate('Started a brewday %s #brewerslab #%s' %(self._recipe,re.compile("[^A-Za-z0-9]").sub('',self._recipe) ))
+				except:
+					pass	
 		else:	
 			self._log("Inconsistent state - we don't have brew details")
 
@@ -794,6 +811,15 @@ class pitmController:
 	
 					self.mode="mash"	
 					if self.showActivityOrTime > 3:
+						print "tweet bot",self._mode
+						if (self.time()-self.mashStart) > self.mashDuration - 300 and not os.path.exists("ipc/tweeted-mash-nearly-finished"):
+							
+							flag=open("ipc/tweeted-mash-nearly-finished","w")
+							flag.close()
+							try:
+								self.twitterApi.PostUpdate('%s mash out and sparge #brewerslab' %(self.cfg.tweetProgress))
+							except:
+								pass	
 						MINUTES="%02d" %( self.mashDuration  /60)
 						SECONDS="%02d" %( self.mashDuration -(int(MINUTES)*60))
 						duration="%sm%ss" %(MINUTES,SECONDS)
@@ -837,6 +863,18 @@ class pitmController:
 						self.lcdDisplay.sendMessage(" Bringing to Boil",3)
 					else:
 						if self.showActivityOrTime > 3:
+
+
+							print "tweet bot",self._mode
+							if (self.time()-self.boilStart) > self.boilDuration - 300 and not os.path.exists("ipc/tweeted-boil-nearly-finished"):
+
+								flag=open("ipc/tweeted-boil-nearly-finished","w")
+								flag.close()
+								try:
+									self.twitterApi.PostUpdate('%s boil finished #brewerslab' %(self.cfg.tweetProgress))
+								except:
+									pass	
+
 							MINUTES="%02d" %( self.boilDuration  /60)
 							SECONDS="%02d" %( self.boilDuration -(int(MINUTES)*60))
 							duration="%sm%ss" %(MINUTES,SECONDS)

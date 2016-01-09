@@ -11,8 +11,6 @@ import syslog
 import sys
 import threading
 import time
-import twitter
-from tweetAuth import tweetAuth
 
 
 
@@ -38,6 +36,8 @@ class pitmMonitor:
 
 		self.twitterApi=None
 		try:
+			import twitter
+			from tweetAuth import tweetAuth
 			self.twitterApi = tweetAuth().api	
 		except:
 			pass
@@ -354,6 +354,21 @@ class pitmMonitor:
 								else:
 									# Tweet bot stuff
 									print "tweet bot",self._mode
+									if self._mode == "cool" and self.twitterApi:
+										if self.probes[probe][-1] < 67 and not os.path.exists("ipc/tweeted-whirlpool"):
+											flag=open("ipc/tweeted-whirlpool","w")
+											flag.close()
+											try:
+												self.twitterApi.PostUpdate('%s time to whirlpool hops #brewerslab' %(self.cfg.tweetProgress))
+											except:
+												pass	
+										if self.probes[probe][-1] < 30 and not os.path.exists("ipc/tweeted-cool"):
+											flag=open("ipc/tweeted-cool","w")
+											flag.close()
+											try:
+												self.twitterApi.PostUpdate('%s wort cooled #brewerslab' %(self.cfg.tweetProgress))
+											except:
+												pass	
 									if self._mode == "hlt" and self.twitterApi:
 										if self.probes[probe][-1] > 60 and not os.path.exists("ipc/tweeted-mash-tun-pre"):
 											flag=open("ipc/tweeted-mash-tun-pre","w")
@@ -366,7 +381,7 @@ class pitmMonitor:
 											flag=open("ipc/tweeted-hlt-temp","w")
 											flag.close()
 											try:
-												self.twitterApi.PostUpdate('%s time to mash in #brewerslab' %(self.cfg.tweetProgress))
+												self.twitterApi.PostUpdate('%s mash liquor ready #brewerslab' %(self.cfg.tweetProgress))
 											except:
 												pass	
 									if self._mode == "sparge" and self.twitterApi:
@@ -374,7 +389,7 @@ class pitmMonitor:
 											flag=open("ipc/tweeted-sparge-temp","w")
 											flag.close()
 											try:
-												self.twitterApi.PostUpdate('%s time to mash-out and sparge #brewerslab' %(self.cfg.tweetProgress))
+												self.twitterApi.PostUpdate('%s sparge liquor ready #brewerslab' %(self.cfg.tweetProgress))
 											except:
 												pass	
 									if self._mode == "boil" and self.twitterApi:
@@ -382,7 +397,7 @@ class pitmMonitor:
 											flag=open("ipc/tweeted-boil-temp","w")
 											flag.close()
 											try:
-												self.twitterApi.PostUpdate('%s boil kettle has reach temperature #brewerslab' %(self.cfg.tweetProgress))
+												self.twitterApi.PostUpdate('%s kettle nearly at a boil #brewerslab' %(self.cfg.tweetProgress))
 											except:
 												pass	
 							
