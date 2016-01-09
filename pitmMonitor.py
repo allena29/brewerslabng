@@ -356,6 +356,8 @@ class pitmMonitor:
 									print "tweet bot",self._mode
 									if self._mode == "cool" and self.twitterApi:
 										if self.probes[probe][-1] < 67 and not os.path.exists("ipc/tweeted-whirlpool"):
+											flag=open("ipc/activityWhirlpool","w")
+											flag.close()
 											flag=open("ipc/tweeted-whirlpool","w")
 											flag.close()
 											try:

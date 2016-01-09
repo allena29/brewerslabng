@@ -12,8 +12,6 @@ import syslog
 import sys
 import threading
 import time
-import twitter
-from tweetAuth import tweetAuth
 from pitmCfg import pitmCfg
 from pitmLCDisplay import pitmLCDisplay
 from pitmLedFlasher import *
@@ -882,6 +880,14 @@ class pitmController:
 									self.twitterApi.PostUpdate('%s boil finished #brewerslab' %(self.cfg.tweetProgress))
 								except:
 									pass	
+							if self.boilDuration - (time.time()-self.boilStart) < 900 and not os.path.exists("ipc/activityAromaHops"):
+
+								flag=open("ipc/activityAromaHops","w")
+								flag.close()
+							if self.boilDuration - (time.time()-self.boilStart) < 9 and not os.path.exists("ipc/activityFlameoutHops"):
+
+								flag=open("ipc/activityFlameoutHops","w")
+								flag.close()
 
 							MINUTES="%02d" %( self.boilDuration  /60)
 							SECONDS="%02d" %( self.boilDuration -(int(MINUTES)*60))

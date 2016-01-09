@@ -1,4 +1,5 @@
 
+ping 192.168.1.13 -c 5
 
 if [ -f "simulator" ]
 then

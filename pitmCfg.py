@@ -10,7 +10,7 @@ class pitmCfg:
 
 	def __init__(self):
 
-		self.tweetProgress="allena29"		# username to tweet updates to
+		self.tweetProgress="@allena29"		# username to tweet updates to
 
 
 		self.activities = {
