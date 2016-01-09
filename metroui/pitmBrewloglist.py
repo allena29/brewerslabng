@@ -27,7 +27,25 @@ for row in cursor:
 	detail['mash_water']=100
 	
 	detail= {'brewlog':brewlog,'recipe':recipe,'hash':brewhash, 'fermLow':18.7,'fermHigh':19.3,'fermTarget':19, 'hltLow':87.5,'hltHigh':88.5,'hltTarget':88, 'spargeLow':81.5,'spargeHigh':82.5,'spargeTarget':82 ,'mashLow':66,'mashHigh':68,'mashTarget':67, 'strikeLow':81.999,'strikeTarget':82,'strikeHigh':82.1  } 
-#print json.dumps(detail)
+
+	# Get the hop schedules
+	# dryhop, whirlpool, flameout, finishing, aroma, fwh, copper
+	hops=[False,False,False,False,False,False,False]
+	con3=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+	cursor3=con3.cursor()
+	cursor3.execute("select distinct(hopAddAt) from gIngredients where recipeName ='%s' AND hopAddAt >0" %(recipe))
+	for row3 in cursor3:
+		(hopAddAt,)=row3
+		if hopAddAt > 30:	hops[6]=True
+		if hopAddAt > 20 and hopAddAt < 21:	hops[5]=True
+		if hopAddAt > 10 and hopAddAt < 20:	hops[4]=True
+		if hopAddAt > 3 and hopAddAt <10:	hops[3]=True
+		if hopAddAt > 0 and hopAddAt < 0.002:	hops[2]=True
+		if hopAddAt > 0.001 and hopAddAt < 0.002:	hops[1]=True
+		if hopAddAt < 0.003:	hops[0]=True
+			
+	detail['hops']=hops	
+
 	for row2 in cursor2:
 		(target_mash_temp,boil_vol,mash_water,sparge_water,precoolfvvolume) = row2
 		detail['boil_vol']=boil_vol
