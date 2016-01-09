@@ -124,7 +124,6 @@ if not os.path.exists("ipc/swFerm") and os.path.exists("ipc/activityWhirlpool") 
 	flag.close()	
 	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
 	cursor=con.cursor()
-	print "select recipe,ingredient,qty,unit,hopAddAt from gIngredients,gBrewlogs where gBrewlogs.recipe=gIngredients.recipename and brewlog='%s' and ingredientType='hops' AND hopAddAt >0.001 AND hopAddAt < 0.003" %(brewlog)
 	cursor.execute("select recipe,ingredient,qty,unit,hopAddAt from gIngredients,gBrewlogs where gBrewlogs.recipe=gIngredients.recipename and brewlog='%s' and ingredientType='hops' AND hopAddAt >0.001 AND hopAddAt < 0.003" %(brewlog))
 	for row in cursor:
 		(recipename,ingredient,qty,unit,hopAddAt)=row
@@ -166,12 +165,13 @@ if os.path.exists("ipc/swBoil") and not os.path.exists("ipc/tweet-boilvol"):
 		doTweet("currently boiling %sL #brewerslab #%s" %(fieldVal,re.compile("[^A-Za-z0-9]").sub('',recipename)))
 
 # Original Gravity
-if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-og"):
+if not os.path.exists("ipc/swPump") and  os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-og"):
 	og=None
 	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
 	cursor=con.cursor()
 	cursor.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='og' and length(fieldVal)>1" %(brewlog))
 	for row in cursor:
+		(recipename,fieldVal)=row
 		og=fieldVal
 
 	if og:
@@ -179,6 +179,7 @@ if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-og"):
 		cursor=con.cursor()
 		cursor.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='postboilvol' and length(fieldVal)>1" %(brewlog))
 		for row in cursor:
+			(recipename,fieldVal)=row
 			flag=open("ipc/tweet-og","w")
 			flag.close()	
 			(recipename,fieldVal)=row
