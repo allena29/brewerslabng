@@ -586,6 +586,9 @@ class pitmController:
 			self.boilTarget=95
 			self._recipe=brewSelected['recipe']
 			self._brewlog=brewSelected['brewlog']
+			o=open("ipc/brewlog-id","w")
+			o.write("%s" %(self._brewlog))
+			o.close()
 			self._log(" Recipe: %s Brewlog: %s" %(self._recipe,self._brewlog))
 			self.lcdDisplay.sendMessage( self._recipe , 0)
 			self.lcdDisplay.sendMessage(" %s" %( self._brewlog),1)
@@ -779,7 +782,9 @@ class pitmController:
 				self.boilpower=False
 				self.mode="mash/dough"
 				self.lcdDisplay.sendMessage(" Mash / Dough In Grain",3)	
-	
+				if not os.path.exists("ipc/activityDough"):
+					flag=open("ipc/activityDough","w")
+					flg.close()	
 			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swFerm")) and not os.path.exists("ipc/mash_toggle_type-dough"):
 				#we could just be doing a mash
 				# but not doughing in the grain
@@ -794,6 +799,9 @@ class pitmController:
 
 				# or we could also be heating the sparge water
 				if os.path.exists("ipc/swSparge"):
+					if not os.path.exists("ipc/activityHltSparge"):
+						flag=open("ipc/activityHltSparge","w")
+						flg.close()	
 					self.mode="hlt/sparge/mash"
 					self.hltpower=True				
 					if self.showActivityOrTime > 3:
@@ -812,7 +820,7 @@ class pitmController:
 					self.mode="mash"	
 					if self.showActivityOrTime > 3:
 						print "tweet bot",self._mode
-						if (self.time()-self.mashStart) > self.mashDuration - 300 and not os.path.exists("ipc/tweeted-mash-nearly-finished"):
+						if (time.time()-self.mashStart) > self.mashDuration - 300 and not os.path.exists("ipc/tweeted-mash-nearly-finished"):
 							
 							flag=open("ipc/tweeted-mash-nearly-finished","w")
 							flag.close()
@@ -866,7 +874,7 @@ class pitmController:
 
 
 							print "tweet bot",self._mode
-							if (self.time()-self.boilStart) > self.boilDuration - 300 and not os.path.exists("ipc/tweeted-boil-nearly-finished"):
+							if (time.time()-self.boilStart) > self.boilDuration - 300 and not os.path.exists("ipc/tweeted-boil-nearly-finished"):
 
 								flag=open("ipc/tweeted-boil-nearly-finished","w")
 								flag.close()
