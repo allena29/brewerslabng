@@ -886,8 +886,10 @@ class pitmController:
 								except:
 									pass	
 							if self.boilDuration - (time.time()-self.boilStart) < 900 and not os.path.exists("ipc/activityAromaHops"):
-
 								flag=open("ipc/activityAromaHops","w")
+								flag.close()
+							if self.boilDuration - (time.time()-self.boilStart) < 300 and not os.path.exists("ipc/activityFinishingHops"):
+								flag=open("ipc/activityFinishingHops","w")
 								flag.close()
 							if self.boilDuration - (time.time()-self.boilStart) < 9 and not os.path.exists("ipc/activityFlameoutHops"):
 
