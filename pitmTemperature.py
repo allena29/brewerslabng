@@ -144,6 +144,9 @@ class pitmTemperature:
 		mash=False
 		boil=False
 		ferm=False
+		if self._mode == "sparge":
+			mash=True
+
 		if self._mode.count("hlt"):
 			hlt=True
 		if self._mode.count("mash"):
@@ -157,7 +160,6 @@ class pitmTemperature:
 			ferm=True
 		if self._mode =='ferm':
 			ferm=True
-
 		if ferm or hlt or mash or boil:
 			self.gpio.output("tempProbes",True)
 		else:	
@@ -187,7 +189,7 @@ class pitmTemperature:
 								#rxTemp=re.compile("^.*t=(\d+)")
 								
 								(temp,)=self.rxTemp.match(temp).groups()
-								temperature=int(temp)/1000
+								temperature=float(temp)/1000
 
 								if not self.lastResult.has_key(probe):
 									self.lastResult[probe]=0
@@ -311,6 +313,11 @@ class pitmTemperature:
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.fermProbe ] = True
 			self._targetFerm=cm['ferm']
+		elif cm['_mode'] == "sparge":
+			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.mashAProbe ] = True
+			self.probesToMonitor[ self.cfg.mashBProbe ] = True
+			self._targetMash=cm['mash']
 		elif cm['_mode'].count("sparge") and cm['_mode'].count("mash"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
