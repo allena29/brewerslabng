@@ -32,6 +32,7 @@ class pitmController:
 		self.mcastMembership=False
 		self.mode="idle"
 		self.loopDelay=0.125
+		self.pOk=0
 		self.pLeft=0
 		self.pRight=0
 		self.okCount=0
@@ -58,6 +59,9 @@ class pitmController:
 		self.boilStart=0
 		self.fermentationStart=0
 
+		# dryhop, whirlpool, flameout, finishing, aroma, fwh, copper
+		self.hopSchedule=[False,False,False,False,False,False,False]
+
 		self.hltVol=0
 		self.mashVol=0
 		self.boilVol=0
@@ -67,6 +71,11 @@ class pitmController:
 		self.boilTargetVol=0
 		self.fermTargetVol=0
 
+		# Hops
+		self.whirlpool=False
+		self.aroma=False
+		self.finishing=False
+		self.flameout=False		
 
 		self.twitterApi=None
 		try:
@@ -572,7 +581,8 @@ class pitmController:
 			self.strikeLow=brewSelected['strikeLow']
 			self.strikeHigh=brewSelected['strikeHigh']
 			self.strikeTarget=brewSelected['strikeTarget']
-
+			# dryhop, whirlpool, flameout, finishing, aroma, fwh, copper
+			self.hopSchedule=brewSelected['hops']
 			self.hltTargetVol=float(brewSelected['mash_water'])+6
 			self.spargeTargetVol=float(brewSelected['sparge_water'])+6
 			self.mashTargetVol=float(brewSelected['mash_water'])
@@ -586,6 +596,9 @@ class pitmController:
 			self._brewlog=brewSelected['brewlog']
 			o=open("ipc/brewlog-id","w")
 			o.write("%s" %(self._brewlog))
+			o.close()
+			o=open("ipc/recipe-name","w")
+			o.write("%s" %(self._recipe))
 			o.close()
 			self._log(" Recipe: %s Brewlog: %s" %(self._recipe,self._brewlog))
 			self.lcdDisplay.sendMessage( self._recipe , 0)
@@ -1204,15 +1217,43 @@ class pitmController:
 				except:
 					pass
 
-		if not self.gpio.input('pLeft') and self.pLeft:
-			self.pLeft=False			
+
+		if not self.gpio.input('pOk') and self.pOk:
+			self.pOk=False
+			if self.mode.count("ferm") and self.hopSchedule[0]:
+				flag=open("ipc/activityDryhop","w")
+				flag.close()
+			if self.mode.count("ferm-wait"):
+				try:
+					os.remove("ipc/ferm-notstarted")
+					self._log("Removed Ferm Not Started Flag")
+				except:
+					pass
+
 			if self.mode == "sparge":
 				try:
 					os.remove("ipc/sparge-not-finished")
 					self._log("Removed Sparge flage")
 				except:
 					pass
-			elif self.mode.count("ferm"):
+
+			if self.mode.count("boil"):
+				try:
+					os.remove("ipc/boil_getting-ready")
+					self._log("Removed Boil Getting Ready Flag")
+				except:
+					pass
+			if self.mode.count("dough"):
+				try:
+					os.remove("ipc/mash_toggle_type-dough")
+					self._log("Removed Mash/Dough Toggle")
+				except:
+					pass
+
+ 
+		if not self.gpio.input('pLeft') and self.pLeft:
+			self.pLeft=False			
+			if self.mode.count("ferm"):
 				self.fermLow=self.fermLow -0.2
 				self.fermHigh=self.fermHigh-0.2
 				self.fermTarget=self.fermTarget-0.2
@@ -1237,36 +1278,10 @@ class pitmController:
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
 				self._log("Reduced Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
-			if self.mode.count("ferm-wait"):
-				try:
-					os.remove("ipc/ferm-notstarted")
-					self._log("Removed Ferm Not Started Flag")
-				except:
-					pass
-
-			if self.mode.count("dough"):
-				try:
-					os.remove("ipc/mash_toggle_type-dough")
-					self._log("Removed Mash/Dough Toggle")
-				except:
-					pass
-					
-			if self.mode.count("boil"):
-				try:
-					os.remove("ipc/boil_getting-ready")
-					self._log("Removed Boil Getting Ready Flag")
-				except:
-					pass
 
 		if not self.gpio.input('pRight') and self.pRight:
 			self.pRight=False
-			if self.mode == "sparge":
-				try:
-					os.remove("ipc/sparge-not-finished")
-					self._log("Removed Sparge flage")
-				except:
-					pass
-			elif self.mode.count("ferm"):
+			if self.mode.count("ferm"):
 				self.fermLow=self.fermLow +0.2
 				self.fermHigh=self.fermHigh+0.2
 				self.fermTarget=self.fermTarget+0.2
@@ -1290,28 +1305,9 @@ class pitmController:
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
 				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
-
-			if self.mode.count("ferm-wait"):
-				try:
-					os.remove("ipc/ferm-notstarted")
-					self._log("Removed Ferm Not Started Flag")
-				except:
-					pass
-
-
-			if self.mode.count("boil"):
-				try:
-					os.remove("ipc/boil_getting-ready")
-					self._log("Removed Boil Getting Ready Flag")
-				except:
-					pass
-			if self.mode.count("dough"):
-				try:
-					os.remove("ipc/mash_toggle_type-dough")
-					self._log("Removed Mash/Dough Toggle")
-				except:
-					pass
-
+	
+		if self.gpio.input('pOk') and not self.pOk:
+			self.pOk=True
 		if self.gpio.input('pLeft') and not self.pLeft:
 			self.pLeft=True
 		if self.gpio.input('pRight') and not self.pRight:

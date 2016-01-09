@@ -132,9 +132,28 @@ if not os.path.exists("ipc/swFerm") and os.path.exists("ipc/activityWhirlpool") 
 		doTweet("added %s %s of %s Whirlpool hops #hopbill #brewerslab #%s" %(qty,unit,ingredient,re.compile("[^A-Za-z0-9]").sub('',recipename)))
 
 
+#
+# Dry Hop
+#
+if os.path.exists("ipc/swFerm") and os.path.exists("ipc/activityDryhop") and not os.path.exists("ipc/tweet-dryhop"):
+	flag=open("ipc/tweet-dryhop","w")
+	flag.close()	
+	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
+	cursor=con.cursor()
+	print "select recipe,ingredient,qty,unit,hopAddAt from gIngredients,gBrewlogs where gBrewlogs.recipe=gIngredients.recipename and brewlog='%s' and ingredientType='hops' AND hopAddAt  < 0.004" %(brewlog)
+	cursor.execute("select recipe,ingredient,qty,unit,hopAddAt from gIngredients,gBrewlogs where gBrewlogs.recipe=gIngredients.recipename and brewlog='%s' and ingredientType='hops' AND hopAddAt >0.001 AND hopAddAt < 0.003" %(brewlog))
+	for row in cursor:
+		(recipename,ingredient,qty,unit,hopAddAt)=row
+		print row
+		doTweet("added %s %s of %s dry hops #hopbill #brewerslab #%s" %(qty,unit,ingredient,re.compile("[^A-Za-z0-9]").sub('',recipename)))
 
 
 
+
+
+#
+# Other Stats
+#
 # Boil Volume
 if os.path.exists("ipc/swBoil") and not os.path.exists("ipc/tweet-boilvol"):
 	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
