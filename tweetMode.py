@@ -58,7 +58,7 @@ if os.path.exists("ipc/activityHltSparge") and not os.path.exists("ipc/swSparge"
 
 
 ## COPPER 
-if os.path.exists("ipc/swBoil") and not os.path.exists("ipc/tweet-copperhop"):
+if os.path.exists("activityReachedBoil") and not os.path.exists("ipc/tweet-copperhop"):
 	flag=open("ipc/tweet-copperhop","w")
 	flag.close()	
 	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")

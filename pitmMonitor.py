@@ -409,6 +409,8 @@ class pitmMonitor:
 												pass	
 									if self._mode == "boil" and self.twitterApi:
 										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/tweeted-boil-temp"):
+											flag=open("ipc/activityReachedBoil","w")
+											flag.close()
 											flag=open("ipc/tweeted-boil-temp","w")
 											flag.close()
 											try:
