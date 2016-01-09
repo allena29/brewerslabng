@@ -121,7 +121,7 @@ class pitmController:
 			# mash or dought
 			if self.mode.count('dough'):
 				controlMessage['mash']=(self.strikeLow,self.strikeHigh,self.strikeTarget)
-			elif self.mode.count('mash'):
+			elif self.mode.count('mash') or self.mode == "sparge": 
 				controlMessage['mash']=(self.mashLow,self.mashHigh,self.mashTarget)
 
 			# fermentation
@@ -849,7 +849,12 @@ class pitmController:
 
 				time.sleep(1)
 
-
+			# if we have done mash + sparge use a new mode of sparge
+			elif os.path.exists("ipc/activityDough") and os.path.exists("ipc/activityHltSparge") and os.path.exists("ipc/sparge-not-finished"):
+				self.mode="sparge"
+				self.hltpower=False
+				self.lcdDisplay.sendMessage(" Sparge",3)
+				time.sleep(1)	
 			elif os.path.exists("ipc/swBoil"):			
 
 				if self.boilStart == 0 and not os.path.exists("ipc/boil_getting-ready"):
@@ -1199,7 +1204,13 @@ class pitmController:
 
 		if not self.gpio.input('pLeft') and self.pLeft:
 			self.pLeft=False			
-			if self.mode.count("ferm"):
+			if self.mode == "sparge":
+				try:
+					os.remove("ipc/sparge-not-finished")
+					self._log("Removed Sparge flage")
+				except:
+					pass
+			elif self.mode.count("ferm"):
 				self.fermLow=self.fermLow -0.2
 				self.fermHigh=self.fermHigh-0.2
 				self.fermTarget=self.fermTarget-0.2
@@ -1247,7 +1258,13 @@ class pitmController:
 
 		if not self.gpio.input('pRight') and self.pRight:
 			self.pRight=False
-			if self.mode.count("ferm"):
+			if self.mode == "sparge":
+				try:
+					os.remove("ipc/sparge-not-finished")
+					self._log("Removed Sparge flage")
+				except:
+					pass
+			elif self.mode.count("ferm"):
 				self.fermLow=self.fermLow +0.2
 				self.fermHigh=self.fermHigh+0.2
 				self.fermTarget=self.fermTarget+0.2

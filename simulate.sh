@@ -21,7 +21,7 @@ touch simulator
 rm -fr ipc/*
 date >ipc/handshake
 date +%s >ipc/hlt-delay-until
-
+touch ipc/sparge-not-finished
 touch ipc/boil_getting-ready
 touch ipc/mash_toggle_type-dough
 
