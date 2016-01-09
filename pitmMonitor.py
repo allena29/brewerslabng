@@ -124,6 +124,8 @@ class pitmMonitor:
 			self._mode=cm['_mode']
 			if cm['_mode'].count( "hlt"):
 				self.doMonitoring=True
+			if cm['_mode'] == "sparge":
+				self.doMonitoring=True
 
 			if cm['_mode'].count("mash"):
 				self.doMonitoring=True
@@ -294,11 +296,22 @@ class pitmMonitor:
 				led="lHlt"
 				probeid="hlt  :"
 				(targetMin,targetMax,target)=self.tempTargetHlt
+		if self._mode== "sparge" and probe == self.cfg.mashAProbe:
+			probeOk=True
+			probeid="mashA:"
+			led="lMash"
+			(targetMin,targetMax,target)=self.tempTargetMash
 		if self._mode.count( "mash") and probe == self.cfg.mashAProbe:
 			probeOk=True
 			probeid="mashA:"
 			led="lMash"
 			(targetMin,targetMax,target)=self.tempTargetMash
+		if self._mode=="sparge" and probe == self.cfg.mashBProbe:
+			probeOk=True
+			probeid="mashB:"	
+			led="lMash"
+			(targetMin,targetMax,target)=self.tempTargetMash
+
 		if self._mode.count( "mash") and probe == self.cfg.mashBProbe:
 			probeOk=True
 			probeid="mashB:"	
@@ -386,7 +399,7 @@ class pitmMonitor:
 												self.twitterApi.PostUpdate('%s mash liquor ready #brewerslab' %(self.cfg.tweetProgress))
 											except:
 												pass	
-									if self._mode == "sparge" and self.twitterApi:
+									if self._mode.count("sparge") and self.twitterApi:
 										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/tweeted-sparge-temp"):
 											flag=open("ipc/tweeted-sparge-temp","w")
 											flag.close()
