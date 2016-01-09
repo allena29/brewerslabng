@@ -155,6 +155,7 @@ class pitmTemperature:
 			boil=True
 		if self._mode.count("cool"):
 			boil=True
+			ferm=True
 		if self._mode.count("pump"):
 			boil=True
 			ferm=True
