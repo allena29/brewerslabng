@@ -32,6 +32,7 @@ modprobe i2c-dev
 
 mount -t tmpfs -o size=50m tmpfs /currentdata/
 
+mkdir ipc/fermprogress
 touch ipc/sparge-not-finished
 touch ipc/ferm-notstarted
 touch ipc/boil_getting-ready

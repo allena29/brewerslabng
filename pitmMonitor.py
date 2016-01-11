@@ -55,7 +55,10 @@ class pitmMonitor:
 		self.tempTargetBoil=(-1,-1,-1)	#
 		self.tempTargetFerm=(-1,-1,-1)	#
 
-			
+		# fuzzy logic to track when fermentation is complete
+		self.fermStarted=0	
+		self.lastalarm=""
+	
 	def _log(self,msg):
 		if self.logging == 1:
 			syslog.syslog(syslog.LOG_DEBUG, msg)
@@ -430,6 +433,34 @@ class pitmMonitor:
 										alarm=""
 										self.ledFlasher.sendMessage(led,'green')
 									self.lcdDisplay.sendMessage("%s%s%.1f Aim:%.1f" %( probeid,alarm,self.probes[probe][-1], target ), line,alert=alert)
+
+
+									if self._mode == "ferm":
+										if not alarm == self.lastalarm:
+											self.lastalarm=alarm
+											print "ALARM FLAG SET",alarm
+											if alarm == "":
+												flag=open("ipc/fermprogress/%s-normal" %(time.time()),"w")
+												flag.close()
+											elif alarm == "<":
+												flag=open("ipc/fermprogress/%s-low" %(time.time()),"w")
+												flag.close()
+											elif alarm == ">":
+												flag=open("ipc/fermprogress/%s-high" %(time.time()),"w")
+												flag.close()
+													
+										if alarm == "" and not os.path.exists("ipc/ferm-pitching-temp"):
+											flag=open("ipc/ferm-pitching-temp","w")
+											flag.close()
+											self.fermStarted=time.time()
+											if not os.path.exists("ipc/tweet-ferm-pitching-temp"):
+												flag=open("ipc/tweet-ferm-pitching-temp","w")
+												flag.close()
+												try:
+													self.twitterApi.PostUpdate('%s FV at pitching temp #brewerslab' %(self.cfg.tweetProgress))
+												except:
+													pass	
+
 								line=line+1
 						time.sleep(3)
 
