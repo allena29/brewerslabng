@@ -1,5 +1,7 @@
 import os
 import re
+import time
+from pitmCfg import pitmCfg
 import mysql.connector
 
 # This is intended to tweet recipe based stuff to the twitter account
@@ -185,3 +187,85 @@ if not os.path.exists("ipc/swPump") and  os.path.exists("ipc/swFerm") and not os
 			(recipename,fieldVal)=row
 			doTweet("%sL of wort in the fermenter - %.4f OG #brewerslab #%s" %(fieldVal,float(og),re.compile("[^A-Za-z0-9]").sub('',recipename)))
 
+
+# Fermentation Over (reads in post-ferm flag)
+cfg=pitmCfg()
+if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-fermover"):
+
+
+
+	flags=os.listdir("ipc/fermprogress")
+	flags.sort()
+
+	bucketsize=3600*4
+	bucketstart=os.stat("ipc/ferm-pitching-temp").st_mtime
+	bucketend=bucketstart+bucketsize
+	buckets=[ [ 0,0,0,0] ]
+
+
+
+	heatEvents=0
+	coolEvents=0
+	for flag in flags:
+		(utc,event)=flag.split("-")
+		if float(utc) > bucketend:
+			buckets[-1][0]= coolEvents
+			buckets[-1][1]= heatEvents
+			buckets[-1][2] = bucketstart
+			buckets[-1][3] = bucketend
+			bucketstart=bucketend
+			bucketend=bucketstart+bucketsize
+
+			heatEvents=0
+			coolEvents=0
+
+			buckets.append( [0,0,0,0] )
+		if float(utc) < bucketend:
+			if event == "low":
+				heatEvents=heatEvents+1
+	#			print "HEAT EVENT",time.ctime(float(utc))
+			if event == "high":	
+				coolEvents=coolEvents+1
+	#			print "COOL EVENT",time.ctime(float(utc))
+			buckets[-1].append( (utc,event) )
+		
+	averageHeatEvents=buckets[0][1]
+	averageHeatEvents=averageHeatEvents+buckets[1][1]
+	averageCoolEvents=buckets[0][0]
+	averageCoolEvents=averageCoolEvents+buckets[1][0]
+
+
+
+	# Above we have create a number of buckets which gives a list for each bucket
+	# 0 = coolevents (the number of times the fridge kicked in)
+	# 1 = heatevents (the number of times the heater kicked in)
+	# 2 = start epoch of bucket
+	# 3 = end epoch of bucket
+	# 4 + 2 item tuple for each event (low,epoch)  (normal,epoch)  (high,epoch)
+
+	# Algorithim 1: 
+	# cool weather where the fridge doesn't kick in 
+	# (note: fridge can be used to bring down to pitching temp)
+	# if we haave 33% of heat events we call it pre-fermentation
+
+	if averageCoolEvents == 0:
+		preFerm=True
+		for b in range(len(buckets)-2):		# start considering 3rd buckets onwards
+			if buckets[b+2][2] > 0 and buckets[b+2][3] > 0:	# only consider buckets with valid timestamps
+#				print "Checking bucket ",b+2,time.ctime(float(buckets[b+2][2])),time.ctime(float(buckets[b+2][3]))
+#				print "\t",buckets[b+2][1],averageHeatEvents*.33
+				if buckets[b+2][1] < averageHeatEvents*0.33:
+#					print "\tNow think we are in active fermentation %s vs %s" %(buckets[b+2][1],averageHeatEvents)
+					preFerm=False
+				elif not preFerm and buckets[b+2][1] > averageHeatEvents*.33:
+#					print "\tNow think we are out of active fermentation"
+#					print "\tBut we will put on a 24 hour delay"
+					if not os.path.exists("ipc/post-ferm"):
+						flag=open("ipc/post-ferm","w")
+						flag.close()
+					
+
+	if os.path.exists("ipc/post-ferm"):
+		if time.time() > os.stat("ipc/post-ferm").st_mtime + 86400:
+			doTweet("%s fermentation nearing an end #brewerslab #%s" %(cfg.tweetProgress,re.compile("[^A-Za-z0-9]").sub('',open("ipc/recipe-name").read())) )
+	
