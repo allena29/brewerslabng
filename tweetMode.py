@@ -1,11 +1,29 @@
 import os
 import re
+import sys
 import time
 from pitmCfg import pitmCfg
 import mysql.connector
 
 # This is intended to tweet recipe based stuff to the twitter account
 # as we change modes
+
+if not os.path.exists("ipc/brewlog-id") or not os.path.exists("ipc/recipe-name"):
+	print "No brewlog or recipe-name"
+	sys.exit(3)
+
+cfg=pitmCfg()
+brewlog=open("ipc/brewlog-id").read().rstrip()
+recipename=open("ipc/recipe-name").read().rstrip()
+tweetProgress=cfg.tweetProgress
+hashtag="#brewerslab #%s #%s" %( re.compile("[^A-Za-z0-9]").sub('',recipename),  re.compile("[^A-Za-z0-9]").sub('',brewlog) )
+
+print "Twitter Publisher"
+print " hashtag ",hashtag
+print " notification ",tweetProgress
+
+
+
 
 twitterApi=None
 def doTweet(msg):
@@ -22,11 +40,38 @@ def doTweet(msg):
 		twitterApi.PostUpdate(msg)
 		print msg
 
+	else:
+		print "Unable to open twitter api"
+		sys.exit(2)
 
 
-brewlog=open("ipc/brewlog-id").read().rstrip()
+
+#
+#
+# brew start
+print "Activity Started....",
+if not os.path.exists("ipc/tweeted-brewstart") and os.path.exists("activityStarted"):
+	flag=open("ipc/tweeted-brewstart","w")
+	flag.close()
+	doTweet('Started a brewday %s %s' %(recipename,hashtag))
+	print "DONE",
+print ""
+
+# mash out and sparge
+print "Activities....",
+if not os.path.exists("ipc/tweeted-mash-nearly-finished") and os.path.exists("activityMashout"):
+	flag=open("ipc/tweeted-mash-nearly-finished","w")
+	flag.close()
+	doTweet('%s mash out and sparge %s' %(tweetProgress,hashtag))
+	print " MASH OUT",
+if not os.path.exists("ipc/tweeted-boil-nearly-finished") and os.path.exists("ipc/activityBoilNearlyFinished"):
+	flag=open("ipc/tweeted-boil-nearly-finished","w")
+	flag.close()
+	doTweet('%s boil finished %s' %(tweetProgress,hashtag))
+	print " BOIL NEARLY FINISHED",
 
 
+print ""
 ##
 ## GRAIN
 ##
@@ -242,7 +287,6 @@ if os.path.exists("ipc/post-ferm")  and not os.path.exists("ipc/tweet-abv"):
 
 
 # Fermentation Over (reads in post-ferm flag)
-cfg=pitmCfg()
 if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-fermover"):
 
 
@@ -329,3 +373,6 @@ if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-fermover"):
 			print "YES"
 		else:
 			print "NO"	
+
+
+
