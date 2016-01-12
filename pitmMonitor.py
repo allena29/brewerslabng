@@ -34,14 +34,6 @@ class pitmMonitor:
 		self.logging=2		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
 
-		self.twitterApi=None
-		try:
-			import twitter
-			from tweetAuth import tweetAuth
-			self.twitterApi = tweetAuth().api	
-		except:
-			pass
-		print "Have a twitter api of",self.twitterApi
 		self._mode="Unknown"
 		self.mcastMembership=False
 		self.doMonitoring=False
@@ -368,59 +360,30 @@ class pitmMonitor:
 									self.lcdDisplay.sendMessage("%s%sXX.X Aim:%.1f" %( probeid,alarm, target ), line,alert=alert)
 									self.ledFlasher.sendMessage(led,'purple')
 								else:
-									# Tweet bot stuff
-									print "tweet bot",self._mode
-									if self._mode.count( "cool") or self._mode == "boil/pump" and self.twitterApi:
-										if self.probes[probe][-1] < 67 and not os.path.exists("ipc/tweeted-whirlpool"):
+									if self._mode.count( "cool") or self._mode == "boil/pump":
+										if self.probes[probe][-1] < 67 and not os.path.exists("ipc/activityWhirlpool"):
 											flag=open("ipc/activityWhirlpool","w")
 											flag.close()
-											flag=open("ipc/tweeted-whirlpool","w")
+										if self.probes[probe][-1] < 30 and not os.path.exists("ipc/activityCool30"):
+											flag=open("ipc/activityCool30","w")
 											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s time to whirlpool hops #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-										if self.probes[probe][-1] < 30 and not os.path.exists("ipc/tweeted-cool"):
-											flag=open("ipc/tweeted-cool","w")
+									if self._mode == "hlt":
+										if self.probes[probe][-1] > 60 and not os.path.exists("ipc/activityMashTunPre"):
+											flag=open("ipc/activityMashTunPre","w")
 											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s wort cooled #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-									if self._mode == "hlt" and self.twitterApi:
-										if self.probes[probe][-1] > 60 and not os.path.exists("ipc/tweeted-mash-tun-pre"):
-											flag=open("ipc/tweeted-mash-tun-pre","w")
+										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/activityHltTemp"):
+											flag=open("ipc/activityHltTemp","w")
 											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s time to pre-heat mashtun #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/tweeted-hlt-temp"):
-											flag=open("ipc/tweeted-hlt-temp","w")
+									if self._mode.count("sparge"):
+										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/activitySpargeTemp"):
+											flag=open("ipc/activitySpargeTemp","w")
 											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s mash liquor ready #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-									if self._mode.count("sparge") and self.twitterApi:
-										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/tweeted-sparge-temp"):
-											flag=open("ipc/tweeted-sparge-temp","w")
-											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s sparge liquor ready #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-									if self._mode == "boil" and self.twitterApi:
-										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/tweeted-boil-temp"):
+									if self._mode == "boil":
+										if self.probes[probe][-1] > target-2 and not os.path.exists("ipc/activityReachedBoil"):
 											flag=open("ipc/activityReachedBoil","w")
 											flag.close()
-											flag=open("ipc/tweeted-boil-temp","w")
-											flag.close()
-											try:
-												self.twitterApi.PostUpdate('%s kettle nearly at a boil #brewerslab' %(self.cfg.tweetProgress))
-											except:
-												pass	
-							
+						
+	
 							#
 									alarm=""
 									if self.probes[probe][-1] > targetMax:
@@ -453,13 +416,8 @@ class pitmMonitor:
 											flag=open("ipc/ferm-pitching-temp","w")
 											flag.close()
 											self.fermStarted=time.time()
-											if not os.path.exists("ipc/tweet-ferm-pitching-temp"):
-												flag=open("ipc/tweet-ferm-pitching-temp","w")
-												flag.close()
-												try:
-													self.twitterApi.PostUpdate('%s FV at pitching temp #brewerslab' %(self.cfg.tweetProgress))
-												except:
-													pass	
+
+
 
 								line=line+1
 						time.sleep(3)
