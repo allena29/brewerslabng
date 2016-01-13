@@ -278,7 +278,7 @@ for s in range(5):
 			flag=open("ipc/tweet-sg%s" %(sg),"w")
 			flag.close()	
 			(recipename,fieldVal)=row
-			doTweet(".. measured gravity at %.3f" %(fieldVal))
+			doTweet(".. measured gravity at %.3f" %(float(fieldVal)))
 		print ""
 
 # Original Gravity
@@ -325,7 +325,7 @@ if os.path.exists("ipc/post-ferm")  and not os.path.exists("ipc/tweet-abv"):
 			flag=open("ipc/tweet-abv","w")
 			flag.close()	
 			(recipename,fieldVal)=row
-			doTweet("Measured FG as %.3f estimated abv %.2f %%" %(fg,abv))
+			doTweet("Measured FG as %.3f estimated abv %.2f %%" %(float(fg),abv))
 	print ""
 
 
