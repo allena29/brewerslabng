@@ -411,10 +411,13 @@ if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-fermover"):
 	if os.path.exists("ipc/post-ferm"):
 		print "Checking post ferm....",
 		if time.time() > os.stat("ipc/post-ferm").st_mtime + (1.5*86400):
-			doTweet("%s fermentation nearing an end" %(tweetProgress))
-			o=open("ipc/adjustFermTarget","w")
-			o.write("21")
-			o.close()
+			if not os.path.exists("ipc/tweet-ferm-near-end"):
+				flag=open("ipc/tweet-ferm-near-end","w")
+				flag.close()
+				doTweet("%s fermentation nearing an end" %(tweetProgress))
+				o=open("ipc/adjustFermTarget","w")
+				o.write("21")
+				o.close()
 			print "YES"
 		else:
 			print "NO"	
