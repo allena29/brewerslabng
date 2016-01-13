@@ -5,6 +5,7 @@ import time
 from pitmCfg import pitmCfg
 import mysql.connector
 
+os.chdir("/home/beer/brewerslab/master/")
 # This is intended to tweet recipe based stuff to the twitter account
 # as we change modes
 
@@ -410,7 +411,7 @@ if os.path.exists("ipc/swFerm") and not os.path.exists("ipc/tweet-fermover"):
 	if os.path.exists("ipc/post-ferm"):
 		print "Checking post ferm....",
 		if time.time() > os.stat("ipc/post-ferm").st_mtime + (1.5*86400):
-			doTweet("%s fermentation nearing an end #brewerslab" %(tweetProgress))
+			doTweet("%s fermentation nearing an end" %(tweetProgress))
 			o=open("ipc/adjustFermTarget","w")
 			o.write("21")
 			o.close()
