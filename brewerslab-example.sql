@@ -866,3 +866,10 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2015-04-25 22:46:24
+
+alter table gBrewery add cost float;
+alter table gBrewery add litres float;
+update gBrewery set litres=715;
+update gBrewery set cost=2263.62;
+
+
