@@ -1876,6 +1876,7 @@ issue is within ngData.py not within logic of cloudNG
 				purchase.qtyMultiple=ingredient.qtyMultiple
 				purchase.wastageFixed=ingredient.wastageFixed
 				purchase.itemsubcategory=ingredient.subcategory
+				purchase.originalqty=float(qty)
 				purchase.purchaseCost = float(cost)/float(qty)
 				try:
 					purchase.volume=ingredient.volume
