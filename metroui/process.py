@@ -11,10 +11,15 @@ theme=webTheme()
 theme.bgcolor="#ffffff"
 sys.stdout.write("Content-Type:text/html\n\n")
 
+editable=False
+if theme.localUser:
+	editable=True
+
 grid={}
 
 db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 db2=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+db3=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 
 
 if not form.has_key("process"):
@@ -31,6 +36,7 @@ elif not form.has_key("activity"):
 	theme.bodytitle="Process %s" %(form['process'].value)
 
 	process=form['process'].value
+
 
 	cursor=db.query("select activityNum,stepNum,subStepNum,stepName from gProcess where process='%s' ORDER BY activityNum,stepNum,subStepNum" %(process))
 	result=db.use_result()
@@ -74,8 +80,17 @@ theme.doGrid(grid)
 
 
 
+import re
+def safeText(text):
+	return re.compile('%%').sub('%',text)
+
 if form.has_key("activity") and form.has_key("process"):
 	print "<div class='container'>"
+	cursor3=db3.query("select * from gBrewlogs where process='%s'" %(form['process'].value))
+	result3=db3.use_result().fetch_row()
+	if result3:
+		print "<h4 class='fg-red'>Process has active brewlogs- editing disabled</h4>"
+		editable=False
 	print "<table class='table striped bordered hovered'>"
 	print "<thead><tr><th width=100>Step</th><th>Details</th></tr></thead><tbody>"
 	process=form['process'].value
@@ -87,9 +102,14 @@ if form.has_key("activity") and form.has_key("process"):
 		((activityNum,stepNum,stepName,text),)=row
 		row=result.fetch_row()
 		print "<tr><td>%s</td>" %(stepNum)
-		print "<td><input type=text size=128 name='stepName' value='%s'></input>" %(stepName)
-		
-		print "<textarea cols=128 rows=5 name='text'>%s</textarea>" %(text)
+		if editable:
+			print "<td>Step: <input type=text size=128 name='stepName' value='%s'></input>" %( safeText(stepName))
+			print "<textarea cols=128 rows=5 name='text'>%s</textarea>" %(text)
+		else:
+			print "<td>Step: %s<BR>" %( safeText(stepName))
+			print "Text: %s<BR>" %(text)
+	
+	
 
 		subSteps=False
 		cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
@@ -100,7 +120,10 @@ if form.has_key("activity") and form.has_key("process"):
 			subSteps=True
 		while row2:
 			((subStepNum,subStepName),)=row2
-			print "<input type=text name='subStep_%s' value='%s' size=100><BR>" %(subStepNum,subStepName)
+			if editable:
+				print "<li> <input type=text name='subStep_%s' value='%s' size=100><BR>" %(subStepNum,safeText(subStepName))
+			else:
+				print "<li> %s<BR>" %(safeText(subStepName))
 			row2=result2.fetch_row()	
 
 
