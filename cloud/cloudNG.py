@@ -207,6 +207,19 @@ class brewerslabCloudApi:
 
 
 		
+	def setMashTemp(self,username,recipeName, newMashTemp,doRecalculate="1"):
+		if 1==1:
+			# flag recipe rcalc at the recipe level
+			ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
+			for recipe in ourRecipe.fetch(500):
+				if not doRecalculate == "1":
+					recipe.calculationOutstanding=True
+				recipe.target_mash_temp=float(newMashTemp)
+				recipe.put()
+			if doRecalculate == "1":
+				self.calculateRecipe(username,recipeName)
+				self.compile(username,recipeName,None)
+
 	def setMashEfficiency(self,username,recipeName, newMashEfficiency,doRecalculate="1"):
 		if 1==1:
 			# flag recipe rcalc at the recipe level
@@ -3187,6 +3200,7 @@ issue is within ngData.py not within logic of cloudNG
 	
 			R=gRecipes(recipename=recipeNewName,owner=username )
 			R.mash_grain_ratio=1.5
+			R.target_mash_temp=67.5
 			R.mash_efficiency=70
 			R.priming_sugar_qty=2
 			R.alkalinity = 50
