@@ -46,7 +46,7 @@ class brewerslabCloudApi:
 		self.keg_sugar_proportion = 0.8
 		self.bottle_sugar_proportion=1
 		self.polypin_sugar_proportion=0.3
-		self.strikeTempSkew=1		# reduce strike temp by this many degC
+		self.strikeTempSkew=-2		# reduce strike temp by this many degC
 
 		self.dbWrapper= db()
 		self.userid="allena29"
@@ -2025,8 +2025,12 @@ issue is within ngData.py not within logic of cloudNG
 		#gqlself.calclog = self.calclog + "process  : Calculating with Process %s\n" %(revcipe.process)
 		self.calclog = self.calclog + "process  : Calculating with Process %s\n" %(recipe.process)	#pickql	
 		self.calclog = self.calclog + "process  :  - TODO:: make sure hopAlpha comes from stock not preset\n"
-		self.calclog = self.calclog + "process  : brewerslabEngine rev xxx (2015-10-18)\n"
-		self.calclog = self.calclog + "process  :  - strikeTempSkew (hardcoded in cloudNG.py)\n"
+		self.calclog = self.calclog + "process  : brewerslabEngine rev 0.2 (2015-10-18)\n"
+		self.calclog = self.calclog + "process  :  - new strike temp calculationg which uses grain weight/mash volume\n"
+		self.calclog = self.calclog + "process  :    which gives a strike temp 10deg lower\n"
+		self.calclog = self.calclog + "process  :  - strikeTempSkew (hardcoded in cloudNG.py) - to increase by 2deg\n"
+		self.calclog = self.calclog + "process  : brewerslabEngine rev 0.3 (2015-10-18)\n"
+		self.calclog = self.calclog + "process  :  - strikeTempSkew (hardcoded in cloudNG.py) - to decrease by 1deg\n"
 		self.calclog = self.calclog + "process  : brewerslabEngine rev xxx (2015-01-25)\n"
 		self.calclog = self.calclog + "process  :  - Basic water treatment with salifert alkalinity and AMS\n"
 		self.calclog = self.calclog + "process  : brewerslabEngine rev 554 (2014-11-2)\n"
@@ -2274,8 +2278,8 @@ issue is within ngData.py not within logic of cloudNG
 		mash_liquid_required = mash_liquid + self.hlt.dead_space + self.mash_tun.dead_space  #NOVIFX5
 		self.calclog = self.calclog + "mashwater:  HLT Dead Space %.3f -> %.3f\n" %(self.hlt.dead_space,mash_liquid_required)
 		self.calclog = self.calclog + "mashwater: Mash Water Required  %.3f\n" %(mash_liquid_required)
-
-
+		self.mash_liquid_required = mash_liquid_required 
+	
 
 #		working_batch_size_A2 = working_mash_size - (self.mash_tun.dead_space * 0.75)
 		working_batch_size_A2 = working_batch_size_A3  #NOVFIX 4 
@@ -2476,9 +2480,6 @@ issue is within ngData.py not within logic of cloudNG
 		# but this gave us a bit of a dilema...
 		# hops need to be calculated with the gravity in the boiler (pre topup)
 		# but the rest is post topup
-		print diluted_gravity
-		print nongrain_pcnt
-		print nongrain_fermentable_typical_pcnt
 		fermentable_grain = (diluted_gravity * grain_pcnt * grain_fermentable_typical_pcnt) 
 		fermentable_nongrain = (diluted_gravity * nongrain_pcnt * nongrain_fermentable_typical_pcnt)
 
@@ -3016,9 +3017,14 @@ issue is within ngData.py not within logic of cloudNG
 		estimated_mash_gravity = 0
 		total_contribution=0
 		total_contribution_grain=0
+		grain_weight_kg=0
 		# Calculate Expected Gravity:
 		# ppg X wt / batch size	
 		self.calclog = self.calclog + "calcferm : Calculating expected %s gravity based on %.3f L\n" %(title,batchsize)
+		for fermentable in self.fermentables:
+			if (fermentable.isGrain):
+				grain_weight_kg=grain_weight_kg+fermentable.qty/1000
+		self.grain_weight_kg = grain_weight_kg
 		for fermentable in self.fermentables:
 			if (fermentable.isGrain and grainOnly == 1) or (not fermentable.isGrain and adjunctOnly == 1) or (adjunctOnly == 0 and grainOnly == 0):
 				self.calclog = self.calclog + "calcferm :	fermentable: %s%s %s\n" %(fermentable.qty,fermentable.unit,fermentable.ingredient)
@@ -3108,8 +3114,7 @@ issue is within ngData.py not within logic of cloudNG
 		#T w = The actual temperature (F) of the infusion water.
 		#G = The amount of grain in the mash (in pounds).		
 		self.calclog = self.calclog + "striketmp: Calculating Strike Temperature\n"
-		self.calclog = self.calclog + "striketmp: http://www.howtobrew.com/section3/chapter16-3.html\n"
-
+		#self.calclog = self.calclog + "striketmp: http://www.howtobrew.com/section3/chapter16-3.html\n"
 		#1 US quart = 0.946352946 litres
 		#1.18294118 
 
@@ -3123,7 +3128,16 @@ issue is within ngData.py not within logic of cloudNG
 		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / mash_grain_ratio ) * (target_mash_temp - initial_grain_temp) ) + target_mash_temp\n" %(strike_temp-self.strikeTempSkew) 
 		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( ( .41 / %.2f ) * (%.3fC - %.3fC) ) + %.3fC\n" %(strike_temp-self.strikeTempSkew,self.recipe.mash_grain_ratio,(self.recipe.target_mash_temp + self.recipe.target_mash_temp_tweak),self.recipe.initial_grain_temp,self.recipe.target_mash_temp) 
 	
+		self.calclog = self.calclog + "striketmp: http://www.jimsbeerkit.co.uk/calc.html\n"
 	
+		strike_temp =0
+		if self.recipe.mash_grain_ratio > 0:	
+			volume = self.mash_liquid_required + 6
+			weight = self.grain_weight_kg
+			strike_temp =( self.recipe.target_mash_temp * (volume + (0.41 * weight)) - (0.4 * weight * self.recipe.initial_grain_temp) ) / volume
+		self.calclog = self.calclog + "striketmp:\t strike_temp = %.3fC  (before skew %.3fC)\n" %(strike_temp-self.strikeTempSkew,strike_temp) 
+		self.calclog = self.calclog + "striketmp:\t strike_temp = ( mashTemp * (vol + (0.41 * weight)) - (0.4 * weight * grain temp )) /volume"
+		self.calclog = self.calclog + "striketmp:\t\t %.3fC = ( %s * (%s + (0.41 * %s)) - (0.4 * %s * %s) ) / %s\n" %( strike_temp, self.recipe.target_mash_temp, volume,weight, weight,self.recipe.initial_grain_temp,volume)
 		sys.stderr.write("END: getStrikeTemperature()\n")
 		return strike_temp - self.strikeTempSkew
 		
@@ -3204,6 +3218,7 @@ issue is within ngData.py not within logic of cloudNG
 			R.mash_efficiency=70
 			R.priming_sugar_qty=2
 			R.alkalinity = 50
+			R.initial_grain_temp=15
 			R.process=newestProcess
 			R.db=self.dbWrapper
 #			for ri in recipe.__dict__:
