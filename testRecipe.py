@@ -1410,6 +1410,7 @@ step.fields.append( ('Number of Bottles','numbottles','') )
 step.fields.append( ('Number of Bottles (bad fills)','numbottlesbadfills','') )
 step.fields.append( ('Number of MiniKegs','minikegs','') )
 step.fields.append( ('Wastage in fermentation bin','fvpostbottlewastage','') )
+step.fields.append( ('Litres packaged','litrespackaged','') )
 
 step = myprocessK.bottlingAndKegging.newstep("Cleanup")
 step.text="All equipment should be cleaned and left to dry before packing away for the next brewday"
