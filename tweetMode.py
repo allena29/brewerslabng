@@ -305,29 +305,18 @@ if not os.path.exists("ipc/swPump") and  os.path.exists("ipc/swFerm") and not os
 
 
 
-# Final Gravity
-if os.path.exists("ipc/post-ferm")  and not os.path.exists("ipc/tweet-abv"):
-	print "Checking Final Gravity.....",
-	fg=None
+
+
+
+# Bottles
+if os.path.exists("ipc/tweet-fermover") and not os.path.exists("ipc/swFerm") and not os.path.exists("tweet-avgcost"):
+	print "Checking Cost of average brew.....",
+	totalcost=None
 	con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
 	cursor=con.cursor()
-	cursor.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='__measuredFg_abv' and length(fieldVal)>1" %(brewlog))
+	cursor.execute("select sum(originalqty*purchaseCost) as cost from gPurchases");
 	for row in cursor:
-		(recipename,fieldVal)=row
-		fg=fieldVal
-	if fg: 
-		abv=0
-		con=mysql.connector.connect(host="192.168.1.13",user='brewerslab',password='beer',database="brewerslab")
-		cursor=con.cursor()
-		cursor.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='__abv' and length(fieldVal)>1" %(brewlog))
-		for row in cursor:
-			(recipename,fieldVal)=row
-			flag=open("ipc/tweet-abv","w")
-			flag.close()	
-			(recipename,fieldVal)=row
-			doTweet("Measured FG as %.3f estimated abv %.2f %%" %(float(fg),abv))
-	print ""
-
+		(totalcost,)=row
 
 
 
