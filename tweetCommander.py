@@ -53,6 +53,7 @@ for row in cursor:
 
 	#
 	if tweetid == "tweetEnabled-costvolume" and tweettodo=="yes":
+		print "Checking Production Cost"
 		cursor2=con2.cursor()
 		cursor2.execute("select fieldVal from gField WHERE brewlog ='%s' AND fieldKey = 'litrespackaged' AND length(fieldVal) > 1" %(brewlog))
 		for row2 in cursor2:
@@ -65,4 +66,25 @@ for row in cursor:
 				cursorU.execute("UPDATE gBrewery set litres=%s WHERE entity=%s" %(float(litres)+float(fieldVal),entity))
 				cursorU=conU.cursor()
 				cursorU.execute( "UPDATE gField set fieldVal = 'no'  WHERE brewlog='%s' AND fieldKey='tweetEnabled-costvolume'" %(brewlog))
-				doTweet("Packaged %.1f litres of %s (Cost %.2f GBP/500ml including brewery overheads)" %(float(fieldVal), recipename, ((cost/(float(litres)+float(fieldVal))/2  ) )))	
+				doTweet("Packaged %.1f litres of %s (full brewery production cost %.2f GBP/500ml)" %(float(fieldVal), recipename, ((cost/(float(litres)+float(fieldVal))/2  ) )))	
+
+	if tweetid == "tweetEnabled-abv" and tweettodo == "yes":
+		print "Checking Final Gravity.....",
+		fg=None
+		cursor2=con2.cursor()
+		cursor2.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='__measuredFg_abv' and length(fieldVal)>1" %(brewlog))
+		for row2 in cursor2:
+			(recipename,fieldVal)=row2
+			fg=fieldVal
+		if fg: 
+			abv=0
+			cursor2=con2.cursor()
+			cursor2.execute("select gBrewlogs.recipe,fieldVal from gField,gBrewlogs WHERE gField.brewlog='%s' AND gBrewlogs.brewlog = gField.brewlog AND fieldKey='__abv' and length(fieldVal)>1" %(brewlog))
+			for row2 in cursor2:
+				(recipename,abv)=row2
+			if float(abv) > 0:
+				cursorU=conU.cursor()
+				cursorU.execute( "UPDATE gField set fieldVal = 'no'  WHERE brewlog='%s' AND fieldKey='tweetEnabled-abv'" %(brewlog))
+				doTweet(" .. %s measured FG as %.3f estimated abv %.2f %%" %(recipename,float(fg),abv))
+		print ""
+
