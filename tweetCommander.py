@@ -33,6 +33,7 @@ def doTweet(msg,notify=False):
 con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 # used within the loop
 con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+con3=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 # used for updates
 conU=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 cursor=con.cursor()
@@ -56,17 +57,30 @@ for row in cursor:
 		print "Checking Production Cost"
 		cursor2=con2.cursor()
 		cursor2.execute("select fieldVal from gField WHERE brewlog ='%s' AND fieldKey = 'litrespackaged' AND length(fieldVal) > 1" %(brewlog))
+	
 		for row2 in cursor2:
+			print row2
 			(fieldVal,)=row2
 			cursor3=con2.cursor()
 			cursor3.execute("select entity,cost,litres from gBrewery LIMIT 0,1")
-			for row3 in cursor3:
+				
+			ingredientcost=0
+			cursor4=con3.cursor()
+			cursor4.execute("select sum(cost) from gBrewlogStock where brewlog='%s' and cost >0 AND (storecategory='hops' OR storecategory='fermentables' OR storecategory='yeast')" %(brewlog))
+			for row4 in cursor4:
+				(ingredientcost,)=row4
+			for row3 in cursor3:		
+				print row3
 				(entity,cost,litres)=row3
 				cursorU=conU.cursor()
 				cursorU.execute("UPDATE gBrewery set litres=%s WHERE entity=%s" %(float(litres)+float(fieldVal),entity))
 				cursorU=conU.cursor()
 				cursorU.execute( "UPDATE gField set fieldVal = 'no'  WHERE brewlog='%s' AND fieldKey='tweetEnabled-costvolume'" %(brewlog))
-				doTweet("Packaged %.1f litres of %s (full brewery production cost %.2f GBP/500ml)" %(float(fieldVal), recipename, ((cost/(float(litres)+float(fieldVal))/2  ) )))	
+
+				doTweet("Packaged %.1f litres of %s (ingredient cost %.2f/500ml" %(float(fieldVal),recipename,(float(ingredientcost)/float(fieldVal))/2  ))
+				time.sleep(2)
+
+				doTweet("..full brewery cost %.2f GBP/500ml (inc equipment/stock)" %(((cost/((float(litres)+float(fieldVal))/2)  ) )))	
 
 	if tweetid == "tweetEnabled-abv" and tweettodo == "yes":
 		print "Checking Final Gravity.....",
@@ -85,6 +99,6 @@ for row in cursor:
 			if float(abv) > 0:
 				cursorU=conU.cursor()
 				cursorU.execute( "UPDATE gField set fieldVal = 'no'  WHERE brewlog='%s' AND fieldKey='tweetEnabled-abv'" %(brewlog))
-				doTweet(" .. %s measured FG as %.3f estimated abv %.2f %%" %(recipename,float(fg),abv))
+				doTweet(" .. %s measured FG as %.3f estimated abv %.2f %%" %(recipename,float(fg),float(abv)))
 		print ""
 
