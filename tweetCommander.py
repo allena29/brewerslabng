@@ -35,6 +35,28 @@ con=mysql.connector.connect(user='brewerslab',password='beer',database="brewersl
 con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 con3=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 # used for updates
+
+
+#
+# Updates not based on a brewlog
+#
+conU=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+cursor=con.cursor()
+cursor.execute("select entity,fieldKey,fieldVal from gField WHERE fieldKey LIKE 'tweetEnabled%' and length(fieldVal)>1 AND length(brewlog) = 0")
+for row in cursor:
+	(entity,tweetid,tweetval)=row
+	print "Need to tweet for ",tweetid
+	hashtag="#brewerslab" 
+
+	if tweetid == "tweetEnabled-stock":
+		doTweet( tweetval )
+		cursorU=conU.cursor()
+		cursorU.execute("DELETE FROM gField WHERE entity=%s" %(entity))
+		time.sleep(2)
+
+#
+# Brewlog Updates
+#
 conU=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 cursor=con.cursor()
 cursor.execute("select gBrewlogs.recipe,gBrewlogs.brewlog,fieldKey,fieldVal from gField,gBrewlogs WHERE gBrewlogs.brewlog = gField.brewlog AND fieldKey LIKE 'tweetEnabled%' and length(fieldVal)>1")
@@ -62,7 +84,7 @@ for row in cursor:
 			print row2
 			(fieldVal,)=row2
 			cursor3=con2.cursor()
-			cursor3.execute("select entity,cost,litres from gBrewery LIMIT 0,1")
+			cursor3.execute("select entity,equipcost,cost,litres from gBrewery LIMIT 0,1")
 				
 			ingredientcost=0
 			cursor4=con3.cursor()
@@ -70,8 +92,8 @@ for row in cursor:
 			for row4 in cursor4:
 				(ingredientcost,)=row4
 			for row3 in cursor3:		
-				print row3
-				(entity,cost,litres)=row3
+				(entity,costA,costB,litres)=row3
+				cost=costA+costB
 				cursorU=conU.cursor()
 				cursorU.execute("UPDATE gBrewery set litres=%s WHERE entity=%s" %(float(litres)+float(fieldVal),entity))
 				cursorU=conU.cursor()

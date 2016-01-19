@@ -1876,8 +1876,11 @@ issue is within ngData.py not within logic of cloudNG
 			ourPurchases = self.dbWrapper.GqlQuery("SELECT * FROM gPurchases WHERE owner = :1", username)
 			results = ourPurchases.fetch(348400)
 			stocktag = len(results)
-
-			
+			ourBrewery = self.dbWrapper.GqlQuery("SELECT * FROM gBrewery WHERE owner = :1", username)
+			brewery=ourBrewery.fetch(1)[0]
+			brewery.cost=brewery.cost+float(cost)
+			brewery.put()
+					
 			ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND majorcategory = :2 AND name = :3", username, category.lower(), itemtext )
 			unit=""
 			for ingredient in ourIngredients.fetch(1):
@@ -1889,6 +1892,18 @@ issue is within ngData.py not within logic of cloudNG
 				suppliers.append(supplier.supplierName)
 			suppliers.sort()
 			(Y,M,D,h,m,s,wd,yd,tm) = time.localtime()
+
+			#
+			# add a tweet-hint
+			if cost > 0 and not supplier == "recycledreused":
+				tweethint=gField(owner=username)
+				tweethint.fieldKey="tweetEnabled-stock"
+				if numpurchased > 1:
+					tweethint.fieldVal="Purchased %s*%s%s %s #%s #%s" %(qtyMultiple,qty,unit,itemtext,category,re.compile("[^a-zA-Z0-9]").sub('',suppliertext))
+				else:
+					tweethint.fieldVal="Purchased %s%s %s #%s #%s" %(qty,unit,itemtext,category,re.compile("[^a-zA-Z0-9]").sub('',suppliertext))
+				tweethint.put()
+
 
 			STOCKTAGS=""
 			for c in range(int(numpurchased)):
