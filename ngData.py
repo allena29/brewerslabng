@@ -411,6 +411,7 @@ class gBrewery(db):
 		self.owner=""
 		self.breweryname=""
 		self.brewerytwitter=""
+		self.overheadperlitre=0.00
 		self.cost=0.00;
 		self.litres=0.00;
 		self.equipcost=0.00;
@@ -429,15 +430,18 @@ class gBrewery(db):
 			self.__dict__[key]=value
 
 	def insertSql(self):
-		return "INSERT INTO gBrewery VALUES (null, '%s', '%s', '%s',%s,'%s',%s,%s,%s);" %( _mysql.escape_string(self.owner) , _mysql.escape_string(self.breweryname) , _mysql.escape_string(self.brewerytwitter),self.cost,self.litres,self.equipcost )
+		return "INSERT INTO gBrewery VALUES (null, '%s', '%s',%s, '%s',%s,'%s',%s,%s,%s);" %( _mysql.escape_string(self.owner) , _mysql.escape_string(self.breweryname) ,self.overheadperlitre, _mysql.escape_string(self.brewerytwitter),self.cost,self.litres,self.equipcost )
 
 	def updateSql(self):
-		return "UPDATE gBrewery SET  owner = '%s', breweryname  = '%s', brewerytwitter = '%s', cost=%s, litres=%s, equipcost=%s WHERE entity = %s " %( _mysql.escape_string(self.owner), _mysql.escape_string(self.breweryname), _mysql.escape_string(self.brewerytwitter), self.cost,self.litres,self.equipcost, self.entity)
+		return "UPDATE gBrewery SET  owner = '%s', breweryname  = '%s', overheadperlitre=%s,brewerytwitter = '%s', cost=%s, litres=%s, equipcost=%s WHERE entity = %s " %( _mysql.escape_string(self.owner), _mysql.escape_string(self.breweryname), self.overheadperlitre, _mysql.escape_string(self.brewerytwitter), self.cost,self.litres,self.equipcost, self.entity)
 
 
 	def populate(self,row):
-		(( self.entity , self.owner, self.breweryname, self.brewerytwitter,float(self.cost),float(self.litres),float(self.equipcost) ),)=row
-
+		(( self.entity , self.owner, self.breweryname, overheadperlitre,self.brewerytwitter,cost,litres,equipcost ),)=row
+		self.overheadperlitre=float(overheadperlitre)
+		self.litres=float(litres)
+		self.cost=float(cost)
+		self.equipcost=float(equipcost)
 
 
 class gSuppliers(db):
