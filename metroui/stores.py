@@ -332,6 +332,35 @@ print """
 """
 
 
+print "<hr>"
+stored=0
+cursor=con.cursor()
+cursor.execute("select sum((volume*qty)/1000) from gBeerStock,gItems where stocktype=name")
+for row in cursor:
+	(stock,)=row
+
+storevalue=0.00
+cursor=con.cursor()
+cursor.execute("select sum(purchaseCost*qty) from gPurchases WHERE qty>0 AND purchaseCost >0")
+for row in cursor:
+	(storevalue,)=row
+
+cursor=con.cursor()
+cursor.execute("select breweryname,cost,equipcost,litres FROM gBrewery LIMIT 0,1")
+for row in cursor:
+	(breweryname,cost,equipcost,litres)=row
+	print """
+	<h4>%s - Statistics</h4>
+	Litres in Stores: %.0f<br>
+	Value of Ingredients Stock: %.2f<br>
+	Lifetime Equipment Cost: %.2f<br>
+	Lifetime Ingredient Cost: %.2f<br>
+	Lifetime Litres Brewed: %s<br>
+	Cost per 500ml (including all cost): %.2f<br>
+	<br>
+
+	""" %(breweryname,stock,storevalue,equipcost,cost,litres,  (equipcost+cost)/litres/2)
+
 
 print """
 				<!-- begin spinner -->
