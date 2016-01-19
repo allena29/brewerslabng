@@ -869,7 +869,9 @@ UNLOCK TABLES;
 
 alter table gBrewery add cost float;
 alter table gBrewery add litres float;
+alter table gBrewery add equipcost float;
 update gBrewery set litres=715;
-update gBrewery set cost=2263.62;
+update gBrewery set cost=728.2;
+update gBrewery set equipcost=1535.43;
 
 

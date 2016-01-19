@@ -37,6 +37,7 @@ class db:
 		self._gCalclogs=[]
 		self._gLocations=[]
 		self._gBeerStock=[]
+		self._gBrewery=[]
 
 		# give quick access to entitiy.. this might be hard to manage
 		# so maybe we won't end up using it
@@ -60,6 +61,7 @@ class db:
 		self._idxgCalclogs={}
 		self._idxgLocations={}
 		self._idxgBeerStock={}
+		self._idxgBrewery={}
 
 
 	def briefDebugStandaloneDatastore(self):
@@ -81,6 +83,7 @@ class db:
 		print "gRecipes",len(self._gRecipes)
 		print "gRecipeStats",len(self._gRecipeStats)
 		print "gCalclogs",len(self._gCalclogs)
+		print "gBrewery",len(self._gCalclogs)
 		print "entity",self._entity	
 
 	def get(self,query):
@@ -106,6 +109,7 @@ class db:
 		if table == "gCalclogs":	g=gCalclogs()
 		if table == "gLocation":	g=gLocations()
 		if table == "gBeerStock":	g=gBeerStock()
+		if table == "gBrewery":	g=gBrewery()
 
 		if not g:
 			print "ERROR: table %s not supported" %(table)
@@ -395,6 +399,45 @@ class gProcesses(db):
 	def populate(self,row):
 		((self.entity,self.owner,self.process),)=row
 		
+
+
+class gBrewery(db):
+
+
+	def __init__(self,**kwargs):
+		self.dbg=0
+		self.entity=None
+		self.con=None
+		self.owner=""
+		self.breweryname=""
+		self.brewerytwitter=""
+		self.cost=0.00;
+		self.litres=0.00;
+		self.equipcost=0.00;
+		self.types = {
+			'entity' : 'numeric',
+			'owner' : 'char',
+			'breweryname' : 'char',
+			'overheadperlitre' : 'numeric',
+			'brewerytwitter' : 'char',
+			'cost': 'numeric',
+			'litres':'numeric',
+			'equipcost':'numeric',
+		}
+		self.tableName="gBrewery"
+		for key, value in kwargs.iteritems():
+			self.__dict__[key]=value
+
+	def insertSql(self):
+		return "INSERT INTO gBrewery VALUES (null, '%s', '%s', '%s',%s,'%s',%s,%s,%s);" %( _mysql.escape_string(self.owner) , _mysql.escape_string(self.breweryname) , _mysql.escape_string(self.brewerytwitter),self.cost,self.litres,self.equipcost )
+
+	def updateSql(self):
+		return "UPDATE gBrewery SET  owner = '%s', breweryname  = '%s', brewerytwitter = '%s', cost=%s, litres=%s, equipcost=%s WHERE entity = %s " %( _mysql.escape_string(self.owner), _mysql.escape_string(self.breweryname), _mysql.escape_string(self.brewerytwitter), self.cost,self.litres,self.equipcost, self.entity)
+
+
+	def populate(self,row):
+		(( self.entity , self.owner, self.breweryname, self.brewerytwitter,float(self.cost),float(self.litres),float(self.equipcost) ),)=row
+
 
 
 class gSuppliers(db):
