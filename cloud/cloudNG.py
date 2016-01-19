@@ -207,18 +207,29 @@ class brewerslabCloudApi:
 
 
 		
+	def setAlkalinity(self,username,recipeName, newAlkalinity,doRecalculate="1"):
+		# flag recipe rcalc at the recipe level
+		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
+		for recipe in ourRecipe.fetch(500):
+			if not doRecalculate == "1":
+				recipe.calculationOutstanding=True
+			recipe.alkalinity=float(newAlkalinity)
+			recipe.put()
+		if doRecalculate == "1":
+			self.calculateRecipe(username,recipeName)
+			self.compile(username,recipeName,None)
+
 	def setMashTemp(self,username,recipeName, newMashTemp,doRecalculate="1"):
-		if 1==1:
-			# flag recipe rcalc at the recipe level
-			ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
-			for recipe in ourRecipe.fetch(500):
-				if not doRecalculate == "1":
-					recipe.calculationOutstanding=True
-				recipe.target_mash_temp=float(newMashTemp)
-				recipe.put()
-			if doRecalculate == "1":
-				self.calculateRecipe(username,recipeName)
-				self.compile(username,recipeName,None)
+		# flag recipe rcalc at the recipe level
+		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
+		for recipe in ourRecipe.fetch(500):
+			if not doRecalculate == "1":
+				recipe.calculationOutstanding=True
+			recipe.target_mash_temp=float(newMashTemp)
+			recipe.put()
+		if doRecalculate == "1":
+			self.calculateRecipe(username,recipeName)
+			self.compile(username,recipeName,None)
 
 	def setMashEfficiency(self,username,recipeName, newMashEfficiency,doRecalculate="1"):
 		if 1==1:
@@ -232,6 +243,8 @@ class brewerslabCloudApi:
 			if doRecalculate == "1":
 				self.calculateRecipe(username,recipeName)
 				self.compile(username,recipeName,None)
+
+
 
 	def setBatchSize(self,username,recipeName, newBatchSize,doRecalculate="1"):
 		"""

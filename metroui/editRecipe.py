@@ -191,7 +191,7 @@ class editRecipe:
 
 				if float(target_mash_temp) <= float(c+61) and float(target_mash_temp) > float(c+60):
 					selected="SELECTED" 
-				print "<option value='%s' %s>%s %%</option>" %(c+61,selected,c+61)
+				print "<option value='%s' %s>%s degC</option>" %(c+61,selected,c+61)
 			print "</select>"
 			print """<a href='javascript:adjustMashTemp()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 			print "<b>Mash Efficiency:</b> <select id='efficiency'>"
@@ -202,9 +202,20 @@ class editRecipe:
 				print "<option value='%s' %s>%s %%</option>" %(c+55,selected,c+55)
 			print "</select>"
 			print """<a href='javascript:adjustMashEfficiency()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+
+			print "<b>Alkalinity:</b> <select id='alkalinity'>"
+			for c in range(50):
+				selected=""
+				if float(c*5)+5 == float(alkalinity):
+					selected="SELECTED" 
+				print "<option value='%s' %s>%s CaCo3 mg/l</option>" %((c*5)+5,selected,(c*5)+5)
+			print "</select>"
+			print """<a href='javascript:adjustAlkalinity()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+
 		else:
 			print "<b>Target Mash Temp:</b> %.1f'C<br>" %(float(target_mash_temp))
 			print "<b>Mash Efficiency:</b> %.0f %%<br>" %(float(mashEfficiency))
+			print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))
 
 
 		print "<b>Process:</b> %s<BR>" %(process)
@@ -220,11 +231,10 @@ class editRecipe:
 
 
 		print """
-		<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>
 		<b>Boil Volume:</b> %.1f L<br>
 		<b>Topup Volume:</b> %.1f L<br>
 		  
-		""" %(float(alkalinity),float(boilVolume),float(topup) ) 
+		""" %(float(boilVolume),float(topup) ) 
 
 		if not self.export and not self.editable:
 			print "<b>Calclog:</b> <a href='calclog.py?recipeName=%s&noheader=%s'>View Log</a><BR>" %(self.recipeName,'True')
@@ -672,8 +682,11 @@ if __name__ == '__main__':
 		}
 
 
+		function adjustAlkalinity(){
+		url="editIngredient.py?recipe=%s&type=null&action=changeAlkalinity&alkalinity="+document.getElementById('alkalinity').value;
+		window.location.replace(url);
+		}
 		function adjustMashTemp(){
-		
 		url="editIngredient.py?recipe=%s&type=null&action=changeMashTemp&mashtemp="+document.getElementById('mashtemp').value;
 		window.location.replace(url);
 		}
@@ -718,7 +731,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"
