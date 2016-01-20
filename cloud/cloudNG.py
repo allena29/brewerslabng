@@ -6323,107 +6323,39 @@ a compiled recipe which is recompiled seems to cause problems
 
 
 
+	def cloneProcess(self,username,processOrigName,processNewName):
+		sys.stderr.write("\nSTART: cloneProcess %s/%s\n" %(processOrigName,processNewName))
+
+		status=0
+
+		try:
+			ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2", username,processNewName)
+			for p  in ourProcess.fetch(8000):
+				p.delete()
+
+			ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2", username,processOrigName)
+			for process in ourProcess.fetch(8000):
+				P=gProcess(owner=username )
+				P.db=self.dbWrapper
+				for pi in process.__dict__:
+					if pi != "entity" and pi != "process":
+						P.__dict__[pi] = process.__dict__[pi]
+				P.process=processNewName
+				P.put()	
+
+			P=gProcesses(owner=username)
+			P.process=processNewName
+			P.put()
+			status=1
+			sys.stderr.write("END: in cloneProcess\n")
+		except ImportError:
+			sys.stderr.write("EXCEPTION: in cloneProcess\n")
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			for e in traceback.format_tb(exc_traceback):	sys.stderr.write("\t%s" %( e))
+		
+		return {'operation' : 'cloneProcess', 'status' : status ,'json':{}}
 
 
 
-if __name__ == '__main__':
-	print "not supporting standalone mode here"
-	"""
-	c=brewerslabCloudApi()
-	c.standalonemode=True
-	c.standalonemode=True
-
-	hops=[]
-	cascadeB=gIngredients()
-	cascadeB.hopAddAt=60
-	cascadeB.hopAlpha=7
-	cascadeB.qty=50
-	cascadeB.unit="gm"
-	cascadeB.ingredient="cascade"
-	cascadeB.ingredientType="hop"
-	hops.append(cascadeB)
-	cascadeA=gIngredients()
-	cascadeA.hopAddAt=15
-	cascadeA.hopAlpha=7
-	cascadeA.qty=20
-	cascadeA.unit="gm"
-	cascadeA.ingredient="cascade"
-	cascadeA.ingredientType="hop"
-	hops.append(cascadeA)
-	cascadeF=gIngredients()
-	cascadeF.hopAddAt=0.001
-	cascadeF.hopAlpha=7
-	cascadeF.qty=30
-	cascadeF.unit="gm"
-	cascadeF.ingredient="cascade"
-	cascadeF.ingredientType="hop"
-	hops.append(cascadeF)
-	c.hops=hops
 
 
-	c.fermentables=[]
-	c.fermentables.append(gIngredients())
-	c.fermentables[-1].ingredient="Maris Otter"
-	c.fermentables[-1].qty=5000
-	c.fermentables[-1].hwe=315
-	c.fermentables[-1].color=5.73
-	c.fermentables[-1].isGrain=1
-	c.fermentables[-1].mustMash=1
-
-	c.fermentables.append(gIngredients())
-	c.fermentables[-1].ingredient="Torrified Wheat"
-	c.fermentables[-1].qty=150
-	c.fermentables[-1].hwe=299
-	c.fermentables[-1].color=0
-	c.fermentables[-1].isGrain=1
-	c.fermentables[-1].mustMash=1
-
-	c.fermentables.append(gIngredients())
-	c.fermentables[-1].ingredient="Honey"
-	c.fermentables[-1].qty=340
-	c.fermentables[-1].hwe=340
-	c.fermentables[-1].color=0
-	c.fermentables[-1].isGrain=0
-	c.fermentables[-1].isAdjunct=1
-	c.fermentables[-1].mustMash=1
-
-	c.yeasts=[]
-	c.yeasts.append(gIngredients())
-	c.yeasts[-1].atten=72
-
-	recipe=gRecipes()
-	recipe.recipename="Cascade Single Hop Pale Ale"
-	recipe.batch_size_required=22
-	recipe.process="17AG12i13"	
-	recipe.target_mash_temp=68
-	recipe.initial_grain_temp=18
-	recipe.mash_grain_ratio=1.5
-
-	c.recipe=recipe	
-
-	c.fermentation_bin = gEquipment()
-	c.fermentation_bin.dead_space=2
-	c.mash_tun=gEquipment()
-	c.mash_tun.dead_space=2.25
-	c.hlt=gEquipment()
-	c.hlt.dead_space=3
-	c.boilers=[]
-	c.boilers.append(gEquipment())
-	c.boilers[0].name="15l kettle"
-	c.boilers[0].dead_space=1.25
-	c.boilers[0].boilVolume=13
-	c.boilers.append(gEquipment())
-	c.boilers[1].name="20l kettle"
-	c.boilers[1].dead_space=1.25
-	c.boilers[1].boilVolume=16
-	c.Process=gProcess()
-	c.Process.percentage_boil_off=15
-	c.Process.percentage_cool_off=4
-	c.Process.name="17AG12i13"
-	c.recipe.mash_efficiency=67
-#	c.doCalculate("test@example.com","green")
-
-
-	c.doCalculate("standalone","recipe")
-	print c.calclog	
-	"""

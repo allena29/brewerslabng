@@ -9,6 +9,26 @@ from cloudNG import *
 form=cgi.FieldStorage()
 theme=webTheme()
 theme.bgcolor="#ffffff"
+
+
+
+if form.has_key("createNewName"):
+	db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+	cursor=db.query("INSERT INTO gProcesses VALUES (null,'test@example.com','%s');" %(form['createNewName'].value))
+	cursor=db.query("INSERT INTO gProcess (entity,owner,process,stepName,activityNum,stepNum,subStepNum) VALUES (null,'test@example.com','%s','Brewday',0,-1,-1);" %(form['createNewName'].value))
+	cursor=db.query("INSERT INTO gProcess (entity,owner,process,stepName,activityNum,stepNum,subStepNum) VALUES (null,'test@example.com','%s','Post Bewday',1,-1,-1);" %(form['createNewName'].value))
+	cursor=db.query("INSERT INTO gProcess (entity,owner,process,stepName,activityNum,stepNum,subStepNum) VALUES (null,'test@example.com','%s','Bottling',2,-1,-1);" %(form['createNewName'].value))
+	print "Location: process.py?process=%s\n" %(form['createNewName'].value)
+
+
+if form.has_key("cloneNewName"):
+	bc=brewerslabCloudApi()
+	bc.cloneProcess("test@example.com",form['cloneOldName'].value,form['cloneNewName'].value)
+	print "Location: process.py?process=%s\n" %(form['cloneNewName'].value)
+
+
+
+
 sys.stdout.write("Content-Type:text/html\n\n")
 
 editable=False
@@ -20,6 +40,8 @@ grid={}
 db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 db2=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
 db3=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+
+
 
 
 if not form.has_key("process"):
@@ -52,7 +74,7 @@ elif form.has_key("activity") and form.has_key("process"):
 theme.presentHead()
 theme.presentBody()
 
-if not form.has_key("recipeName") and 1==0:
+if not form.has_key("process") and not form.has_key("activity"):
 
 	if theme.localUser:
 		print """
@@ -64,18 +86,43 @@ if not form.has_key("recipeName") and 1==0:
 			    <div class="span4">
 				<div class="panel" data-role="panel">
 				    <div class="panel-header bg-darkRed fg-white">
-					Create New Recipe
+					Create Process
 				    </div>
 				    <div class="panel-content" style="display:none">
-					<form method=POST action='createRecipe.py'>
-					<input type='text' name='newrecipe' id='newrecipe' value=''> <input type='submit' value='Create'>
+					<form method=POST action='process.py'>
+					<input type='text' name='createNewName' id='newrecipe' value=''> <input type='submit' value='Crease'>
 					</form>
 				    </div>
 				</div>
 			    </div>
 			</div>
 		</div>
-	""" 
+	"""
+if form.has_key("process") and not form.has_key("activity"):
+
+	if theme.localUser:
+		print """
+
+			    <div class="grid fluid">
+				<div class="row">
+				    <div class="span8">
+					</div>
+			    <div class="span4">
+				<div class="panel" data-role="panel">
+				    <div class="panel-header bg-darkRed fg-white">
+					Clone Process
+				    </div>
+				    <div class="panel-content" style="display:none">
+					<form method=POST action='process.py'>
+					<input type='hidden' name='cloneOldName' id='newrecipe' value='%s'> 
+					<input type='text' name='cloneNewName' id='newrecipe' value=''> <input type='submit' value='Clone'>
+					</form>
+				    </div>
+				</div>
+			    </div>
+			</div>
+		</div>
+	"""  %(form['process'].value)
 theme.doGrid(grid)
 
 
