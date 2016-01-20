@@ -6333,6 +6333,10 @@ a compiled recipe which is recompiled seems to cause problems
 			for p  in ourProcess.fetch(8000):
 				p.delete()
 
+			ourFields= self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND process = :2 AND brewlog = :3", username,processNewName,"")
+			for p  in ourFields.fetch(8000):
+				p.delete()
+
 			ourProcess = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2", username,processOrigName)
 			for process in ourProcess.fetch(8000):
 				P=gProcess(owner=username )
@@ -6342,6 +6346,16 @@ a compiled recipe which is recompiled seems to cause problems
 						P.__dict__[pi] = process.__dict__[pi]
 				P.process=processNewName
 				P.put()	
+
+			ourFields = self.dbWrapper.GqlQuery("SELECT * FROM gField WHERE owner = :1 AND process = :2 AND brewlog = :3", username,processOrigName,"")
+			for field in ourFields.fetch(8000):
+				F=gField(owner=username )
+				F.db=self.dbWrapper
+				for fi in field.__dict__:
+					if fi != "entity" and fi != "process":
+						F.__dict__[fi] = field.__dict__[fi]
+				F.process=processNewName
+				F.put()	
 
 			P=gProcesses(owner=username)
 			P.process=processNewName
