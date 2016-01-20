@@ -128,56 +128,126 @@ theme.doGrid(grid)
 
 
 import re
-def safeText(text):
-	return re.compile('%%').sub('%',text)
+
+
+def safeText(text,highlight=False):
+	text=re.compile('%%').sub('%',text)
+	text=re.compile('"').sub('&quot;',text)
+	return text
 
 if form.has_key("activity") and form.has_key("process"):
+	print "<script language=javascript>"
+	if not theme.localUser:
+		print """
+function showEditStep(i){
+}
+ 
+		"""
+
+	if theme.localUser:
+		print """
+
+function showEditStep(i){
+	document.getElementById("row"+i).style.display="none";
+	document.getElementById("rowedit"+i).style.display="";
+}
+	"""
+
+	print "</script>"
+
+
+
 	print "<div class='container'>"
 	cursor3=db3.query("select * from gBrewlogs where process='%s'" %(form['process'].value))
 	result3=db3.use_result().fetch_row()
 	if result3:
 		print "<h4 class='fg-red'>Process has active brewlogs- editing disabled</h4>"
 		editable=False
-	print "<table class='table striped bordered hovered'>"
+	if theme.localUser:
+		print "<table class='table bordered hovered'>"
+	else:
+		print "<table class='table bordered'>"
 	print "<thead><tr><th width=100>Step</th><th>Details</th></tr></thead><tbody>"
 	process=form['process'].value
 	activity=form['activity'].value
-	cursor=db.query("select activityNum,stepNum,stepName,text from gProcess where process='%s' AND activityNum = %s AND stepNum > -1 AND subStepNum = -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity))
+	cursor=db.query("select activityNum,stepNum,stepName,text,attention from gProcess where process='%s' AND activityNum = %s AND stepNum > -1 AND subStepNum = -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity))
 	result=db.use_result()
 	row=result.fetch_row()
 	while row:
-		((activityNum,stepNum,stepName,text),)=row
+		((activityNum,stepNum,stepName,text,attention),)=row
 		row=result.fetch_row()
-		print "<tr><td>%s</td>" %(stepNum)
-		if editable:
-			print "<td>Step: <input type=text size=128 name='stepName' value='%s'></input>" %( safeText(stepName))
-			print "<textarea cols=128 rows=5 name='text'>%s</textarea>" %(text)
-		else:
-			print "<td>Step: %s<BR>" %( safeText(stepName))
-			print "Text: %s<BR>" %(text)
-	
-	
 
-		subSteps=False
-		cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
-		result2=db2.use_result()
-		row2=result2.fetch_row()
-		if row2:
-			print "<blockquote><b>Sub Steps</b><br>"
-			subSteps=True
-		while row2:
-			((subStepNum,subStepName),)=row2
-			if editable:
-				print "<li> <input type=text name='subStep_%s' value='%s' size=100><BR>" %(subStepNum,safeText(subStepName))
-			else:
+
+		readonly=True
+		if form.has_key('edit') and theme.localUser:
+			if "%s" %(stepNum) == form['edit'].value:
+				readonly=False			
+		#
+		# Read-Only version
+		#
+		if readonly:
+			print "<tr id='row%s' onClick='showEditStep(%s)'><td>%s</td>" %(stepNum,stepNum,stepNum)
+			print "<td><h5>%s</h5>" %( safeText(stepName))
+			print "%s<BR>" %( safeText(text, highlight=True))
+			if len(attention):
+				print "<br><b class='fg-red'>Warning:</b> %s<BR>" %(safeText(attention)) 
+			subSteps=False
+			cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
+			result2=db2.use_result()
+			row2=result2.fetch_row()
+			if row2:
+				print "<blockquote><b>Sub Steps</b><br>"
+				subSteps=True
+			while row2:
+				((subStepNum,subStepName),)=row2
 				print "<li> %s<BR>" %(safeText(subStepName))
-			row2=result2.fetch_row()	
+				row2=result2.fetch_row()	
+			if subSteps:		
+				print "</blockquote>"
+			print "</td>\n"
+			print "</tr>\n\n"
 
 
-		if subSteps:		
-			print "</blockquote>"
-		print "</td>\n"
-		print "</tr>\n\n"
+		#
+		# Edit version
+		# 
+		if theme.localUser:
+			print "<form method='post' action='cgiUpdateProcess.py'>"
+			print "<input type='hidden' name='stepid' value='%s'>" %(stepNum)
+			print "<input type='hidden' name='process' value='%s'>" %(form['process'].value)
+			print "<input type='hidden' name='activityid' value='%s'>" %(form['activity'].value)
+			if readonly:
+				print "<tr id='rowedit%s' style='display: none'><td>%s<a name='edit%s'></a></td>" %(stepNum,stepNum,stepNum)
+			else:
+				print "<tr id='rowedit%s' style=''><td>%s<a name='edit%s'></a></td>" %(stepNum,stepNum,stepNum)
+			print "<td><input type=text size=128 name='stepName' value=\"%s\"></input><BR>" %( safeText(stepName))
+			print "<textarea cols=128 rows=5 name='text'>%s</textarea><BR>" %( safeText(text) )
+		
+			if len(attention):
+				print "<textarea cols=128 rows=5 name='attention'>%s</textarea><BR>" %( safeText(attention ))
+
+			subSteps=False
+			cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
+			result2=db2.use_result()
+			row2=result2.fetch_row()
+			if row2:
+				print "<blockquote><b>Sub Steps</b><br>"
+				subSteps=True
+			while row2:
+				((subStepNum,subStepName),)=row2
+				print "<li> <input type=text name='subStep_%s' value='%s' size=100><BR>" %(subStepNum,safeText(subStepName))
+				row2=result2.fetch_row()	
+			if subSteps:		
+				print "</blockquote>"
+
+
+			print "<p align=right><input type='submit' value='Save'></p>"
+			print "</td>\n"
+			print "</tr>\n"
+			print "</form>\n\n\n"
+
+
+
 	print "</tbody></table>"
 theme.presentFoot()
 	
