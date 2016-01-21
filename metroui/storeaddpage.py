@@ -14,7 +14,7 @@ form=cgi.FieldStorage()
 theme=webTheme()
 theme.bgcolor="#ffffff"
 theme.pagetitle="Stores" 
-theme.goBackHome="index.py"
+theme.goBackHome="stores.py"
 theme.bodytitle="Stores"
 grid={}
 

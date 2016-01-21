@@ -14,7 +14,7 @@ form=cgi.FieldStorage()
 theme=webTheme()
 theme.bgcolor="#ffffff"
 theme.pagetitle="Stores" 
-theme.goBackHome="index.py"
+theme.goBackHome="storeaddpage.py?type=%s" %(form['type'].value)
 theme.bodytitle="Stores"
 grid={}
 
@@ -26,9 +26,18 @@ if form.has_key("unit"):
 
 #	print "Content-Type:text/html\n\n"
 	sql="INSERT INTO gItems (owner,majorcategory,unit,name,idx"
+	if form['type'].value == "hops":
+		sql=sql+",hopAlpha,hopForm"
+	if form['type'].value == "yeast":
+		sql=sql+",attenuation"
 	if form['type'].value == "fermentables":
 		sql=sql+",hwe,ppg,extract,mustMash,isGrain,isAdjunct"
 	sql=sql+") VALUES ('test@example.com','%s','%s','%s','%s'" %(form['type'].value,form['unit'].value,form['item'].value, re.compile('[^A-Za-z0-9]').sub('',form['item'].value)	)
+	if form['type'].value == "yeast":
+		sql=sql+",%s" %(float(form['attenuation'].value))
+	if form['type'].value == "hops":
+		hopalpha=float(form['hopAlpha'].value)
+		sql=sql+",%s,'%s'" %(hopalpha,form['hopForm'].value)
 	if form['type'].value == "fermentables":
 		hwe=float(form['hwe'].value)
 		ppg=hwe/8.345	
@@ -101,9 +110,9 @@ print """<br>
 	<tr>
 		<td>Unit:</td>
 		<td><select name='unit'>"""
-if form['type'].value == "fermentables":
+if form['type'].value == "fermentables" or form['type'].value == "hops":
 	print "<option>gm</option>"
-if not form['type'].value == "fermentables":
+if not form['type'].value == "fermentables" and not form['type'].value == "hops":
 	cursor=con.cursor()
 	cursor.execute("select distinct(unit) FROM gItems WHERE length(unit) > 0 ORDER BY unit")
 	for row in cursor:
@@ -189,9 +198,18 @@ lt | Extra          |
 if form['type'].value == "hops":
 	print """<tr>
 		<td>Hop Alpha Acid</td>
-		<td><input type='text' name='hopAlpha' value=''>%%</td>
+		<td><input type='text' name='hopAlpha' value=''>%</td>
+	</tr>"""
+	print """<tr>
+		<td>Hop Form</td>
+		<td><input type='radio' name='hopForm' value='leaf' CHECKED> Leaf <input type='radio' name='hopForm' value='pellet'> Pellet </td>
 	</tr>"""
 
+if form['type'].value == "yeast":
+	print """<tr>
+		<td>Attenuation</td>
+		<td><input type='text' name='attenuation' value=''>%</td>
+	</tr>"""
 
 print """
 	<tr>
