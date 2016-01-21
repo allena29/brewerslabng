@@ -96,7 +96,11 @@ for row in cursor:
 cursor.close()
 
 
-print """	</select>
+print """	</select><br>"""
+if theme.localUser:
+	print "<a href='storeadditem.py?type=%s'>add new item</a>" %(form['type'].value)
+
+print """
 		</td>
 	</tr>
 	<tr>
@@ -172,7 +176,7 @@ print """
 print "</form></div>"
 theme.presentFoot()
 
-if form.has_key("action"):
+if form.has_key("utc"):
 	print """
 	<script language="Javascript">
 	$( document ).ready(function() {
@@ -180,7 +184,7 @@ if form.has_key("action"):
 					$.Notify({
 					    shadow: true,
 					    position: 'bottom-right',
-					    content: "Purchase Added"
+					    content: "Item Added"
 					});
 
 
