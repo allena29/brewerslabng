@@ -204,6 +204,38 @@ function showEditStep(i){
 				row2=result2.fetch_row()	
 			if subSteps:		
 				print "</blockquote>"
+
+
+			records=False
+			cursor2=db2.query("select fieldKey,fieldLabel from gField where process='%s' AND brewlog = '' AND fieldWidget='' AND activityNum=%s AND stepNum = %s ORDER BY fieldKey" %(process,activity,stepNum))
+			result2=db2.use_result()
+			row2=result2.fetch_row()
+			if row2:
+				print "<blockquote><b>Record Fields</b><br>"
+				records=True
+			while row2:
+				((fieldKey,fieldLabel),)=row2
+				print "<li> %s (%s)" %(safeText(fieldLabel),fieldKey)
+				row2=result2.fetch_row()	
+			if records:
+				print "</blockquote>"
+
+			# widgets
+			records=False
+			cursor2=db2.query("select fieldKey,fieldLabel,fieldWidget from gField where process='%s' AND brewlog = '' AND length(fieldWidget) > 0 AND activityNum=%s AND stepNum = %s ORDER BY fieldKey" %(process,activity,stepNum))
+			result2=db2.use_result()
+			row2=result2.fetch_row()
+			if row2:
+				print "<blockquote><b>Widget</b><br>"
+				records=True
+			while row2:
+				((fieldKey,fieldLabel,fieldWidget),)=row2
+				print "<li> %s (%s %s)" %(safeText(fieldLabel),fieldKey,fieldWidget)
+				row2=result2.fetch_row()	
+			if records:
+				print "</blockquote>"
+
+
 			print "</td>\n"
 			print "</tr>\n\n"
 

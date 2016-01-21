@@ -14,4 +14,4 @@ cursor.execute("update gRecipes set description ='%s' where recipeName='%s';" %(
 cursor.close()
 
 print "Location: editRecipe.py?recipeName=%s\n" %(form['recipeName'].value)
-
+ 
