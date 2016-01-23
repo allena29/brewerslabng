@@ -25,31 +25,63 @@ db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewersla
 if form.has_key("unit"):
 
 #	print "Content-Type:text/html\n\n"
-	sql="INSERT INTO gItems (owner,majorcategory,unit,name,idx"
-	if form['type'].value == "hops":
-		sql=sql+",hopAlpha,hopForm"
+	qtyMultiple=1
+	colour=0
+	aromatic=0
+	biscuit=0
+	body=0
+	burnt=0
+	caramel=0
+	chocolate=0
+	coffee=0
+	grainy=0
+	malty=0
+	head=0
+	nutty=0
+	roasted=0
+	smoked=0
+	sweet=0
+	toasted=0
+	ppg=0
+	hwe=0
+	extract=0
+	mustMash=0
+	isAdjunct=0
+	hopAlpha=0
+	hopAddAt=0
+	attenuation=0
+	dosage=0
+	wastageFixed=0
+	caprequired=0
+	co2required=0
+	isGrain=0
+	fullvolume=0
+	volume=0
+
 	if form['type'].value == "yeast":
-		sql=sql+",attenuation"
-	if form['type'].value == "fermentables":
-		sql=sql+",hwe,ppg,extract,mustMash,isGrain,isAdjunct"
-	sql=sql+") VALUES ('test@example.com','%s','%s','%s','%s'" %(form['type'].value,form['unit'].value,form['item'].value, re.compile('[^A-Za-z0-9]').sub('',form['item'].value)	)
-	if form['type'].value == "yeast":
-		sql=sql+",%s" %(float(form['attenuation'].value))
+		attenuation=float(form['attenuation'].value)
 	if form['type'].value == "hops":
-		hopalpha=float(form['hopAlpha'].value)
-		sql=sql+",%s,'%s'" %(hopalpha,form['hopForm'].value)
+		sql=sql+",'%s'" %(form['hopForm'].value)
 	if form['type'].value == "fermentables":
 		hwe=float(form['hwe'].value)
 		ppg=hwe/8.345	
 		extract=(ppg/46)*100
-		mash=0
-		grain=0
-		adjunct=0
-		if form.has_key("mustmash"):	mash=1
-		if form.has_key("adjunct"):	adjunct=1
-		if form.has_key("grain"):	grain=1
-		sql=sql+",%s,%s,%s,%s,%s,%s" %(hwe,ppg,extract,mash,grain,adjunct)
+		if form.has_key("mustmash"):	mustMash=1
+		if form.has_key("adjunct"):	isAdjunct=1
+		if form.has_key("grain"):	isGrain=1
+
+
+	sql="INSERT INTO gItems (owner,majorcategory,unit,name,idx"
+	sql=sql+",qtyMultiple,colour,aromatic,biscuit,body,burnt,caramel,chocolate,coffee,grainy,malty,head,nutty,roasted,smoked,sweet,toasted,ppg,hwe,extract,mustMash,isAdjunct,hopAlpha,hopAddAt,attenuation,dosage,wastageFixed,caprequired,co2required,isGrain,fullvolume,volume"
+	if form['type'].value == "hops":
+		sql=sql+",hopForm"
+	sql=sql+") VALUES ('test@example.com','%s','%s','%s','%s'" %(form['type'].value,form['unit'].value,form['item'].value, re.compile('[^A-Za-z0-9]').sub('',form['item'].value)	)
+	sql=sql+",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" %(qtyMultiple,colour,aromatic,biscuit,body,burnt,caramel,chocolate,coffee,grainy,malty,head,nutty,roasted,smoked,sweet,toasted,ppg,hwe,extract,mustMash,isAdjunct,hopAlpha,hopAddAt,attenuation,dosage,wastageFixed,caprequired,co2required,isGrain,fullvolume,volume)
+	if form['type'].value == "hops":
+		sql=sql+",'%s'" %(form['hopForm'].value)
+
 	sql=sql+")"
+	sys.stderr.write(sql)
 #	print sql
 	cursor=con.cursor()
 	cursor.execute(sql)
