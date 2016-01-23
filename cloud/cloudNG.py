@@ -1899,7 +1899,7 @@ issue is within ngData.py not within logic of cloudNG
 				tweethint=gField(owner=username)
 				tweethint.fieldKey="tweetEnabled-stock"
 				if numpurchased > 1:
-					tweethint.fieldVal="Purchased %s*%s%s %s #%s #%s" %(qtyMultiple,qty,unit,itemtext,category,re.compile("[^a-zA-Z0-9]").sub('',suppliertext))
+					tweethint.fieldVal="Purchased %s*%s%s %s #%s #%s" %(numpurchased,qty,unit,itemtext,category,re.compile("[^a-zA-Z0-9]").sub('',suppliertext))
 				else:
 					tweethint.fieldVal="Purchased %s%s %s #%s #%s" %(qty,unit,itemtext,category,re.compile("[^a-zA-Z0-9]").sub('',suppliertext))
 				tweethint.put()

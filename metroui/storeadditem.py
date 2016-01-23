@@ -58,6 +58,14 @@ if form.has_key("unit"):
 	fullvolume=0
 	volume=0
 
+	hopForm=""
+	hopUse=""
+	category=""
+	subcategory=""
+	styles=""
+	description=""
+
+	
 	if form['type'].value == "yeast":
 		attenuation=float(form['attenuation'].value)
 	if form['type'].value == "hops":
@@ -69,17 +77,14 @@ if form.has_key("unit"):
 		if form.has_key("mustmash"):	mustMash=1
 		if form.has_key("adjunct"):	isAdjunct=1
 		if form.has_key("grain"):	isGrain=1
-
+		colour=float(form['colour'].value)
 
 	sql="INSERT INTO gItems (owner,majorcategory,unit,name,idx"
 	sql=sql+",qtyMultiple,colour,aromatic,biscuit,body,burnt,caramel,chocolate,coffee,grainy,malty,head,nutty,roasted,smoked,sweet,toasted,ppg,hwe,extract,mustMash,isAdjunct,hopAlpha,hopAddAt,attenuation,dosage,wastageFixed,caprequired,co2required,isGrain,fullvolume,volume"
-	if form['type'].value == "hops":
-		sql=sql+",hopForm"
+	sql=sql+",hopForm,hopUse,category,subcategory,styles,description"
 	sql=sql+") VALUES ('test@example.com','%s','%s','%s','%s'" %(form['type'].value,form['unit'].value,form['item'].value, re.compile('[^A-Za-z0-9]').sub('',form['item'].value)	)
 	sql=sql+",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" %(qtyMultiple,colour,aromatic,biscuit,body,burnt,caramel,chocolate,coffee,grainy,malty,head,nutty,roasted,smoked,sweet,toasted,ppg,hwe,extract,mustMash,isAdjunct,hopAlpha,hopAddAt,attenuation,dosage,wastageFixed,caprequired,co2required,isGrain,fullvolume,volume)
-	if form['type'].value == "hops":
-		sql=sql+",'%s'" %(form['hopForm'].value)
-
+	sql=sql+",'%s','%s','%s','%s','%s','%s'" %(hopForm,hopUse,category,subcategory,styles,description)
 	sql=sql+")"
 	sys.stderr.write(sql)
 #	print sql
@@ -159,6 +164,10 @@ if form['type'].value == "fermentables":
 		<tr>
 			<td>HWE Extract:</td>
 			<td><input type="text" size=7 name="hwe" value=""></td>
+		</tr>
+		<tr>
+			<td>Colour:</td>
+			<td><input type="text" size=7 name="colour" value=""></td>
 		</tr>
 		<tr>
 			<td>Must Mash:</td>
