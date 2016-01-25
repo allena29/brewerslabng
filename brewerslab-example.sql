@@ -874,4 +874,5 @@ update gBrewery set litres=715;
 update gBrewery set cost=728.2;
 update gBrewery set equipcost=1535.43;
 
-
+alter table gRecipes set fermTemp int(2);
+update gRecipes set fermTemp=19;

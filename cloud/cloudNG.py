@@ -219,6 +219,30 @@ class brewerslabCloudApi:
 			self.calculateRecipe(username,recipeName)
 			self.compile(username,recipeName,None)
 
+	def setFermTemp(self,username,recipeName, newFermTemp,newLowFermTemp=None,newHighFermTemp=None,doRecalculate="1",):
+		# flag recipe rcalc at the recipe level#
+		sys.stderr.write(" %s %s \n" %(newLowFermTemp,newHighFermTemp))
+		if not newLowFermTemp:
+			newLowFermTemp=float(newFermTemp)-0.3
+		if not newHighFermTemp:
+			newHighFermTemp=float(newFermTemp)+0.3
+
+		sys.stderr.write(" %s %s \n" %(newLowFermTemp,newHighFermTemp))
+		
+		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
+		for recipe in ourRecipe.fetch(500):
+			if not doRecalculate == "1":
+				recipe.calculationOutstanding=True
+			recipe.fermTemp=float(newFermTemp)
+			recipe.fermLowTemp=float(newLowFermTemp)
+			recipe.fermHighTemp=float(newHighFermTemp)
+			recipe.put()
+		if doRecalculate == "1":
+			self.calculateRecipe(username,recipeName)
+			self.compile(username,recipeName,None)
+
+
+
 	def setMashTemp(self,username,recipeName, newMashTemp,doRecalculate="1"):
 		# flag recipe rcalc at the recipe level
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
@@ -1415,7 +1439,6 @@ issue is within ngData.py not within logic of cloudNG
 		status=0
 		try:
 
-			efficiency=int( re.compile("[^0-9]").sub('',efficiency))
 			sys.stderr.write("updated efficiency to %s\n" %(efficiency))
 			ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
 			for recipe in ourRecipe.fetch(500):

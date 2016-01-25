@@ -21,6 +21,8 @@ if theme.localUser:
 		brewerslabCloudApi().setBatchSize("test@example.com", form['recipe'].value,float(form['batchsize'].value),doRecalculate="0")
 	if form['action'].value == "changeAlkalinity":
 		brewerslabCloudApi().setAlkalinity("test@example.com", form['recipe'].value,float(form['alkalinity'].value),doRecalculate="0")
+	if form['action'].value == "changeFermTemp":
+		brewerslabCloudApi().setFermTemp("test@example.com", form['recipe'].value,float(form['fermtemp'].value),float(form['fermlowtemp'].value),float(form['fermhightemp'].value),doRecalculate="0")
 	if form['action'].value == "changeMashTemp":
 		brewerslabCloudApi().setMashTemp("test@example.com", form['recipe'].value,float(form['mashtemp'].value),doRecalculate="0")
 	if form['action'].value == "changeMashEfficiency":

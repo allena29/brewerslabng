@@ -2019,6 +2019,9 @@ class gRecipes(db):
 		self.tap_mash_water=0
 		self.tap_sparge_water=0
 		self.alkalinity=0
+		self.fermTemp=0
+		self.fermLowTemp=0
+		self.fermHighTemp=0
 		self.calculationOutstanding=0
 		self.types = {
 			'entity' : 'numeric',
@@ -2089,6 +2092,9 @@ class gRecipes(db):
 			'tap_sparge_water' : 'numeric',
 			'entity' : 'numeric',
 			'alkalinity':'numeric',
+			'fermTemp':'numeric',
+			'fermLowTemp':'numeric',
+			'fermHighTemp':'numeric',
 			'calculationOutstanding' : 'numeric',
 		}
 		self.tableName="gRecipes"
@@ -2108,7 +2114,7 @@ class gRecipes(db):
 			calculationOutstanding=1
 		else:
 			calculationOutstanding=0
-		return "INSERT INTO gRecipes VALUES (null, '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', %s, %s, %s, %s, %s, %s, %s, '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s);" %( _mysql.escape_string(self.recipename) , _mysql.escape_string(self.owner) , _mysql.escape_string(self.stylenumber) , _mysql.escape_string(self.styleletter) , _mysql.escape_string(self.styleversion) , self.batch_size_required , _mysql.escape_string(self.credit) , _mysql.escape_string(self.description) , self.mash_efficiency , self.estimated_abv , self.estimated_ebc , self.estimated_fg , self.estimated_ibu , self.estimated_og , self.estimated_srm , _mysql.escape_string(self.forcedstyle) , _mysql.escape_string(self.process) , _mysql.escape_string(self.recipe_type) , self.postBoilTopup , self.spargeWater , self.mashWater , self.boilVolume , self.totalWater , self.totalGrain , self.totalAdjuncts , self.totalHops , self.mash_grain_ratio , self.target_mash_temp , self.initial_grain_temp , self.target_mash_temp_tweak , self.priming_sugar_qty , tap_mash_water , tap_sparge_water ,calculationOutstanding,self.alkalinity)
+		return "INSERT INTO gRecipes VALUES (null, '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', %s, %s, %s, %s, %s, %s, %s, '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s);" %( _mysql.escape_string(self.recipename) , _mysql.escape_string(self.owner) , _mysql.escape_string(self.stylenumber) , _mysql.escape_string(self.styleletter) , _mysql.escape_string(self.styleversion) , self.batch_size_required , _mysql.escape_string(self.credit) , _mysql.escape_string(self.description) , self.mash_efficiency , self.estimated_abv , self.estimated_ebc , self.estimated_fg , self.estimated_ibu , self.estimated_og , self.estimated_srm , _mysql.escape_string(self.forcedstyle) , _mysql.escape_string(self.process) , _mysql.escape_string(self.recipe_type) , self.postBoilTopup , self.spargeWater , self.mashWater , self.boilVolume , self.totalWater , self.totalGrain , self.totalAdjuncts , self.totalHops , self.mash_grain_ratio , self.target_mash_temp , self.initial_grain_temp , self.target_mash_temp_tweak , self.priming_sugar_qty , tap_mash_water , tap_sparge_water ,calculationOutstanding,self.alkalinity,float(self.fermTemp),float(self.fermLowTemp),float(self.fermHighTemp))
 
 	def updateSql(self):
 		if self.tap_mash_water:
@@ -2123,11 +2129,11 @@ class gRecipes(db):
 			calculationOutstanding=1
 		else:
 			calculationOutstanding=0
-		return "UPDATE gRecipes SET  recipename = '%s', owner = '%s', stylenumber = '%s', styleletter = '%s', styleversion = '%s', batch_size_required = %s, credit = '%s', description = '%s', mash_efficiency = %s, estimated_abv = %s, estimated_ebc = %s, estimated_fg = %s, estimated_ibu = %s, estimated_og = %s, estimated_srm = %s, forcedstyle = '%s', process = '%s', recipe_type = '%s', postBoilTopup = %s, spargeWater = %s, mashWater = %s, boilVolume = %s, totalWater = %s, totalGrain = %s, totalAdjuncts = %s, totalHops = %s, mash_grain_ratio = %s, target_mash_temp = %s, initial_grain_temp = %s, target_mash_temp_tweak = %s, priming_sugar_qty = %s, tap_mash_water = %s, tap_sparge_water = %s, calculationOutstanding = %s, alkalinity = %s WHERE entity = %s " %( _mysql.escape_string(self.recipename), _mysql.escape_string(self.owner), _mysql.escape_string(self.stylenumber), _mysql.escape_string(self.styleletter), _mysql.escape_string(self.styleversion), self.batch_size_required, _mysql.escape_string(self.credit), _mysql.escape_string(self.description), self.mash_efficiency, self.estimated_abv, self.estimated_ebc, self.estimated_fg, self.estimated_ibu, self.estimated_og, self.estimated_srm, _mysql.escape_string(self.forcedstyle), _mysql.escape_string(self.process), _mysql.escape_string(self.recipe_type), self.postBoilTopup, self.spargeWater, self.mashWater, self.boilVolume, self.totalWater, self.totalGrain, self.totalAdjuncts, self.totalHops, self.mash_grain_ratio, self.target_mash_temp, self.initial_grain_temp, self.target_mash_temp_tweak, self.priming_sugar_qty, tap_mash_water, tap_sparge_water, calculationOutstanding, self.alkalinity, self.entity)
+		return "UPDATE gRecipes SET  recipename = '%s', owner = '%s', stylenumber = '%s', styleletter = '%s', styleversion = '%s', batch_size_required = %s, credit = '%s', description = '%s', mash_efficiency = %s, estimated_abv = %s, estimated_ebc = %s, estimated_fg = %s, estimated_ibu = %s, estimated_og = %s, estimated_srm = %s, forcedstyle = '%s', process = '%s', recipe_type = '%s', postBoilTopup = %s, spargeWater = %s, mashWater = %s, boilVolume = %s, totalWater = %s, totalGrain = %s, totalAdjuncts = %s, totalHops = %s, mash_grain_ratio = %s, target_mash_temp = %s, initial_grain_temp = %s, target_mash_temp_tweak = %s, priming_sugar_qty = %s, tap_mash_water = %s, tap_sparge_water = %s, calculationOutstanding = %s, alkalinity = %s, fermTemp = %s,fermLowTemp=%s, fermHighTemp =%s WHERE entity = %s " %( _mysql.escape_string(self.recipename), _mysql.escape_string(self.owner), _mysql.escape_string(self.stylenumber), _mysql.escape_string(self.styleletter), _mysql.escape_string(self.styleversion), self.batch_size_required, _mysql.escape_string(self.credit), _mysql.escape_string(self.description), self.mash_efficiency, self.estimated_abv, self.estimated_ebc, self.estimated_fg, self.estimated_ibu, self.estimated_og, self.estimated_srm, _mysql.escape_string(self.forcedstyle), _mysql.escape_string(self.process), _mysql.escape_string(self.recipe_type), self.postBoilTopup, self.spargeWater, self.mashWater, self.boilVolume, self.totalWater, self.totalGrain, self.totalAdjuncts, self.totalHops, self.mash_grain_ratio, self.target_mash_temp, self.initial_grain_temp, self.target_mash_temp_tweak, self.priming_sugar_qty, tap_mash_water, tap_sparge_water, calculationOutstanding, self.alkalinity, float(self.fermTemp),float(self.fermLowTemp),float(self.fermHighTemp),self.entity)
 
 
 	def populate(self,row):
-		(( self.entity , self.recipename, self.owner, self.stylenumber, self.styleletter, self.styleversion, batch_size_required, self.credit, self.description, mash_efficiency,estimated_abv, estimated_ebc, estimated_fg, estimated_ibu, estimated_og, estimated_srm, self.forcedstyle, self.process, self.recipe_type, postBoilTopup, spargeWater, mashWater, boilVolume, totalWater, totalGrain, totalAdjuncts, totalHops, mash_grain_ratio, target_mash_temp, initial_grain_temp, target_mash_temp_tweak, priming_sugar_qty, tap_mash_water, tap_sparge_water, calculationOutstanding,self.alkalinity),)=row
+		(( self.entity , self.recipename, self.owner, self.stylenumber, self.styleletter, self.styleversion, batch_size_required, self.credit, self.description, mash_efficiency,estimated_abv, estimated_ebc, estimated_fg, estimated_ibu, estimated_og, estimated_srm, self.forcedstyle, self.process, self.recipe_type, postBoilTopup, spargeWater, mashWater, boilVolume, totalWater, totalGrain, totalAdjuncts, totalHops, mash_grain_ratio, target_mash_temp, initial_grain_temp, target_mash_temp_tweak, priming_sugar_qty, tap_mash_water, tap_sparge_water, calculationOutstanding,self.alkalinity,fermTemp,fermLowTemp,fermHighTemp),)=row
 
 		self.mash_efficiency=float(mash_efficiency)
 		self.estimated_abv=float(estimated_abv)
@@ -2164,7 +2170,12 @@ class gRecipes(db):
 			self.calculationOutstanding=True
 		else:
 			self.calculationOutstanding=False
+		self.fermTemp=float(fermTemp)
+		self.fermLowTemp=float(fermLowTemp)
+		self.fermHighTemp=float(fermHighTemp)
 
+
+	
 class gRecipeStats(db):
 
 
