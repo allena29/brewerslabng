@@ -198,9 +198,9 @@ class editRecipe:
 						NotDone=True
 					print "<option value='%.1f' %s>%.1f degC</option>" %(C,selected,C)
 				selected=""
-			print "</select>"
-			print """<a href='javascript:adjustFermTemp()'><i class="icon-checkmark fg-blue"></i></a><br>"""
-			print "<b>Target Ferm Temp (Low Threshold):</b> <select id='fermlowtemp'>"
+			print "</select> (Low: "
+			print "<select id='fermlowtemp'>"
+
 			selected=""
 			NotDone=False
 			for c in range(25):
@@ -211,9 +211,8 @@ class editRecipe:
 						NotDone=True
 					print "<option value='%.1f' %s>%.1f degC</option>" %(C,selected,C)
 				selected=""
-			print "</select>"
-			print """<a href='javascript:adjustFermTemp()'><i class="icon-checkmark fg-blue"></i></a><br>"""
-			print "<b>Target Ferm Temp (High Threshold):</b> <select id='fermhightemp'>"
+			print "</select>, High: "
+			print "<select id='fermhightemp'>"
 			selected=""
 			NotDone=False
 			for c in range(25):
@@ -225,7 +224,7 @@ class editRecipe:
 						NotDone=True
 					print "<option value='%.1f' %s>%.1f degC</option>" %(C,selected,C)
 				selected=""
-			print "</select>"
+			print "</select>)"
 			print """<a href='javascript:adjustFermTemp()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 			print "<b>Target Mash Temp:</b> <select id='mashtemp'>"
 			for c in range(10):
@@ -255,7 +254,7 @@ class editRecipe:
 			print """<a href='javascript:adjustAlkalinity()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 
 		else:
-			print "<b>Target Ferm Temp:</b> %.1f'C<br>" %(float(fermTemp))
+			print "<b>Target Ferm Temp:</b> %.1f'C (Low: %.1f'C High: %.1f'C) <br>" %(float(fermTemp),float(fermLowTemp),float(fermHighTemp))
 			print "<b>Target Mash Temp:</b> %.1f'C<br>" %(float(target_mash_temp))
 			print "<b>Mash Efficiency:</b> %.0f %%<br>" %(float(mashEfficiency))
 			print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))

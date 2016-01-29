@@ -18,13 +18,7 @@ for row in cursor:
 	con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 	cursor2=con2.cursor()
 	cursor2.execute("select target_mash_temp,boil_vol,mash_liquid,sparge_water,precoolfvvolume from gRecipeStats WHERE recipe='%s' AND brewlog='%s' ORDER BY entity DESC LIMIT 0,1" %(recipe,brewlog))
-	
-	sys.stdout.write("%s " %(comma))
-	detail={}
-	detail['boil_vol']=100
-	detail['sparge_water']=100
-	detail['precoolfvvolume']=100
-	detail['mash_water']=100
+
 	
 	detail= {'brewlog':brewlog,'recipe':recipe,'hash':brewhash, 'fermLow':18.7,'fermHigh':19.3,'fermTarget':19, 'hltLow':87.5,'hltHigh':88.5,'hltTarget':88, 'spargeLow':81.5,'spargeHigh':82.5,'spargeTarget':82 ,'mashLow':66,'mashHigh':68,'mashTarget':67, 'strikeLow':81.999,'strikeTarget':82,'strikeHigh':82.1  } 
 
@@ -55,6 +49,18 @@ for row in cursor:
 		detail['mashTarget'] = target_mash_temp
 		detail['mashHigh'] = target_mash_temp + 0.75
 		detail['mashLow'] = target_mash_temp - 0.75
+
+
+	con4=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+	cursor4=con4.cursor()
+	cursor4.execute("select fermTemp,fermLowTemp,fermHighTemp from gRecipes WHERE recipename='%s' ORDER BY entity DESC LIMIT 0,1" %(recipe))
+	for row4 in cursor4:
+		(fermTemp,fermLowTemp,fermHighTemp)=row4
+		detail['fermTarget'] = float(fermTemp)
+		detail['fermLow'] = float(fermLowTemp)
+		detail['fermHigh'] = float(fermHighTemp)
+	
+
 	print json.dumps(detail),
 
 	comma="\n,"
