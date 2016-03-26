@@ -133,6 +133,7 @@ import re
 def safeText(text,highlight=False):
 	text=re.compile('%%').sub('%',text)
 	text=re.compile('"').sub('&quot;',text)
+	text=re.compile("<").sub('&lt;',text)
 	return text
 
 if form.has_key("activity") and form.has_key("process"):
@@ -259,21 +260,32 @@ function showEditStep(i){
 				print "<textarea cols=128 rows=5 name='attention'>%s</textarea><BR>" %( safeText(attention ))
 
 			subSteps=False
-			cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
+			cursor2=db2.query("select numSubSteps,subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
 			result2=db2.use_result()
 			row2=result2.fetch_row()
-			if row2:
-				print "<blockquote><b>Sub Steps</b><br>"
-				subSteps=True
+			print "<blockquote><b>Sub Steps</b> "
+			subSteps=True
+			subStepNum=-1
+			si=0
 			while row2:
-				((subStepNum,subStepName),)=row2
-				print "<li> <input type=text name='subStep_%s' value='%s' size=100><BR>" %(subStepNum,safeText(subStepName))
+				((numSubSteps,subStepNum,subStepName),)=row2
+				print "<li> <input type=text name='subStep_%s' value='%s' size=100> <a href=\"cgiUpdateProcess.py?action=deleteSubstep&activityid=%s&stepid=%s&substepid=%s&utc=%s&process=%s\"><i class='icon-minus fg-red'></i></a>" %(subStepNum,safeText(subStepName),  activityNum,stepNum,subStepNum,time.time(),form['process'].value)
+				print "<a href=\"cgiUpdateProcess.py?action=addSubstep&activityid=%s&stepid=%s&utc=%s&process=%s&substepid=%s\"><i class='icon-plus fg-green'></i></a> " %(activity,stepNum,time.time(),form['process'].value,si)
+				if int(numSubSteps) > 1 and int(si) < int(numSubSteps)-2:
+					print " <a href=\"cgiUpdateProcess.py?action=moveSubstepDown&activityid=%s&stepid=%s&substepid=%s&utc=%s&process=%s\"><i class='icon-arrow-down fg-blue'></i></a>" %(activityNum,stepNum,subStepNum,time.time(),form['process'].value)
+				if int(numSubSteps) > 1 and si > 0:
+					print " <a href=\"cgiUpdateProcess.py?action=moveSubstepUp&activityid=%s&stepid=%s&substepid=%s&utc=%s&process=%s\"><i class='icon-arrow-up fg-blue'></i></a>" %(activityNum,stepNum,subStepNum,time.time(),form['process'].value)
+				si=si+1
 				row2=result2.fetch_row()	
-			if subSteps:		
-				print "</blockquote>"
+
+			# we didn't have sub-steps
+			if si == 0:
+				print "<a href=\"cgiUpdateProcess.py?action=addSubstep&activityid=%s&stepid=%s&utc=%s&process=%s&substepid=%s\"><i class='icon-plus fg-green'></i></a> " %(activity,stepNum,time.time(),form['process'].value,-1)
+			print "</blockquote>"
+			print "<input type='hidden' name='substepcount' value='%s'>" %(si)
 
 
-			print "<p align=right><input type='submit' value='Save'></p>"
+			print "<p align=right><input type='submit' name='button' value='Save'></p>"
 			print "</td>\n"
 			print "</tr>\n"
 			print "</form>\n\n\n"
