@@ -4,10 +4,14 @@ import cgi
 import re
 import _mysql
 import mysql.connector
+import time
+from ngData import *
 
 form=cgi.FieldStorage()
 
-
+# The step we should display in an edit mode
+editstep=form['stepid'].value
+editmode=True
 
 
 
@@ -15,6 +19,13 @@ form=cgi.FieldStorage()
 
 #print "Content-Type:text/html\n\n"
 #print form['stepid'].value,form['process'],form['activityid'].value
+
+
+### Tables that need cleaning up each time we re-arrange
+# gField
+# gCompileText
+
+
 
 con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 cursor=con.cursor()
@@ -25,7 +36,8 @@ if form.has_key("button"):
 
 	# Update Optional things
 	if form.has_key("attention"):
-		cursor.execute("UPDATE gProcess SET attention ='%s' WHERE process='%s' AND activityNum = %s AND stepNum = %s;" %( _mysql.escape_string( form['attention'].value), form['process'].value, form['activityid'].value,form['stepid'].value))
+		if len(form['attention'].value) > 3:
+			cursor.execute("UPDATE gProcess SET attention ='%s' WHERE process='%s' AND activityNum = %s AND stepNum = %s;" %( _mysql.escape_string( form['attention'].value), form['process'].value, form['activityid'].value,form['stepid'].value))
 
 
 	# Update substep's
@@ -57,6 +69,52 @@ if form.has_key("action"):
 		cursor=db.query("update gProcess SET numSubSteps = %s WHERE process='%s' AND activityNum = %s AND stepNum = %s" %(numSubSteps,form['process'].value,form['activityid'].value,form['stepid'].value))
 
 
+	if form['action'].value == "DeleteFullStep":
+		editmode=False
+	
+		# it's useful not having brewlogs attached because we only haev to change process not gBrewlogStep
+		editstep=int(form['stepid'].value)-1
+		if editstep < 1:	editstep=1
+
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gProcess SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gField SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gCompileText SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+
+
+
+
+	if form['action'].value == "InsertStepBefore" or form['action'].value == "InsertStepAfter":
+		# it's useful not having brewlogs attached because we only haev to change process not gBrewlogStep
+		if form['action'].value == "InsertStepBefore":
+			stepgteq=">="
+			newstepid=int(form['stepid'].value)
+		else:
+			stepgteq=">"
+			newstepid=int(form['stepid'].value)+1
+		editstep=newstepid
+
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gProcess SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gField SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gCompileText SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+
+		newStep=gProcess()
+		newStep.stepName="New Step #%s" %(newstepid)
+		newStep.text=time.ctime()
+		newStep.process=form['process'].value
+		newStep.activity=form['activityid'].value
+		newStep.stepNum=newstepid
+		newStep.subStepNum=-1
+		newStep.put()
+
+
 	if form['action'].value == "addSubstep":
 
 		# if we didn't have substeps enter at index 0
@@ -68,7 +126,6 @@ if form.has_key("action"):
 		if not form['substepid'] == "-1":
 			# renumber existing substep id's
 			db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-			print "update gProcess SET subStepNum = subStepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum = %s AND subStepNum > %s" %( form['process'].value,form['activityid'].value,form['stepid'].value, form['substepid'].value )
 			db.query("update gProcess SET subStepNum = subStepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum = %s AND subStepNum > %s" %( form['process'].value,form['activityid'].value,form['stepid'].value, form['stepid'].value ))
 
 			con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
@@ -95,5 +152,8 @@ if form.has_key("action"):
 
 
 
-print "Location: process.py?process=%s&activity=%s&edit=%s#edit%s\n" %(form['process'].value,form['activityid'].value,form['stepid'].value,form['stepid'].value)
+if editmode:
+	print "Location: process.py?process=%s&activity=%s&edit=%s#edit%s\n" %(form['process'].value,form['activityid'].value,editstep,editstep)
+else:
+	print "Location: process.py?process=%s&activity=%s#edit%s\n" %(form['process'].value,form['activityid'].value,editstep)
 

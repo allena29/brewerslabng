@@ -157,7 +157,7 @@ function showEditStep(i){
 	print "</script>"
 
 
-
+	print "TODO: constraint... if we add compiletext into new steps it wont take effect<BR>"
 	print "<div class='container'>"
 	cursor3=db3.query("select * from gBrewlogs where process='%s'" %(form['process'].value))
 	result3=db3.use_result().fetch_row()
@@ -168,14 +168,17 @@ function showEditStep(i){
 		print "<table class='table bordered hovered'>"
 	else:
 		print "<table class='table bordered'>"
+
+	ROWNUM=0
+
 	print "<thead><tr><th width=100>Step</th><th>Details</th></tr></thead><tbody>"
 	process=form['process'].value
 	activity=form['activity'].value
-	cursor=db.query("select activityNum,stepNum,stepName,text,attention from gProcess where process='%s' AND activityNum = %s AND stepNum > -1 AND subStepNum = -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity))
+	cursor=db.query("select activityNum,stepNum,stepName,text,attention,auto from gProcess where process='%s' AND activityNum = %s AND stepNum > -1 AND subStepNum = -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity))
 	result=db.use_result()
 	row=result.fetch_row()
 	while row:
-		((activityNum,stepNum,stepName,text,attention),)=row
+		((activityNum,stepNum,stepName,text,attention,auto),)=row
 		row=result.fetch_row()
 
 
@@ -187,11 +190,19 @@ function showEditStep(i){
 		# Read-Only version
 		#
 		if readonly:
-			print "<tr id='row%s' onClick='showEditStep(%s)'><td>%s</td>" %(stepNum,stepNum,stepNum)
+			print "<tr id='row%s' onClick='showEditStep(%s)'><td>%s" %(stepNum,stepNum,stepNum)
+			if theme.localUser:
+				print "<br>"
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=DeleteFullStep&activityid=%s&stepid=%s\"><i class=\"icon-remove\"></i></a> <br> " 	%(process,activity,stepNum)
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=InsertStepBefore&activityid=%s&stepid=%s\"><i class=\"icon-plus\"></i><i class=\"icon-arrow-up-5\"></i></a><br>" 	%(process,activity,stepNum)
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=InsertStepAfter&activityid=%s&stepid=%s\"><i class=\"icon-plus\"></i><i class=\"icon-arrow-down-5\"></i></a><br>" 	%(process,activity,stepNum)
+			print "</td>"
 			print "<td><h5>%s</h5>" %( safeText(stepName))
 			print "%s<BR>" %( safeText(text, highlight=True))
 			if len(attention):
 				print "<br><b class='fg-red'>Warning:</b> %s<BR>" %(safeText(attention)) 
+			if len(auto):
+				print "<br><b class='fg-blue'>Auto Step:</b> %s<BR>" %(safeText(auto))
 			subSteps=False
 			cursor2=db2.query("select subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))
 			result2=db2.use_result()
@@ -252,12 +263,16 @@ function showEditStep(i){
 			if readonly:
 				print "<tr id='rowedit%s' style='display: none'><td>%s<a name='edit%s'></a></td>" %(stepNum,stepNum,stepNum)
 			else:
-				print "<tr id='rowedit%s' style=''><td>%s<a name='edit%s'></a></td>" %(stepNum,stepNum,stepNum)
+				print "<tr id='rowedit%s' style=''><td>%s<a name='edit%s'></a>" %(stepNum,stepNum,stepNum)
+				print "<br>"
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=DeleteFullStep&activityid=%s&stepid=%s\"><i class=\"icon-remove\"></i></a> <br> " 	%(process,activity,stepNum)
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=InsertStepBefore&activityid=%s&stepid=%s\"><i class=\"icon-plus\"></i><i class=\"icon-arrow-up-5\"></i></a><br>" 	%(process,activity,stepNum)
+				print "<a href=\"cgiUpdateProcess.py?process=%s&action=InsertStepAfter&activityid=%s&stepid=%s\"><i class=\"icon-plus\"></i><i class=\"icon-arrow-down-5\"></i></a><br>" 	%(process,activity,stepNum)
+				print "</td>"
 			print "<td><input type=text size=128 name='stepName' value=\"%s\"></input><BR>" %( safeText(stepName))
 			print "<textarea cols=128 rows=5 name='text'>%s</textarea><BR>" %( safeText(text) )
-		
-			if len(attention):
-				print "<textarea cols=128 rows=5 name='attention'>%s</textarea><BR>" %( safeText(attention ))
+			print "<b><font color=red>Warning Text</font></b><BR>"
+			print "<textarea cols=128 rows=5 name='attention'>%s</textarea><BR>" %( safeText(attention ))
 
 			subSteps=False
 			cursor2=db2.query("select numSubSteps,subStepNum,stepName from gProcess where process='%s' AND activityNum = %s AND stepNum = %s  AND subStepNum > -1  ORDER BY activityNum,stepNum,subStepNum" %(process,activity,stepNum))

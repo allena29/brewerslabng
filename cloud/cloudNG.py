@@ -6380,6 +6380,16 @@ a compiled recipe which is recompiled seems to cause problems
 				F.process=processNewName
 				F.put()	
 
+			ourCompile = self.dbWrapper.GqlQuery("SELECT * FROM gCompileText WHERE owner = :1 AND process = :2",username,processOrigName)
+			for com in ourFields.fetch(8000):
+				C=gCompileText(owner=username )
+				C.db=self.dbWrapper
+				for ci in com.__dict__:
+					if ci != "entity" and ci != "process":
+						C.__dict__[ci] = com.__dict__[ci]
+				C.process=processNewName
+				C.put()	
+
 			P=gProcesses(owner=username)
 			P.process=processNewName
 			P.put()
