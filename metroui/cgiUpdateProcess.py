@@ -75,14 +75,23 @@ if form.has_key("action"):
 		# it's useful not having brewlogs attached because we only haev to change process not gBrewlogStep
 		editstep=int(form['stepid'].value)-1
 		if editstep < 1:	editstep=1
+	
+		# delete step
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("delete from gProcess WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("delete from gField WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("delete from gCompileText WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+
+		# renumber existing steps
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gProcess SET stepNum = stepNum - 1 WHERE process='%s' AND activityNum = %s AND stepNum > %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
+		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
+		db.query("update gField SET stepNum = stepNum - 1 WHERE process='%s' AND activityNum = %s AND stepNum > %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
 
 		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("update gProcess SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
-		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("update gField SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
-
-		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("update gCompileText SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
+		db.query("update gCompileText SET stepNum = stepNum - 1 WHERE process='%s' AND activityNum = %s AND stepNum > %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
 
 
 
