@@ -6390,6 +6390,29 @@ a compiled recipe which is recompiled seems to cause problems
 				C.process=processNewName
 				C.put()	
 
+
+			ourWidgets = self.dbWrapper.GqlQuery("SELECT * FROM gWidgets WHERE owner = :1 AND process = :2",username,processOrigName)
+			for X in ourWidgets.fetch(8000):
+				W=gWidgets(owner=username )
+				W.db=self.dbWrapper
+				for x in X.__dict__:
+					if x != "entity" and x != "process":
+						W.__dict__[x] = X.__dict__[x]
+				W.process=processNewName
+				W.put()	
+
+
+			ourEquip = self.dbWrapper.GqlQuery("SELECT * FROM gEquipment WHERE owner = :1 AND process = :2",username,processOrigName)
+			for X in ourEquip.fetch(8000):
+				E=gEquipment(owner=username )
+				E.db=self.dbWrapper
+				for x in X.__dict__:
+					if x != "entity" and x != "process":
+						E.__dict__[x] = X.__dict__[x]
+				E.process=processNewName
+				E.put()	
+
+
 			P=gProcesses(owner=username)
 			P.process=processNewName
 			P.put()

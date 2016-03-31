@@ -78,11 +78,11 @@ if form.has_key("action"):
 	
 		# delete step
 		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("delete from gProcess WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+		db.query("delete from gProcess WHERE process= '%s' AND activityNum = %s AND stepNum = %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
 		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("delete from gField WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+		db.query("delete from gField WHERE process = '%s' AND activityNum = %s AND stepNum = %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
 		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
-		db.query("delete from gCompileText WHERE activityNum = %s AND stepNum = %s" %( form['activityid'].value,form['stepid'].value ))
+		db.query("delete from gCompileText WHERE process ='%s' AND activityNum = %s AND stepNum = %s" %( form['process'].value,form['activityid'].value,form['stepid'].value ))
 
 		# renumber existing steps
 		db=_mysql.connect(host="localhost",user="brewerslab",passwd='beer',db="brewerslab")
