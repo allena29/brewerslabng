@@ -27,6 +27,8 @@ if theme.localUser:
 		brewerslabCloudApi().setMashTemp("test@example.com", form['recipe'].value,float(form['mashtemp'].value),doRecalculate="0")
 	if form['action'].value == "changeMashEfficiency":
 		brewerslabCloudApi().setMashEfficiency("test@example.com", form['recipe'].value,float(form['mashefficiency'].value),doRecalculate="0")
+	if form['action'].value == "changeProcess":
+		brewerslabCloudApi().changeProcess("test@example.com", form['recipe'].value,form['process'].value)
 
 	if form['action'].value == "changestoreqty":
 		# a little step in the right direction, not using Gql Wrapper

@@ -260,7 +260,21 @@ class editRecipe:
 			print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))
 
 
-		print "<b>Process:</b> %s<BR>" %(process)
+
+		if self.editable:
+			print "<b>Process:</b>  <select id='process'>" 
+			processcursor=con.cursor()
+			processcursor.execute("select process from gProcesses ORDER BY process DESC")
+			for processrow in processcursor:
+				(processx,)=processrow
+				if processx == process:
+					print "<option SELECTED>%s</option>" %(processx)
+				else:
+					print "<option>%s</option>" %(processx)
+			print "</select> <a href='javascript:adjustProcess()'><i class='icon-checkmark fg-blue'></i></a> "	
+			print "<br>"
+		else:
+			print "<b>Process:</b> %s<BR>" %(process)
 
 		print """
 		<b>Estimated Gravity:</b> %.3f OG - %.3f FG<br>
@@ -732,6 +746,10 @@ if __name__ == '__main__':
 		url="editIngredient.py?recipe=%s&type=null&action=changeFermTemp&fermtemp="+document.getElementById('fermtemp').value+"&fermlowtemp="+document.getElementById('fermlowtemp').value+"&fermhightemp="+document.getElementById('fermhightemp').value;
 		window.location.replace(url);
 		}
+		function adjustProcess(){
+		url="editIngredient.py?recipe=%s&type=null&action=changeProcess&process="+document.getElementById('process').value;
+		window.location.replace(url);
+		}
 		function adjustMashTemp(){
 		url="editIngredient.py?recipe=%s&type=null&action=changeMashTemp&mashtemp="+document.getElementById('mashtemp').value;
 		window.location.replace(url);
@@ -777,7 +795,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"
