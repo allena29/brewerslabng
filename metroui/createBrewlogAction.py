@@ -32,12 +32,12 @@ cursor.close()
 
 # Tweet flags in the database
 cursor=con.cursor()
-cursor.execute(("insert into gField values(null,'test@example.com',-1,-1,'','09.01.2016','','','tweetEnabled-costvolume','yes','',0);")
+cursor.execute("insert into gField values(null,'test@example.com',-1,-1,'','09.01.2016','','','tweetEnabled-costvolume','yes','',0);")
 con.commit()
 cursor.close()
 
 cursor=con.cursor()
-cursor.execute(("insert into gField values(null,'test@example.com',-1,-1,'','09.01.2016','','','tweetEnabled-abv','yes','',0);")
+cursor.execute("insert into gField values(null,'test@example.com',-1,-1,'','09.01.2016','','','tweetEnabled-abv','yes','',0);")
 con.commit()
 cursor.close()
 

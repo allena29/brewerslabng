@@ -520,7 +520,10 @@ class gCompileText(db):
 
 		for x in self.types:
 			if self.types[x] == "list":
-				self.__dict__[x]  = json.loads( self.__dict__[x])
+				if len(self.__dict__[x]) > 2:
+					self.__dict__[x]  = json.loads( self.__dict__[x])
+				else:
+					self.__dict__[x] = []
 
 
 
@@ -658,7 +661,10 @@ class gWidgets(db):
 		(( self.entity , self.owner, self.process, self.activityNum, self.stepNum, self.widgetName, self.widget, self.widgetValues),)=row
 		for x in self.types:
 			if self.types[x] == "list":
-				self.__dict__[x]  = json.loads( self.__dict__[x])
+				if len(self.__dict__[x]) > 2:
+					self.__dict__[x]  = json.loads( self.__dict__[x])
+				else:
+					self.__dict__[x] = []
 
 
 class gProcess(db):
@@ -768,7 +774,10 @@ class gProcess(db):
 		(( self.entity , self.owner, self.process, self.stepName, self.stepTitle, self.activityNum, self.stepNum, self.subStepNum, self.text, self.img, self.attention, self.timerName, self.timerTime, fixed_boil_off, fixed_cool_off, percentage_boil_off, percentage_cool_off, self.auto, needToComplete, compileStep, self.conditional,self.numSubSteps),)=row
 		for x in self.types:
 			if self.types[x] == "list":
-				self.__dict__[x]  = json.loads( self.__dict__[x])
+				if len(self.__dict__[x] ) > 2:
+					self.__dict__[x]  = json.loads( self.__dict__[x])
+				else:
+					self.__dict__[x]  = []
 
 		self.fixed_boil_off=float(fixed_boil_off)
 		self.fixed_cool_off=float(fixed_cool_off)
