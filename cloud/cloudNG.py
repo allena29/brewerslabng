@@ -2076,6 +2076,7 @@ issue is within ngData.py not within logic of cloudNG
 		#gqlself.calclog = self.calclog + "process  : Calculating with Process %s\n" %(revcipe.process)
 		self.calclog = self.calclog + "process  : Calculating with Process %s\n" %(recipe.process)	#pickql	
 		self.calclog = self.calclog + "process  :  - TODO:: make sure hopAlpha comes from stock not preset\n"
+		self.calclog = self.calclog + "process  :  - Redefined hopAddAt 0.2=dryhop, 0.8=flamout, 0.6=whirlpool\n"
 		self.calclog = self.calclog + "process  : brewerslabEngine rev 0.2 (2015-10-18)\n"
 		self.calclog = self.calclog + "process  :  - new strike temp calculationg which uses grain weight/mash volume\n"
 		self.calclog = self.calclog + "process  :    which gives a strike temp 10deg lower\n"
@@ -3420,15 +3421,30 @@ issue is within ngData.py not within logic of cloudNG
 			result={}
 	
 			if category == "Hops" or category=="hops":		# this is set as hops in android client not Hops
-				if float(hopAddAt) == 0.009:
-					sys.stderr.write("hopAddAt Float wrokaround for flameout");
-					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.005),float(0.01),category.lower(),0)
-				elif float(hopAddAt) == 0.001:
+				#
+				# flameout/whirlpool
+				#
+				if float(hopAddAt) == 0.06:
+					sys.stderr.write("hopAddAt Float wrokaround for whirlpool/hopback");
+					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.05),float(0.07),category.lower(),0)
+				#
+				# Flameout
+				#
+				elif float(hopAddAt) == 0.08:
 					sys.stderr.write("hopAddAt float for flameout\n")
-					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.00),float(0.003),category.lower(),0)
+					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.07),float(0.09),category.lower(),0)
+				#
+				# first wort hops
+				#
 				elif float(hopAddAt) == 20.22:
 					sys.stderr.write("hopAddAt float for fwh\n")
 					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(20),float(21),category.lower(),0)
+				#
+				# dry hops
+				#
+				elif float(hopAddAt) == 0.02:
+					sys.stderr.write("hopAddAt float for dry hop\n")
+					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt > :4 AND hopAddAt < :5 AND ingredientType = :6 AND processIngredient = :7",username,recipeName,item,float(0.01),float(0.03),category.lower(),0)
 				else:
 					ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND hopAddAt = :4 AND ingredientType = :5 AND processIngredient = :6",username,recipeName,item,float(hopAddAt),category.lower(),0)
 			else:
@@ -3690,7 +3706,13 @@ issue is within ngData.py not within logic of cloudNG
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND subStepNum = :4",username,self.Process.process,activity.activityNum,-1).fetch(324234)
 			for step in ourSteps:
 
-				hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.001:'Flameout (0min)',0.0001:'Dryhop' ,'20.222':'First Wort Hop'}
+				hop_labels = {60:'Copper (60min)',
+					      15:'Aroma (15min)',
+                                              5:'Finishing (5min)',
+                                              0.08:'Flameout (0min)',
+					      0.06:'Whirlpool/Hopback (0min)',
+                                              0.02:'Dryhop' ,
+                                              '20.222':'First Wort Hop'}
 
 				if step.auto:
 					if step.auto == "gatherthegrain":
@@ -3771,7 +3793,7 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if orh.hopAddAt >= 0.0005:			# don't include dry hop
+							if orh.hopAddAt >= 0.03:			# don't include dry hop
 								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
 									HOPS[orh.hopAddAt].append( orh )
@@ -3933,7 +3955,7 @@ issue is within ngData.py not within logic of cloudNG
 						for orh in ourRecipeHops:
 							if not HOPS.has_key( orh.hopAddAt ):
 #								sys.stderr.write("dryhop   :   %s/%s/%s \n" %(orh.ingredient,orh.qty,orh.hopAddAt))
-								if orh.hopAddAt < 0.001 and orh.hopAddAt > -1:
+								if orh.hopAddAt < 0.03 and orh.hopAddAt > -1:
 #									sys.stderr.write("dryhop:   this is dry hop %s\n" %(orh.qty))
 									HOPS[orh.hopAddAt]=[]
 									HOPS[orh.hopAddAt].append( orh )
@@ -4018,7 +4040,7 @@ issue is within ngData.py not within logic of cloudNG
 					elif step.auto == "hopaddFinishing_v3":
 						ssnumFIX=0	
 						hopaddsorted= []		
-						ourRecipeHops = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND hopAddAt < :4 AND hopAddAt > :5", username,recipeName,"hops",1,0.0002).fetch(4344)
+						ourRecipeHops = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND hopAddAt < :4 AND hopAddAt > :5", username,recipeName,"hops",0.09,0.07).fetch(4344)
 
 						HOPS={}
 						for orh in ourRecipeHops:

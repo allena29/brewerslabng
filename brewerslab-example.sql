@@ -867,12 +867,30 @@ UNLOCK TABLES;
 
 -- Dump completed on 2015-04-25 22:46:24
 
+
+/* Upgrades required from 0.0.2 */
+
 alter table gBrewery add cost float;
 alter table gBrewery add litres float;
-alter table gBrewery add equipcost float;
 update gBrewery set litres=715;
 update gBrewery set cost=728.2;
+
+/* Upgrades required from 0.0.3 */
+alter table gBrewery add equipcost float;
 update gBrewery set equipcost=1535.43;
 
 alter table gRecipes set fermTemp int(2);
 update gRecipes set fermTemp=19;
+
+		/*
+                                hop_labels = {60:'Copper (60min)',
+                                              15:'Aroma (15min)',
+                                              5:'Finishing (5min)',
+                                              0.001:'Flameout (0min)',		--> 0.08
+                                              0.002:'Whirlpool/Hopback (0min)',	--> 0.06
+                                              0.009:'Dryhop' ,			--> becomes 0.02
+                                              '20.222':'First Wort Hop'}
+			*/
+
+update gIngredients SET hopAddAt = 0.02 WHERE hopAddAt > -1 AND ingredientType='hops' AND hopAddAt < 4 aND hopAddAt < 0.01 AND hopAddAt >0.008;
+update gIngredients set hopAddAt=0.08  WHERE hopAddAt > -1 AND ingredientType='hops' AND hopAddAt < 0.019;;
