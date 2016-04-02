@@ -3701,11 +3701,11 @@ issue is within ngData.py not within logic of cloudNG
 			for ocs in ourCompiledSteps:	ocs.delete()
 
 
-		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3", username,self.Process.process,-1).fetch(324234)
+		ourActivities = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND stepNum = :3 ORDER BY activityNum", username,self.Process.process,-1).fetch(324234)
 		for activity in ourActivities:
-			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND subStepNum = :4",username,self.Process.process,activity.activityNum,-1).fetch(324234)
+			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND activityNum = :3 AND subStepNum = :4 ORDER BY stepNum",username,self.Process.process,activity.activityNum,-1).fetch(324234)
 			for step in ourSteps:
-
+				sys.stderr.write("\nSTEP %s.%s %s (auto %s) \n"  %(step.activityNum,step.stepNum,step.stepName,step.auto))
 				hop_labels = {60:'Copper (60min)',
 					      15:'Aroma (15min)',
                                               5:'Finishing (5min)',
@@ -3715,6 +3715,7 @@ issue is within ngData.py not within logic of cloudNG
                                               '20.222':'First Wort Hop'}
 
 				if step.auto:
+					sys.stderr.write("STEP.AUTO  %s\n" %(step.auto))
 					if step.auto == "gatherthegrain":
 						sys.stderr.write("We don't need to do stock allocation here  addStockToBrewlog does this\n")
 						sys.stderr.write(" but we do need to add in substeps\n")
@@ -4073,6 +4074,51 @@ issue is within ngData.py not within logic of cloudNG
 								ssnumFIX=ssnumFIX+1
 
 						if not haveFlameout:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
+
+
+
+
+					elif step.auto == "hopaddWhirlpool_v3":
+						ssnumFIX=0	
+						hopaddsorted= []		
+						ourRecipeHops = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND hopAddAt < :4 AND hopAddAt > :5", username,recipeName,"hops",0.07,0.04).fetch(4344)
+
+						HOPS={}
+						for orh in ourRecipeHops:
+							if not HOPS.has_key( orh.hopAddAt ):
+								if orh.hopAddAt < 1:
+									HOPS[orh.hopAddAt]=[]
+									HOPS[orh.hopAddAt].append( orh )
+									hopaddsorted.append( orh.hopAddAt )
+						hopaddsorted.sort()
+						hopaddsorted.reverse()
+
+						haveWhirlpool=False
+						for hopAddAt in hopaddsorted:
+							if hop_labels.has_key(hopAddAt):
+								additions=hop_labels[ hopAddAt ]
+							else:
+								additions='%s min' %(hopAddAt)
+
+							for hop in HOPS[ hopAddAt ]:
+								haveWhirlpool=True
+								percentage = 1
+								hopqty = hop.qty * percentage
+
+								estep = gBrewlogStep(brewlog=brewlog,owner=username,activityNum=activity.activityNum,stepNum=step.stepNum,subStepNum=ssnumFIX)		
+								estep.db=self.dbWrapper
+								estep.compileStep=True
+								estep.stepName="Add %.1f%s of %s for %s additions" %(hopqty,hop.unit,hop.ingredient,additions)
+								estep.needToComplete=True
+								estep.put()
+								ssnumFIX=ssnumFIX+1
+						sys.stderr.write("WHIRLPOOL hops\n\n%s" %(HOPS))
+
+						if not haveWhirlpool:
 							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
 							if len(disableStep):
 								disableStep[0].activityNum=-9

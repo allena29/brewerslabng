@@ -115,6 +115,7 @@ if form.has_key("action"):
 		db.query("update gCompileText SET stepNum = stepNum + 1 WHERE process='%s' AND activityNum = %s AND stepNum %s %s" %( form['process'].value,form['activityid'].value,stepgteq,form['stepid'].value ))
 
 		newStep=gProcess()
+		newStep.owner="test@example.com"
 		newStep.stepName="New Step #%s" %(newstepid)
 		newStep.text=time.ctime()
 		newStep.process=form['process'].value
