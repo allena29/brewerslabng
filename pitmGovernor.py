@@ -474,6 +474,7 @@ class pitmController:
 		#
 		self._log(" - select brewlog fetching stats")
 		try:
+			self._log("http://192.168.1.13:54660/metroui/pitmBrewloglist.py")
 			recipes=json.loads(urllib2.urlopen("http://192.168.1.13:54660/metroui/pitmBrewloglist.py").read())
 		except:
 			self.error('Error:',' unable to fetch',' recipe stats','')
@@ -798,7 +799,7 @@ class pitmController:
 				if os.path.exists("ipc/swSparge"):
 					if not os.path.exists("ipc/activityHltSparge"):
 						flag=open("ipc/activityHltSparge","w")
-						flg.close()	
+						flag.close()	
 					self.mode="hlt/sparge/mash"
 					self.hltpower=True				
 					if self.showActivityOrTime > 3:
