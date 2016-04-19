@@ -159,6 +159,8 @@ class pitmTemperature:
 		if self._mode.count("pump"):
 			boil=True
 			ferm=True
+		if self._mode =='ferm-wait':
+			ferm=True
 		if self._mode =='ferm':
 			ferm=True
 		if ferm or hlt or mash or boil:
