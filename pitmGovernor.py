@@ -782,7 +782,7 @@ class pitmController:
 				self.lcdDisplay.sendMessage(" Mash / Dough In Grain",3)	
 				if not os.path.exists("ipc/activityDough"):
 					flag=open("ipc/activityDough","w")
-					flg.close()	
+					flag.close()	
 			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swFerm")) and not os.path.exists("ipc/mash_toggle_type-dough"):
 				#we could just be doing a mash
 				# but not doughing in the grain
