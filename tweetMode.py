@@ -54,7 +54,7 @@ def doTweet(msg,notify=False):
 #
 # brew start
 print "Activity Started....",
-if not os.path.exists("ipc/tweeted-brewstart") and os.path.exists("activityStarted"):
+if not os.path.exists("ipc/tweeted-brewstart") and os.path.exists("ipc/activityStarted"):
 	flag=open("ipc/tweeted-brewstart","w")
 	flag.close()
 	doTweet('Started a brewday %s' %(recipename))
@@ -177,7 +177,7 @@ if not os.path.exists("ipc/tweeted-boil-temp") and os.path.exists("ipc/activityR
 	flag.close()
 	doTweet('kettle nearly at a boil',notify=True)
 	print " KETTLE READY",
-if not os.path.exists("ipc/tweet-ferm-pitching-temp") and os.path.exsits("ipc/ferm-pitching-temp"):
+if not os.path.exists("ipc/tweet-ferm-pitching-temp") and os.path.exists("ipc/ferm-pitching-temp"):
 	flag=open("ipc/tweet-ferm-pitching-temp","w")
 	flag.close()
 	doTweet('FV at pitching temp',notify=True)
