@@ -25,7 +25,7 @@
 # m h  dom mon dow   command
 
 MAILTO=""
-1 * * * * sudo sh /home/beer/brewerslab/slave/doGraphs
+1 * * * * sudo sh /home/beer/brewerslab/slave/doGraphs ARCHIVE
 11 * * * * sudo sh /home/beer/brewerslab/slave/doGraphs
 21 * * * * sudo sh /home/beer/brewerslab/slave/doGraphs
 31 * * * * sudo sh /home/beer/brewerslab/slave/doGraphs

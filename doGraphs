@@ -22,12 +22,21 @@ echo $file
 
 
 startTime=`rrdtool dump $file  | grep "row" | grep -v NaN | grep [GB][MS]T | head -n 1 | sed -e 's/.* [BG][MS]T \/ //' | sed -e 's/ .*//'`
-
 echo "Start time $startTime"
 echo python /home/beer/brewerslab/slave/graph.py $file $startTime
 python /home/beer/brewerslab/slave/graph.py $file $startTime
 sudo cp *.png /web/piTempMonitor
 
+if [ "$1" = "ARCHIVE" ]
+then
+	hourlyCode=`date +%Y%m%d-%H00`
+	if [ -f /archivedata/$hourlyCode.$file.png ]
+	then
+		echo "Hourly Graph exists already"
+	else
+		sudo cp $file.png /archivedata/$hourlyCode.$file.png
+	fi
+fi
 done
 
 else
