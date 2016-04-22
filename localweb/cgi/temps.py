@@ -20,7 +20,7 @@ print """
 	<h3>List last updated: 
 """
 
-print time.ctime(os.stat("/archivedata/").st_mtime )
+print time.ctime(os.stat("archivedata/").st_mtime )
 
 print """</h3>"""
 
