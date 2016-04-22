@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import os
 print """
 <!DOCTYPE html>
 <html>
@@ -14,7 +14,12 @@ print """
 
 	<div class="container">
   
+"""
+if os.environ['REMOTE_ADDR'].count("172.12.12") and os.path.exists("wifistate/.__GLOBAL__"):
+	print "<H3>Note: aaaBREWERSLAB local wifi access point currently active - this will switch to %s in less than 10 minutes</H3>" %( open("wifistate/.__GLOBAL__").read().split(":")[0])
 
+	
+print """
 		    <div class="tile-container">
 
                 <a href="javascript:showDialog('#poweroffDialog')" class="tile bg-crimson fg-white" data-role="tile">
