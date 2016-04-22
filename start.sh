@@ -4,6 +4,8 @@ date >/tmp/slave_bootup
 ping 192.168.1.10 &
 
 
+echo "Remove old flags each reboot"
+rm -f /home/beer/brewerslab/slave/localweb/wifistate/*
 
 
 

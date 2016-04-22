@@ -27,11 +27,11 @@ print """
 
 
 
-                <a href="javascript:showDialog('#timeDialog')" class="tile bg-crimson fg-white" data-role="tile">
+                <a href="settings.py" class="tile bg-crimson fg-white" data-role="tile">
                     <div class="tile-content iconic">
-                        <span class="icon mif-hour-glass"></span>
+                        <span class="icon mif-cogs"></span>
                     </div>
-                    <span class="tile-label">Set Time/Date</span>
+                    <span class="tile-label">Setings</span>
                 </a>
 
 		</div>
