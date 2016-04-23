@@ -52,12 +52,21 @@ print """
                 </a>
 
 
-                <a href="start.py" class="tile bg-green fg-white" data-role="tile">
-                    <div class="tile-content iconic">
+                <a href="javascript:startMonitoring()" class="tile bg-green fg-white" data-role="tile" id="startTile">
+                    <div class="tile-content iconic" >
                         <span class="icon mif-play"></span>
                     </div>
                     <span class="tile-label">Start Monitoring</span>
                 </a>
+
+
+		<div class="tile" id="activeTile" style="display: none">
+                    <div class="tile-content iconic" >
+                        <span class="icon mif-play"></span>
+                    </div>
+                    <span class="tile-label">Monitoring Active</span>
+
+		</div>
 
 		</div>
 
@@ -65,9 +74,41 @@ print """
 	</div>
     </div>
 
+"""
+if os.path.exists("/tmp/standalone-temp-active"):
+	print """
+		<script language="Javascript">
+			$("#startTile").hide();
+			$("#activeTile").show();
+		</script>
+	"""
+
+print """
+
+<script language=Javascript>
+
+function startMonitoring(){
+
+		$("#startTile").hide();
+		$("#activeTile").show();
 
 
+		$.ajax({
+		    url: "start.py?start=True",
+		    error: function(){
+			alert("Unable to start monitoring");
+		    },
+		    success: function(xml){
+			alert("Monitoring Started");
+		    },
+		    timeout: 5000 // sets timeout to 3 seconds
+		});
 
+		
+
+}
+
+</script>
 
 <div data-role="dialog" id="poweroffDialog" style='padding: 15px'>
     <h1>Power Off</h1>
