@@ -35,6 +35,14 @@ print """
                 </a>
 
 
+                <a href="probes.py" class="tile bg-crimson fg-white" data-role="tile">
+                    <div class="tile-content iconic">
+                        <span class="icon mif-magic-wand"></span>
+                    </div>
+                    <span class="tile-label">Configure Probes</span>
+                </a>
+
+
 
 
 		</div>
@@ -102,7 +110,7 @@ if(d.getMinutes() < 10){
 	$("#minute").val( d.getMinutes() );
 
 }
-$("#newdate").val( d.getFullYear()+"."+d.getMonth()+1+"."+d.getDate() );
+$("#newdate").val( d.getFullYear()+"."+(parseInt(d.getMonth())+1)+"."+d.getDate() );
 
 
 </script>
@@ -322,7 +330,6 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 
 
 <script>
-showDialog('#timeDialog')
 </script>
 </html>
 """

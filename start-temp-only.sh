@@ -47,13 +47,9 @@ chown beer:beer /currentdata
 chown beer:beer /archivedata
 
 
-ntpdate -s uk.pool.ntp.org
 
 echo "Mount Tmpfs"
 mount -t tmpfs -o size=50m tmpfs /currentdata
-
-sh temperature.sh "Launching"
-sh grapher.sh "Launching"
 
 echo "Starting Local Server"
 sudo -u beer /usr/bin/screen -dmS localweb python localweb/localserve.py
