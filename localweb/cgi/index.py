@@ -51,6 +51,14 @@ print """
                     <span class="tile-label">Readings</span>
                 </a>
 
+
+                <a href="start.py" class="tile bg-green fg-white" data-role="tile">
+                    <div class="tile-content iconic">
+                        <span class="icon mif-play"></span>
+                    </div>
+                    <span class="tile-label">Start Monitoring</span>
+                </a>
+
 		</div>
 
 

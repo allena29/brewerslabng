@@ -39,7 +39,7 @@ if form.has_key("action"):
 		print "Content-Type:text/html\n\nRebooting... please wait"
 
 		os.system("sudo sh /home/beer/brewerslab/rebootIn15.sh &")
-
+		sys.exit(0)
 print """
 <!DOCTYPE html>
 <html>

@@ -24,7 +24,7 @@ then
 
 	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
 else
-	  python /home/beer/brewerslab/gpio23led.py
+	  python /home/beer/brewerslab/gpio23led.py 3
 fi
 
  
