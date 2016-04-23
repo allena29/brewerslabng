@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import time
 
 print """
 <!DOCTYPE html>
@@ -26,6 +27,14 @@ print """
                 </a>
 
 
+                <a href="javascript:showDialog('#timeDialog')" class="tile bg-crimson fg-white" data-role="tile">
+                    <div class="tile-content iconic">
+                        <span class="icon mif-calendar"></span>
+                    </div>
+                    <span class="tile-label">Configure Time/Date</span>
+                </a>
+
+
 
 
 		</div>
@@ -36,6 +45,84 @@ print """
     </div>
 
 
+
+
+<div data-role="dialog" id="timeDialog" style='padding: 15px'>
+    <h1>Time/Date</h1>
+    <p>
+
+
+"""
+(year,month,day,hour,minut,sec,wday,yday,idst)=time.localtime()
+print """
+
+	<table border=0>
+		<tr>
+		<td>Server Date:</td>
+		<td>%s.%s.%s %s:%s
+		</td>
+		</tr>
+""" %(year,month,day,hour,minut)
+
+print """
+		<tr>
+		<td>Date:</td>
+		<td>
+<div class="input-control text" data-role="datepicker">
+    <input type="text" id='newdate'>
+    <button class="button"><span class="mif-calendar"></span></button>
+</div>
+		</td>
+		</tr>
+		<tr>
+		<td>Time:</td>
+		<td>
+
+	<select id=hour>
+"""
+for c in range(24):
+	print "<option>%02d" %(c)
+print """</select>:<select id=minute>
+"""
+for c in range(60):
+	print "<option>%02d" %(c)
+print """</select>
+
+<script languge=Javascript>
+var d = new Date();
+var n = d.getHours();
+if(d.getHours() < 10){
+	$("#hour").val("0"+ d.getHours() );
+}else{
+	$("#hour").val( d.getHours() );
+}
+if(d.getMinutes() < 10){
+	$("#minute").val("0"+ d.getMinutes() );
+}else{
+	$("#minute").val( d.getMinutes() );
+
+}
+$("#newdate").val( d.getFullYear()+"."+d.getMonth()+1+"."+d.getDate() );
+
+
+</script>
+		</td>
+		</tr>
+		<tr>
+		<td>Admin Password: </td>
+		<td><!-- Input with reveal helper -->
+			<div class="input-control password" data-role="input">
+			    <input type="password" id='password2' value="">
+			    <button class="button helper-button reveal"><span class="mif-looks"></span></button>
+			</div></td>
+		</tr>
+	</table>
+
+    <p align="right">
+	<input type='button' value='Cancel' onClick="cancelDialog('timeDialog')"> &nbsp; - &nbsp;
+	<input type='button' value='Update' onClick="changeTimeDate()" id='changeTimeButton'>
+    </p>
+</div>
 
 
 <div data-role="dialog" id="wifiDialog" style='padding: 15px'>
@@ -91,10 +178,35 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 	$("#"+id).hide();
     }
     function showDialog(id){
+	document.getElementById('changeTimeButton').disabled=false;
+
+
         var dialog = $(id).data('dialog');
         dialog.open();
 	$(""+id).show();
     }
+
+
+	function changeTimeDate(){
+		document.getElementById('changeTimeButton').disabled=true;
+//	    alert( "dotimereconfig.py?date="+$("#newdate").val()+"&hour="+$("#hour").val()+"&minutes="+$("#minute").val()+"&adminpass="+$("#password2").val() );
+
+
+	$.ajax({
+	    url: "dotimereconfig.py?date="+$("#newdate").val()+"&hour="+$("#hour").val()+"&minutes="+$("#minute").val()+"&adminpass="+$("#password2").val(),
+	    error: function(){
+		alert("Unable to change time/date");
+	    },
+	    success: function(xml){
+		alert("Done");
+		document.getElementById('changeTimeButton').disabled=false;
+		cancelDialog('timeDialog');
+
+	    },
+	    timeout: 5000 // sets timeout to 3 seconds
+	});
+	}
+
 
 //  showDialog("#wifiDialog2");
 	function warnWifiChange(){
@@ -209,6 +321,8 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 </body>
 
 
-
+<script>
+showDialog('#timeDialog')
+</script>
 </html>
 """

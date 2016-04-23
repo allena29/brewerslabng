@@ -60,29 +60,6 @@ print """
 
 
 
-<div data-role="dialog" id="timeDialog" style='padding: 15px'>
-    <h1>Time/Date</h1>
-    <p>
-
-        <b>Enter your password and the new time/date</b></P>
-
-	Password: <!-- Input with reveal helper -->
-		<div class="input-control password" data-role="input">
-		    <input type="password" id='password2'>
-		    <button class="button helper-button reveal"><span class="mif-looks"></span></button>
-		</div>
-
-
-    <p align="right">
-	<input id='timeCancelButton' type='button' value='Cancel' onClick="cancelDialog('poweroffDialog')"> &nbsp; - &nbsp;
-	<input type='button' value='Update' onClick="doShutdown()" id='timeUpdateButton'>
-    </p>
-</div>
-
-<script language="Javascript">
-showDialog("#timeDialog");
-</script>
-
 
 <div data-role="dialog" id="poweroffDialog" style='padding: 15px'>
     <h1>Power Off</h1>
@@ -111,6 +88,15 @@ showDialog("#timeDialog");
 		$("#shutdownWarning").show();
 		document.getElementById("poweroffDialogShutdownButton").disabled=true;
 		document.getElementById("poweroffDialogCancelButton").disabled=true;
+
+		$.ajax({
+		    url: "poweroff.py?poweroff=True&adminpass="+$("#password").val(),
+		    success: function(xml){
+			alert("Poweroff started");
+		    },
+		    timeout: 3000 // sets timeout to 3 seconds
+		});
+
 	}
     }
     function cancelDialog(id){	
