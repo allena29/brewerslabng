@@ -17,13 +17,14 @@ echo "Starting Local WIFI"
 sh /home/beer/brewerslab/start-local-wifi-hotspot.sh
 
 
-if [ -f /home/beer/brewerslab/localweb/wifistate/.__GLOBAL__ ]
+if [ -f /home/beer/brewerslab/slave/localweb/wifistate/.__GLOBAL__ ]
 then
+	echo "Delay switched to configure SSID"
+	python /home/beer/brewerslab/gpio23led.py 2 &
 
-echo "Delay switched to configure SSID"
-
- sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
-
+	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
+else
+	  python /home/beer/brewerslab/gpio23led.py
 fi
 
  
@@ -55,6 +56,6 @@ sh temperature.sh "Launching"
 sh grapher.sh "Launching"
 
 echo "Starting Local Server"
-su - beer -c "/usr/bin/screen -dmS localweb python localweb/localserve.py"
+sudo -u beer /usr/bin/screen -dmS localweb python localweb/localserve.py
 
 

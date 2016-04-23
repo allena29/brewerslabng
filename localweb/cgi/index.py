@@ -17,7 +17,7 @@ print """
 """
 if os.environ['REMOTE_ADDR'].count("172.12.12") and os.path.exists("wifistate/.__GLOBAL__"):
 	print "<H3>Note: aaaBREWERSLAB local wifi access point currently active - this will switch to %s in less than 10 minutes</H3>" %( open("wifistate/.__GLOBAL__").read().split(":")[0])
-
+	print "To remove the wireless settings <a href='removewifi.py'>click here</a>"
 	
 print """
 		    <div class="tile-container">
@@ -119,6 +119,7 @@ showDialog("#timeDialog");
     function showDialog(id){
         var dialog = $(id).data('dialog');
         dialog.open();
+	$(id).show();
     }
 </script>
 

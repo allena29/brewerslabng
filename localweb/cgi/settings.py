@@ -80,7 +80,7 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 <B>	<span id='wifireconfigstatus'></span></B>
 	<p>	
 	<input type=hidden id='replacementIp' value=''>
-	<input id='wifiCancelButton' type='button' value='Cancel' onClick="cancelDialog('wifiDialog2')"> &nbsp; - &nbsp;
+	<input id='wifiCancelButton' type='button' value='Cancel' onClick="cancelWifiChange()"> &nbsp; - &nbsp;
 	<input type='button' value='Keep Wireless Details' onClick="keepWifiChange()" id='wifiKeepButton'>
 	
     </p>
@@ -144,6 +144,18 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 		    },
 		    success: function(xml){
 			location.replace("bouncer.py?ip="+$("#replacementIp").val() +"&ssid="+$("#ssid").val());
+		    },
+		    timeout: 30000 // sets timeout to 3 seconds
+		});
+	}
+	function cancelWifiChange(){
+		$.ajax({
+		    url: "poweroff.py?reboot=true&adminpass="+$("#password3").val(),
+		    error: function(){
+			alert("Error rebooting");
+		    },
+		    success: function(xml){
+			location.replace("index.py")
 		    },
 		    timeout: 30000 // sets timeout to 3 seconds
 		});
