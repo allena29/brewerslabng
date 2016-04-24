@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import time
-
+import os
 print """
 <!DOCTYPE html>
 <html>
@@ -26,8 +26,18 @@ print """
                     <span class="tile-label">Configure Wireless</span>
                 </a>
 
+		<script language="Javascript">
+		function tryChangeTime(){
+"""
 
-                <a href="javascript:showDialog('#timeDialog')" class="tile bg-crimson fg-white" data-role="tile">
+if os.path.exists("/tmp/standalone-temp-active"):
+	print """ alert('Time/Date cannot be changed when temperature monitoring is active'); """
+else:
+	print """ showDialog('#timeDialog'); """
+print """
+		}
+		</script>
+                <a href="javascript:tryChangeTime()" class="tile bg-crimson fg-white" data-role="tile">
                     <div class="tile-content iconic">
                         <span class="icon mif-calendar"></span>
                     </div>

@@ -4,7 +4,7 @@ import re
 import os
 import cgi
 
-
+rxTemp=re.compile("^.*t=(\d+)")
 cfgprobe=re.compile("^\s*self.fermProbe\s*=\s*\"(\S+)\".*")
 
 form=cgi.FieldStorage()
@@ -66,7 +66,17 @@ for probe in os.listdir("/sys/bus/w1/devices/"):
 	if probe.count("28-"):
 		print "<li> ",probe
 		realProbes.append( probe )
+		o=open("/sys/bus/w1/devices/%s/w1_slave" %(probe))
+		text=o.readline()
+		temp=o.readline()
+		if text.count("NO"):
+			print " - Invalid reading"
+		elif text.count("YES"):
+			(temp,)=rxTemp.match(temp).groups()
+			temperature=float(temp)/1000
+			print " - %.3f C" %(temperature)
 
+		o.close()
 print """
 <form method=POST>
 <input type=hidden name=action value="updateprobes">
