@@ -12,6 +12,12 @@ then
  do=1
 fi
 
+if [ -f "/tmp/standalone-temp-active" ]
+then
+ echo   "Fermentation (Standalone)" 
+ do=1
+fi
+ 
 if [ $do = 1 ]
 then
 
@@ -21,7 +27,7 @@ do
 echo $file
 
 
-startTime=`rrdtool dump $file  | grep "row" | grep -v NaN | grep [GB][MS]T | head -n 1 | sed -e 's/.* [BG][MS]T \/ //' | sed -e 's/ .*//'`
+startTime=`rrdtool dump $file  | grep "row" | grep -v NaN | grep -E "[A-Z]{3}" | head -n 1 | sed -E 's/.* [A-Z]{3} \/ //' | sed -e 's/ .*//'`
 echo "Start time $startTime"
 echo python /home/beer/brewerslab/slave/graph.py $file $startTime
 python /home/beer/brewerslab/slave/graph.py $file $startTime
