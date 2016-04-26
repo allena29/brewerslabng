@@ -277,6 +277,12 @@ class pitmTemperature:
 		self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 		self.mcastMembership=True
 
+
+		if os.path.exists("/tmp/standalone-temp-active"):
+			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self._targetFerm=19
+
 		while True:
 			(data, addr) = self.sock.recvfrom(1200)
 			self.decodeMessage(data)	

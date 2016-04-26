@@ -122,7 +122,12 @@ class pitmGrapher:
 			self._brewlog=re.compile("[^A-Za-z0-9]").sub('', cm['_brewlog'])
 
 		if cm.has_key("_mode"):
-			if cm['_mode'].count("ferm"):
+			if os.path.exists("/tmp/standalone-temp-active"):
+				self.doMonitoring=True
+				self.lastActivity="ferm"
+				self.probesToMonitor[ self.cfg.fermProbe]= True 
+	
+			elif cm['_mode'].count("ferm"):
 				self.doMonitoring=True
 				self.lastActivity="ferm"
 				if cm.has_key("tempTarget"):
