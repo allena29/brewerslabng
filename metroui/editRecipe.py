@@ -649,8 +649,15 @@ class editRecipe:
 		sumIbu=self.sumIbu
 		i=self.i
 
-		hop_values=[0.009,0.001,5,15,60,20.222]
-		hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.001:'Flameout (0min)',0.009:'Dryhop',20.222:'First Wort Hop' }
+		hop_values=[ 60, 15, 5, 0.08, 0.06, 0.02, 20.222]
+		hop_labels = {60:'Copper (60min)',
+			      15:'Aroma (15min)',
+			      5:'Finishing (5min)',
+			      0.08:'Flameout (0min)',
+			      0.06:'Whirlpool/Hopback (0min)',
+			      0.02:'Dryhop' ,
+			      '20.222':'First Wort Hop'}
+
 		itemType='hops'
 		cursor=self.con.cursor()
 		cursor.execute("select entity,recipeName,ingredient,qty,hopAddAt,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = '%s' AND hopAddAt >=%s and hopAddAt <=%s ORDER BY hopAddAt DESC,qty DESC" %(self.recipeName,itemType,hopAddAtA,hopAddAtB))
