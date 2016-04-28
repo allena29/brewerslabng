@@ -50,6 +50,8 @@ chown beer:beer /archivedata
 
 echo "Mount Tmpfs"
 mount -t tmpfs -o size=50m tmpfs /currentdata
+mkdir /currentdata/lastreading
+
 
 echo "Starting Local Server"
 sudo -u beer /usr/bin/screen -dmS localweb python localweb/localserve.py

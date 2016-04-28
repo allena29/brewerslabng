@@ -33,7 +33,7 @@ ntpdate -s uk.pool.ntp.org
 
 echo "Mount Tmpfs"
 mount -t tmpfs -o size=50m tmpfs /currentdata
-
+mkdir /currentdata/lastreading
 
 
 ###################################

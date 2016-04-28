@@ -70,7 +70,8 @@ print """
 
 		</div>
 
-
+		
+<p>Last Reading: <span id=lastReading>...</span>
 	</div>
     </div>
 
@@ -86,6 +87,35 @@ if os.path.exists("/tmp/standalone-temp-active"):
 print """
 
 <script language=Javascript>
+
+function updateLastReading(){
+		$.ajax({
+		    url: "lastreading.py",
+		    error: function(){
+			setTimeout(updateLastReading,3000);
+		    },
+		    success: function(xml){
+			if( $(xml).find('status')){
+				if($(xml).find('status').text() == "0"){
+
+					$("#lastReading").html("");
+					readings=parseInt($(xml).find('readings').text());
+					for(r=0;r<readings;r++){
+						reading=$(xml).find('reading'+r).text();
+						$("#lastReading").append( reading);
+					}
+				}else{
+					$("#lastReading").html( $(xml).find('msg').text() );
+				}
+			}
+			setTimeout(updateLastReading,3000);
+		    },
+		    timeout: 5000 
+		});
+}
+
+
+setTimeout(updateLastReading,3000);
 
 function startMonitoring(){
 
