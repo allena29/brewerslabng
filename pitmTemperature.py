@@ -260,7 +260,13 @@ class pitmTemperature:
 										self._log("Adjusting temperature by %s" %(adjust))
 										temperature=temperature+adjust
 									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
-					
+				
+								try:
+									o=open("/currentdata/lastreading/%s" %(probe),"w")
+									o.write("%.5f" %(temperature))
+									o.close()
+								except:
+									pass	
 								self.lastResult[probe]=temperature
 
 							time.sleep(1)		# try a 0.05 delay to avoid false readings

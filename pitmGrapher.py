@@ -66,19 +66,20 @@ class pitmGrapher:
 
 
 	def submission(self):
-		self._log("Submitting to control of Controller")
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-		self.sock.bind(('', self.cfg.mcastPort))
-		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-		self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-		self.mcastMembership=True
+		if not os.path.exists("/tmp/standalone-temp-active"):
+			self._log("Submitting to control of Controller")
+			self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			self.sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+			self.sock.bind(('', self.cfg.mcastPort))
+			mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
+			self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+			self.mcastMembership=True
 
-		while True:
-			(data, addr) = self.sock.recvfrom(1200)
-			self.decodeMessage(data)	
-				
+			while True:
+				(data, addr) = self.sock.recvfrom(1200)
+				self.decodeMessage(data)	
+					
 
 	def broadcastResult(self):
 
