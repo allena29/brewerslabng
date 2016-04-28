@@ -14,7 +14,9 @@ else
 	echo "Kill Inidictor we can take care of that ourself"
 	kill `ps -ef | grep gpio23led | head -n 1 | sed -e 's/^\S* *//' | sed -e 's/ .*//'`
 
-ntpdate -s uk.pool.ntp.org
+
+	echo "nameserver 8.8.8.8" >/etc/resolv.conf
+	ntpdate -s uk.pool.ntp.org
 
 
 	python /home/beer/brewerslab/gpio23led.py 4 &
