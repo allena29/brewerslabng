@@ -894,3 +894,35 @@ update gRecipes set fermTemp=19;
 
 update gIngredients SET hopAddAt = 0.02 WHERE hopAddAt > -1 AND ingredientType='hops' AND hopAddAt < 4 aND hopAddAt < 0.01 AND hopAddAt >0.008;
 update gIngredients set hopAddAt=0.08  WHERE hopAddAt > -1 AND ingredientType='hops' AND hopAddAt < 0.019;;
+
+
+
+// May 2016 - updates for water treatment
+
+
+DROP TABLE IF EXISTS `gWater`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gWater` (
+  `entity` int(11) NOT NULL AUTO_INCREMENT,
+  `owner` char(255) DEFAULT NULL,
+  `alkalinity` float DEFAULT NULL,
+  `ca` float DEFAULT NULL,
+  `mg` float DEFAULT NULL,
+  `na` float DEFAULT NULL,
+  `co3` float DEFAULT NULL,
+  `so4` float DEFAULT NULL,
+  `cl` float DEFAULT NULL,
+  `testdate` int(14) DEFAULT NULL,
+  `profile` int(1) DEFAULT NULL,
+  `description` char(255) DEFAULT NULL,
+  PRIMARY KEY (`entity`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+LOCK TABLES `gWater` WRITE;
+/*!40000 ALTER TABLE `gWater` DISABLE KEYS */;
+INSERT INTO `gWater` VALUES (1,'test@example.com',0,190,15,30,15,329.9,164.9,-1,0,'Dry Pale Ale'),(2,'test@example.com',0,130,15,30,15,203.1,152.4,-1,0,'Sweet Pale Ale'),(3,'test@example.com',0,150,10,40,15,273.4,136.7,-1,0,'Bitter'),(4,'test@example.com',0,150,10,50,25,152.9,229.3,-1,0,'Mild'),(5,'test@example.com',0,180,10,10,75,85.3,341.2,-1,0,'Stout'),(6,'test@example.com',0,50,2,0,15,44.1,44.1,-1,0,'Lager'),(7,'test@example.com',0,141.1,10,100,50,100,300,-1,0,'Porter');
+/*!40000 ALTER TABLE `gWater` ENABLE KEYS */;
+UNLOCK TABLES;
+
+

@@ -38,7 +38,8 @@ class db:
 		self._gLocations=[]
 		self._gBeerStock=[]
 		self._gBrewery=[]
-
+		self._gWater=[]
+	
 		# give quick access to entitiy.. this might be hard to manage
 		# so maybe we won't end up using it
 		self._idxgProcesses={}
@@ -62,6 +63,7 @@ class db:
 		self._idxgLocations={}
 		self._idxgBeerStock={}
 		self._idxgBrewery={}
+		self._idxgWater={}
 
 
 	def briefDebugStandaloneDatastore(self):
@@ -84,6 +86,7 @@ class db:
 		print "gRecipeStats",len(self._gRecipeStats)
 		print "gCalclogs",len(self._gCalclogs)
 		print "gBrewery",len(self._gCalclogs)
+		print "gWater",len(self._gWater)
 		print "entity",self._entity	
 
 	def get(self,query):
@@ -110,6 +113,7 @@ class db:
 		if table == "gLocation":	g=gLocations()
 		if table == "gBeerStock":	g=gBeerStock()
 		if table == "gBrewery":	g=gBrewery()
+		if table == "gWater":	g=gWater()
 
 		if not g:
 			print "ERROR: table %s not supported" %(table)
@@ -2185,6 +2189,61 @@ class gRecipes(db):
 
 
 	
+class gWater(db):
+
+
+	def __init__(self,**kwargs):
+		self.dbg=0
+		self.entity=None
+		self.con=None
+		self.owner=""
+		self.alkalinity=0.00
+		self.ca=0.00
+		self.mg=0.00
+		self.na=0.00
+		self.co3=0.00
+		self.so4=0.00
+		self.cl=0.00
+		self.testdate=0
+		self.profile=0
+		self.description=""
+		self.types = {
+			'alkalinity':'numeric',
+			'ca':'numeric',
+			'mg':'numeric',
+			'na':'numeric',
+			'co3':'numeric',
+			'so4':'numeric',
+			'cl':'numeric',
+			'testdate':'numeric',
+			'profile':'numeric',
+			'description':'char',
+			'owner':'char',
+		}
+		self.tableName="gWater"
+		for key, value in kwargs.iteritems():
+			self.__dict__[key]=value
+
+
+	def insertSql(self):
+		return "INSERT INTO gWater VALUES (null, '%s', %s,%s,%s,%s,%s,%s,%s,%s,%s,'%s');" %( _mysql.escape_string(self.owner), self.alkalinity, self.ca,self.mg,self.na,self.co3,self.so4,self.cl,self.testdate,self.profile, _mysql.escape_string(self.description) )
+
+	def updateSql(self):
+		return "UPDATE gWater SET owner='%s', alkalinity= %s,ca=%s,mg=%s,na=%s,co3=%s,so4=%s,cl=%s,testdate=%s,profile=%s, description ='%s' WHERE entity=%s);" %( _mysql.escape_string(self.owner), self.alkalinity, self.ca,self.mg,self.na,self.co3,self.so4,self.cl,self.testdate,self.profile, _mysql.escape_string(self.description),self.entity )
+
+
+	def populate(self,row):
+		(( self.entity, self.owner,alkalinity,ca,mg,na,co3,so4,cl,self.testdate,self.profile,self.description),)=row
+		self.alkalinity=float(alkalinity)
+		self.ca=float(ca)
+		self.mg=float(mg)
+		self.na=float(na)
+		self.co3=float(co3)
+		self.so4=float(so4)
+		self.cl=float(cl)
+
+
+
 class gRecipeStats(db):
 
 
