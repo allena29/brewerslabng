@@ -1679,19 +1679,20 @@ issue is within ngData.py not within logic of cloudNG
 				else:
 					ssNum=int(tmpSSNUM[0].subStepNum)
 
-				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND storecategory = :3",username,brewlog,'fermentables').fetch(5000)
-				for purchaseObj in ourIngs:
-					ssNum=ssNum+1
-					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
-					x.db=self.dbWrapper
-					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
-					x.completed=False
-					x.stepStartTime=0
-					x.stepEndTime=0
-					x.needToComplete=True
-					x.subStepsCompleted=False
-					x.compileStep=gatherStep.compileStep
-					x.put()
+#April 2016 - 42AG - these steps appeared to be uncompleteable
+#				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND storecategory = :3",username,brewlog,'fermentables').fetch(5000)
+#				for purchaseObj in ourIngs:
+#					ssNum=ssNum+1
+#					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
+#					x.db=self.dbWrapper
+#					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
+#					x.completed=False
+#					x.stepStartTime=0
+#					x.stepEndTime=0
+#					x.needToComplete=True
+#					x.subStepsCompleted=False
+#					x.compileStep=gatherStep.compileStep
+#					x.put()
 
 
 
@@ -1706,24 +1707,24 @@ issue is within ngData.py not within logic of cloudNG
 					ssNum=-1
 				else:
 					ssNum=int(tmpSSNUM[0].subStepNum)
-				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'bottle').fetch(5000)
-				for purchaseObj in ourIngs:
-					ssNum=ssNum+1
-					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
-					x.db=self.dbWrapper
-					sys.stderr.write("%s\n" %(purchaseObj))
-					sys.stderr.write("%s\n" %(purchaseObj.qty))
-					sys.stderr.write("%s\n" %(purchaseObj.unit))
-					sys.stderr.write("%s\n" %(purchaseObj.stock))
-					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
-					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
-					x.completed=False
-					x.stepStartTime=0
-					x.stepEndTime=0
-					x.needToComplete=True
-					x.subStepsCompleted=False
-					x.compileStep=gatherStep.compileStep
-					x.put()
+#				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'bottle').fetch(5000)
+#				for purchaseObj in ourIngs:
+#					ssNum=ssNum+1
+#					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
+#					x.db=self.dbWrapper
+#					sys.stderr.write("%s\n" %(purchaseObj))
+#					sys.stderr.write("%s\n" %(purchaseObj.qty))
+#					sys.stderr.write("%s\n" %(purchaseObj.unit))
+#					sys.stderr.write("%s\n" %(purchaseObj.stock))
+#					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
+#					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
+#					x.completed=False
+#					x.stepStartTime=0
+#					x.stepEndTime=0
+#					x.needToComplete=True
+#					x.subStepsCompleted=False
+#					x.compileStep=gatherStep.compileStep
+#					x.put()
 
 
 			# add a gBrewlogStep details
@@ -1736,24 +1737,24 @@ issue is within ngData.py not within logic of cloudNG
 					ssNum=-1
 				else:
 					ssNum=int(tmpSSNUM[0].subStepNum)
-				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'keg').fetch(5000)
-				for purchaseObj in ourIngs:
-					ssNum=ssNum+1
-					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
-					x.db=self.dbWrapper
-					sys.stderr.write("%s\n" %(purchaseObj))
-					sys.stderr.write("%s\n" %(purchaseObj.qty))
-					sys.stderr.write("%s\n" %(purchaseObj.unit))
-					sys.stderr.write("%s\n" %(purchaseObj.stock))
-					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
-					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
-					x.completed=False
-					x.stepStartTime=0
-					x.stepEndTime=0
-					x.needToComplete=True
-					x.subStepsCompleted=False
-					x.compileStep=gatherStep.compileStep
-					x.put()
+#				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'keg').fetch(5000)
+#				for purchaseObj in ourIngs:
+#					ssNum=ssNum+1
+#					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
+#					x.db=self.dbWrapper
+#					sys.stderr.write("%s\n" %(purchaseObj))
+#					sys.stderr.write("%s\n" %(purchaseObj.qty))
+#					sys.stderr.write("%s\n" %(purchaseObj.unit))
+#					sys.stderr.write("%s\n" %(purchaseObj.stock))
+#					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
+#					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
+#					x.completed=False
+#					x.stepStartTime=0
+#					x.stepEndTime=0
+#					x.needToComplete=True
+#					x.subStepsCompleted=False
+#					x.compileStep=gatherStep.compileStep
+#					x.put()
 
 			# add a gBrewlogStep details
 			ourSteps = self.dbWrapper.GqlQuery("SELECT * FROM gProcess WHERE owner = :1 AND process = :2 AND auto = :3",username,process,"gatherthepolypins").fetch(400)
@@ -1765,24 +1766,24 @@ issue is within ngData.py not within logic of cloudNG
 					ssNum=-1
 				else:
 					ssNum=int(tmpSSNUM[0].subStepNum)
-				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'polypin').fetch(5000)
-				for purchaseObj in ourIngs:
-					ssNum=ssNum+1
-					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
-					x.db=self.dbWrapper
-					sys.stderr.write("%s\n" %(purchaseObj))
-					sys.stderr.write("%s\n" %(purchaseObj.qty))
-					sys.stderr.write("%s\n" %(purchaseObj.unit))
-					sys.stderr.write("%s\n" %(purchaseObj.stock))
-					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
-					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
-					x.completed=False
-					x.stepStartTime=0
-					x.stepEndTime=0
-					x.needToComplete=True
-					x.subStepsCompleted=False
-					x.compileStep=gatherStep.compileStep
-					x.put()
+#				ourIngs = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStock WHERE owner = :1 AND brewlog = :2 AND subcategory = :3",username,brewlog,'polypin').fetch(5000)
+#				for purchaseObj in ourIngs:
+#					ssNum=ssNum+1
+#					x=gBrewlogStep(brewlog=brewlog,owner=username,activityNum=gatherStep.activityNum, stepNum=gatherStep.stepNum,subStepNum=ssNum)
+#					x.db=self.dbWrapper
+#					sys.stderr.write("%s\n" %(purchaseObj))
+#					sys.stderr.write("%s\n" %(purchaseObj.qty))
+#					sys.stderr.write("%s\n" %(purchaseObj.unit))
+#					sys.stderr.write("%s\n" %(purchaseObj.stock))
+#					sys.stderr.write("%s\n" %(purchaseObj.stocktag))
+#					x.stepName=" %.2f %s of %s (%s)" %(purchaseObj.qty,purchaseObj.unit,purchaseObj.stock,purchaseObj.stocktag)
+#					x.completed=False
+#					x.stepStartTime=0
+#					x.stepEndTime=0
+#					x.needToComplete=True
+#					x.subStepsCompleted=False
+#					x.compileStep=gatherStep.compileStep
+#					x.put()
 
 
 			if reset:
