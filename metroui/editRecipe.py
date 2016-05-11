@@ -21,14 +21,6 @@ class editRecipe:
 		self.activeHops=""
 		self.activeYeast=""
 		self.activeMisc=""
-		if form.has_key("active"):
-			if not form['active'].value == "stats":	self.activeStats=""
-			if form['active'].value == "ferm":	self.activeFermentable="active "
-			if form['active'].value == "hops":	self.activeHops="active "
-			if form['active'].value == "yeast":	self.activeYeast="active "
-			if form['active'].value == "misc":	self.activeMisc="active "
-			if form['active'].value == "calclog":	self.activeCalclog="active "
-			if form['active'].value == "water":	self.activeWater="active "
 
 		self.colWidth=100
 		self.export=False
@@ -995,7 +987,8 @@ if __name__ == '__main__':
 		if export or form['active'].value == "hops":	r.activeHops = "active "
 		if export or form['active'].value == "yeast":	r.activeYeast = "active "
 		if export or form['active'].value == "misc":	r.activeMisc = "active "
-		if export or form['active'].value == "calclog":	r.activeCalclog="active"
+		if export or form['active'].value == "calclog":	r.activeCalclog="active "
+		if export or form['active'].value == "water":	r.activeWater="active "
 		if export:	r.colWidth=10
 	r.recipeName=form['recipeName'].value
 	r.export=export
