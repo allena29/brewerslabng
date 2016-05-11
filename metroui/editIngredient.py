@@ -21,6 +21,8 @@ if theme.localUser:
 		brewerslabCloudApi().setBatchSize("test@example.com", form['recipe'].value,float(form['batchsize'].value),doRecalculate="0")
 	if form['action'].value == "changeWaterMineral":
 		brewerslabCloudApi().setWaterMinerals("test@example.com", form['recipe'].value,form['waterType'].value,float(form['qty'].value),doRecalculate="0")
+	if form['action'].value == "changeWaterTest":
+		brewerslabCloudApi().setWaterTest("test@example.com", form['recipe'].value,form['test'].value,doRecalculate="0")
 	if form['action'].value == "changeWaterProfile":
 		brewerslabCloudApi().setWaterProfile("test@example.com", form['recipe'].value,form['profile'].value,doRecalculate="0")
 	if form['action'].value == "changeAlkalinity":
@@ -52,4 +54,4 @@ if theme.localUser:
 		con = _mysql.connect('localhost', 'brewerslab','beer','brewerslab')
 		con.query( "DELETE FROM gIngredients WHERE entity=%s" %(form['entity'].value))
 
-	print "Location: editRecipe.py?recipeName=%s&active=%s&recalc=True\n" %(form['recipe'].value,form['type'].value)
+	print "Location: editRecipe.py?recipeName=%s&active=%s&recalc=True#%s\n" %(form['recipe'].value,form['type'].value,form['type'].value)

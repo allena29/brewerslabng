@@ -7,7 +7,7 @@ import _mysql
 import mysql.connector
 from thememetro import *
 
-
+import time
 
 class editRecipe:
 
@@ -40,6 +40,7 @@ class editRecipe:
 		con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 		con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 		con3=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+		con4=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 		self.con=con
 		self.con2=con2
 
@@ -156,10 +157,10 @@ class editRecipe:
 					<p>
 		""" %(self.activeStats)
 		cursor=con.cursor()
-		cursor.execute("select recipeName,process,target_mash_temp,mash_efficiency,waterProfile,alkalinity,fermTemp,fermLowTemp,fermHighTemp from gRecipes WHERE recipeName = '%s' ;" %(self.recipeName))
+		cursor.execute("select recipeName,process,target_mash_temp,mash_efficiency,waterProfile,waterTested,alkalinity,fermTemp,fermLowTemp,fermHighTemp from gRecipes WHERE recipeName = '%s' ;" %(self.recipeName))
 		mashEfficiency=0
 		for row in cursor:
-			(recipeName,process,target_mash_temp,mashEfficiency,waterProfile,alkalinity,fermTemp,fermLowTemp,fermHighTemp)=row
+			(recipeName,process,target_mash_temp,mashEfficiency,waterProfile,waterTested,alkalinity,fermTemp,fermLowTemp,fermHighTemp)=row
 		cursor=db.query ("select recipe,estimated_og,estimated_fg,estimated_abv,estimated_ibu,topupvol,boil_vol,batchsize from gRecipeStats WHERE recipe='%s' AND process = '%s' ORDER BY entity DESC LIMIT 0,1" %(recipeName,process))
 		result=db.use_result()
 		row=result.fetch_row()
@@ -257,6 +258,7 @@ class editRecipe:
 				print "</select>"
 				print """<a href='javascript:adjustAlkalinity()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 
+			"""
 			if len(waterProfile):
 				print "<b>Water Profile:</b> <select id='waterprofile'>"
 				cursor3=con3.cursor()
@@ -268,16 +270,16 @@ class editRecipe:
 						selected="SELECTED" 
 					print "<option value='%s' %s>%s</option>" %(wp,selected,wp)
 				print "</select>"
-				print """<a href='javascript:adjustWaterProfile()'><i class="icon-checkmark fg-blue"></i></a><br>"""
-
+			"""
+				#print """<a href='javascript:adjustWaterProfile()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 		else:
 			print "<b>Target Ferm Temp:</b> %.1f'C (Low: %.1f'C High: %.1f'C) <br>" %(float(fermTemp),float(fermLowTemp),float(fermHighTemp))
 			print "<b>Target Mash Temp:</b> %.1f'C<br>" %(float(target_mash_temp))
 			print "<b>Mash Efficiency:</b> %.0f %%<br>" %(float(mashEfficiency))
 			if float(alkalinity) > 0:
 				print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))
-			if len(waterProfile):
-				print "<b>Water Profile:</b> %s<br>" %(waterProfile)
+			#if len(waterProfile):
+			#	print "<b>Water Profile:</b> %s<br>" %(waterProfile)
 
 
 
@@ -649,10 +651,11 @@ class editRecipe:
 					<p>
 		<iframe id='jbk' width=99%% height=50 frameborder=0 border=0></iframe><br>
 	
-	<b>Target: %s</b>
+	<b>Target Profile / Tested Water</b>
 	 <table class="table">
 		<thead>
 		<tr>
+		<td>&nbsp;</td>
 		<td>Calcium<br>Ca</td>
 		<td>Magnesium<br>Mg</td>
 		<td>Sodium<br>Na</td>
@@ -663,6 +666,28 @@ class editRecipe:
 		</head>
 		<tbody>
 		<tr>
+		""" %(self.activeWater)
+
+
+		if self.editable:
+			print "<td><select id='waterprofile'>"
+			cursor3=con3.cursor()
+			cursor3.execute("select entity,description FROM gWater WHERE profile=1 ORDER BY description")
+			for row3 in cursor3:
+				(entity,wp)=row3
+				selected=""
+				if waterProfile == wp:
+					selected="SELECTED" 
+				print "<option value='%s' %s>%s</option>" %(wp,selected,wp)
+			print "</select>"
+			print """<a href='javascript:adjustWaterProfile()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+			print "</td>"
+		else:
+			print "<td><B>%s</B></td>" %(waterProfile)
+
+		
+		print """
+
 		<td>%.2f</td>
 		<td>%.2f</td>
 		<td>%.2f</td>
@@ -670,13 +695,59 @@ class editRecipe:
 		<td>%.2f</td>
 		<td>%.2f</td>
 		</tr>
+
+		""" %( Ca,Mg,Na,CO3,SO4,Cl)
+
+		if waterTested < 1 and not self.editable:
+			print "<tr><td colspan=7 align=center>No water test details availables</td></tr>"
+
+		ca=0
+		mg=0
+		na=0
+		co3=0
+		so4=0
+		cl=0
+
+		if waterTested > 1 or self.editable:
+
+			if self.editable:
+				print "<tr><td><select id='watertest'>"
+			else:
+				print "<tr><td><b>%s</b></td>" %(time.ctime(float(waterTested)))
+			cursor4=con3.cursor()
+			cursor4.execute("select entity,ca,mg,na,co3,so4,cl,testdate FROM gWater WHERE profile=0 ORDER BY testdate DESC")
+			for row4 in cursor4:
+				(entity,xca,xmg,xna,xco3,xso4,xcl,wt)=row4
+				selected=""
+				if waterTested == wt:
+					selected="SELECTED" 
+					ca=xca
+					mg=xmg
+					na=xna
+					co3=xco3
+					so4=xso4
+					cl=xcl
+				if self.editable:
+					print "<option value='%s' %s>%s</option>" %(wt,selected,time.ctime(float(wt)))
+			if self.editable:	
+				print "</select>"
+				print """<a href='javascript:adjustWaterTest()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+				print "</td>"
+			print "<td>%.2f ppm</td>" %(ca)
+			print "<td>%.2f ppm</td>" %(mg)
+			print "<td>%.2f ppm</td>" %(na)
+			print "<td>%.2f ppm</td>" %(co3)
+			print "<td>%.2f ppm</td>" %(so4)
+			print "<td>%.2f ppm</td>" %(cl)
+			print "</td></tr>"
+			print """
 		</tbody>
 	</table>
+	"""
+		if self.editable:
+			print """	<p align=right><a href="water.py">Click Here to enter water test details</a> """
+		print """
 
-		""" %(self.activeWater,waterProfile, Ca,Mg,Na,CO3,SO4,Cl)
-
-
-			print """
 
 		 <table class="table">
 					<thead>
@@ -907,8 +978,13 @@ if __name__ == '__main__':
 		}
 
 
+		function adjustWaterTest(){
+		url="editIngredient.py?recipe=%s&type=water&action=changeWaterTest&test="+document.getElementById('watertest').value;
+		alert(url);
+		window.location.replace(url);
+		}
 		function adjustWaterProfile(){
-		url="editIngredient.py?recipe=%s&type=null&action=changeWaterProfile&profile="+document.getElementById('waterprofile').value;
+		url="editIngredient.py?recipe=%s&type=water&action=changeWaterProfile&profile="+document.getElementById('waterprofile').value;
 		window.location.replace(url);
 		}
 		function adjustAlkalinity(){
@@ -973,7 +1049,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"

@@ -926,6 +926,8 @@ INSERT INTO `gWater` VALUES (1,'test@example.com',0,190,15,30,15,329.9,164.9,-1,
 UNLOCK TABLES;
 
 ALTER TABLE gRecipes ADD waterProfile char(255);
+ALTER TABLE gRecipes ADD waterTested int(14);
 update gRecipes set waterProfile='Dry Pale Ale';
 update gRecipes set alkalinity=0;
+update gRecipes set waterTested=0;
 
