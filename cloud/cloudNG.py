@@ -207,6 +207,19 @@ class brewerslabCloudApi:
 
 
 		
+	def setWaterProfile(self,username,recipeName, newProfile,doRecalculate="1"):
+		# flag recipe rcalc at the recipe level
+		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)
+		for recipe in ourRecipe.fetch(500):
+			if not doRecalculate == "1":
+				recipe.calculationOutstanding=True
+			recipe.waterProfile=newProfile
+			recipe.put()
+		if doRecalculate == "1":
+			self.calculateRecipe(username,recipeName)
+			self.compile(username,recipeName,None)
+
+
 	def setAlkalinity(self,username,recipeName, newAlkalinity,doRecalculate="1"):
 		# flag recipe rcalc at the recipe level
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)

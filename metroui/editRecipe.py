@@ -37,6 +37,7 @@ class editRecipe:
 		self.sumIbu=0
 		con=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 		con2=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
+		con3=mysql.connector.connect(user='brewerslab',password='beer',database="brewerslab")
 		self.con=con
 		self.con2=con2
 
@@ -153,10 +154,10 @@ class editRecipe:
 					<p>
 		""" %(self.activeStats)
 		cursor=con.cursor()
-		cursor.execute("select recipeName,process,target_mash_temp,mash_efficiency,alkalinity,fermTemp,fermLowTemp,fermHighTemp from gRecipes WHERE recipeName = '%s' ;" %(self.recipeName))
+		cursor.execute("select recipeName,process,target_mash_temp,mash_efficiency,waterProfile,alkalinity,fermTemp,fermLowTemp,fermHighTemp from gRecipes WHERE recipeName = '%s' ;" %(self.recipeName))
 		mashEfficiency=0
 		for row in cursor:
-			(recipeName,process,target_mash_temp,mashEfficiency,alkalinity,fermTemp,fermLowTemp,fermHighTemp)=row
+			(recipeName,process,target_mash_temp,mashEfficiency,waterProfile,alkalinity,fermTemp,fermLowTemp,fermHighTemp)=row
 		cursor=db.query ("select recipe,estimated_og,estimated_fg,estimated_abv,estimated_ibu,topupvol,boil_vol,batchsize from gRecipeStats WHERE recipe='%s' AND process = '%s' ORDER BY entity DESC LIMIT 0,1" %(recipeName,process))
 		result=db.use_result()
 		row=result.fetch_row()
@@ -244,20 +245,37 @@ class editRecipe:
 			print "</select>"
 			print """<a href='javascript:adjustMashEfficiency()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 
-			print "<b>Alkalinity:</b> <select id='alkalinity'>"
-			for c in range(50):
-				selected=""
-				if float(c*5)+5 == float(alkalinity):
-					selected="SELECTED" 
-				print "<option value='%s' %s>%s CaCo3 mg/l</option>" %((c*5)+5,selected,(c*5)+5)
-			print "</select>"
-			print """<a href='javascript:adjustAlkalinity()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+			if float(alkalinity) > 0:
+				print "<b>Alkalinity:</b> <select id='alkalinity'>"
+				for c in range(50):
+					selected=""
+					if float(c*5)+5 == float(alkalinity):
+						selected="SELECTED" 
+					print "<option value='%s' %s>%s CaCo3 mg/l</option>" %((c*5)+5,selected,(c*5)+5)
+				print "</select>"
+				print """<a href='javascript:adjustAlkalinity()'><i class="icon-checkmark fg-blue"></i></a><br>"""
+
+			if len(waterProfile):
+				print "<b>Water Profile:</b> <select id='waterprofile'>"
+				cursor3=con3.cursor()
+				cursor3.execute("select entity,description FROM gWater WHERE profile=1 ORDER BY description")
+				for row3 in cursor3:
+					(entity,wp)=row3
+					selected=""
+					if waterProfile == wp:
+						selected="SELECTED" 
+					print "<option value='%s' %s>%s</option>" %(wp,selected,wp)
+				print "</select>"
+				print """<a href='javascript:adjustWaterProfile()'><i class="icon-checkmark fg-blue"></i></a><br>"""
 
 		else:
 			print "<b>Target Ferm Temp:</b> %.1f'C (Low: %.1f'C High: %.1f'C) <br>" %(float(fermTemp),float(fermLowTemp),float(fermHighTemp))
 			print "<b>Target Mash Temp:</b> %.1f'C<br>" %(float(target_mash_temp))
 			print "<b>Mash Efficiency:</b> %.0f %%<br>" %(float(mashEfficiency))
-			print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))
+			if float(alkalinity) > 0:
+				print "<b>Alkalinity:</b> %.1f CaCo3 mg/l<br>" %(float(alkalinity))
+			if len(waterProfile):
+				print "<b>Water Profile:</b> %s<br>" %(waterProfile)
 
 
 
@@ -745,6 +763,10 @@ if __name__ == '__main__':
 		}
 
 
+		function adjustWaterProfile(){
+		url="editIngredient.py?recipe=%s&type=null&action=changeWaterProfile&profile="+document.getElementById('waterprofile').value;
+		window.location.replace(url);
+		}
 		function adjustAlkalinity(){
 		url="editIngredient.py?recipe=%s&type=null&action=changeAlkalinity&alkalinity="+document.getElementById('alkalinity').value;
 		window.location.replace(url);
@@ -802,7 +824,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"

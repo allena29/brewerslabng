@@ -921,8 +921,11 @@ CREATE TABLE `gWater` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 LOCK TABLES `gWater` WRITE;
 /*!40000 ALTER TABLE `gWater` DISABLE KEYS */;
-INSERT INTO `gWater` VALUES (1,'test@example.com',0,190,15,30,15,329.9,164.9,-1,0,'Dry Pale Ale'),(2,'test@example.com',0,130,15,30,15,203.1,152.4,-1,0,'Sweet Pale Ale'),(3,'test@example.com',0,150,10,40,15,273.4,136.7,-1,0,'Bitter'),(4,'test@example.com',0,150,10,50,25,152.9,229.3,-1,0,'Mild'),(5,'test@example.com',0,180,10,10,75,85.3,341.2,-1,0,'Stout'),(6,'test@example.com',0,50,2,0,15,44.1,44.1,-1,0,'Lager'),(7,'test@example.com',0,141.1,10,100,50,100,300,-1,0,'Porter');
+INSERT INTO `gWater` VALUES (1,'test@example.com',0,190,15,30,15,329.9,164.9,-1,1,'Dry Pale Ale'),(2,'test@example.com',0,130,15,30,15,203.1,152.4,-1,1,'Sweet Pale Ale'),(3,'test@example.com',0,150,10,40,15,273.4,136.7,-1,1,'Bitter'),(4,'test@example.com',0,150,10,50,25,152.9,229.3,-1,1,'Mild'),(5,'test@example.com',0,180,10,10,75,85.3,341.2,-1,1,'Stout'),(6,'test@example.com',0,50,2,0,15,44.1,44.1,-1,1,'Lager'),(7,'test@example.com',0,141.1,10,100,50,100,300,-1,1,'Porter');
 /*!40000 ALTER TABLE `gWater` ENABLE KEYS */;
 UNLOCK TABLES;
 
+ALTER TABLE gRecipes ADD waterProfile char(255);
+update gRecipes set waterProfile='Dry Pale Ale';
+update gRecipes set alkalinity=0;
 
