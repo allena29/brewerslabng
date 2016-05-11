@@ -206,7 +206,38 @@ class brewerslabCloudApi:
 			return {'operation' : 'listBrewlogByRecipe', 'status' : 0}
 
 
+	def setWaterMinerals(self,username,recipeName, mineral,qty,doRecalculate="1"):
+		# flag recipe rcalc at the recipe level
+		## first make sure we have the item in the recipe
+		ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredient = :3 AND ingredientType = :4",username,recipeName,mineral,'misc')
+		ingredients=ourIngredients.fetch(100)
+		if len(ingredients) == 0:
+			sys.stderr.write("need to crete new item for water minerals %s\n" %(mineral))
+			I=gIngredients(recipename=recipeName,owner=username )
+			I.db=self.dbWrapper
+			I.ingredientType='misc'
+			if mineral == "crs":
+				I.unit="ml/L"
+			else:
+				I.unit="mg/L"
+			I.ingredient=mineral
+			I.processIngredient=False
+			I.category="watertreat"
+			I.qty=float(qty)
+			I.originalqty=0.0
+			I.put()
+		else:
+			sys.stderr.write("need to update qty for water minerals %s\n" %(mineral))
+			self.changeItemInRecipe(username,recipeName,'misc',mineral,float(qty),doRecalculate=0)
+	
+
+
+		if doRecalculate == "1":
+			self.calculateRecipe(username,recipeName)
+			self.compile(username,recipeName,None)
 		
+
+
 	def setWaterProfile(self,username,recipeName, newProfile,doRecalculate="1"):
 		# flag recipe rcalc at the recipe level
 		ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName)

@@ -19,6 +19,8 @@ if theme.localUser:
 
 	if form['action'].value == "changeBatchSize":
 		brewerslabCloudApi().setBatchSize("test@example.com", form['recipe'].value,float(form['batchsize'].value),doRecalculate="0")
+	if form['action'].value == "changeWaterMineral":
+		brewerslabCloudApi().setWaterMinerals("test@example.com", form['recipe'].value,form['waterType'].value,float(form['qty'].value),doRecalculate="0")
 	if form['action'].value == "changeWaterProfile":
 		brewerslabCloudApi().setWaterProfile("test@example.com", form['recipe'].value,form['profile'].value,doRecalculate="0")
 	if form['action'].value == "changeAlkalinity":

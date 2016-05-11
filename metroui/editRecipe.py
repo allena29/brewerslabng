@@ -15,11 +15,21 @@ class editRecipe:
 	def __init__(self):
 		self.recipeName=""
 		self.activeCalclog=""
+		self.activeWater=""
 		self.activeStats="active "
 		self.activeFermentables=""
 		self.activeHops=""
 		self.activeYeast=""
 		self.activeMisc=""
+		if form.has_key("active"):
+			if not form['active'].value == "stats":	self.activeStats=""
+			if form['active'].value == "ferm":	self.activeFermentable="active "
+			if form['active'].value == "hops":	self.activeHops="active "
+			if form['active'].value == "yeast":	self.activeYeast="active "
+			if form['active'].value == "misc":	self.activeMisc="active "
+			if form['active'].value == "calclog":	self.activeCalclog="active "
+			if form['active'].value == "water":	self.activeWater="active "
+
 		self.colWidth=100
 		self.export=False
 		self.editable=False
@@ -598,7 +608,7 @@ class editRecipe:
 		""" %(self.activeMisc,self.colWidth)
 
 		cursor=con.cursor()
-		cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'misc' ORDER BY qty DESC" %(self.recipeName))
+		cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'misc' AND category <> 'watertreat' ORDER BY qty DESC" %(self.recipeName))
 		for row in cursor:
 			(ent,recipe,ingredient,qty,unit)=row
 			row=result.fetch_row()
@@ -616,6 +626,148 @@ class editRecipe:
 				</p>
 				</div>
 		    </div>
+		"""
+
+
+
+		#
+		#
+		#
+		#
+		#
+
+
+		if waterProfile:
+			Ca=0
+			Mg=0
+			Na=0
+			CO3=0
+			SO4=0
+			Cl=0
+			
+			cursor=con.cursor()
+			cursor.execute("select ca,mg,na,co3,so4,cl  FROM gWater WHERE description = '%s'" %(waterProfile))
+			for row in cursor:
+				(Ca,Mg,Na,CO3,SO4,Cl)=row
+			print """
+		<a name='water'></a>
+		    <div class="accordion-frame">
+				<a href="#" class="%sheading">Water</a>
+				<div class="content">
+					<p>
+		<iframe id='jbk' width=99%% height=50 frameborder=0 border=0></iframe><br>
+	
+	<b>Target: %s</b>
+	 <table class="table">
+		<thead>
+		<tr>
+		<td>Calcium<br>Ca</td>
+		<td>Magnesium<br>Mg</td>
+		<td>Sodium<br>Na</td>
+		<td>Carbonate<br>CO<sub>3</sub></td>	
+		<td>Sulphate<br>SO<sub>4</sub></td>
+		<td>Chloride<br>Cl</td>
+		</tr>
+		</head>
+		<tbody>
+		<tr>
+		<td>%.2f</td>
+		<td>%.2f</td>
+		<td>%.2f</td>
+		<td>%.2f</td>
+		<td>%.2f</td>
+		<td>%.2f</td>
+		</tr>
+		</tbody>
+	</table>
+
+		""" %(self.activeWater,waterProfile, Ca,Mg,Na,CO3,SO4,Cl)
+
+
+			print """
+
+		 <table class="table">
+					<thead>
+					<tr>
+					    <th class="text-left" width=%s>&nbsp;</th>
+					    <th class="text-left" width=200>Qty</th>
+					    <th class="text-left">salt/mineral</th>
+					</tr>
+					</thead>
+
+					<tbody>
+			""" %(self.colWidth)
+		water={
+			'calciumsulphate': 0,
+			'calciumchloride':0,
+			'magnesiumsulphate':0,
+			'sodiumchloride':0,
+			'calciumcarbonate':0,
+			'sodiumcarbonate':0,
+			'sodiumsulphate':0,
+			'magnesiumcarbonate':0,
+			'crs':0,
+		}
+
+		cursor=con.cursor()
+		cursor.execute("select entity,recipeName,ingredient,qty,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = 'misc' AND category='watertreat' ORDER BY qty DESC" %(self.recipeName))
+		for row in cursor:
+			(ent,recipe,ingredient,qty,unit)=row
+			row=result.fetch_row()
+			if water.has_key(ingredient):	water[ingredient]=qty
+		cursor.close()
+
+		if self.editable:
+			print """
+			<tr><td></d><td><input type='text' id='crs' value='%.2f' size=6> ml/L <a href=javascript:adjustWater('crs')><i class="icon-checkmark fg-blue"></i></a></td><td>CRS</td></tr>
+			<tr><td></d><td><input type='text' id='calciumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumsulphate')><i class="icon-checkmark fg-blue"></i></a> </td><td>Calcium Sulphate (Gypsum)</td></tr>
+			<tr><td></d><td><input type='text' id='calciumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Chloride (Dihydrate)</td></tr>
+			<tr><td></d><td><input type='text' id='magnesiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Sulphate (Epsom)</td></tr>
+			<tr><td></d><td><input type='text' id='sodiumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Chloride (Common Table Salt)</td></tr>
+			<tr><td></d><td><input type='text' id='calciumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Carbonate (chalk)</td></tr>
+			<tr><td></d><td><input type='text' id='sodiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Carbonted (soda crystals)</td></tr>
+			<tr><td></d><td><input type='text' id='sodiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Sulphate (Glauber's salt)</td></tr>
+			<tr><td></d><td><input type='text' id='magnesiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Carbonte (anhydrous)</td></tr>
+			""" %(water['crs'],water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
+				water['calciumcarbonate'],water['sodiumcarbonate'], water['sodiumsulphate'],water['magnesiumcarbonate'])
+
+		if not self.editable:
+			print """
+			<tr><td></d><td>%.2f ml/L</td><td>CRS</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Calcium Sulphate (Gypsum)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Calcium Chloride (Dihydrate)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Magnesium Sulphate (Epsom)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Sodium Chloride (Common Table Salt)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Calcium Carbonate (chalk)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Sodium Carbonted (soda crystals)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Sodium Sulphate (Glauber's salt)</td></tr>
+			<tr><td></d><td>%.2f mg/L</td><td>Magnesium Carbonte (anhydrous)</td></tr>
+			""" %(water['crs'],water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
+				water['calciumcarbonate'],water['sodiumcarbonate'], water['sodiumsulphate'],water['magnesiumcarbonate'])
+
+		print """
+
+			
+					</tbody>
+
+					<tfoot></tfoot>
+				    </table>
+
+				</p>
+				</div>
+		    </div>
+<script language="Javascript">
+function showGrahamsWaterCalc(){
+document.getElementById("jbk").style.height="500px";
+document.getElementById("jbk").setAttribute('src',"http://www.jimsbeerkit.co.uk/water.html");
+}
+html="<font face=arial size=2>To calculate these values use <a href='javascript:parent.showGrahamsWaterCalc()'>Graham Wheeler's calcualtor at Jims Beer Kit</a>";
+iframe=document.getElementById("jbk");
+iframe.contentWindow.document.open();
+iframe.contentWindow.document.write(html);
+iframe.contentWindow.document.close();
+
+</script>
 		"""
 
 
@@ -804,6 +956,11 @@ if __name__ == '__main__':
 		window.location.replace(url);
 		}
 
+		function adjustWater(waterType){
+		d = new Date();
+		url="editIngredient.py?type=water&recipe=%s&action=changeWaterMineral&waterType="+waterType+"&qty="+document.getElementById( waterType).value;
+		window.location.replace(url);
+		}
 		function editqty(ent,itemtype,i,j,k,l){
 			html="<select id='"+itemtype+"Qty"+i+"'>"
 			for(c=0;c<=750;c++){
@@ -824,7 +981,7 @@ if __name__ == '__main__':
 			document.getElementById(itemtype+'QtyCell'+i).innerHTML=html;
 		}
 		</script>
-		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
+		""" %(form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value,form['recipeName'].value)
 
 
 	print "<div class=\"container\">"
