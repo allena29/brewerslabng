@@ -2352,6 +2352,7 @@ issue is within ngData.py not within logic of cloudNG
 		# Top UP
 		#
 		working_batch_size_G = working_batch_size_F
+		self.working_batch_size_F = working_batch_size_F
 		working_batch_size_G = working_batch_size_G + recipe.postBoilTopup
 		self.calclog = self.calclog + "batchsize:  Topup %.3f -> %.3f\n" %(recipe.postBoilTopup,working_batch_size_G)
 		self.calclog = self.calclog + "batchsize: Batch Size (G)  %.3f\n" %(working_batch_size_G)
@@ -3774,6 +3775,60 @@ issue is within ngData.py not within logic of cloudNG
 
 				if step.auto:
 					sys.stderr.write("STEP.AUTO  %s\n" %(step.auto))
+					### really want to do more here to actually calculate things out otherwise we need to have a calcualtor
+					### to convert 284mg of xxx *  liquor volume
+					if step.auto == "mashcrs" or step.auto == "spargecrs":
+#						ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND brewlog = :2", username,brewlog).fetch(1)
+#						ourRecipeStats= ourRecipeStats[0]
+#						sys.stderr.write("mash slts... mash %s\n" %(ourRecipeStats.mash_liquid))
+#						sys.stderr.write("mash slts... sparge water %s\n" %(ourRecipeStats.sparge_water))
+#						liquor=ourRecipeStats.mash_liquid+ourRecipeStats.sparge_water
+
+						ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND category = :3 AND ingredientType = :4", username,recipeName,'watertreat','misc').fetch(4344)
+		
+						ssnumFIX=1
+						for recipe in ourRecipe:
+							if recipe.ingredient == "crs":
+								estep = gBrewlogStep(brewlog=brewlog,owner=username,activityNum=activity.activityNum,stepNum=step.stepNum,subStepNum=ssnumFIX)		
+								estep.db=self.dbWrapper
+								estep.compileStep=True
+#								sys.stderr.write("....%s %s %s %s\n" %(recipe.ingredient,recipe.qty,liquor, (recipe.qty*liquor)/1000))
+								estep.stepName="Measure %.1f%s of %s" %( recipe.qty,recipe.unit,recipe.ingredient)
+								estep.needToComplete=True
+								estep.put()
+								ssnumFIX=ssnumFIX+1
+
+					if step.auto == "mashsalts":
+#						ourRecipeStats = self.dbWrapper.GqlQuery("SELECT * FROM gRecipeStats WHERE owner = :1 AND brewlog = :2", username,brewlog).fetch(1)
+#						ourRecipeStats= ourRecipeStats[0]
+#						sys.stderr.write("mash slts... mash %s\n" %(ourRecipeStats.mash_liquid))
+#						sys.stderr.write("mash slts... sparge water %s\n" %(ourRecipeStats.sparge_water))
+#						liquor=ourRecipeStats.mash_liquid+ourRecipeStats.sparge_water
+
+						ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND category = :3 AND ingredientType = :4", username,recipeName,'watertreat','misc').fetch(4344)
+		
+						ssnumFIX=1
+						for recipe in ourRecipe:
+							if not recipe.ingredient == "crs":
+								estep = gBrewlogStep(brewlog=brewlog,owner=username,activityNum=activity.activityNum,stepNum=step.stepNum,subStepNum=ssnumFIX)		
+								estep.db=self.dbWrapper
+								estep.compileStep=True
+#								sys.stderr.write("....%s %s %s %s\n" %(recipe.ingredient,recipe.qty,liquor, (recipe.qty*liquor)/1000))
+								estep.stepName="Measure %.1f%s of %s" %( recipe.qty,recipe.unit,recipe.ingredient)
+								estep.needToComplete=True
+								estep.put()
+								ssnumFIX=ssnumFIX+1
+
+				
+						# Update text of the step
+						ourRecipe = self.dbWrapper.GqlQuery("SELECT * FROM gRecipes WHERE owner = :1 AND recipename = :2", username,recipeName).fetch(1)
+						ourRecipeDetails= ourRecipe[0]
+#						ourBrewlogStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4 AND subStepNum = :5", username,brewlog,activity.activityNum,step.stepNum,-1).fetch(1)
+#						ourBrewlogStep[0].text="Additions based on water profile taken on %s" %(time.ctime(float( ourRecipeDetails.waterTested)))
+#						ourBrewlogStep[0].put()
+
+						
+
 					if step.auto == "gatherthegrain":
 						sys.stderr.write("We don't need to do stock allocation here  addStockToBrewlog does this\n")
 						sys.stderr.write(" but we do need to add in substeps\n")
