@@ -147,6 +147,8 @@ class pitmTemperature:
 		if self._mode == "sparge":
 			mash=True
 
+		if self._mode.count("delayed_HLT"):
+			hlt=True
 		if self._mode.count("hlt"):
 			hlt=True
 		if self._mode.count("mash"):
@@ -288,7 +290,6 @@ class pitmTemperature:
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.fermProbe ] = True
 			self._targetFerm=19
-
 		while True:
 			(data, addr) = self.sock.recvfrom(1200)
 			self.decodeMessage(data)	
@@ -309,7 +310,7 @@ class pitmTemperature:
 		cm['_checksum'] ="                                        "
 		ourChecksum = hashlib.sha1("%s%s" %(cm,self.cfg.checksum)).hexdigest()
 		self._mode=cm['_mode']
-#		print "Mode:", cm['_mode']
+		print "Mode:", cm['_mode']
 		if cm.has_key("_recipe"):
 			self._recipe=cm['_recipe']
 		if cm.has_key("_brewlog"):
@@ -344,6 +345,10 @@ class pitmTemperature:
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
 			self._targetSparge=cm['sparge']		
+		elif cm['_mode'].count("delayed_HLT"):
+			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.hltProbe ] = True
+			self._targetHlt=cm['hlt']	
 		elif cm['_mode'].count("hlt") and cm['_mode'].count("mash"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
