@@ -930,4 +930,12 @@ ALTER TABLE gRecipes ADD waterTested int(14);
 update gRecipes set waterProfile='Dry Pale Ale';
 update gRecipes set alkalinity=0;
 update gRecipes set waterTested=0;
-
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Carbonate Reducing Solution (CRS)','crs',1,'ml',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Calcium Sulphate (Gypsum)','gypsum',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Calcium Chloride (Dihydrate)','dihydrate',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Magnesium Sulhate (Epsom Salts)','epsom',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Sodium Chloride (Common Salt)','salt',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Calcium Carbonate (Chalk)','chalk',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Sodium Carbonate (Soda Crystals)','sodacrystal',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Sodium Sulphate (Glauber Salt)','glauber',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+insert into gItems values(null,'test@example.com','consumable','','watertreat','Magnesium Carbonate (Anhydrous)','anhydrous',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
