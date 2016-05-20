@@ -291,6 +291,8 @@ class pitmRelay:
 					if self.zoneTemp < self.zoneUpTarget and not self.fridgeHeat:
 						if self.zoneTemp < 3:
 							self._log("not setting heat required as we have a very low temp")
+						elif os.path.exists("ipc/disable-ferm-heat"):
+							pass
 						else:
 							self._log("Heating Requied %s < %s" %(self.zoneTemp,self.zoneUpTarget))
 							self.gpio.output('fermCool',0)
@@ -310,10 +312,13 @@ class pitmRelay:
 
 #					print self.zoneTemp,self.zoneDownTarget,self.zoneUpTarget,self.fridgeCool,self.fridgeHeat
 					if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
-						self._log("Cooling Required %s > %s" %(self.zoneTemp,self.zoneDownTarget))
-						self.gpio.output('fermHeat',0)	
-						self._gpioFermHeat=False
-						self.fridgeCool=True
+						if os.path.exists("ipc/disable-fermcool"):
+							pass
+						else:
+							self._log("Cooling Required %s > %s" %(self.zoneTemp,self.zoneDownTarget))
+							self.gpio.output('fermHeat',0)	
+							self._gpioFermHeat=False
+							self.fridgeCool=True
 
 
 					if self.fridgeCool:
