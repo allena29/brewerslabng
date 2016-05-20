@@ -114,6 +114,8 @@ class pitmController:
 			# hlt
 			if self.mode.count('hlt'):
 				controlMessage['hlt'] = (self.hltLow,self.hltHigh,self.hltTarget)
+			if self.mode.count('delayed_HLT'):
+				controlMessage['hlt'] = (self.hltLow,self.hltHigh,self.hltTarget)
 			# sparge
 			if self.mode.count('sparge'):
 				controlMessage['sparge']=(self.spargeLow,self.spargeHigh,self.spargeTarget)
@@ -125,6 +127,9 @@ class pitmController:
 				controlMessage['mash']=(self.mashLow,self.mashHigh,self.mashTarget)
 
 			# fermentation
+			if self.mode.count('pump'):
+				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
+				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
 			if self.mode.count('ferm'):
 				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
 			if self.mode.count('cool'):
@@ -762,6 +767,7 @@ class pitmController:
 
 				if hltDelay:
 					self.lcdDisplay.sendMessage(" HLT Delay ",3)
+					self.mode="delayed_HLT"
 	
 				if not hltDelay:
 					self.htlpower=True
@@ -783,7 +789,7 @@ class pitmController:
 				if not os.path.exists("ipc/activityDough"):
 					flag=open("ipc/activityDough","w")
 					flag.close()	
-			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swFerm")) and not os.path.exists("ipc/mash_toggle_type-dough"):
+			elif (os.path.exists("ipc/swMash") or os.path.exists("ipc/manual_swMash")) and not os.path.exists("ipc/mash_toggle_type-dough"):
 				#we could just be doing a mash
 				# but not doughing in the grain
 				self.pump=False
@@ -1225,57 +1231,63 @@ class pitmController:
  
 		if not self.gpio.input('pLeft') and self.pLeft:
 			self.pLeft=False			
-			if self.mode.count("ferm"):
-				self.fermLow=self.fermLow -0.2
-				self.fermHigh=self.fermHigh-0.2
-				self.fermTarget=self.fermTarget-0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
-				self._log("Reduced Ferm Temperature Aim by 0.2 %s" %(self.fermTarget))
-			elif self.mode.count("sparge"):
-				self.spargeLow=self.spargeLow -0.2
-				self.spargeHigh=self.spargeHigh-0.2
-				self.spargeTarget=self.spargeTarget-0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.spargeTarget),2)
-				self._log("Reduced Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
-			elif self.mode.count("hlt"):
-				self.hltLow=self.hltLow -0.2
-				self.hltHigh=self.hltHigh-0.2
-				self.hltTarget=self.hltTarget-0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
-				self._log("Reduced HLT Temperature Aim by 0.2 %s" %(self.fermTarget))
-			elif self.mode.count("boil"):
-				self.boilLow=self.boilLow -0.2
-				self.boilHigh=self.boilHigh-0.2
-				self.boilTarget=self.boilTarget-0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
-				self._log("Reduced Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
+			if os.path.exists("disable-front-panel"):
+				self._log("Front Panel Temp Adjustment is Disabled")
+			else:
+				if self.mode.count("ferm"):
+					self.fermLow=self.fermLow -0.2
+					self.fermHigh=self.fermHigh-0.2
+					self.fermTarget=self.fermTarget-0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
+					self._log("Reduced Ferm Temperature Aim by 0.2 %s" %(self.fermTarget))
+				elif self.mode.count("sparge"):
+					self.spargeLow=self.spargeLow -0.2
+					self.spargeHigh=self.spargeHigh-0.2
+					self.spargeTarget=self.spargeTarget-0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.spargeTarget),2)
+					self._log("Reduced Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
+				elif self.mode.count("hlt"):
+					self.hltLow=self.hltLow -0.2
+					self.hltHigh=self.hltHigh-0.2
+					self.hltTarget=self.hltTarget-0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
+					self._log("Reduced HLT Temperature Aim by 0.2 %s" %(self.fermTarget))
+				elif self.mode.count("boil"):
+					self.boilLow=self.boilLow -0.2
+					self.boilHigh=self.boilHigh-0.2
+					self.boilTarget=self.boilTarget-0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
+					self._log("Reduced Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
 
 		if not self.gpio.input('pRight') and self.pRight:
 			self.pRight=False
-			if self.mode.count("ferm"):
-				self.fermLow=self.fermLow +0.2
-				self.fermHigh=self.fermHigh+0.2
-				self.fermTarget=self.fermTarget+0.2
-				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.fermTarget))
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
-			elif self.mode.count("sparge"):
-				self.spargeLow=self.spargeLow +0.2
-				self.spargeHigh=self.spargeHigh+0.2
-				self.spargeTarget=self.spargeTarget+0.2
-				self._log("Increased Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
-			elif self.mode.count("hlt"):
-				self.hltLow=self.hltLow +0.2
-				self.hltHigh=self.hltHigh+0.2
-				self.hltTarget=self.hltTarget+0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
-				self._log("Increased HLT Temperature Aim by 0.2 %s" %(self.hltTarget))
-			elif self.mode.count("boil"):
-				self.boilLow=self.boilLow +0.2
-				self.boilHigh=self.boilHigh+0.2
-				self.boilTarget=self.boilTarget+0.2
-				self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
-				self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
+			if os.path.exists("disable-front-panel"):
+				self._log("Front Panel Temp Adjustment is Disabled")
+			else:
+				if self.mode.count("ferm"):
+					self.fermLow=self.fermLow +0.2
+					self.fermHigh=self.fermHigh+0.2
+					self.fermTarget=self.fermTarget+0.2
+					self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.fermTarget))
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
+				elif self.mode.count("sparge"):
+					self.spargeLow=self.spargeLow +0.2
+					self.spargeHigh=self.spargeHigh+0.2
+					self.spargeTarget=self.spargeTarget+0.2
+					self._log("Increased Sparge Temperature Aim by 0.2 %s" %(self.spargeTarget))
+				elif self.mode.count("hlt"):
+					self.hltLow=self.hltLow +0.2
+					self.hltHigh=self.hltHigh+0.2
+					self.hltTarget=self.hltTarget+0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.hltTarget),2)
+					self._log("Increased HLT Temperature Aim by 0.2 %s" %(self.hltTarget))
+				elif self.mode.count("boil"):
+					self.boilLow=self.boilLow +0.2
+					self.boilHigh=self.boilHigh+0.2
+					self.boilTarget=self.boilTarget+0.2
+					self.lcdDisplay.sendMessage(" Target = %s" %(self.boilTarget),2)
+					self._log("Increased Boil Temperature Aim by 0.2 %s" %(self.boilTarget))
 
 	
 		if self.gpio.input('pOk') and not self.pOk:
