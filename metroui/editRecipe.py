@@ -464,8 +464,8 @@ class editRecipe:
 		sumIbu=0
 		if self.editable:
 
-			hop_values=[0.02,0.06,0.08,5,15,60,20.222]
-			hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.08:'Flameout (0min)',0.06:'Whirlpool/Hopback (0min)' , 0.02:'Dryhop',20.222:'First Wort Hop' }
+			hop_values=[0.02,0.06,0.08,2,5,15,60,20.222]
+			hop_labels = {60:'Copper (60min)',15:'Aroma (15min)',5:'Finishing (5min)',0.08:'Flameout (0min)',0.06:'Whirlpool/Hopback (0min)' , 0.02:'Dryhop',20.222:'First Wort Hop' , 2:'Spices'  }
 			print """
 			<tr><td><a href="javascript:addItem('%s')"><i class='icon-plus fg-green'></i></a></td>
 			<td><select id='%sQty'>""" %(itemType,itemType)
@@ -496,7 +496,9 @@ class editRecipe:
 
 		self.hops(20,21)
 		self.hops(20.3,6000)
-		self.hops(0,20.1)
+		self.hops(2.2,20.1)
+		self.hops(1.5,2.1)
+		self.hops(0,1.4)
 
 		print """
 			<tr><td colspan=3></td><td>%.1f IBU</td></tr>	
@@ -893,13 +895,13 @@ iframe.contentWindow.document.close();
 
 		itemType='hops'
 		cursor=self.con.cursor()
-		cursor.execute("select entity,recipeName,ingredient,qty,hopAddAt,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = '%s' AND hopAddAt >=%s and hopAddAt <=%s ORDER BY hopAddAt DESC,qty DESC" %(self.recipeName,itemType,hopAddAtA,hopAddAtB))
+		cursor.execute("select entity,recipeName,ingredient,qty,hopAddAt,hopAlpha,unit FROM gIngredients WHERE recipeName = '%s' AND ingredientType = '%s' AND hopAddAt >=%s and hopAddAt <=%s ORDER BY hopAddAt DESC,qty DESC" %(self.recipeName,itemType,hopAddAtA,hopAddAtB))
 		for row in cursor:
-			(ent,recipe,ingredient,qty,hopAddAt,unit)=row
+			(ent,recipe,ingredient,qty,hopAddAt,hopAlpha,unit)=row
 #			row=result.fetch_row()
 			if self.export or not self.localUser:
 				print "<tr><td>&nbsp;</td>"
-				print "<td>%.0f %s</a></td><td><b>%s</b><br>" %(float(qty),unit,ingredient)
+				print "<td>%.0f %s</a></td><td><b>%s  %.2f %%</b><br>" %(float(qty),unit,ingredient,hopAlpha)
 			else:
 				print "<tr><td><a href='editIngredient.py?entity=%s&action=delete&type=%s&ingredient=%s&hopAddAt=%s&recipe=%s'><i class='icon-minus fg-red'></i></a></td>" %(ent,itemType,ingredient,hopAddAt,self.recipeName)
 				print "<td id='%sQtyCell%s'><a href=\"javascript:editqty(%s,'%s',%s,%.0f,'%s',%s)\">%.0f %s</a></td><td><b>%s</b><br>" %(itemType,i,ent,itemType,i,float(qty),ingredient,hopAddAt,float(qty),unit,ingredient)

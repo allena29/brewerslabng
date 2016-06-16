@@ -330,6 +330,7 @@ class db:
 			if self.entity:
 				if self.dbg > 0:	sys.stderr.write("DB Update required %s\n" %(self.entity))
 				query = self.updateSql()
+				sys.stderr.write("%s\n" %(query))
 			else:
 				if self.dbg > 0:	sys.stderr.write("DB Insert required\n")
 				if self.dbg > 0:	sys.stderr.write(" %s\n" %(self.tableName))

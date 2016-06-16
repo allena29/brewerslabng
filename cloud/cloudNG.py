@@ -3639,7 +3639,6 @@ issue is within ngData.py not within logic of cloudNG
 			result={}
 
 
-
 			ourPresets = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND majorcategory = :2 AND name = :3", username,category.lower(), item)
 			preset = ourPresets.fetch(1)
 			if not len(preset) == 1:	
@@ -3768,6 +3767,7 @@ issue is within ngData.py not within logic of cloudNG
 				hop_labels = {60:'Copper (60min)',
 					      15:'Aroma (15min)',
                                               5:'Finishing (5min)',
+				              2:'Spice (2 min)',
                                               0.08:'Flameout (0min)',
 					      0.06:'Whirlpool/Hopback (0min)',
                                               0.02:'Dryhop' ,
@@ -3910,8 +3910,8 @@ issue is within ngData.py not within logic of cloudNG
 							if orh.hopAddAt >= 0.03:			# don't include dry hop
 								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -3949,13 +3949,13 @@ issue is within ngData.py not within logic of cloudNG
 	
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt <= 30 and orh.hopAddAt >1:
-									# make sure we don't show FWH for aroma hops addition
-									if orh.hopAddAt < 20.1 or orh.hopAddAt > 20.3:
+							if orh.hopAddAt <= 30 and orh.hopAddAt >3:
+								# make sure we don't show FWH for aroma hops addition
+								if orh.hopAddAt < 20.1 or orh.hopAddAt > 20.3:
+									if not HOPS.has_key( orh.hopAddAt ):
 										HOPS[orh.hopAddAt]=[]
-										HOPS[orh.hopAddAt].append( orh )
 										hopaddsorted.append( orh.hopAddAt )
+									HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4017,11 +4017,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt > 30:
+							if orh.hopAddAt > 30:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4067,13 +4067,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-#								sys.stderr.write("dryhop   :   %s/%s/%s \n" %(orh.ingredient,orh.qty,orh.hopAddAt))
-								if orh.hopAddAt < 0.03 and orh.hopAddAt > -1:
-#									sys.stderr.write("dryhop:   this is dry hop %s\n" %(orh.qty))
+							if orh.hopAddAt < 0.03 and orh.hopAddAt > -1:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4115,11 +4113,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt < 1:
+							if orh.hopAddAt < 21 and orh.hopAddAt > 20:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 						
@@ -4151,6 +4149,49 @@ issue is within ngData.py not within logic of cloudNG
 
 
 
+					elif step.auto == "hopaddSpices":
+						ssnumFIX=0	
+						hopaddsorted= []		
+						ourRecipeHops = self.dbWrapper.GqlQuery("SELECT * FROM gIngredients WHERE owner = :1 AND recipename = :2 AND ingredientType = :3 AND hopAddAt < :4 AND hopAddAt > :5", username,recipeName,"hops",2.5,1.5).fetch(4344)
+
+						HOPS={}
+						for orh in ourRecipeHops:
+							if orh.hopAddAt > 1 and orh.hopAddAt < 3:
+								if not HOPS.has_key( orh.hopAddAt ):
+									HOPS[orh.hopAddAt]=[]
+									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
+						hopaddsorted.sort()
+						hopaddsorted.reverse()
+
+						haveSpices=False
+						for hopAddAt in hopaddsorted:
+							if hop_labels.has_key(hopAddAt):
+								additions=hop_labels[ hopAddAt ]
+							else:
+								additions='%s min' %(hopAddAt)
+
+							for hop in HOPS[ hopAddAt ]:
+								haveSpices=True
+								percentage = 1
+								hopqty = hop.qty * percentage
+
+								estep = gBrewlogStep(brewlog=brewlog,owner=username,activityNum=activity.activityNum,stepNum=step.stepNum,subStepNum=ssnumFIX)		
+								estep.db=self.dbWrapper
+								estep.compileStep=True
+								estep.stepName="Add %.1f%s of %s for %s additions" %(hopqty,hop.unit,hop.ingredient,additions)
+								estep.needToComplete=True
+								estep.put()
+								ssnumFIX=ssnumFIX+1
+
+						if not haveSpices:
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND stepNum = :4", username,brewlog,step.activityNum,step.stepNum).fetch(1)
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
+
+
+
 					elif step.auto == "hopaddFinishing_v3":
 						ssnumFIX=0	
 						hopaddsorted= []		
@@ -4158,11 +4199,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt < 1:
+							if orh.hopAddAt < 1:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4202,11 +4243,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt < 1:
+							if orh.hopAddAt < 1:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4236,6 +4277,12 @@ issue is within ngData.py not within logic of cloudNG
 							if len(disableStep):
 								disableStep[0].activityNum=-9
 								disableStep[0].put()
+		
+							# disdable hoprocket fill if we don't have hop rocket hops.
+							disableStep = self.dbWrapper.GqlQuery("SELECT * FROM gBrewlogStep WHERE owner = :1 AND brewlog = :2 AND activityNum = :3 AND conditional = :4", username,brewlog,step.activityNum,"hoprocket-fill").fetch(1)
+							if len(disableStep):
+								disableStep[0].activityNum=-9
+								disableStep[0].put()
 
 
 
@@ -4249,11 +4296,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt > 30:
+							if orh.hopAddAt > 30:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
@@ -4302,11 +4349,11 @@ issue is within ngData.py not within logic of cloudNG
 
 						HOPS={}
 						for orh in ourRecipeHops:
-							if not HOPS.has_key( orh.hopAddAt ):
-								if orh.hopAddAt > 30:
+							if orh.hopAddAt > 30:
+								if not HOPS.has_key( orh.hopAddAt ):
 									HOPS[orh.hopAddAt]=[]
-									HOPS[orh.hopAddAt].append( orh )
 									hopaddsorted.append( orh.hopAddAt )
+								HOPS[orh.hopAddAt].append( orh )
 						hopaddsorted.sort()
 						hopaddsorted.reverse()
 
