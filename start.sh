@@ -1,7 +1,9 @@
 #!/bin/sh
 
+sleep 120
+
 date >/tmp/slave_bootup
-ping 192.168.1.10 &
+ping 192.168.1.13 >/dev/null 2>/dev/null  &
 
 
 echo "Remove old flags each reboot"
