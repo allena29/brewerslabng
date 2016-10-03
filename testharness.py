@@ -45,7 +45,8 @@ if testtype == "all" or testtype == "temp":
 						# fudge factor for 0 / 85 results when not connected	
 
 						lcd.sendMessage(" %s %s %s" %(temperature,probe[8:],cfg.probeId[probe] ),3)
-						print temperature	
+						sys.stdout.write("%s,%s,%s\n" %(probe[8:],cfg.probeId[probe],temperature))
+						sys.stdout.flush()
 				except:
 					lcd.sendMessage(" file missing",3)
 					print "file disappeared",probe
