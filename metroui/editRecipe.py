@@ -625,14 +625,41 @@ class editRecipe:
 		"""
 
 
-
+		print """
+		<a name='water'></a>
+		    <div class="accordion-frame">
+				<a href="#" class="%sheading">Water</a>
+				<div class="content">
+					<p>
+		<iframe id='jbk' width=99%% height=50 frameborder=0 border=0></iframe><br>
+			<b>Target Profile / Tested Water</b>
+			 <table class="table">
+			<thead>
+			<tr>
+			<td>&nbsp;</td>
+			<td>Calcium<br>Ca</td>
+			<td>Magnesium<br>Mg</td>
+			<td>Sodium<br>Na</td>
+			<td>Carbonate<br>CO<sub>3</sub></td>	
+			<td>Sulphate<br>SO<sub>4</sub></td>
+			<td>Chloride<br>Cl</td>
+			</tr>
+			</head>
+			<tbody>
+			<tr>
+			""" %(self.activeWater)
 		#
 		#
 		#
 		#
 		#
 
-
+		Ca=-1
+		Mg=-1
+		Na=-1
+		CO3=-1
+		SO4=-1
+		Cl=-1
 		if waterProfile:
 			Ca=0
 			Mg=0
@@ -640,36 +667,12 @@ class editRecipe:
 			CO3=0
 			SO4=0
 			Cl=0
+
 			
 			cursor=con.cursor()
 			cursor.execute("select ca,mg,na,co3,so4,cl  FROM gWater WHERE description = '%s'" %(waterProfile))
 			for row in cursor:
 				(Ca,Mg,Na,CO3,SO4,Cl)=row
-			print """
-		<a name='water'></a>
-		    <div class="accordion-frame">
-				<a href="#" class="%sheading">Water</a>
-				<div class="content">
-					<p>
-		<iframe id='jbk' width=99%% height=50 frameborder=0 border=0></iframe><br>
-	
-	<b>Target Profile / Tested Water</b>
-	 <table class="table">
-		<thead>
-		<tr>
-		<td>&nbsp;</td>
-		<td>Calcium<br>Ca</td>
-		<td>Magnesium<br>Mg</td>
-		<td>Sodium<br>Na</td>
-		<td>Carbonate<br>CO<sub>3</sub></td>	
-		<td>Sulphate<br>SO<sub>4</sub></td>
-		<td>Chloride<br>Cl</td>
-		</tr>
-		</head>
-		<tbody>
-		<tr>
-		""" %(self.activeWater)
-
 
 		if self.editable:
 			print "<td><select id='waterprofile'>"
@@ -709,7 +712,7 @@ class editRecipe:
 		co3=0
 		so4=0
 		cl=0
-
+		treatmentMethod="Unkown"
 		if waterTested > 1 or self.editable:
 
 			if self.editable:
@@ -717,9 +720,9 @@ class editRecipe:
 			else:
 				print "<tr><td><b>%s</b></td>" %(time.ctime(float(waterTested)))
 			cursor4=con3.cursor()
-			cursor4.execute("select entity,ca,mg,na,co3,so4,cl,testdate FROM gWater WHERE profile=0 ORDER BY testdate DESC")
+			cursor4.execute("select entity,ca,mg,na,co3,so4,cl,testdate,treatmentMethod FROM gWater WHERE profile=0 ORDER BY testdate DESC")
 			for row4 in cursor4:
-				(entity,xca,xmg,xna,xco3,xso4,xcl,wt)=row4
+				(entity,xca,xmg,xna,xco3,xso4,xcl,wt,treatmentMethod)=row4
 				selected=""
 				if waterTested == wt:
 					selected="SELECTED" 
@@ -783,31 +786,40 @@ class editRecipe:
 		cursor.close()
 
 		if self.editable:
+			if treatmentMethod == "crs":
+				print """
+			<tr><td></td><td><input type='text' id='crs' value='%.2f' size=6> ml/L <a href=javascript:adjustWater('crs')><i class="icon-checkmark fg-blue"></i></a></td><td>CRS</td></tr> """ %(water['crs'])
+			else:
+				print "<input type='hidden' id='crs' value='0.00'>"
+				print "<tr><td colspan=3>Tretment by %s</td></tr>" %(treatmentMethod)
 			print """
-			<tr><td></d><td><input type='text' id='crs' value='%.2f' size=6> ml/L <a href=javascript:adjustWater('crs')><i class="icon-checkmark fg-blue"></i></a></td><td>CRS</td></tr>
-			<tr><td></d><td><input type='text' id='calciumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumsulphate')><i class="icon-checkmark fg-blue"></i></a> </td><td>Calcium Sulphate (Gypsum)</td></tr>
-			<tr><td></d><td><input type='text' id='calciumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Chloride (Dihydrate)</td></tr>
-			<tr><td></d><td><input type='text' id='magnesiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Sulphate (Epsom)</td></tr>
-			<tr><td></d><td><input type='text' id='sodiumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Chloride (Common Table Salt)</td></tr>
-			<tr><td></d><td><input type='text' id='calciumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Carbonate (chalk)</td></tr>
-			<tr><td></d><td><input type='text' id='sodiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Carbonted (soda crystals)</td></tr>
-			<tr><td></d><td><input type='text' id='sodiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Sulphate (Glauber's salt)</td></tr>
-			<tr><td></d><td><input type='text' id='magnesiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Carbonte (anhydrous)</td></tr>
-			""" %(water['crs'],water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
+			<tr><td></td><td><input type='text' id='calciumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumsulphate')><i class="icon-checkmark fg-blue"></i></a> </td><td>Calcium Sulphate (Gypsum)</td></tr>
+			<tr><td></td><td><input type='text' id='calciumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Chloride (Dihydrate)</td></tr>
+			<tr><td></td><td><input type='text' id='magnesiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Sulphate (Epsom)</td></tr>
+			<tr><td></td><td><input type='text' id='sodiumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Chloride (Common Table Salt)</td></tr>
+			<tr><td></td><td><input type='text' id='calciumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Carbonate (chalk)</td></tr>
+			<tr><td></td><td><input type='text' id='sodiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Carbonted (soda crystals)</td></tr>
+			<tr><td></td><td><input type='text' id='sodiumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('sodiumsulphate')><i class="icon-checkmark fg-blue"></i></a></td><td>Sodium Sulphate (Glauber's salt)</td></tr>
+			<tr><td></td><td><input type='text' id='magnesiumcarbonate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('magnesiumcarbonate')><i class="icon-checkmark fg-blue"></i></a></td><td>Magnesium Carbonte (anhydrous)</td></tr>
+			""" %(water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
 				water['calciumcarbonate'],water['sodiumcarbonate'], water['sodiumsulphate'],water['magnesiumcarbonate'])
 
 		if not self.editable:
+			if treatmentMethod == "crs":
+				print """<tr><td></td><td>%.2f ml/L</td><td>CRS</td></tr>""" %(water['crs'])
+			else:
+				print "<input type='hidden' id='crs' value='0.00'>"
+				print "<tr><td colspan=3>Tretment by %s</td></tr>" %(treatmentMethod)
 			print """
-			<tr><td></d><td>%.2f ml/L</td><td>CRS</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Calcium Sulphate (Gypsum)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Calcium Chloride (Dihydrate)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Magnesium Sulphate (Epsom)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Sodium Chloride (Common Table Salt)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Calcium Carbonate (chalk)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Sodium Carbonted (soda crystals)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Sodium Sulphate (Glauber's salt)</td></tr>
-			<tr><td></d><td>%.2f mg/L</td><td>Magnesium Carbonte (anhydrous)</td></tr>
-			""" %(water['crs'],water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
+			<tr><td></td><td>%.2f mg/L</td><td>Calcium Sulphate (Gypsum)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Calcium Chloride (Dihydrate)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Magnesium Sulphate (Epsom)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Sodium Chloride (Common Table Salt)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Calcium Carbonate (chalk)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Sodium Carbonted (soda crystals)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Sodium Sulphate (Glauber's salt)</td></tr>
+			<tr><td></td><td>%.2f mg/L</td><td>Magnesium Carbonte (anhydrous)</td></tr>
+			""" %(water['calciumsulphate'], water['calciumchloride'],water['magnesiumsulphate'],water['sodiumchloride'], 
 				water['calciumcarbonate'],water['sodiumcarbonate'], water['sodiumsulphate'],water['magnesiumcarbonate'])
 
 		print """

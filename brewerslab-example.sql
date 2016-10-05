@@ -939,3 +939,8 @@ insert into gItems values(null,'test@example.com','consumable','','watertreat','
 insert into gItems values(null,'test@example.com','consumable','','watertreat','Sodium Carbonate (Soda Crystals)','sodacrystal',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
 insert into gItems values(null,'test@example.com','consumable','','watertreat','Sodium Sulphate (Glauber Salt)','glauber',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
 insert into gItems values(null,'test@example.com','consumable','','watertreat','Magnesium Carbonate (Anhydrous)','anhydrous',1,'gm',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','',0,0,0,0,'','',1,"",0,0,0,0,0);
+
+ALTER TABLE gWater ADD treatmentMethod char(32);
+update gWater set treatmentMethod='boil';
+update gWater set treatmentMethod='crs' where description like '%Pale%';
+
