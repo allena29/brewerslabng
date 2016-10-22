@@ -3756,7 +3756,10 @@ issue is within ngData.py not within logic of cloudNG
 		waterProfile = waterStyleRecipe[0].waterProfile
 		sys.stderr.write("Water Profile Required: %s\n" %(waterProfile))
 		
-		carbonateReductionMethod = self.dbWrapper.GqlQuery("SELECT * FROM gWater WHERE owner = :1 AND profile = :2 AND description = :3",username,1,waterProfile).fetch(1)[0].treatmentMethod
+		try:
+			carbonateReductionMethod = self.dbWrapper.GqlQuery("SELECT * FROM gWater WHERE owner = :1 AND profile = :2 AND description = :3",username,1,waterProfile).fetch(1)[0].treatmentMethod
+		except:
+			carbonateReudctionMethod="crs"
 		sys.stderr.write("CR Method %s\n" %(carbonateReductionMethod))
 
 		ssnum=9999

@@ -943,4 +943,5 @@ insert into gItems values(null,'test@example.com','consumable','','watertreat','
 ALTER TABLE gWater ADD treatmentMethod char(32);
 update gWater set treatmentMethod='boil';
 update gWater set treatmentMethod='crs' where description like '%Pale%';
-
+ALTER TABLE gRecipes ADD strapline char(255);
+ALTER TABLE gRecipes ADD export int(3);
