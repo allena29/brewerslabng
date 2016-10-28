@@ -44,6 +44,9 @@ print """
                     <span class="tile-label">Configure Time/Date</span>
                 </a>
 
+	</div>
+		    <div class="tile-container">
+
 
                 <a href="probes.py" class="tile bg-crimson fg-white" data-role="tile">
                     <div class="tile-content iconic">
@@ -157,15 +160,20 @@ $("#newdate").val( d.getFullYear()+"."+(parseInt(d.getMonth())+1)+"."+d.getDate(
 			    <button class="button helper-button reveal"><span class="mif-looks"></span></button>
 			</div></td>
 		</tr>
-		<tr>
+		<tr valign=top>
 		<td>SSID/WPA PSK:</td>
 		<td><div class="input-control" data-role="input"><input type="text" id='ssid' size=10 value=""></div>
 		<div class="input-control password" data-role="input">
 		    <input type="password" id='wep' value="">
 		    <button class="button helper-button reveal"><span class="mif-looks"></span></button>
-		</div><br><i>Only WPA secured wireless access points supported</i></td>
+		</div>
+		</td>
 		</tr>
-		
+		<tr><td>Static IP/Netmask/Gateway</td>
+		<td><input type="text" name='ip' value="0.0.0.0" size=12>/<input type="text" name="mask" value="24" size=2>gw<input type="text" name="gw" value="0.0.0.0" size=12>
+		<tr><td></td><td>
+			<br><i>Only WPA secured wireless access points supported.<p>For DHCP enter "0.0.0.0" for the ip<br>If you make a mistake delete wifipsk.txt and wifissid.txt, wifiip.txt, wifimask.txt, wifigw.txt from the SD card.<br> </i>
+		</td></tr>
 	</table>
 
     <p align="right">
@@ -174,19 +182,6 @@ $("#newdate").val( d.getFullYear()+"."+(parseInt(d.getMonth())+1)+"."+d.getDate(
     </p>
 </div>
 
-<div data-role="dialog" id="wifiDialog2" style='padding: 15px'>
-    <h1>WIFI Settings</h1>
-    <p>
-
-	<b>Status</b>
-	<P>
-	<span id='wififlapwarning'><i>Note:</i> the wireless SSID 'aaaBREWERSLAB' will disappear while we test connectiivty to <span id='wifissid'></span>.<br>
-Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minutes before trying to reconnect.<br></span><BR>
-<B>	<span id='wifireconfigstatus'></span></B>
-	<p>	
-	<input type=hidden id='replacementIp' value=''>
-	<input id='wifiCancelButton' type='button' value='Cancel' onClick="cancelWifiChange()"> &nbsp; - &nbsp;
-	<input type='button' value='Keep Wireless Details' onClick="keepWifiChange()" id='wifiKeepButton'>
 	
     </p>
 </div>
@@ -229,11 +224,11 @@ Once the test has finished 'aaaBREWERSLAB' will re-appear - please wait 5 minute
 //  showDialog("#wifiDialog2");
 	function warnWifiChange(){
 		document.getElementById("wifiKeepButton").disabled=true;
-		alert("This process may take 5 minutes - please be patient");
-		doWifiChange(true);
-
+		alert("Rebooting to reconfigure wifi");
+		//doWifiChange(true);
 	}	
     function doWifiChange(startConfig){
+	return;	// no longer using this
 	$("#wifissid").html( $("#ssid").val());
 
 	cancelDialog('wifiDialog');

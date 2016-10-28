@@ -19,11 +19,10 @@ print """
 	<div class="container">
   
 	<h1>Graphs</h1>
-	<h3>List last updated: 
+	<p>List last updated: 
 """
 
 print time.ctime(os.stat("archivedata/").st_mtime )
-print "</h3>"
 
 filenameTemp=re.compile("(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2}).*_(\d+)\.rrd\.png")
 

@@ -2,29 +2,33 @@
 
 date >/tmp/slave_bootup
 
-echo "Remove old flags each reboot"
-rm -f /home/beer/brewerslab/slave/localweb/wifistate/*
-
-
-
-
-
+#echo "Remove old flags each reboot"
+#rm -f /home/beer/brewerslab/slave/localweb/wifistate/*
 
 /etc/init.d/rpcbind restart
 
 
-echo "Starting Local WIFI"
-sh /home/beer/brewerslab/start-local-wifi-hotspot.sh
-
-
-if [ -f /home/beer/brewerslab/slave/localweb/wifistate/.__GLOBAL__ ]
+if [ -f "/boot/wifipsk.txt" ]
 then
-	echo "Delay switched to configure SSID"
-	python /home/beer/brewerslab/gpio23led.py 2 &
-
-	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
+	if [ -f "/boot/wifissid.txt" ]
+	then
+		wifi=1
+	else
+		wifi=0
+	fi
 else
-	  python /home/beer/brewerslab/gpio23led.py 3 &
+	wifi=0
+fi
+
+if [ $wifi = 0 ]
+then
+	echo "Starting Local WIFI"
+	sh /home/beer/brewerslab/start-local-wifi-hotspot.sh
+	sleep 2
+	route add default gw 172.12.12.1
+else
+	echo "Joining real WIFI"
+	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
 fi
 
  

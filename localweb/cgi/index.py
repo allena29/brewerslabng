@@ -50,16 +50,19 @@ print """
                     </div>
                     <span class="tile-label">Readings</span>
                 </a>
+	"""
 
+if 1==1:
+	print """
+			<a href="javascript:startMonitoring()" class="tile bg-green fg-white" data-role="tile" id="startTile">
+			    <div class="tile-content iconic" >
+				<span class="icon mif-play"></span>
+			    </div>
+			    <span class="tile-label">Start Monitoring</span>
+			</a>
 
-                <a href="javascript:startMonitoring()" class="tile bg-green fg-white" data-role="tile" id="startTile">
-                    <div class="tile-content iconic" >
-                        <span class="icon mif-play"></span>
-                    </div>
-                    <span class="tile-label">Start Monitoring</span>
-                </a>
-
-
+		"""
+print """
 		<div class="tile" id="activeTile" style="display: none">
                     <div class="tile-content iconic" >
                         <span class="icon mif-play"></span>
