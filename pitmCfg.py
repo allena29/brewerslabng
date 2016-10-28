@@ -36,7 +36,7 @@ class pitmCfg:
 		self.mashAProbe="28-000003eba86a"
 		self.mashBProbe="28-000003ebccea"
 		self.boilProbe="28-0000044dcda4"
-		self.fermProbe="28-00044efeaaff"
+                self.fermProbe="28-00044efeaaff"
 
 		# Probe Adjutment Tweak
 		# dict key = probeId
@@ -59,6 +59,7 @@ class pitmCfg:
 		# Multicast address and port
 		self.mcastPort = 5085
 		self.mcastLcdPort = 5086
+		self.mcastMatrixPort = 5099
 		self.mcastBidirPort = 5184
 		self.mcastButtonPort = 5183
 		self.mcastButtonPortRX = 5983
