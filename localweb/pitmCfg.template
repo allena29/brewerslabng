@@ -39,6 +39,14 @@ class pitmCfg:
 		self.boilProbe="28-0000044dcda4"
 		self.fermProbe="28-00044efeaaff"
 
+		self.probeFunction={}
+		self.probeFunction['28-00044efeaaff'] = "Ferm"
+		self.probeFunction['28-0000044dcda4'] = "Boil"
+		self.probeFunction['28-000003ebccea'] = "Mash B"
+		self.probeFunction['28-000003eba86a'] = "Mash A"
+		self.probeFunction['28-000003ebc866'] = "HLT"
+
+	
 		# Probe Adjutment Tweak
 		# dict key = probeId
 		# dict val = list of 3 tuple elements
@@ -60,6 +68,7 @@ class pitmCfg:
 		# Multicast address and port
 		self.mcastPort = 5085
 		self.mcastLcdPort = 5086
+		self.mcastMatrixPort = 5099
 		self.mcastBidirPort = 5184
 		self.mcastButtonPort = 5183
 		self.mcastButtonPortRX = 5983

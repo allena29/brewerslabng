@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import re
+from pitmLedMatrix import *
 from pitmCfg import pitmCfg
 from gpiotools import *
 
@@ -51,6 +52,12 @@ class pitmTemperature:
 
 		# we need to supress results of 0 and 85 if they are the instant result
 		self.lastResult={}
+
+		# an Led Matrix object - if we have one
+		self.ledm=None
+		if not os.path.exists("simulator"):
+			self.ledm = pitmLEDmatrix()
+			self.ledm.sendMessage("--------")
 
 		if os.path.exists("simulator"):
 			try:
@@ -193,8 +200,18 @@ class pitmTemperature:
 							if text.count("YES") and self.rxTemp.match(temp):		# CRC=NO for failed results	
 								#rxTemp=re.compile("^.*t=(\d+)")
 								
+
 								(temp,)=self.rxTemp.match(temp).groups()
 								temperature=float(temp)/1000
+
+								print self.cfg.probeId
+								if self.ledm:
+									if self.cfg.probeId.has_key( probe ):
+										fourDigitProbeLabel= self.cfg.probeId[ probe ]
+										fourDigitProbeLabel = fourDigitProbeLabel + " "*(4-len(fourDigitProbeLabel))
+									else:
+										fourDigitProbeLabel = "TEMP"
+									self.ledm.sendMessage( "%s%.1f" %(fourDigitProbeLabel,temperature))
 
 								if not self.lastResult.has_key(probe):
 									self.lastResult[probe]=0
@@ -271,6 +288,7 @@ class pitmTemperature:
 									pass	
 								self.lastResult[probe]=temperature
 
+							
 							time.sleep(1)		# try a 0.05 delay to avoid false readings
 
 
@@ -416,7 +434,13 @@ if __name__ == '__main__':
 
 
 	except KeyboardInterrupt:		
-
+		try:
+			if controller.ledm:
+				controller.ledm.sendMessage("........")
+				time.sleep(3)
+				controller.ledm.sendMessage("        ")
+		except:
+			pass		
 		controller.uncontrol()
 
 

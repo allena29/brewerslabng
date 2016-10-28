@@ -28,10 +28,11 @@ then
 	route add default gw 172.12.12.1
 else
 	echo "Joining real WIFI"
-	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     &
+	sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     
 fi
 
  
+
 
 cd /home/beer/brewerslab/slave
 mkdir ipc 2>/dev/null
@@ -60,4 +61,13 @@ mkdir /currentdata/lastreading
 echo "Starting Local Server"
 sudo -u beer /usr/bin/screen -dmS localweb python localweb/localserve.py
 
+ip=`ifconfig wlan0 | grep Bcast | sed -e 's/.*ddr://' | sed -e 's/ .*//'`
+sudo python /home/beer/brewerslab/ledmatrix.py "ready.. http://$ip:54661/cgi/index.py"
+
+if [ -f "/boot/pitmautostart.txt" ]
+then
+
+sh /home/beer/brewerslab/slave/launch-standalone-temp.sh
+
+fi
 
