@@ -175,7 +175,7 @@ class pitmTemperature:
 			if probe[0:2] == "28":
 				if self.probesToMonitor.has_key( probe):
 					if self.probesToMonitor[probe]:
-						print "Permitted to monitor ",probe,
+						print "Permitted to monitor ",probe,self.cfg.probeId[probe]
 						try:
 						
 							o=open( "%s/%s/w1_slave" %(self.tempBaseDir,probe))
@@ -288,7 +288,7 @@ class pitmTemperature:
 
 		if os.path.exists("/tmp/standalone-temp-active"):
 			self.doTemperatureing=True
-			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self.probesToMonitor[ self.cfg.tempProbe ] = True
 			self._targetFerm=19
 		while True:
 			(data, addr) = self.sock.recvfrom(1200)
@@ -325,59 +325,71 @@ class pitmTemperature:
 		self._targetSparge=(-1,-1,-1)
 		self._targetFerm=(-1,-1,-1)
 		self._targetBoil=(-1,-1,-1)
-		if cm['_mode'].count("ferm"):
+		if cm['_mode'].count("pump") or cm['_mode'].count("cool"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self.probesToMonitor[ self.cfg.boilProbe ] = True
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
+			self.probesToMonitor[ self.cfg.hltProbe ] =False
 			self._targetFerm=cm['ferm']
-		elif cm['_mode'] == "sparge":
+			self._targetBoil=cm['boil']
+		elif cm['_mode'].count("ferm"):
 			self.doTemperatureing=True
-			self.probesToMonitor[ self.cfg.mashAProbe ] = True
-			self.probesToMonitor[ self.cfg.mashBProbe ] = True
-			self._targetMash=cm['mash']
-		elif cm['_mode'].count("sparge") and cm['_mode'].count("mash"):
-			self.doTemperatureing=True
-			self.probesToMonitor[ self.cfg.hltProbe ] = True
-			self.probesToMonitor[ self.cfg.mashAProbe ] = True
-			self.probesToMonitor[ self.cfg.mashBProbe ] = True
-			self._targetSparge=cm['sparge']		
-			self._targetMash=cm['mash']
+			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
+			self.probesToMonitor[ self.cfg.hltProbe ] =False
+			self._targetFerm=cm['ferm']
 		elif cm['_mode'].count("sparge"):
 			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
-			self._targetSparge=cm['sparge']		
+			self.probesToMonitor[ self.cfg.mashAProbe ] = True
+			self.probesToMonitor[ self.cfg.mashBProbe ] = True
+			self._targetMash=cm['mash']
 		elif cm['_mode'].count("delayed_HLT"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
+			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
 			self._targetHlt=cm['hlt']	
 		elif cm['_mode'].count("hlt") and cm['_mode'].count("mash"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
 			self.probesToMonitor[ self.cfg.mashAProbe ] = True
 			self.probesToMonitor[ self.cfg.mashBProbe ] = True
+			self.probesToMonitor[ self.cfg.fermProbe ] = True
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
 			self._targetHlt=cm['hlt']	
 			self._targetMash=cm['mash']	
 		elif cm['_mode'].count("hlt"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
 			self._targetHlt=cm['hlt']
-		elif cm['_mode'].count("cool"):
-			self.doTemperatureing=True
-			self.probesToMonitor[ self.cfg.boilProbe ] = True
-			self._targetFerm=cm['ferm']
-		elif cm['_mode'].count("pump"):
-			self.doTemperatureing=True
-			self.probesToMonitor[ self.cfg.boilProbe ] = True
-			self.probesToMonitor[ self.cfg.fermProbe ] = True
-			self._targetFerm=cm['ferm']
-			self._targetBoil=cm['boil']
 		elif cm['_mode'].count("boil"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.boilProbe ] = True
+			self.probesToMonitor[ self.cfg.hltProbe ] = False
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
 			self._targetBoil=cm['boil']
 		elif cm['_mode'].count("mash"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.mashAProbe ] = True
 			self.probesToMonitor[ self.cfg.mashBProbe ] = True
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
+			self.probesToMonitor[ self.cfg.hltProbe ] = False
 			self._targetMash=cm['mash']
 		else:
 			self.probesToMonitor[ self.cfg.mashAProbe ] = False
