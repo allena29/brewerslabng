@@ -4,6 +4,7 @@
 
 
 
+
 class pitmCfg:
 
 
@@ -37,7 +38,7 @@ class pitmCfg:
 		self.mashBProbe="28-000003ebccea"
 		self.boilProbe="28-0000044dcda4"
                 self.fermProbe="28-00044efeaaff"
-
+		self.tempProbe="28-04150116e2ff"
 		# Probe Adjutment Tweak
 		# dict key = probeId
 		# dict val = list of 3 tuple elements
@@ -49,11 +50,12 @@ class pitmCfg:
 
 		} 
 		self.probeId={
-			self.hltProbe : 'hlt',
-			self.mashAProbe : 'mashA',
-			self.mashBProbe : 'mashB',
+			self.hltProbe : 'hlt ',
+			self.mashAProbe : 'tunA',
+			self.mashBProbe : 'tunB',
 			self.boilProbe : 'boil',
 			self.fermProbe : 'ferm',
+			self.tempProbe : 'temp',
 		}
 
 		# Multicast address and port
