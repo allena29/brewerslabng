@@ -33,28 +33,24 @@ if form.has_key("ip"):
 	if ip == "0.0.0.0":	
 		ip=None
 	else:
-		if not form.has_key("mask") or not form.has_key("gw"):
+		if not form.has_key("cidr") or not form.has_key("gw"):
 			print "<xml><status>65</status><msg>missing IP details</msg></xml>"
 		else:
-			mask=form['mask'].value
+			cidr=form['cidr'].value
 			gw=form['gw'].value
 
-
-if form.has_key("startReconfig"):
-	if form['startReconfig'].value =="true":
-		restartConfig=True
 
 if len(ssid) < 2 or len(psk) < 2:
 	print "<xml><status>67</status><msg>missing details wep or psk not long enough</msg></xml>"
 
 else:
 	print "<xml><status>1</status><msg>waiting for wifi to be reconfigured</msg></xml>"
-	os.system("sudo echo \"%s\" >/boot/wifissid.txt" %(ssid))
-	os.system("sudo echo \"%s\" >/boot/wifipsk.txt" %(psk))
+	os.system("sudo python /home/beer/brewerslab/bootcfg.py ssid \"%s\"" %(ssid))
+	os.system("sudo python /home/beer/brewerslab/bootcfg.py psk \"%s\"" %(psk))
 	if ip:
-		os.system("sudo echo \"%s\" >/boot/wifiip.txt" %(ip))
-		os.system("sudo echo \"%s\" >/boot/wifimask.txt" %(mask))
-		os.system("sudo echo \"%s\" >/boot/wifigw.txt" %(gw))
+		os.system("sudo python /home/beer/brewerslab/bootcfg.py ip \"%s\"" %(ip))
+		os.system("sudo python /home/beer/brewerslab/bootcfg.py cidr \"%s\"" %(cidr))
+		os.system("sudo python /home/beer/brewerslab/bootcfg.py gw \"%s\"" %(gw))
 
-	os.system("sudo sh /home/beer/brewerslab/test-wireless.sh %s %s" %(ssid,psk))
+	os.system("sudo sh /home/beer/brewerslab/rebootIn15.sh reboot")
 

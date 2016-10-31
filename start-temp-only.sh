@@ -64,6 +64,9 @@ sudo -u beer /usr/bin/screen -dmS localweb python localweb/localserve.py
 ip=`ifconfig wlan0 | grep Bcast | sed -e 's/.*ddr://' | sed -e 's/ .*//'`
 sudo python /home/beer/brewerslab/ledmatrix.py "ready.. http://$ip:54661/cgi/index.py"
 
+cd /home/beer/brewerslab/slave
+sh ledmatrix.sh "Launchin"
+
 if [ -f "/boot/pitmautostart.txt" ]
 then
 

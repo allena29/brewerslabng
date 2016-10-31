@@ -170,7 +170,7 @@ $("#newdate").val( d.getFullYear()+"."+(parseInt(d.getMonth())+1)+"."+d.getDate(
 		</td>
 		</tr>
 		<tr><td>Static IP/Netmask/Gateway</td>
-		<td><input type="text" name='ip' value="0.0.0.0" size=12>/<input type="text" name="mask" value="24" size=2>gw<input type="text" name="gw" value="0.0.0.0" size=12>
+		<td><input type="text" id='ip' value="0.0.0.0" size=12>/<input type="text" id="cidr" value="24" size=2>gw<input type="text" id="gw" value="0.0.0.0" size=12>
 		<tr><td></td><td>
 			<br><i>Only WPA secured wireless access points supported.<p>For DHCP enter "0.0.0.0" for the ip<br>If you make a mistake delete wifipsk.txt and wifissid.txt, wifiip.txt, wifimask.txt, wifigw.txt from the SD card.<br> </i>
 		</td></tr>
@@ -221,72 +221,38 @@ $("#newdate").val( d.getFullYear()+"."+(parseInt(d.getMonth())+1)+"."+d.getDate(
 	}
 
 
-//  showDialog("#wifiDialog2");
 	function warnWifiChange(){
-		document.getElementById("wifiKeepButton").disabled=true;
-		alert("Rebooting to reconfigure wifi");
-		//doWifiChange(true);
+		doWifiChange(true);
 	}	
     function doWifiChange(startConfig){
-	return;	// no longer using this
-	$("#wifissid").html( $("#ssid").val());
-
-	cancelDialog('wifiDialog');
-	showDialog('#wifiDialog2');
 
 	$("#wifireconfigstatus").html("Please wait up to 5 minutes for the wifi to be tested");
 	$.ajax({
-	    url: "dowifireconfig.py?startReconfig="+startConfig+"&wep="+$("#wep").val()+"&ssid="+$("#ssid").val()+"&adminpass="+$("#password3").val(),
-	    error: function(){
-		$("#wifireconfigstatus").html("Reconfigurartion in progress... will recheck in 15 seconds for update ");
-		setTimeout(doWifiChange,15000);
-		// will fire when timeout is reached
-	    },
+	    url: "dowifireconfig.py?ip="+$("#ip").val()+"&cidr="+$("#cidr").val()+"&gw="+$("#gw").val()+"&startReconfig="+startConfig+"&wep="+$("#wep").val()+"&ssid="+$("#ssid").val()+"&adminpass="+$("#password3").val(),
 	    success: function(xml){
-		$("#wifireconfigstatus").html("Done");
-		//do something
+//		$("#wifireconfigstatus").html("Done");
+//		//do something
+		if( $(xml).find('status').text() == "65"){
+			alert("Missing IP address details");
+		}
+		if( $(xml).find('status').text() == "66"){
+			alert("Wrong password");
+		}
 		if( $(xml).find('status').text() == "1"){
-			setTimeout(doWifiChange,15000);
+			alert("Rebooting to reconfigure WIFI.");
 		}
-		if( $(xml).find('status').text() == "0"){
-			document.getElementById("wifiKeepButton").disabled=false;
-			$("#wifireconfigstatus").html( "WIFI Connection OK - IP Address "+$(xml).find('ip').text() );
-			$("#replacementIp").val( $(xml).find('ip').text() );
-			$("#wififlapwarning").hide();		
-		}
-		$("#wifireconfigstatus").html( $(xml).find('msg').text() );
+//			document.getElementById("wifiKeepButton").disabled=false;
+//			$("#wifireconfigstatus").html( "WIFI Connection OK - IP Address "+$(xml).find('ip').text() );
+//			$("#replacementIp").val( $(xml).find('ip').text() );
+//			$("#wififlapwarning").hide();		
+//		}
+//		$("#wifireconfigstatus").html( $(xml).find('msg').text() );
 
 	    },
-	    timeout: 3000 // sets timeout to 3 seconds
+//	    timeout: 3000 // sets timeout to 3 seconds
 	});
     }
   	
-	function keepWifiChange(){
-		$.ajax({
-		    url: "dowifireconfig.py?keepDetails=true&wep="+$("#wep").val()+"&ssid="+$("#ssid").val()+"&adminpass="+$("#password3").val(),
-		    error: function(){
-			alert("Error saving details");
-		    },
-		    success: function(xml){
-			location.replace("bouncer.py?ip="+$("#replacementIp").val() +"&ssid="+$("#ssid").val());
-		    },
-		    timeout: 30000 // sets timeout to 3 seconds
-		});
-	}
-	function cancelWifiChange(){
-		$.ajax({
-		    url: "poweroff.py?reboot=true&adminpass="+$("#password3").val(),
-		    error: function(){
-			alert("Error rebooting");
-		    },
-		    success: function(xml){
-			location.replace("index.py")
-		    },
-		    timeout: 30000 // sets timeout to 3 seconds
-		});
-				
-
-	}
 
 
    // debug only
