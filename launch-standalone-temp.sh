@@ -9,8 +9,6 @@ else
 
 	touch /tmp/standalone-temp-active
 	cd /home/beer/brewerslab/slave
-	sh ledmatrix.sh 
-
 
 	echo "nameserver 8.8.8.8" >/etc/resolv.conf
 	sleep 2
@@ -31,7 +29,6 @@ else
 	python pitmLedMatrix.py "Temperature Monitor Started"
 
 	cd /home/beer/brewerslab/master/
-	sh monitor.sh
 	touch /tmp/led-matrix-monitor
 fi
 	exit 0
