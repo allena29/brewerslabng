@@ -17,8 +17,8 @@ startPeriod=startPeriod.split(".")[0]
 endPeriod=int(startPeriod)+86399
 
 print ":%s: :%s:" %(startPeriod,endPeriod)
-lowerLimit=15
-upperLimit=30
+lowerLimit=7
+upperLimit=28
 rrdPath=sys.argv[1]
 rrdtool.graph("%s.png" %(sys.argv[1]),
       '--imgformat', 'PNG',
