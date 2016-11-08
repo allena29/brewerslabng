@@ -121,7 +121,9 @@ class pitmTempSummary:
 				# just one probe
 				elif len(self.activeProbes) == 1:
 					for probe in self.activeProbes:
-						self.ledm.sendMessage("%s%.1f" %( self.cfg.probeId[ probe ], self.probeVal[probe]  ))
+						t="%.1f" %(self.probeVal[probe] )
+						t="%s%s" %(" "*(4-len(t)),t)
+						self.ledm.sendMessage("%s%s" %( self.cfg.probeId[probe],t))
 				# two probes
 				elif len(self.activeProbes) == 2:
 					# just mash probes
@@ -131,8 +133,10 @@ class pitmTempSummary:
 						half1=self.cfg.probeId[ self.activeProbes[0] ]
 						half2=self.cfg.probeId[ self.activeProbes[1] ]
 					elif cycle < 11:
-						half1="%.1f" %(self.probeVal[self.activeProbes[0] ])
-						half2="%.1f" %(self.probeVal[self.activeProbes[1] ])
+						t="%.1f" %(self.activeProbes[0])
+						half1="%s%s" %(" "*(4-len(t)),t)
+						t="%s%s" %(" "*(4-len(t)),t)
+						half2="%s%s" %(" "*(4-len(t)),t)
 					self.ledm.sendMessage("%s%s" %(half1,half2))
 					if cycle > 10:
 						cycle=0
