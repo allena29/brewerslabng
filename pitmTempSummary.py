@@ -133,8 +133,10 @@ class pitmTempSummary:
 						half1=self.cfg.probeId[ self.activeProbes[0] ]
 						half2=self.cfg.probeId[ self.activeProbes[1] ]
 					elif cycle < 11:
-						t="%.1f" %(self.activeProbes[0])
+						print cycle
+						t="%.1f" %(self.probeVal[ self.activeProbes[0] ] )
 						half1="%s%s" %(" "*(4-len(t)),t)
+						t="%.1f" %(self.probeVal[ self.activeProbes[1] ] )
 						t="%s%s" %(" "*(4-len(t)),t)
 						half2="%s%s" %(" "*(4-len(t)),t)
 					self.ledm.sendMessage("%s%s" %(half1,half2))
@@ -150,14 +152,19 @@ class pitmTempSummary:
 							half1=self.cfg.probeId[ self.cfg.hltProbe ]
 							half2=self.cfg.probeId[ self.cfg.mashAProbe ]
 						elif cycle < 11:
-							half1="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
-							half2="%.1f" %(self.probeVal[ self.cfg.mashAProbe ] )
+							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							half1="%s%s" %(" "*(4-len(t)),t)
+							t="%.1f" %(self.probeVal[ self.cfg.mashAProbe ] )
+							half2="%s%s" %(" "*(4-len(t)),t)
 						elif cycle < 13:
-							half1="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							half1="%s%s" %(" "*(4-len(t)),t)
 							half2=self.cfg.probeId[ self.cfg.mashBProbe ]
 						else: 
-							half1="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
-							half2="%.1f" %(self.probeVal[ self.cfg.mashBProbe ] )
+							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							half1="%s%s" %(" "*(4-len(t)),t)
+							t="%.1f" %(self.probeVal[ self.cfg.mashBProbe ] )
+							half2="%s%s" %(" "*(4-len(t)),t)
 						if cycle > 20:
 							cycle=0
 						self.ledm.sendMessage("%s%s" %(half1,half2))
