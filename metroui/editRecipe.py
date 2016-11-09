@@ -654,6 +654,7 @@ class editRecipe:
 		#
 		#
 
+		treatmentMethod="Unknown"
 		Ca=-1
 		Mg=-1
 		Na=-1
@@ -677,11 +678,12 @@ class editRecipe:
 		if self.editable:
 			print "<td><select id='waterprofile'>"
 			cursor3=con3.cursor()
-			cursor3.execute("select entity,description FROM gWater WHERE profile=1 ORDER BY description")
+			cursor3.execute("select entity,description,treatmentMethod FROM gWater WHERE profile=1 ORDER BY description")
 			for row3 in cursor3:
-				(entity,wp)=row3
+				(entity,wp,xtreatmentMethod)=row3
 				selected=""
 				if waterProfile == wp:
+					treatmentMethod=xtreatmentMethod
 					selected="SELECTED" 
 				print "<option value='%s' %s>%s</option>" %(wp,selected,wp)
 			print "</select>"
@@ -712,7 +714,6 @@ class editRecipe:
 		co3=0
 		so4=0
 		cl=0
-		treatmentMethod="Unkown"
 		if waterTested > 1 or self.editable:
 
 			if self.editable:
@@ -722,7 +723,7 @@ class editRecipe:
 			cursor4=con3.cursor()
 			cursor4.execute("select entity,ca,mg,na,co3,so4,cl,testdate,treatmentMethod FROM gWater WHERE profile=0 ORDER BY testdate DESC")
 			for row4 in cursor4:
-				(entity,xca,xmg,xna,xco3,xso4,xcl,wt,treatmentMethod)=row4
+				(entity,xca,xmg,xna,xco3,xso4,xcl,wt,xtreatmentMethod)=row4
 				selected=""
 				if waterTested == wt:
 					selected="SELECTED" 
@@ -791,7 +792,7 @@ class editRecipe:
 			<tr><td></td><td><input type='text' id='crs' value='%.2f' size=6> ml/L <a href=javascript:adjustWater('crs')><i class="icon-checkmark fg-blue"></i></a></td><td>CRS</td></tr> """ %(water['crs'])
 			else:
 				print "<input type='hidden' id='crs' value='0.00'>"
-				print "<tr><td colspan=3>Tretment by %s</td></tr>" %(treatmentMethod)
+				print "<tr><td colspan=3>Treatment by %s</td></tr>" %(treatmentMethod)
 			print """
 			<tr><td></td><td><input type='text' id='calciumsulphate' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumsulphate')><i class="icon-checkmark fg-blue"></i></a> </td><td>Calcium Sulphate (Gypsum)</td></tr>
 			<tr><td></td><td><input type='text' id='calciumchloride' value='%.2f' size=6> mg/L <a href=javascript:adjustWater('calciumchloride')><i class="icon-checkmark fg-blue"></i></a></td><td>Calcium Chloride (Dihydrate)</td></tr>

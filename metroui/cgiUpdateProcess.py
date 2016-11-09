@@ -119,7 +119,7 @@ if form.has_key("action"):
 		newStep.stepName="New Step #%s" %(newstepid)
 		newStep.text=time.ctime()
 		newStep.process=form['process'].value
-		newStep.activity=form['activityid'].value
+		newStep.activityNum=form['activityid'].value
 		newStep.stepNum=newstepid
 		newStep.subStepNum=-1
 		newStep.put()

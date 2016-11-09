@@ -951,3 +951,23 @@ UPDATE gRecipes set export=-1;
 UPDATE gRecipes set strapline="";
 alter table gRecipes add relatedRecipe char(255);
 update gRecipes set relatedRecipe ="";
+
+ALTER TABLE gRecipeStats add calciumsulphate float;
+ALTER TABLE gRecipeStats add calciumchloride float;
+ALTER TABLE gRecipeStats add magnesiumsulphate float;
+ALTER TABLE gRecipeStats add sodiumchloride float;
+ALTER TABLE gRecipeStats add calciumcarbonate float;
+ALTER TABLE gRecipeStats add sodiumcarbonate float;
+ALTER TABLE gRecipeStats add sodiumsulphate float;
+ALTER TABLE gRecipeStats add magnesiumcarbonate float;
+
+UPDATE  gRecipeStats set calciumsulphate float;
+UPDATE  gRecipeStats set calciumchloride float;
+UPDATE  gRecipeStats set magnesiumsulphate float;
+UPDATE  gRecipeStats set sodiumchloride float;
+UPDATE  gRecipeStats set calciumcarbonate float;
+UPDATE  gRecipeStats set sodiumcarbonate float;
+UPDATE  gRecipeStats set sodiumsulphate float;
+UPDATE  gRecipeStats set magnesiumcarbonate float;
+UPDATE  gRecipeStats set crs float;
+

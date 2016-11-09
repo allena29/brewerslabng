@@ -1962,6 +1962,7 @@ issue is within ngData.py not within logic of cloudNG
 			brewery.cost=brewery.cost+float(cost)
 			brewery.put()
 					
+			sys.stderr.write("SELECT * FROM gItems WHERE owner = %s AND majorcategory = %s AND name = %s" %( username, category.lower(), itemtext ))
 			ourIngredients = self.dbWrapper.GqlQuery("SELECT * FROM gItems WHERE owner = :1 AND majorcategory = :2 AND name = :3", username, category.lower(), itemtext )
 			unit=""
 			for ingredient in ourIngredients.fetch(1):
@@ -2948,6 +2949,13 @@ issue is within ngData.py not within logic of cloudNG
 			qty=hop.qty
 			self.calclog=self.calclog+"recipe   : %.3f %.3f %s\n" %(qty,hop.hopAddAt,hop.ingredient)
 
+		self.recipe=recipe
+		recipe.estimated_abv =self.estimated_abv
+		recipe.estimated_ebc =self.estimated_ebc
+		recipe.estimated_og= self.estimated_og
+		recipe.estimated_fg= self.estimated_fg
+		recipe.estimated_ibu= self.estimated_ibu
+		recipe.put()
 
 
 		# save the calclog to the database

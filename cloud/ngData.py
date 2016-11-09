@@ -2316,6 +2316,18 @@ class gRecipeStats(db):
 		self.batchsize=0.00
 		self.brewlog=""
 		self.dryhop=0
+		self.calciumsulphate=0.00
+		self.calciumchloride=0.00
+		self.magnesiumsulphate=0.00
+		self.sodiumchloride=0.00
+		self.calciumcarbonate=0.00
+		self.sodiumcarbonate=0.00
+		self.sodiumsulphate=0.00
+		self.magnesiumcarbonate=0.00
+		self.crs=0.00
+
+
+
 		self.types = {
 			'batchsize' : 'numeric',
 			'entity' : 'numeric',
@@ -2414,74 +2426,40 @@ class gRecipeStats(db):
 			'polypinqty' : 'numeric',
 			'brewlog' : 'char',
 			'dryhop':'numeric',
+			'calciumsulphate':'numeric',
+			'calciumchloride':'numeric',
+			'magnesiumsulphate':'numeric',
+			'sodiumchloride':'numeric',
+			'calciumcarbonate':'numeric',
+			'sodiumcarbonate':'numeric',
+			'sodiumsulphate':'numeric',
+			'magnesiumcarbonate':'numeric',
+			'crs':'numeric',
 		}
+
+
 		self.tableName="gRecipeStats"
 		for key, value in kwargs.iteritems():
 			self.__dict__[key]=value
 
 	def insertSql(self):
-		"""
-		sys.stderr.write(" %s \n" %( _mysql.escape_string(self.recipe) ))
-		sys.stderr.write(" %s \n" %( _mysql.escape_string(self.process) ))
-		sys.stderr.write(" %s \n" %( self.postboil_precool_og ))
-		sys.stderr.write(" %s \n" %( self.pretopup_estimated_gravity_grain ))
-		sys.stderr.write(" %s \n" %( self.sparge_temp ))
-		sys.stderr.write(" %s \n" %( self.pretopup_post_mash_og ))
-		sys.stderr.write(" %s \n" %( self.strike_temp ))
-		sys.stderr.write(" %s \n" %( self.primingwater ))
-		sys.stderr.write(" %s \n" %( self.sparge_water ))
-		sys.stderr.write(" %s \n" %( self.target_mash_temp ))
-		sys.stderr.write(" %s \n" %( self.precoolfvvolume ))
-		sys.stderr.write(" %s \n" %( self.pre_boil_gravity ))
-		sys.stderr.write(" %s \n" %( self.primingsugarqty ))
-		sys.stderr.write(" %s \n" %( self.num_crown_caps ))
-		sys.stderr.write(" %s \n" %( self.estimated_og ))
-		sys.stderr.write(" %s \n" %( self.estimated_ibu ))
-		sys.stderr.write(" %s \n" %( self.primingsugartotal ))
-		sys.stderr.write(" %s \n" %( self.strike_temp_5 ))
-		sys.stderr.write(" %s \n" %( self.mash_liquid ))
-		sys.stderr.write(" %s \n" %( self.sparge_heating_time ))
-		sys.stderr.write(" %s \n" %( self.boil_vol ))
-		sys.stderr.write(" %s \n" %( self.mash_liquid_6 ))
-		sys.stderr.write(" %s \n" %( self.topupvol ))
-		sys.stderr.write(" %s \n" %( self.extendedboil ))
-		sys.stderr.write(" %s \n" %( self.estimated_fg ))
-		sys.stderr.write(" %s \n" %( self.estimated_abv ))
-		sys.stderr.write(" %s \n" %( self.total_water ))
-		sys.stderr.write(" %s \n" %( self.grain_weight ))
-		sys.stderr.write(" %s \n" %( self.nongrain_weight ))
-		sys.stderr.write(" %s \n" %( self.hops_weight ))
-		sys.stderr.write(" %s \n" %( self.bottles_required ))
-		sys.stderr.write(" %s \n" %( self.kettle1volume ))
-		sys.stderr.write(" %s \n" %( self.kettle2volume ))
-		sys.stderr.write(" %s \n" %( self.kettle3volume ))
-		sys.stderr.write(" %s \n" %( self.kettle1kettle2volume ))
-		sys.stderr.write(" %s \n" %( self.kettle1kettle2kettle3volume ))
-		sys.stderr.write(" %s \n" %( self.kettle1evaporation ))
-		sys.stderr.write(" %s \n" %( self.kettle2evaporation ))
-		sys.stderr.write(" %s \n" %( self.kettle3evaporation ))
-		sys.stderr.write(" %s \n" %( self.kettle1preboilgravity ))
-		sys.stderr.write(" %s \n" %( self.kettle2preboilgravity ))
-		sys.stderr.write(" %s \n" %( self.kettle3preboilgravity ))
-		sys.stderr.write(" %s \n" %( self.postboilprecoolgravity ))
-		sys.stderr.write(" %s \n" %( self.preboil_gravity ))
-		sys.stderr.write(" %s \n" %( self.minikegqty ))
-		sys.stderr.write(" %s \n" %( self.polypinqty))
-		sys.stderr.write(" %s \n" %(self.batchsize ))
-		sys.stderr.write("(BREWLOG\n")
-		sys.stderr.write(" %s \n" %( _mysql.escape_string(self.brewlog)))
-		sys.stderr.write(" %s \n" %(self.dryhop))
-		"""
-		return "INSERT INTO gRecipeStats VALUES (null, '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,'%s',%s);" %( _mysql.escape_string(self.owner) , _mysql.escape_string(self.recipe) , _mysql.escape_string(self.process) , self.postboil_precool_og , self.pretopup_estimated_gravity_grain , self.sparge_temp , self.pretopup_post_mash_og , self.strike_temp , self.primingwater , self.sparge_water , self.target_mash_temp , self.precoolfvvolume , self.pre_boil_gravity , self.primingsugarqty , self.num_crown_caps , self.estimated_og , self.estimated_ibu , self.primingsugartotal , self.strike_temp_5 , self.mash_liquid , self.sparge_heating_time , self.boil_vol , self.mash_liquid_6 , self.topupvol , self.extendedboil , self.estimated_fg , self.estimated_abv , self.total_water , self.grain_weight , self.nongrain_weight , self.hops_weight , self.bottles_required , self.kettle1volume , self.kettle2volume , self.kettle3volume , self.kettle1kettle2volume , self.kettle1kettle2kettle3volume , self.kettle1evaporation , self.kettle2evaporation , self.kettle3evaporation , self.kettle1preboilgravity , self.kettle2preboilgravity , self.kettle3preboilgravity , self.postboilprecoolgravity , self.preboil_gravity , self.minikegqty , self.polypinqty,self.batchsize , _mysql.escape_string(self.brewlog),self.dryhop)
+		return "INSERT INTO gRecipeStats VALUES (null, '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,'%s',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);" %( _mysql.escape_string(self.owner) , _mysql.escape_string(self.recipe) , _mysql.escape_string(self.process) , self.postboil_precool_og , self.pretopup_estimated_gravity_grain , self.sparge_temp , self.pretopup_post_mash_og , self.strike_temp , self.primingwater , self.sparge_water , self.target_mash_temp , self.precoolfvvolume , self.pre_boil_gravity , self.primingsugarqty , self.num_crown_caps , self.estimated_og , self.estimated_ibu , self.primingsugartotal , self.strike_temp_5 , self.mash_liquid , self.sparge_heating_time , self.boil_vol , self.mash_liquid_6 , self.topupvol , self.extendedboil , self.estimated_fg , self.estimated_abv , self.total_water , self.grain_weight , self.nongrain_weight , self.hops_weight , self.bottles_required , self.kettle1volume , self.kettle2volume , self.kettle3volume , self.kettle1kettle2volume , self.kettle1kettle2kettle3volume , self.kettle1evaporation , self.kettle2evaporation , self.kettle3evaporation , self.kettle1preboilgravity , self.kettle2preboilgravity , self.kettle3preboilgravity , self.postboilprecoolgravity , self.preboil_gravity , self.minikegqty , self.polypinqty,self.batchsize , _mysql.escape_string(self.brewlog),self.dryhop,self.calciumsulphate,self.calciumchloride,self.magnesiumsulphate,self.sodiumchloride,self.calciumcarbonate,self.sodiumcarbonate,self.sodiumsulphate,self.magnesiumcarbonate,self.crs)
 
 	def updateSql(self):
-		return "UPDATE gRecipeStats SET  owner = '%s', recipe = '%s', process = '%s', postboil_precool_og = %s, pretopup_estimated_gravity_grain = %s, sparge_temp = %s, pretopup_post_mash_og = %s, strike_temp = %s, primingwater = %s, sparge_water = %s, target_mash_temp = %s, precoolfvvolume = %s, pre_boil_gravity = %s, primingsugarqty = %s, num_crown_caps = %s, estimated_og = %s, estimated_ibu = %s, primingsugartotal = %s, strike_temp_5 = %s, mash_liquid = %s, sparge_heating_time = %s, boil_vol = %s, mash_liquid_6 = %s, topupvol = %s, extendedboil = %s, estimated_fg = %s, estimated_abv = %s, total_water = %s, grain_weight = %s, nongrain_weight = %s, hops_weight = %s, bottles_required = %s, kettle1volume = %s, kettle2volume = %s, kettle3volume = %s, kettle1kettle2volume = %s, kettle1kettle2kettle3volume = %s, kettle1evaporation = %s, kettle2evaporation = %s, kettle3evaporation = %s, kettle1preboilgravity = %s, kettle2preboilgravity = %s, kettle3preboilgravity = %s, postboilprecoolgravity = %s, preboil_gravity = %s, minikegqty = %s, polypinqty = %s, batchsize=%s, brewlog = '%s'  WHERE entity = %s " %( _mysql.escape_string(self.owner), _mysql.escape_string(self.recipe), _mysql.escape_string(self.process), self.postboil_precool_og, self.pretopup_estimated_gravity_grain, self.sparge_temp, self.pretopup_post_mash_og, self.strike_temp, self.primingwater, self.sparge_water, self.target_mash_temp, self.precoolfvvolume, self.pre_boil_gravity, self.primingsugarqty, self.num_crown_caps, self.estimated_og, self.estimated_ibu, self.primingsugartotal, self.strike_temp_5, self.mash_liquid, self.sparge_heating_time, self.boil_vol, self.mash_liquid_6, self.topupvol, self.extendedboil, self.estimated_fg, self.estimated_abv, self.total_water, self.grain_weight, self.nongrain_weight, self.hops_weight, self.bottles_required, self.kettle1volume, self.kettle2volume, self.kettle3volume, self.kettle1kettle2volume, self.kettle1kettle2kettle3volume, self.kettle1evaporation, self.kettle2evaporation, self.kettle3evaporation, self.kettle1preboilgravity, self.kettle2preboilgravity, self.kettle3preboilgravity, self.postboilprecoolgravity, self.preboil_gravity, self.minikegqty, self.polypinqty, self.batchsize,_mysql.escape_string(self.brewlog),self.entity)
-
+		return "UPDATE gRecipeStats SET  owner = '%s', recipe = '%s', process = '%s', postboil_precool_og = %s, pretopup_estimated_gravity_grain = %s, sparge_temp = %s, pretopup_post_mash_og = %s, strike_temp = %s, primingwater = %s, sparge_water = %s, target_mash_temp = %s, precoolfvvolume = %s, pre_boil_gravity = %s, primingsugarqty = %s, num_crown_caps = %s, estimated_og = %s, estimated_ibu = %s, primingsugartotal = %s, strike_temp_5 = %s, mash_liquid = %s, sparge_heating_time = %s, boil_vol = %s, mash_liquid_6 = %s, topupvol = %s, extendedboil = %s, estimated_fg = %s, estimated_abv = %s, total_water = %s, grain_weight = %s, nongrain_weight = %s, hops_weight = %s, bottles_required = %s, kettle1volume = %s, kettle2volume = %s, kettle3volume = %s, kettle1kettle2volume = %s, kettle1kettle2kettle3volume = %s, kettle1evaporation = %s, kettle2evaporation = %s, kettle3evaporation = %s, kettle1preboilgravity = %s, kettle2preboilgravity = %s, kettle3preboilgravity = %s, postboilprecoolgravity = %s, preboil_gravity = %s, minikegqty = %s, polypinqty = %s, batchsize=%s, brewlog = '%s' ,calciumsulphate=%s,calciumchloride=%s,magnesiumsulphate=%s,sodiumchloride=%s,calciumcarbonate=%s,sodiumcarbonate=%s,sodiumsulphate=%s,magnesiumcarbonate=%s,crs=%sWHERE entity = %s " %( _mysql.escape_string(self.owner), _mysql.escape_string(self.recipe), _mysql.escape_string(self.process), self.postboil_precool_og, self.pretopup_estimated_gravity_grain, self.sparge_temp, self.pretopup_post_mash_og, self.strike_temp, self.primingwater, self.sparge_water, self.target_mash_temp, self.precoolfvvolume, self.pre_boil_gravity, self.primingsugarqty, self.num_crown_caps, self.estimated_og, self.estimated_ibu, self.primingsugartotal, self.strike_temp_5, self.mash_liquid, self.sparge_heating_time, self.boil_vol, self.mash_liquid_6, self.topupvol, self.extendedboil, self.estimated_fg, self.estimated_abv, self.total_water, self.grain_weight, self.nongrain_weight, self.hops_weight, self.bottles_required, self.kettle1volume, self.kettle2volume, self.kettle3volume, self.kettle1kettle2volume, self.kettle1kettle2kettle3volume, self.kettle1evaporation, self.kettle2evaporation, self.kettle3evaporation, self.kettle1preboilgravity, self.kettle2preboilgravity, self.kettle3preboilgravity, self.postboilprecoolgravity, self.preboil_gravity, self.minikegqty, self.polypinqty, self.batchsize,_mysql.escape_string(self.brewlog),self.calciumsulphate,self.calciumchloride,self.magnesiumsulphate,self.sodiumchloride,self.calciumcarbonate,self.sodiumcarbonate,self.sodiumsulphate,self.magnesiumcarbonate,self.crs,self.entity)
 
 	def populate(self,row):
-		(( self.entity , self.owner, self.recipe, self.process, postboil_precool_og, pretopup_estimated_gravity_grain, sparge_temp, pretopup_post_mash_og, strike_temp, primingwater, sparge_water, target_mash_temp, precoolfvvolume, pre_boil_gravity, primingsugarqty, num_crown_caps, estimated_og, estimated_ibu, primingsugartotal, strike_temp_5, mash_liquid, sparge_heating_time, boil_vol, mash_liquid_6, topupvol, extendedboil, estimated_fg, estimated_abv, total_water, grain_weight, nongrain_weight, hops_weight, bottles_required, kettle1volume, kettle2volume, kettle3volume, kettle1kettle2volume, kettle1kettle2kettle3volume, kettle1evaporation, kettle2evaporation, kettle3evaporation, kettle1preboilgravity, kettle2preboilgravity,kettle3preboilgravity, postboilprecoolgravity, preboil_gravity, minikegqty, polypinqty,batchsize,self.brewlog,dryhop),)=row
+		(( self.entity , self.owner, self.recipe, self.process, postboil_precool_og, pretopup_estimated_gravity_grain, sparge_temp, pretopup_post_mash_og, strike_temp, primingwater, sparge_water, target_mash_temp, precoolfvvolume, pre_boil_gravity, primingsugarqty, num_crown_caps, estimated_og, estimated_ibu, primingsugartotal, strike_temp_5, mash_liquid, sparge_heating_time, boil_vol, mash_liquid_6, topupvol, extendedboil, estimated_fg, estimated_abv, total_water, grain_weight, nongrain_weight, hops_weight, bottles_required, kettle1volume, kettle2volume, kettle3volume, kettle1kettle2volume, kettle1kettle2kettle3volume, kettle1evaporation, kettle2evaporation, kettle3evaporation, kettle1preboilgravity, kettle2preboilgravity,kettle3preboilgravity, postboilprecoolgravity, preboil_gravity, minikegqty, polypinqty,batchsize,self.brewlog,dryhop,w1,w2,w3,w4,w5,w6,w7,w8,w9),)=row
 
-
+		self.calciumsulphate=float(w1)
+		self.calciumchloride=float(w2)
+		self.magnesiumsulphate=float(w3)
+		self.sodiumchloride=float(w4)
+		self.calciumcarbonate=float(w5)
+		self.sodiumcarbonate=float(w6)
+		self.sodiumsulphate=float(w7)
+		self.magnesiumcarbonate=float(w8)
+		self.crs=float(w9)
 		self.postboil_precool_og=float(postboil_precool_og)
 		self.pretopup_estimated_gravity_grain=float(pretopup_estimated_gravity_grain)
 		self.sparge_temp=float(sparge_temp)
