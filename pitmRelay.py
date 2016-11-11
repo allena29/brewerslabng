@@ -283,7 +283,7 @@ class pitmRelay:
 				if self._gpioExtractor == None:
 					self.gpio.output('extractor',0)
 					self._gpioExtractor=False
-				if self.zoneTemp > 50 or self.zoneTemp <4:
+				if self.zoneTemp > 75 or self.zoneTemp <4:
 					self._log("Unrealistic Temperature Value %s:%s %s\n" %(self.zoneTemp,self.zoneTempTimestamp,self._mode))
 				else:
 					self._lastValidReading['ferm'] = time.time()
@@ -381,6 +381,19 @@ class pitmRelay:
 						self.fermHeatActiveFor = -1
 
 					self.fridgeCompressorDelay=self.fridgeCompressorDelay-1
+
+
+
+				# if we are heating or cooling turn on the pump
+				# this means we can switch the pump for a fan
+				if self.fridgeCool or self.fridgeHeat:
+					self.gpio.output('pump',1)
+					self._gpioPump=True
+				elif not self.fridgeCool and not self.fridgeHeat:
+					self.gpio.output('pump',0)
+					self._gpioPump=False
+
+
 			elif self._mode.count( "pump" ):				
 				self.gpio.output('pump',1)
 				self._gpioPump=True
