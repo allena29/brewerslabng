@@ -128,7 +128,7 @@ class pitmController:
 
 			# fermentation
 			if self.mode.count('pump'):
-				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
+				controlMessage['boil']=(self.boilLow,self.boilHigh, self.boilTarget)
 				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
 			if self.mode.count('ferm'):
 				controlMessage['ferm']=(self.fermLow,self.fermHigh,self.fermTarget)
@@ -373,54 +373,7 @@ class pitmController:
 			self.error('Error Loading',' master/slave',' not in sync','')
 	
 
-		# if any of the buttons are showing then we should tell the user to de-select activities first	
-		activityStillActive=True
-		msgShown=False
-		while activityStillActive:
-			activityStillActive=False
-			self.ledFlasher.sendMessage('lSys','off')
-			if os.path.exists("ipc/swHlt"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lHlt','red')
-			else:
-				self.ledFlasher.sendMessage('lHlt','off')
 
-			if os.path.exists("ipc/swMash"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lMash','red')
-			else:
-				self.ledFlasher.sendMessage('lMash','off')
-			if os.path.exists("ipc/swSparge"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lSparge','red')
-			else:
-				self.ledFlasher.sendMessage('lSparge','off')
-	
-			if os.path.exists("ipc/swBoil"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lBoil','red')
-			else:
-				self.ledFlasher.sendMessage('lBoil','off')
-
-			if os.path.exists("ipc/swPump"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lPump','red')
-			else:
-				self.ledFlasher.sendMessage('lPump','off')
-			if os.path.exists("ipc/swFerm"):	
-				activityStillActive=True
-				self.ledFlasher.sendMessage('lFerm','red')
-			else:
-				self.ledFlasher.sendMessage('lFerm','off')
-
-			
-			if activityStillActive and not msgShown:
-				msgShown=True
-				self.lcdDisplay.sendMessage("Error:             ",0)
-				self.lcdDisplay.sendMessage("  De-select        ",1)
-				self.lcdDisplay.sendMessage("  activities       ",2)
-				self.lcdDisplay.sendMessage("  first            ",3)
-				self.ledFlasher.sendMessage('lSys','red')
 
 		self._log("Worsdell Brewing")
 
