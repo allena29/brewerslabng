@@ -117,6 +117,8 @@ class pitmMonitor:
 		self.doMonitoring=False
 		if cm.has_key("_mode"):
 			self._mode=cm['_mode']
+			if cm['_mode'].count( "delayed_HLT"):
+				self.doMonitoring=True
 			if cm['_mode'].count( "hlt"):
 				self.doMonitoring=True
 			if cm['_mode'] == "sparge":
@@ -137,8 +139,8 @@ class pitmMonitor:
 			if cm['_mode'].count("ferm"):
 				self.doMonitoring=True
 
-#		print "Mode:",cm['_mode'],zone,self.doMonitoring
-#		print cm
+		print "Mode:",cm['_mode'],zone,self.doMonitoring
+		print cm
 
 		if cm.has_key("tempTargetHlt"):
 			self.tempTargetHlt=cm['tempTargetHlt']
@@ -175,6 +177,9 @@ class pitmMonitor:
 		self.doMonitoring=False
 		if cm.has_key("_mode"):
 			self._mode=cm['_mode']
+			if cm['_mode'].count( "delayed_HLT"):
+				self.doMonitoring=True
+
 			if cm['_mode'].count( "hlt"):
 				self.doMonitoring=True
 
@@ -281,7 +286,7 @@ class pitmMonitor:
 			probeid="boil :"
 			led="lBoil"
 			(targetMin,targetMax,target)=self.tempTargetBoil
-		if self._mode.count( "hlt") and probe == self.cfg.hltProbe:
+		if (self._mode.count("delayed_HLT") or self._mode.count( "hlt")) and probe == self.cfg.hltProbe:
 			probeOk=True
 			if self._mode.count("sparge"):
 				led="lSparge"

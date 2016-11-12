@@ -115,7 +115,7 @@ class pitmController:
 			if self.mode.count('hlt'):
 				controlMessage['hlt'] = (self.hltLow,self.hltHigh,self.hltTarget)
 			if self.mode.count('delayed_HLT'):
-				controlMessage['hlt'] = (self.hltLow,self.hltHigh,self.hltTarget)
+				controlMessage['hlt'] = (0,self.hltHigh,100)
 			# sparge
 			if self.mode.count('sparge'):
 				controlMessage['sparge']=(self.spargeLow,self.spargeHigh,self.spargeTarget)
