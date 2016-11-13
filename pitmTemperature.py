@@ -165,11 +165,8 @@ class pitmTemperature:
 			ferm=True
 		if self._mode =='ferm':
 			ferm=True
-		if ferm or hlt or mash or boil:
-			self.gpio.output("tempProbes",True)
-		else:	
-			self.gpio.output("tempProbes",False)
-
+		# previously we toggled a relay which disconnected
+		# the DS18B20 probes, but no longer do this
 
 		for probe in os.listdir( self.tempBaseDir ):
 			if probe[0:2] == "28":
@@ -368,6 +365,14 @@ class pitmTemperature:
 			self._targetHlt=cm['hlt']	
 			self._targetMash=cm['mash']	
 		elif cm['_mode'].count("hlt"):
+			self.doTemperatureing=True
+			self.probesToMonitor[ self.cfg.hltProbe ] = True
+			self.probesToMonitor[ self.cfg.mashAProbe ] = False
+			self.probesToMonitor[ self.cfg.mashBProbe ] = False
+			self.probesToMonitor[ self.cfg.fermProbe ] = False
+			self.probesToMonitor[ self.cfg.boilProbe ] = False
+			self._targetHlt=cm['hlt']
+		elif cm['_mode'].count("delayed_HLT"):
 			self.doTemperatureing=True
 			self.probesToMonitor[ self.cfg.hltProbe ] = True
 			self.probesToMonitor[ self.cfg.mashAProbe ] = False

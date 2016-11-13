@@ -323,7 +323,7 @@ class pitmSsrRelay:
 #					print "BOIL: ZONE A",self.useZoneA,self.zoneAduty,self.ssrZoneA,self.zoneAmeter
 #					print "BOIL: ZONE B",self.zoneBduty,self.ssrZoneB,self.zoneBmeter
 
-					if self.zoneTemp < self.zoneTarget * 0.90:
+					if (self.zoneTemp < self.zoneTarget * 0.90) or os.path.exists("ipc/use-both-boil-elements"):
 						# if we are less than 90% of the target then use both elements
 						self.useZoneA=True
 						self.useZoneB=True
