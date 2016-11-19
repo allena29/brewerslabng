@@ -37,7 +37,8 @@ class pitmCfg:
 		self.mashAProbe="28-000003eba86a"
 		self.mashBProbe="28-000003ebccea"
 		self.boilProbe="28-0000044dcda4"
-                self.fermProbe="28-00044efeaaff"
+                #self.fermProbe="28-00044efeaaff"
+		self.fermProbe="28-041470765eff"
 		self.tempProbe="28-04150116e2ff"
 		# Probe Adjutment Tweak
 		# dict key = probeId
