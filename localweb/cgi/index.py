@@ -73,7 +73,20 @@ print """
 
 		</div>
 
-		
+	
+
+	    <div class="tile-container">
+
+                <a href="camera.py" class="tile bg-darkBlue fg-white" data-role="tile">
+                    <div class="tile-content iconic">
+                        <span class="icon mif-camera"></span>
+                    </div>
+                    <span class="tile-label">Camera</span>
+                </a>
+
+		</div>
+
+	
 <p>Last Reading: <span id=lastReading>...</span>
 	</div>
     </div>
