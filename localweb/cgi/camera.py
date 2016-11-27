@@ -16,7 +16,7 @@ if form.has_key("get"):
 	sys.stdout.write(x)
 	o.close()
 
-	os.system("sudo raspistill -o /currentdata/cam.jpg --timeout 1 --nopreview -w 1024 -h 768 -q 33 -ex sports -hf")
+	os.system("sudo python /home/beer/brewerslab/slave/pitmCamera.py")
 else:
 	print """
 	<!DOCTYPE html>
