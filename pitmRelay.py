@@ -330,7 +330,7 @@ class pitmRelay:
 							self._gpioFermCool=False
 						else:
 							if (time.time() - self.fermCoolActiveFor > 1800) and self.fermCoolActiveFor > 0:
-								self.fridgeCompressorDelay=901
+								self.fridgeCompressorDelay=601
 								self._log("Cooling has been active for %s - resting fridge" %(time.time()-self.fermCoolActiveFor))
 								if self.fermCoolActiveFor > 0:
 									self.meterFermC=self.meterFermC+ (time.time()-self.fermCoolActiveFor)
@@ -386,7 +386,11 @@ class pitmRelay:
 
 				# if we are heating or cooling turn on the pump
 				# this means we can switch the pump for a fan
-				if self.fridgeCool or self.fridgeHeat:
+				if self.fridgeCool and self.fridgeCompressorDelay < 1:
+					self.gpio.output('pump',1)
+					self._gpioPump=True
+				elif self.fridgeHeat:
+					print "PUMP SHOULD BE ON"
 					self.gpio.output('pump',1)
 					self._gpioPump=True
 				elif not self.fridgeCool and not self.fridgeHeat:

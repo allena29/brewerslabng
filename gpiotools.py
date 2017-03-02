@@ -45,10 +45,10 @@ class gpiotools:
 				# NO of the relay for HLT
 				# NC of the relay for Boiler
 			'extractor':
-				{'input':False, 'pin':12,
+				{'input':False, 'pin':18,
 				 'setup':False,'inverse':True,'pup':True},
 			'pump':
-				{'input':False, 'pin':16,
+				{'input':False, 'pin':12,
 				 'setup':False,'inverse':True,'pup':True},
 			'zoneB':
 				{'input':False, 'pin':26,
@@ -63,7 +63,7 @@ class gpiotools:
 				{'input':False, 'pin':22,
 				 'setup':False,'inverse':True,'pup':True},
 			'fermCool':
-				{'input':False, 'pin':18,
+				{'input':False, 'pin':16,
 				 'setup':False,'inverse':True,'pup':True},
 			'tempProbes':
 				{'input':False, 'pin':5,
