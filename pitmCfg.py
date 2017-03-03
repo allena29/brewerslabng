@@ -36,7 +36,7 @@ class pitmCfg:
 		self.hltProbe="28-000003ebc866"
 		self.mashAProbe="28-000003eba86a"
 		self.mashBProbe="28-000003ebccea"
-		self.boilProbe="28-0000044dcda4"
+		self.boilProbe="28-04147059baff"
                 #self.fermProbe="28-00044efeaaff"
 #		self.fermProbe="28-041470765eff"
 		self.fermProbe="28-0315018118ff"
