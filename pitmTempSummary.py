@@ -34,6 +34,9 @@ class pitmTempSummary:
 		self.cfg = pitmCfg()
 		self.mcastMembership=False
 
+		# used so we can flash the decimal point in stats as we receive updates over the network
+		self.dot = 0		
+
 		self.probeVal={ self.cfg.mashAProbe:0,self.cfg.mashBProbe:0,self.cfg.hltProbe:0,self.cfg.boilProbe:0,self.cfg.fermProbe:0,self.cfg.tempProbe:0}
 		self.probeStamp={ self.cfg.mashAProbe:0,self.cfg.mashBProbe:0,self.cfg.hltProbe:0,self.cfg.boilProbe:0,self.cfg.fermProbe:0,self.cfg.tempProbe:0}
 		self.probes=[ self.cfg.mashAProbe,self.cfg.mashBProbe, self.cfg.hltProbe,self.cfg.boilProbe,self.cfg.fermProbe,self.cfg.tempProbe]
@@ -88,7 +91,12 @@ class pitmTempSummary:
 		except:
 			self._log("Error unpickling input message\n%s" %(data))
 			return
-		
+	
+		if self.dot == 0:
+			self.dot = 1
+		else:
+			self.dot = 0	
+		print 'decode',self.dot
 		for probe in self.probes:
 			if cm['currentResult'].has_key( probe ):
 				if  cm['currentResult'][probe]['valid']:
@@ -101,12 +109,7 @@ class pitmTempSummary:
 	def updateStats(self):
 		cycle=0
 		lastactive=0
-		dot=1
 		while 1:
-			if dot == 1:
-				dot = 0
-			else:
-				dot = 1
 			self.activeProbes=[]
 			for probe in self.probes:
 				#print self.mcastTime,self.mcastTime - self.probeStamp[probe],probe 
@@ -127,7 +130,7 @@ class pitmTempSummary:
 					for probe in self.activeProbes:
 						t="%.1f" %(self.probeVal[probe] )
 						t="%s%s" %(" "*(4-len(t)),t)
-						if dot == 1:
+						if self.dot == 1:
 							t=t.replace('.', ' ')
 
 						self.ledm.sendMessage("%s%s" %( self.cfg.probeId[probe],t))
@@ -142,12 +145,12 @@ class pitmTempSummary:
 					elif cycle < 11:
 						print cycle
 						t="%.1f" %(self.probeVal[ self.activeProbes[0] ] )
-						if dot == 1:
+						if selfdot == 1:
 							t=t.replace('.', ' ')
 						half1="%s%s" %(" "*(4-len(t)),t)
 						t="%.1f" %(self.probeVal[ self.activeProbes[1] ] )
 						t="%s%s" %(" "*(4-len(t)),t)
-						if dot == 1:
+						if self.dot == 1:
 							t=t.replace('.', ' ')
 						half2="%s%s" %(" "*(4-len(t)),t)
 					self.ledm.sendMessage("%s%s" %(half1,half2))
@@ -164,29 +167,29 @@ class pitmTempSummary:
 							half2=self.cfg.probeId[ self.cfg.mashAProbe ]
 						elif cycle < 11:
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
-							if dot == 1:
+							if self.dot == 1:
 								t=t.replace('.', ' ')
 								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							t="%.1f" %(self.probeVal[ self.cfg.mashAProbe ] )
-							if dot == 1:
+							if self.dot == 1:
 								t=t.replace('.', ' ')
 								half2="%s%s" %(" "*(4-len(t)),t)
 						elif cycle < 13:
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
-							if dot == 1:
+							if self.dot == 1:
 								t=t.replace('.', ' ')
 								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							half2=self.cfg.probeId[ self.cfg.mashBProbe ]
 						else: 
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
-							if dot == 1:
+							if self.dot == 1:
 								t=t.replace('.', ' ')
 								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							t="%.1f" %(self.probeVal[ self.cfg.mashBProbe ] )
-							if dot == 1:
+							if self.dot == 1:
 								t=t.replace('.', ' ')
 								half2="%s%s" %(" "*(4-len(t)),t)
 							half2="%s%s" %(" "*(4-len(t)),t)
