@@ -101,8 +101,12 @@ class pitmTempSummary:
 	def updateStats(self):
 		cycle=0
 		lastactive=0
+		dot=1
 		while 1:
-
+			if dot == 1:
+				dot = 0
+			else:
+				dot = 1
 			self.activeProbes=[]
 			for probe in self.probes:
 				#print self.mcastTime,self.mcastTime - self.probeStamp[probe],probe 
@@ -123,6 +127,9 @@ class pitmTempSummary:
 					for probe in self.activeProbes:
 						t="%.1f" %(self.probeVal[probe] )
 						t="%s%s" %(" "*(4-len(t)),t)
+						if dot == 1:
+							t=t.replace('.', ' ')
+
 						self.ledm.sendMessage("%s%s" %( self.cfg.probeId[probe],t))
 				# two probes
 				elif len(self.activeProbes) == 2:
@@ -135,9 +142,13 @@ class pitmTempSummary:
 					elif cycle < 11:
 						print cycle
 						t="%.1f" %(self.probeVal[ self.activeProbes[0] ] )
+						if dot == 1:
+							t=t.replace('.', ' ')
 						half1="%s%s" %(" "*(4-len(t)),t)
 						t="%.1f" %(self.probeVal[ self.activeProbes[1] ] )
 						t="%s%s" %(" "*(4-len(t)),t)
+						if dot == 1:
+							t=t.replace('.', ' ')
 						half2="%s%s" %(" "*(4-len(t)),t)
 					self.ledm.sendMessage("%s%s" %(half1,half2))
 					if cycle > 10:
@@ -153,17 +164,31 @@ class pitmTempSummary:
 							half2=self.cfg.probeId[ self.cfg.mashAProbe ]
 						elif cycle < 11:
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							if dot == 1:
+								t=t.replace('.', ' ')
+								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							t="%.1f" %(self.probeVal[ self.cfg.mashAProbe ] )
-							half2="%s%s" %(" "*(4-len(t)),t)
+							if dot == 1:
+								t=t.replace('.', ' ')
+								half2="%s%s" %(" "*(4-len(t)),t)
 						elif cycle < 13:
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							if dot == 1:
+								t=t.replace('.', ' ')
+								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							half2=self.cfg.probeId[ self.cfg.mashBProbe ]
 						else: 
 							t="%.1f" %(self.probeVal[ self.cfg.hltProbe ] )
+							if dot == 1:
+								t=t.replace('.', ' ')
+								half2="%s%s" %(" "*(4-len(t)),t)
 							half1="%s%s" %(" "*(4-len(t)),t)
 							t="%.1f" %(self.probeVal[ self.cfg.mashBProbe ] )
+							if dot == 1:
+								t=t.replace('.', ' ')
+								half2="%s%s" %(" "*(4-len(t)),t)
 							half2="%s%s" %(" "*(4-len(t)),t)
 						if cycle > 20:
 							cycle=0
