@@ -1,0 +1,56 @@
+[
+  {
+    "_id": "7ed4e630-cbf4-11e7-89a6-a56ce625921c",
+    "_type": "dashboard",
+    "_source": {
+      "title": "New Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"col\":1,\"id\":\"470cf620-cbf4-11e7-89a6-a56ce625921c\",\"panelIndex\":1,\"row\":1,\"size_x\":3,\"size_y\":10,\"type\":\"visualization\"},{\"col\":4,\"id\":\"6fb9b300-cbf0-11e7-89a6-a56ce625921c\",\"panelIndex\":2,\"row\":1,\"size_x\":9,\"size_y\":10,\"type\":\"visualization\"}]",
+      "optionsJSON": "{\"darkTheme\":false}",
+      "uiStateJSON": "{\"P-1\":{\"vis\":{\"defaultColors\":{\"15 - 19.7\":\"rgb(0,104,55)\",\"19.7 - 19.9\":\"rgb(135,203,103)\",\"19.9 - 20.1\":\"rgb(255,255,190)\",\"20.1 - 20.3\":\"rgb(249,142,82)\",\"20.3 - 25\":\"rgb(165,0,38)\"}}},\"P-2\":{\"spy\":{\"mode\":{\"fill\":false,\"name\":null}},\"vis\":{\"legendOpen\":false}}}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[],\"highlightAll\":true,\"version\":true}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "470cf620-cbf4-11e7-89a6-a56ce625921c",
+    "_type": "visualization",
+    "_source": {
+      "title": "Fermentation Gauge",
+      "visState": "{\"title\":\"Fermentation Gauge\",\"type\":\"gauge\",\"params\":{\"addLegend\":false,\"addTooltip\":true,\"gauge\":{\"backStyle\":\"Full\",\"colorSchema\":\"Green to Red\",\"colorsRange\":[{\"from\":15,\"to\":19.7},{\"from\":19.7,\"to\":19.9},{\"from\":19.9,\"to\":20.1},{\"from\":20.1,\"to\":20.3},{\"from\":20.3,\"to\":25}],\"extendRange\":false,\"gaugeColorMode\":\"Labels\",\"gaugeStyle\":\"Full\",\"gaugeType\":\"Arc\",\"invertColors\":false,\"labels\":{\"color\":\"black\",\"show\":true},\"orientation\":\"vertical\",\"percentageMode\":false,\"scale\":{\"color\":\"#333\",\"labels\":false,\"show\":true},\"style\":{\"bgColor\":false,\"bgFill\":\"#eee\",\"bgMask\":false,\"bgWidth\":0.9,\"fontSize\":60,\"labelColor\":true,\"mask\":false,\"maskBars\":50,\"subText\":\"\",\"width\":0.9},\"type\":\"meter\",\"verticalSplit\":true},\"type\":\"gauge\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Maximum\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"min\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Minimum\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Average\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"colors\":{\"19.8 - 20.1\":\"#629E51\",\"75 - 100\":\"#967302\",\"19.7 - 19.9\":\"#447EBC\",\"19.9 - 20.1\":\"#629E51\",\"20.1 - 20.3\":\"#F9934E\",\"0 - 19.7\":\"#0A50A1\",\"15 - 19.7\":\"#0A50A1\"},\"defaultColors\":{\"15 - 19.7\":\"rgb(0,104,55)\",\"19.7 - 19.9\":\"rgb(135,203,103)\",\"19.9 - 20.1\":\"rgb(255,255,190)\",\"20.1 - 20.3\":\"rgb(249,142,82)\",\"20.3 - 25\":\"rgb(165,0,38)\"}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"e4c816b0-cbef-11e7-89a6-a56ce625921c\",\"filter\":[{\"meta\":{\"index\":\"e4c816b0-cbef-11e7-89a6-a56ce625921c\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"range\",\"key\":\"ferm\",\"value\":\"15 to 25\",\"params\":{\"gte\":15,\"lt\":25}},\"range\":{\"ferm\":{\"gte\":15,\"lt\":25}},\"$state\":{\"store\":\"appState\"}}],\"query\":{\"language\":\"lucene\",\"query\":\"\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "6fb9b300-cbf0-11e7-89a6-a56ce625921c",
+    "_type": "visualization",
+    "_source": {
+      "title": "Fermentation Temperature",
+      "visState": "{\"title\":\"Fermentation Temperature\",\"type\":\"line\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{},\"type\":\"category\"}],\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"legendPosition\":\"right\",\"radiusRatio\":51,\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Max Sample\"},\"drawLinesBetweenPoints\":true,\"mode\":\"normal\",\"show\":\"true\",\"showCircles\":true,\"type\":\"line\",\"valueAxis\":\"ValueAxis-1\"},{\"data\":{\"id\":\"3\",\"label\":\"Min Sample\"},\"drawLinesBetweenPoints\":true,\"mode\":\"normal\",\"show\":true,\"showCircles\":true,\"type\":\"line\",\"valueAxis\":\"ValueAxis-1\"},{\"show\":true,\"mode\":\"normal\",\"type\":\"line\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"data\":{\"id\":\"4\",\"label\":\"Average Sample\"},\"valueAxis\":\"ValueAxis-1\"}],\"times\":[],\"type\":\"line\",\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\",\"setYExtents\":true,\"max\":22,\"min\":15},\"show\":true,\"style\":{},\"title\":{\"text\":\"Max \"},\"type\":\"value\"}]},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Max Sample\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"s\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}},{\"id\":\"3\",\"enabled\":true,\"type\":\"min\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Min Sample\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"ferm\",\"customLabel\":\"Average Sample\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"colors\":{\"Max ferm\":\"#BF1B00\",\"Avg Ferm\":\"#705DA0\"}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"e4c816b0-cbef-11e7-89a6-a56ce625921c\",\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":\"\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  }
+]
