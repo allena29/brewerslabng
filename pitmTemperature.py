@@ -12,13 +12,6 @@ import threading
 import time
 import re
 from pitmCfg import pitmCfg
-from gpiotools import *
-
-if os.path.exists("simulator"):
-	import fakeRPi.GPIO as GPIO
-else:
-	import RPi.GPIO as GPIO
-
 
 
 
@@ -29,7 +22,6 @@ class pitmTemperature:
 	def __init__(self):
 		self.logging=2		# 1 = syslog, 2 = stderr
 		self.cfg = pitmCfg()
-		self.gpio = gpiotools()
 		self.rxTemp=re.compile("^.*t=(\d+)")
 
 		self.probesToMonitor={}
@@ -65,8 +57,7 @@ class pitmTemperature:
 			self.tempBaseDir="/sys/bus/w1/devices/"
 
 	def uncontrol(self):
-		print "closing off relays"
-		self.gpio.output("tempProbes",0)
+		pass
 
 	
 	def __del__(self):
@@ -145,85 +136,58 @@ class pitmTemperature:
 		self.lastResult[probe]=temperature
 		self.odd_readings[probe] = []
 
-	def getResult(self):
+	def _read_temperature_from_external_probe(self, probe):
+		temperature = 0
+		ok = False
+		text = "NON"
+
+		try:
+			o=open( "%s/%s/w1_slave" %(self.tempBaseDir,probe))
+			text=o.readline()
+			temp=o.readline()
+			o.close()
+		except:
+			pass
+
+		if text.count("YES") and self.rxTemp.match(temp):		# CRC=NO for failed results	
+			(temp,)=self.rxTemp.match(temp).groups()
+			temperature=float(temp)/1000
+			ok = True
 		
+		return (temperature, ok)
 
-		#
-		#
-		# set temperature probe relays to the correct value
-		#
-		#
-		
-		hlt=False
-		mash=False
-		boil=False
-		ferm=False
-		if self._mode == "sparge":
-			mash=True
 
-		if self._mode.count("delayed_HLT"):
-			hlt=True
-		if self._mode.count("hlt"):
-			hlt=True
-		if self._mode.count("mash"):
-			mash=True
-		if self._mode.count("boil"):
-			boil=True
-		if self._mode.count("cool"):
-			boil=True
-			ferm=True
-		if self._mode.count("pump"):
-			boil=True
-			ferm=True
-		if self._mode =='ferm-wait':
-			ferm=True
-		if self._mode =='ferm':
-			ferm=True
-		# previously we toggled a relay which disconnected
-		# the DS18B20 probes, but no longer do this
-
+	def _get_probes_to_monitor(self):
+		probes = []
 		for probe in os.listdir( self.tempBaseDir ):
 			if probe[0:2] == "28":
 				if self.probesToMonitor.has_key( probe):
+					probes.append(probe)
+		return probes
 
-					# A place to store odd results
-					if not self.odd_readings.has_key(probe):
-						self.odd_readings[probe] = []
+	def getResult(self):
+		for probe in self._get_probes_to_monitor():
 
-					if self.probesToMonitor[probe]:
-						try:
-						
-							o=open( "%s/%s/w1_slave" %(self.tempBaseDir,probe))
-							text=o.readline()
-							temp=o.readline()
-							o.close()
-							openOk=True
-						except:
-							openOk=False
-							print " - oops couldn't open... burrying our head in the sand"
-						if openOk:
-							if text.count("NO"):
-								self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':0,'valid':False}				
-								print
-							if text.count("YES") and self.rxTemp.match(temp):		# CRC=NO for failed results	
-								#rxTemp=re.compile("^.*t=(\d+)")
-								
-								(temp,)=self.rxTemp.match(temp).groups()
-								temperature=float(temp)/1000
+			# A place to store odd results
+			if not self.odd_readings.has_key(probe):
+				self.odd_readings[probe] = []
 
-								if not self.lastResult.has_key(probe):
-									self.lastResult[probe]=0
+			if self.probesToMonitor[probe]:
+				(temperature, ok) = self._read_temperature_from_external_probe(probe)
+				if ok:
+					if not self.lastResult.has_key(probe):
+						self.lastResult[probe]=0
 
-								if (self.lastResult[probe]) == 0 or len(self.odd_readings[probe]) > 5:
-									self._accept_adjust_and_add_a_reading(probe, temperature)
-								else:
-									if temperature > self.lastResult[probe] * 1.25 or temperature < self.lastResult[probe] * 0.75:
-										self._reject_result(probe, temperature, '+/- 25%% swing')
-									else:
-										self._accept_adjust_and_add_a_reading(probe, temperature)
-				
+					if (self.lastResult[probe]) == 0 or len(self.odd_readings[probe]) > 5:
+						self._accept_adjust_and_add_a_reading(probe, temperature)
+					else:
+						if temperature > self.lastResult[probe] * 1.25 or temperature < self.lastResult[probe] * 0.75:
+							self._reject_result(probe, temperature, '+/- 25%% swing')
+						else:
+							self._accept_adjust_and_add_a_reading(probe, temperature)
+	
 
-							time.sleep(0.5)		# try a 0.05 delay to avoid false readings
+				time.sleep(0.5)		# try a 0.05 delay to avoid false readings
 
 
 
