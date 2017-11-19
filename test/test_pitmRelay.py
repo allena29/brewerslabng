@@ -1,5 +1,6 @@
 from mock import patch, Mock, call
 import unittest
+import time
 from pitmRelay import pitmRelay
 
 
@@ -10,6 +11,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject._log = Mock()
         self.subject.lcdDisplay = Mock()
         self.subject.gpio = Mock()
+        self.subject.zoneTemp = 20
 
     def test_callback_zome_temp_thread_when_idle(self):
         # Setup
@@ -248,6 +250,168 @@ class TestPitmRelay(unittest.TestCase):
         self.assertEqual(self.subject.fridgeHeat, False)
         self.assertEqual(self.subject.fridgeCool, False)
 
+
+    def test_zoneThread_mode_ferm_first_time_around(self):
+        # Setup
+        self.subject._mode = 'ferm'
+        self.subject._zone_ferm = Mock()
+
+        # Action
+        self.subject._do_zone_thread()
+
+        # Assert
+        self.subject._zone_ferm.assert_called_once()
+
+        self.assertEqual(self.subject._lastValidReading['ferm'] > -1, True)
+
+    def test_ferm_safetycheck_for_missing_readings(self):
+        # Setup
+        self.subject._lastValidReading['ferm'] = time.time() - 500
+
+        # Action
+        return_value = self.subject._safety_check_for_missing_readings()
+
+        # Assert
+        self.subject._log.assert_called_with("Critical: no valid readings for 100 seconds")
+        self.subject.gpio.output.assert_has_calls([
+            call('fermHeat', 0),
+            call('fermCool', 0),
+            call('recircfan', 0)
+        ])
+        self.assertEqual(self.subject._gpioFermCool, False)
+        self.assertEqual(self.subject._gpioFermHeat, False)
+        self.assertEqual(self.subject.fridgeCompressorDelay, 300)
+
+        self.subject.lcdDisplay.sendMessage.assert_called_once_with('CRITICAL Temp Result Error', 2)
+
+        self.assertEqual(return_value, False)
+
+
+    def test_ferm_safetycheck_for_missing_readings_when_everything_is_awesome(self):
+        # Setup
+        self.subject._lastValidReading['ferm'] = time.time() - 5
+
+        # Action
+        return_value = self.subject._safety_check_for_missing_readings()
+
+        # Assert
+        self.assertEqual( self.subject.gpio.output.call_count, 0)
+        self.assertEqual(return_value, True)
+    
+
+
+    def test_zone_ferm(self):
+        # Setup
+        self.subject._lastValidReading['ferm'] = time.time() - 5
+
+        # Action
+        self.subject._zone_ferm()
+
+        # Assert
+        self.subject._safety_check_for_missing_readings()
+
+
+    def test_zone_ferm_with_missing_readings(self):
+        # Setup
+        self.subject._lastValidReading['ferm'] = time.time() - 500
+        # Action
+
+        self.subject._zone_ferm()
+
+        # Assert
+        self.subject._safety_check_for_missing_readings()
+        #TODO:
+
+
+    @patch("os.path.exists")
+    def test_zone_ferm_no_ferm_control_flag_present(self, pathexistsMock):
+        # Setup
+        pathexistsMock.return_value = True
+        self.subject._disable_ferm_control = Mock()
+        self.subject._safety_check_for_missing_readings = Mock()
+
+        # Action
+        self.subject._zone_ferm()
+
+        # Assert
+        self.subject._disable_ferm_control.assert_called_once()
+
+
+    @patch("os.path.exists")
+    def test_zone_ferm_no_ferm_control_flag_NOT_present(self, pathexistsMock):
+        # Setup
+        pathexistsMock.return_value = False
+        self.subject._disable_ferm_control = Mock()
+        self.subject._safety_check_for_missing_readings = Mock()
+
+        # Action
+        self.subject._zone_ferm()
+
+        # Assert
+        self.subject._disable_ferm_control.assert_not_called()
+
+    def test_zone_ferm_dsiable_ferm_control(self):
+        # Action
+        self.subject._disable_ferm_control()
+
+        # Assert
+        self.subject.gpio.output.assert_has_calls([
+            call('fermHeat', 0),
+            call('recircfan', 0),
+            call('fermCool', 0)
+        ])
+        self.assertEqual(self.subject._gpioFermCool, False)
+        self.assertEqual(self.subject._gpioFermHeat, False)
+        self.assertEqual(self.subject.fridgeCompressorDelay, 300)
+
+    def test_safety_check_for_unrealistic_readings_79(self):
+        # Setup
+        self.subject.zoneTemp = 79
+
+        # Action
+        return_value = self.subject._safety_check_for_unrealistic_readings()
+
+        # Assert
+        self.assertEqual(return_value, False)
+
+    def test_safety_check_for_unrealistic_readings_2(self):
+        # Setup
+        self.subject.zoneTemp = 2
+
+        # Action
+        return_value = self.subject._safety_check_for_unrealistic_readings()
+
+        # Assert
+        self.assertEqual(return_value, False)
+
+    def test_safety_check_for_unrealistic_readings_20(self):
+        # Action
+        return_value = self.subject._safety_check_for_unrealistic_readings()
+
+        # Assert
+        self.assertEqual(return_value, True)
+
+    def test_zone_ferm_with_unrealistic_values_79(self):
+        # Setup
+        self.subject.zoneTemp = 79
+        self.subject._lastValidReading['ferm'] = time.time() - 50
+
+        # Action
+        return_value = self.subject._zone_ferm()
+
+        # Assert
+        # TODO
+
+    def test_zone_ferm_with_unrealistic_values_3(self):
+        # Setup
+        self.subject.zoneTemp = 3
+        self.subject._lastValidReading['ferm'] = time.time() - 50
+
+        # Action
+        return_value = self.subject._zone_ferm()
+
+        # Assert
+        # TODO
 
 if __name__ == '__main__':
     unittest.main()
