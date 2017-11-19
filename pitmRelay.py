@@ -170,7 +170,7 @@ class pitmRelay:
             # zoneTarget when we need to stop cooling/heating
             (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
             if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
-                self._log("Temp Target is invalid %s" % (cm['tempTargetFerm']), importance=2)
+                self._log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm']), importance=2)
             else:
                 (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
 
@@ -229,7 +229,7 @@ class pitmRelay:
 
                 if self._lastValidReading['ferm'] == -1:
                     self._lastValidReading['ferm'] = time.time()
-                print self._lastValidReading['ferm'] + 10, time.time(),  self._lastValidReading['ferm'] + 10 < time.time()
+                print self._lastValidReading['ferm'] + 10, time.time(), self._lastValidReading['ferm'] + 10 < time.time()
                 if self._lastValidReading['ferm'] + 100 < time.time():
                     self._log("Critical: no valid readings for 100 seconds")
                     self.gpio.output('fermHeat', 0)
