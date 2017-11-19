@@ -2,42 +2,40 @@ from mock import patch, Mock, call
 import unittest
 from pitmTemperature import pitmTemperature
 
+
 class TestStringMethods(unittest.TestCase):
 
     def setUp(self):
         self.subject = pitmTemperature()
-        print 'setup fired'
+        self.subject._log = Mock()
 
+    @patch('time.sleep')
     @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
     @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
-    def test_getResult_first_valid_result(self, mockGetProbes, mockReadExternal):
-       
+    def test_getResult_first_valid_result(self, mockGetProbes, mockReadExternal, mockTime):
+
         self.subject._log = Mock()
 
         # Setup
         mockGetProbes.return_value = ['fermentation-probe']
         self.subject.probesToMonitor['fermentation-probe'] = True
         mockReadExternal.return_value = (12.4, True)
-        
+
         # Action
         self.subject.getResult()
 
         # Assert
         self.subject._log.assert_called_once_with('Accepting result 12.4 lastResult 0 (Adjusted by 0)')
 
-
     @patch('time.sleep')
     @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
     @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
     def test_getResult_many_values_all_valid(self, mockGetProbes, mockReadExternal, mockTime):
-       
-        self.subject._log = Mock()
-
         # Setup
         mockGetProbes.return_value = ['fermentation-probe']
         self.subject.probesToMonitor['fermentation-probe'] = True
         mockReadExternal.return_value = (12.4, True)
-        
+
         # Action
         for c in range(10):
             self.subject.getResult()
@@ -45,20 +43,15 @@ class TestStringMethods(unittest.TestCase):
         # Assert
         self.assertEqual(self.subject._log.call_count, 10)
 
-
-
     @patch('time.sleep')
     @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
     @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
     def test_getResult_many_values_with_invalid_values(self, mockGetProbes, mockReadExternal, mockTime):
-       
-        self.subject._log = Mock()
-
         # Setup
         mockGetProbes.return_value = ['fermentation-probe']
         self.subject.probesToMonitor['fermentation-probe'] = True
         mockReadExternal.return_value = (12.4, True)
-        
+
         # Action
         for c in range(10):
             self.subject.getResult()
@@ -83,14 +76,11 @@ class TestStringMethods(unittest.TestCase):
     @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
     @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
     def test_getResult_many_values_with_invalid_values_that_stick(self, mockGetProbes, mockReadExternal, mockTime):
-       
-        self.subject._log = Mock()
-
         # Setup
         mockGetProbes.return_value = ['fermentation-probe']
         self.subject.probesToMonitor['fermentation-probe'] = True
         mockReadExternal.return_value = (12.4, True)
-        
+
         # Action
         for c in range(10):
             self.subject.getResult()
@@ -99,19 +89,98 @@ class TestStringMethods(unittest.TestCase):
         mockReadExternal.return_value = (16.4, True)
         for c in range(10):
             self.subject.getResult()
-    
-        # This result should be supressed
-        mockReadExternal.return_value = (8.4, True)
+
+        # This result should be supressed because it deviates too much
+        mockReadExternal.return_value = (12.39, True)
         for c in range(2):
             self.subject.getResult()
 
         # Assert
         self.assertEqual(self.subject._log.call_count, 22)
-        self.assertEqual(self.subject.currentTemperatures['fermentation-probe']['temperature'], 8.4)
+        self.assertEqual(self.subject.currentTemperatures['fermentation-probe']['temperature'], 12.39)
         self.assertEqual(self.subject.currentTemperatures['fermentation-probe']['valid'], False)
         self.assertEqual(self.subject.lastResult['fermentation-probe'], 16.4)
 
 
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_adjustment_made_second_in_list(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (12.4, True)
+
+        self.subject.cfg.probeAdjustments = {
+            'fermentation-probe' : [(5, 10, 1.5), (10, 20, 2), (30, 40, 3)]
+        }
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 14.4 lastResult 0 (Adjusted by 2)')
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_adjustment_made_first_in_list(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (5.4, True)
+
+        self.subject.cfg.probeAdjustments = {
+            'fermentation-probe' : [(5, 10, 1.5), (10, 20, 2)]
+        }
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 6.9 lastResult 0 (Adjusted by 1.5)')
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_adjustment_made(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (12.4, True)
+
+        self.subject.cfg.probeAdjustments = {
+            'fermentation-probe' : [(5, 10, 1.5), (10, 20, 2)]
+        }
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 14.4 lastResult 0 (Adjusted by 2)')
+
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_adjustments_defined_but_not_in_range(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (52.4, True)
+
+        self.subject.cfg.probeAdjustments = {
+            'fermentation-probe' : [(5, 10, 1.5), (10, 20, 2)]
+        }
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 52.4 lastResult 0 (Adjusted by 0)')
 
 if __name__ == '__main__':
     unittest.main()

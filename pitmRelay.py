@@ -11,7 +11,7 @@ import time
 
 from pitmCfg import pitmCfg
 from pitmLCDisplay import *
-
+from pitmMcastOperations import pitmMcast
 from gpiotools import gpiotools
 
 
@@ -141,48 +141,38 @@ class pitmRelay:
             time.sleep(1)
 
     def zoneTempThread(self):
-        self._log("Listening for temperature from Zone A")
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-        sock.bind(('', self.cfg.mcastTemperaturePort))
-        mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        self._log("Listening for temperature'")
+        mcast_handler = pitmMcast()
+        mcast_handler.open_socket(self.callback_zone_temp_thread, self.cfg.mcastTemperaturePort)
 
-        while True:
-            (data, addr) = sock.recvfrom(1200)
-            try:
-                cm = json.loads(data)
-            except:
-                self._log("Error decoding input message\n%s" % (data))
-                return
-
-            checksum = cm['_checksum']
-            cm['_checksum'] = "                                        "
-            ourChecksum = hashlib.sha1("%s%s" % (cm, self.cfg.checksum)).hexdigest()
-            if not self._mode == "idle":
-                if cm['currentResult'].has_key(self.cfg.fermProbe):
-                    if cm['currentResult'][self.cfg.fermProbe]['valid']:
-                        self.zoneTemp = float(cm['currentResult'][self.cfg.fermProbe]['temperature'])
-                        self.zoneTempTimestamp = time.time()
-                        if self.fridgeCompressorDelay > 0:
-                            delay = True
-                        else:
-                            delay = False
-                        self._log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
-                                                                                                           self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay), importance=0)
+    def callback_zone_temp_thread(self, cm):
+        """
+        This call back decodes the temperature and sets it on ourself.
+        It also logs
+        """
+        if not self._mode == "idle":
+            if cm['currentResult'].has_key(self.cfg.fermProbe):
+                if cm['currentResult'][self.cfg.fermProbe]['valid']:
+                    self.zoneTemp = float(cm['currentResult'][self.cfg.fermProbe]['temperature'])
+                    self.zoneTempTimestamp = time.time()
+                    if self.fridgeCompressorDelay > 0:
+                        delay = True
                     else:
-                        self.lcdDisplay.sendMessage("Temp Result Error", 2)
-
-            if cm.has_key("tempTargetFerm"):
-                # zoneDownTarget when we need to start cooling
-                # zoneUpTarget when we need to start heating
-                # zoneTarget when we need to stop cooling/heating
-                (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
-                if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
-                    self._log("Temp Target is invalid %s" % (cm['tempTargetFerm']), importance=2)
+                        delay = False
+                    self._log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
+                                                                                                       self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay), importance=0)
                 else:
-                    (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
+                    self.lcdDisplay.sendMessage("Temp Result Error", 2)
+
+        if cm.has_key("tempTargetFerm"):
+            # zoneDownTarget when we need to start cooling
+            # zoneUpTarget when we need to start heating
+            # zoneTarget when we need to stop cooling/heating
+            (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
+            if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
+                self._log("Temp Target is invalid %s" % (cm['tempTargetFerm']), importance=2)
+            else:
+                (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
 
     def zoneThread(self):
         while True:
