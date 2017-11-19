@@ -130,6 +130,7 @@ class pitmTemperature:
 				if temperature >= adjustMin and temperature < adjustMax:
 					adjust=adjustAmount
 					temperature=temperature+adjust
+					break
 
 		self._log("Accepting result %s lastResult %s (Adjusted by %s)" % (temperature, self.lastResult[probe], adjust))
 		self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
@@ -181,13 +182,13 @@ class pitmTemperature:
 					if (self.lastResult[probe]) == 0 or len(self.odd_readings[probe]) > 5:
 						self._accept_adjust_and_add_a_reading(probe, temperature)
 					else:
-						if temperature > self.lastResult[probe] * 1.25 or temperature < self.lastResult[probe] * 0.75:
+						if temperature > self.lastResult[probe] * 1.05 or temperature < self.lastResult[probe] * 0.95:
 							self._reject_result(probe, temperature, '+/- 25%% swing')
 						else:
 							self._accept_adjust_and_add_a_reading(probe, temperature)
 	
 
-				time.sleep(0.5)		# try a 0.05 delay to avoid false readings
+				time.sleep(0.25)		# try a 0.05 delay to avoid false readings
 
 
 
