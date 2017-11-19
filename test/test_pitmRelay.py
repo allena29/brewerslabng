@@ -176,5 +176,78 @@ class TestPitmRelay(unittest.TestCase):
         self.subject._log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
 
 
+    def test_zoneThread_mode_idle(self):
+        # Setup
+        self.subject._mode = 'idle'
+        self.subject._zone_idle_shutdown = Mock()
+
+        # Action
+        self.subject._do_zone_thread()
+
+        # Assert
+        self.subject._zone_idle_shutdown.assert_called_once()
+
+    def test_zoneThread_mode_shutdown(self):
+        # Setup
+        self.subject._mode = 'idle'
+        self.subject._zone_idle_shutdown = Mock()
+
+        # Action
+        self.subject._do_zone_thread()
+
+        # Assert
+        self.subject._zone_idle_shutdown.assert_called_once()
+
+    def test_zone_idle_shutdown(self):
+        # Action
+        self.subject._zone_idle_shutdown()
+
+        # Assert
+        calls = [
+            call("fermCool", 0),
+            call("reircfan", 0),
+            call("extractor", 0),
+            call("fermHeat", 0)
+        ]
+
+        self.subject.gpio.output.assert_has_calls(calls)
+        self.assertEqual(self.subject._gpioFermCool, False)
+        self.assertEqual(self.subject._gpioFermHeat, False)
+        self.assertEqual(self.subject._gpioreircfan, False)
+        self.assertEqual(self.subject._gpioExtractor, False)
+        self.assertEqual(self.subject.fridgeHeat, False)
+        self.assertEqual(self.subject.fridgeCool, False)
+
+
+    def test_zoneThread_mode_boil(self):
+        # Setup
+        self.subject._mode = 'boil'
+        self.subject._zone_boil = Mock()
+
+        # Action
+        self.subject._do_zone_thread()
+
+        # Assert
+        self.subject._zone_boil.assert_called_once()
+
+    def test_zone_boil(self):
+        # Action
+        self.subject._zone_boil()
+
+        # Assert
+        calls = [
+            call("fermHeat", 0),
+            call("fermCool", 0),
+            call("extractor", 1)
+        ]
+
+        self.subject.gpio.output.assert_has_calls(calls)
+        self.assertEqual(self.subject._gpioFermCool, False)
+        self.assertEqual(self.subject._gpioFermHeat, False)
+        self.assertEqual(self.subject._gpioExtractor, True)
+        self.assertEqual(self.subject.fridgeHeat, False)
+        self.assertEqual(self.subject.fridgeCool, False)
+
+
 if __name__ == '__main__':
     unittest.main()
