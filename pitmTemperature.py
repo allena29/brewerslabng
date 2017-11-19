@@ -49,6 +49,9 @@ class pitmTemperature:
 		self.currentStatus=0	# 0 = temperatureing
 		self.doTemperatureing=False
 
+		# odd readings
+		self.odd_readings = {}
+
 		# we need to supress results of 0 and 85 if they are the instant result
 		self.lastResult={}
 
@@ -69,11 +72,6 @@ class pitmTemperature:
 	def __del__(self):
 		self.uncontrol()
 
-##
-##		if self.mcastMembership:
-#			self._log("Unregistering Multicast Control Socket %s:%s" %(self.cfg.mcastGroup,self.cfg.mcastPort))
-#			self.sock.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP, socket.inet_aton(self.cfg.MCAST_GRP) + socket.inet_aton('0.0.0.0'))
-#			self.mcastMembership=False
 			
 	def _log(self,msg):
 		if self.logging == 1:
@@ -114,7 +112,7 @@ class pitmTemperature:
 		controlMessage['hlt']=self.cfg.hltProbe
 		controlMessage['boil']=self.cfg.boilProbe
 		controlMessage['ferm']=self.cfg.fermProbe
-		#print controlMessage
+
 		checksum = "%s%s" %(controlMessage,self.cfg.checksum)
 		controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
 
@@ -127,9 +125,25 @@ class pitmTemperature:
 
 		sendSocket.sendto( msg ,(self.cfg.mcastGroup,self.cfg.mcastTemperaturePort))
 		sendSocket.close()
-#		print "sending ",controlMessage
 
 
+	def _reject_result(self, probe, temperature, reason="unspecified"):
+		self.odd_readings[probe].append(temperature)
+		self._log('rejecting result %s %s (reason: %s)' %(probe, temperature, reason))
+		self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
+
+	def _accept_adjust_and_add_a_reading(self, probe, temperature):
+		adjust=0
+		if self.cfg.probeAdjustments.has_key(probe):
+			for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
+				if temperature >= adjustMin and temperature < adjustMax:
+					adjust=adjustAmount
+					temperature=temperature+adjust
+
+		self._log("Accepting result %s lastResult %s (Adjusted by %s)" % (temperature, self.lastResult[probe], adjust))
+		self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
+		self.lastResult[probe]=temperature
+		self.odd_readings[probe] = []
 
 	def getResult(self):
 		
@@ -171,8 +185,12 @@ class pitmTemperature:
 		for probe in os.listdir( self.tempBaseDir ):
 			if probe[0:2] == "28":
 				if self.probesToMonitor.has_key( probe):
+
+					# A place to store odd results
+					if not self.odd_readings.has_key(probe):
+						self.odd_readings[probe] = []
+
 					if self.probesToMonitor[probe]:
-						print "Permitted to monitor ",probe,self.cfg.probeId[probe]
 						try:
 						
 							o=open( "%s/%s/w1_slave" %(self.tempBaseDir,probe))
@@ -196,79 +214,16 @@ class pitmTemperature:
 								if not self.lastResult.has_key(probe):
 									self.lastResult[probe]=0
 
-								# fudge factor for 0 / 85 results when not connected	
-								if temperature == 0 and self.lastResult[probe] == 85:
-									self._log("Ignoring result - cannot swing from 0 to 85")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}					
-								elif temperature == 85 and self.lastResult[probe] < 84:
-									self._log("Ignoring result - don't believe we went from <84 to 85 in one reading")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
-								elif temperature == 85 and self.lastResult[probe] < 86:
-									self._log("Ignoring result - don't believe we went from >85 to 85 in one reading")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
-								elif temperature == 85 and self.lastResult[probe] == 0:
-									self._log("Ignoring result - cannot swing from 85 to 0")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
-								elif temperature < 0:
-									self._log("Ignoring Temperature, <0")
-									
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
-								elif temperature == 0 and ( (self.lastResult[probe] >0 and self.lastResult[probe] <0)):
-									self._log("Accepting result %s lastResult %s" %(temperature,self.lastResult[probe]))
-
-									adjust=0
-									if self.cfg.probeAdjustments.has_key(probe):
-										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
-											if temperature >= adjustMin and temperature < adjustMax:
-												adjust=adjustAmount
-												break
-									if not adjust == 0:
-										self._log("Adjusting temperature by %s" %(adjust))
-										temperature=temperature+adjust
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
-								elif temperature == 85 and ( (self.lastResult[probe] > 85 and self.lastResult[probe] <85)):
-									self._log("Accepting result %s lastResult %s" %(temperature,self.lastResult[probe]))
-
-									adjust=0
-									if self.cfg.probeAdjustments.has_key(probe):
-										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
-											if temperature >= adjustMin and temperature < adjustMax:
-												adjust=adjustAmount
-												break
-									if not adjust == 0:
-										self._log("Adjusting temperature by %s" %(adjust))
-										temperature=temperature+adjust
-
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
-								elif temperature == 0 and self.lastResult[probe] == 0:
-									self._log("Cannot have 0 in concurrent readings")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}				
-								elif temperature == 85 and self.lastResult[probe] == 85:
-									self._log("Cannot have 85 in concurrent readings")
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':False}								
-								else:	
-									self._log("Probe: %s Temperature: %s" %(probe,temperature))
-
-									adjust=0
-									if self.cfg.probeAdjustments.has_key(probe):
-										for (adjustMin, adjustMax, adjustAmount) in self.cfg.probeAdjustments[ probe ]:
-											if temperature >= adjustMin and temperature < adjustMax:
-												adjust=adjustAmount
-												break
-									if not adjust == 0:
-										self._log("Adjusting temperature by %s" %(adjust))
-										temperature=temperature+adjust
-									self.currentTemperatures[ probe ] = {'timestamp':time.time(),'temperature':temperature,'valid':True}				
+								if (self.lastResult[probe]) == 0 or len(self.odd_readings[probe]) > 5:
+									self._accept_adjust_and_add_a_reading(probe, temperature)
+								else:
+									if temperature > self.lastResult[probe] * 1.25 or temperature < self.lastResult[probe] * 0.75:
+										self._reject_result(probe, temperature, '+/- 25%% swing')
+									else:
+										self._accept_adjust_and_add_a_reading(probe, temperature)
 				
-								try:
-									o=open("/currentdata/lastreading/%s" %(probe),"w")
-									o.write("%.5f" %(temperature))
-									o.close()
-								except:
-									pass	
-								self.lastResult[probe]=temperature
 
-							time.sleep(1)		# try a 0.05 delay to avoid false readings
+							time.sleep(0.5)		# try a 0.05 delay to avoid false readings
 
 
 
@@ -307,7 +262,7 @@ class pitmTemperature:
 		cm['_checksum'] ="                                        "
 		ourChecksum = hashlib.sha1("%s%s" %(cm,self.cfg.checksum)).hexdigest()
 		self._mode=cm['_mode']
-		print "Mode:", cm['_mode']
+
 		if cm.has_key("_recipe"):
 			self._recipe=cm['_recipe']
 		if cm.has_key("_brewlog"):
