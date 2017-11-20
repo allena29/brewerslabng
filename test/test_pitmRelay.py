@@ -207,7 +207,7 @@ class TestPitmRelay(unittest.TestCase):
         # Assert
         calls = [
             call("fermCool", 0),
-            call("reircfan", 0),
+            call("recircfan", 0),
             call("extractor", 0),
             call("fermHeat", 0)
         ]
@@ -215,7 +215,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.gpio.output.assert_has_calls(calls)
         self.assertEqual(self.subject._gpioFermCool, False)
         self.assertEqual(self.subject._gpioFermHeat, False)
-        self.assertEqual(self.subject._gpioreircfan, False)
+        self.assertEqual(self.subject._gpiorecircfan, False)
         self.assertEqual(self.subject._gpioExtractor, False)
         self.assertEqual(self.subject.fridgeHeat, False)
         self.assertEqual(self.subject.fridgeCool, False)

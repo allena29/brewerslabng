@@ -75,10 +75,10 @@ class pitmRelay:
 
         self._gpioFermCool = None
         self._gpioFermHeat = None
-        self._gpiorecricfan = None
+        self._gpiorecircfan = None
         self._gpioExtractor = None
         self.gpio.output("fermCool", 0)
-        self.gpio.output('recricfan', 0)
+        self.gpio.output('recircfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output("fermHeat", 0)
         self.cycle = 4
@@ -92,7 +92,7 @@ class pitmRelay:
         self.zoneToggleCount = 0
         self.singleZone = True
 
-        self.recricfanCount = 0
+        self.recircfanCount = 0
 
         self.ssrFanRequiredUntil = -1
 
@@ -100,7 +100,7 @@ class pitmRelay:
         self._mode = "shutdown"
         self.gpio.output('fermHeat', 0)
         self.gpio.output('fermCool', 0)
-        self.gpio.output('recricfan', 0)
+        self.gpio.output('recircfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output('zoneA', 0)
         self.gpio.output('zoneB', 0)
@@ -111,7 +111,7 @@ class pitmRelay:
         self._mode = "shutdown"
         self.gpio.output('fermHeat', 0)
         self.gpio.output('fermCool', 0)
-        self.gpio.output('recricfan', 0)
+        self.gpio.output('recircfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output('zoneA', 0)
         self.gpio.output('zoneB', 0)
@@ -135,28 +135,12 @@ class pitmRelay:
 
     def submission(self):
         self._log("Submitting to control of Controller")
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-        self.sock.bind(('', self.cfg.mcastPort))
-        mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        mcast_handler = pitmMcast()
+        mcast_handler.open_socket(self.callback_set_mode, self.cfg.mcastPort)
 
-        while True:
-            (data, addr) = self.sock.recvfrom(1200)
-            try:
-                cm = json.loads(data)
-            except:
-                self._log("Error decoding input message\n%s" % (data))
-                return
-
-            checksum = cm['_checksum']
-            cm['_checksum'] = "                                        "
-            ourChecksum = hashlib.sha1("%s%s" % (cm, self.cfg.checksum)).hexdigest()
-
+    def callback_set_mode(self, cm):
+        if cm.has_key('mode'):
             self._mode = cm['_mode']
-
-            time.sleep(1)
 
     def zoneTempThread(self):
         self._log("Listening for temperature'")
@@ -196,12 +180,12 @@ class pitmRelay:
     def _zone_idle_shutdown(self):
             self.fridgeCompressorDelay = 301
             self.gpio.output("fermCool", 0)
-            self.gpio.output('recricfan', 0)
+            self.gpio.output('recircfan', 0)
             self.gpio.output('extractor', 0)
             self.gpio.output("fermHeat", 0)
             self._gpioFermCool = False
             self._gpioFermHeat = False
-            self._gpiorecricfan = False
+            self._gpiorecircfan = False
             self._gpioExtractor = False
             self.fridgeHeat = False
             self.fridgeCool = False
@@ -334,8 +318,6 @@ class pitmRelay:
     def _zone_ferm(self):
         self.fridgeCompressorDelay = self.fridgeCompressorDelay - 1
 
-	print self.fridgeCompressorDelay
-
         safety_check_ok = self._safety_check_for_missing_readings()
         if not safety_check_ok:
             # Cannot continue because we have no valid reading
@@ -352,9 +334,9 @@ class pitmRelay:
             self._disable_ferm_control()
 
 
-        if self._gpiorecricfan == None:
-            self.gpio.output('recricfan', 0)
-            self._gpiorecricfan = False
+        if self._gpiorecircfan == None:
+            self.gpio.output('recircfan', 0)
+            self._gpiorecircfan = False
         if self._gpioExtractor == None:
             self.gpio.output('extractor', 0)
             self._gpioExtractor = False
@@ -419,7 +401,7 @@ class pitmRelay:
         controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
 
         while 1:
-            controlMessage['gpiorecricfan'] = self._gpiorecricfan
+            controlMessage['gpiorecircfan'] = self._gpiorecircfan
             controlMessage['gpioExtractor'] = self._gpioExtractor
             controlMessage['gpioFermCool'] = self._gpioFermCool
             controlMessage['gpioFermHeat'] = self._gpioFermHeat
