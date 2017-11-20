@@ -47,7 +47,7 @@ class gpiotools:
 			'extractor':
 				{'input':False, 'pin':18,
 				 'setup':False,'inverse':True,'pup':True},
-			'reircfan': 
+			'recircfan': 
 				{'input':False, 'pin':12,
 				 'setup':False,'inverse':True,'pup':True},
 			'pump':    #DEPRECATED, USED FOR RE-CIRCULATING FAN

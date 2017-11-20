@@ -75,10 +75,10 @@ class pitmRelay:
 
         self._gpioFermCool = None
         self._gpioFermHeat = None
-        self._gpioreircfan = None
+        self._gpiorecricfan = None
         self._gpioExtractor = None
         self.gpio.output("fermCool", 0)
-        self.gpio.output('reircfan', 0)
+        self.gpio.output('recricfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output("fermHeat", 0)
         self.cycle = 4
@@ -92,7 +92,7 @@ class pitmRelay:
         self.zoneToggleCount = 0
         self.singleZone = True
 
-        self.reircfanCount = 0
+        self.recricfanCount = 0
 
         self.ssrFanRequiredUntil = -1
 
@@ -100,7 +100,7 @@ class pitmRelay:
         self._mode = "shutdown"
         self.gpio.output('fermHeat', 0)
         self.gpio.output('fermCool', 0)
-        self.gpio.output('reircfan', 0)
+        self.gpio.output('recricfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output('zoneA', 0)
         self.gpio.output('zoneB', 0)
@@ -111,7 +111,7 @@ class pitmRelay:
         self._mode = "shutdown"
         self.gpio.output('fermHeat', 0)
         self.gpio.output('fermCool', 0)
-        self.gpio.output('reircfan', 0)
+        self.gpio.output('recricfan', 0)
         self.gpio.output('extractor', 0)
         self.gpio.output('zoneA', 0)
         self.gpio.output('zoneB', 0)
@@ -196,12 +196,12 @@ class pitmRelay:
     def _zone_idle_shutdown(self):
             self.fridgeCompressorDelay = 301
             self.gpio.output("fermCool", 0)
-            self.gpio.output('reircfan', 0)
+            self.gpio.output('recricfan', 0)
             self.gpio.output('extractor', 0)
             self.gpio.output("fermHeat", 0)
             self._gpioFermCool = False
             self._gpioFermHeat = False
-            self._gpioreircfan = False
+            self._gpiorecricfan = False
             self._gpioExtractor = False
             self.fridgeHeat = False
             self.fridgeCool = False
@@ -278,7 +278,8 @@ class pitmRelay:
     def _turn_cooling_off(self):
         self.gpio.output('fermCool', 0)
         self._gpioFermCool = False
-        self.fridgeCompressorDelay = 300
+        if self.fridgeCompressorDelay < 1:
+		self.fridgeCompressorDelay = 300
         if self.fermCoolActiveFor > 0:
             self.meterFermC = self.meterFermC + (time.time() - self.fermCoolActiveFor)
             self._log("Cooling total active time %s" % (self.meterFermC))
@@ -331,6 +332,10 @@ class pitmRelay:
         return False
 
     def _zone_ferm(self):
+        self.fridgeCompressorDelay = self.fridgeCompressorDelay - 1
+
+	print self.fridgeCompressorDelay
+
         safety_check_ok = self._safety_check_for_missing_readings()
         if not safety_check_ok:
             # Cannot continue because we have no valid reading
@@ -347,9 +352,9 @@ class pitmRelay:
             self._disable_ferm_control()
 
 
-        if self._gpioreircfan == None:
-            self.gpio.output('reircfan', 0)
-            self._gpioreircfan = False
+        if self._gpiorecricfan == None:
+            self.gpio.output('recricfan', 0)
+            self._gpiorecricfan = False
         if self._gpioExtractor == None:
             self.gpio.output('extractor', 0)
             self._gpioExtractor = False
@@ -390,7 +395,6 @@ class pitmRelay:
             self._turn_heating_off()
             self._turn_recirc_fan_off()
 
-        self.fridgeCompressorDelay = self.fridgeCompressorDelay - 1
 
 
     def _do_zone_thread(self):
@@ -415,7 +419,7 @@ class pitmRelay:
         controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
 
         while 1:
-            controlMessage['gpioreircfan'] = self._gpioreircfan
+            controlMessage['gpiorecricfan'] = self._gpiorecricfan
             controlMessage['gpioExtractor'] = self._gpioExtractor
             controlMessage['gpioFermCool'] = self._gpioFermCool
             controlMessage['gpioFermHeat'] = self._gpioFermHeat
