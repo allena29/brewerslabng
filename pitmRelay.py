@@ -139,7 +139,7 @@ class pitmRelay:
         mcast_handler.open_socket(self.callback_set_mode, self.cfg.mcastPort)
 
     def callback_set_mode(self, cm):
-        if cm.has_key('mode'):
+        if cm.has_key('_mode'):
             self._mode = cm['_mode']
 
     def zoneTempThread(self):
