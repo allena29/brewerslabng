@@ -6,6 +6,7 @@ import syslog
 import sys
 import json
 from pitmCfg import pitmCfg
+from pitmLogHandler import pitmLogHandler
 
 """
 This class provides a nice interface to read data from a multicast
@@ -18,10 +19,34 @@ class pitmMcast:
     DISABLE_CHECKSUM = True
 
     def __init__(self):
-        # TODO: cleanup logging to use something more standard
-        self.logging = 3
-        self.lastLog = ["", "", "", "", "", "", "", "", "", "", ""]
         self.cfg = pitmCfg()
+        self.groot = pitmLogHandler()
+        self.sendSocket = None
+
+    def _open_mcast_write_socket(self):
+        """
+        Open a socket for u to braodcast messges on
+        """
+        self.sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.sendSocket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
+
+    def send_mcast_message(self, msg, port, app='unknown-app'):
+        if not self.sendSocket:
+            self._open_mcast_write_socket()
+        controlMessage = {}
+        controlMessage['_operation'] = self.app
+        controlMessage.join(msg)
+
+        # generate the checksum with a bank string first
+        controlMessage['_checksum'] = "                                        "
+        checksum = "%s%s" % (controlMessage, self.cfg.checksum)
+        # then update the message with the actual checksum 
+        controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
+
+        msg = json.dumps(controlMessage)
+        msg = "%s%s" % (msg, " " * (1200 - len(msg)))
+        self.sendSocket.sendto(msg, (self.cfg.mcastGroup, port))
+
 
     def open_socket(self, callback, port):
         """
@@ -45,21 +70,9 @@ class pitmMcast:
                 if self.DISABLE_CHECKSUM or checksum == ourChecksum:
                     callback(cm)
                 else:
-                    self._log("Checksum mismatch for data on port %s: %s != %s" %(port, checksum, ourChecksum))
+                    self.groot.log("Checksum mismatch for data on port %s: %s != %s" %(port, checksum, ourChecksum))
             except ImportError:
-                self._log("Error decoding input message\n%s" % (data))
+                self.groot.log("Error decoding input message\n%s" % (data))
                 pass
 
-
-    def _log(self, msg, importance=10):
-        if self.logging == 1:
-            if importance > 9:
-                syslog.syslog(syslog.LOG_DEBUG, msg)
-        elif self.logging == 2:
-            sys.stderr.write("%s\n" % (msg))
-        elif self.logging == 3:
-            if (importance > 9) or ((("%s" % (time.time())).split(".")[0][-3:] == "000") or (not self.lastLog[importance] == msg)):
-                syslog.syslog(syslog.LOG_DEBUG, msg)
-                self.lastLog[importance] = msg
-            sys.stderr.write("%s\n" % (msg))
 
