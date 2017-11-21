@@ -8,7 +8,7 @@ class TestPitmRelay(unittest.TestCase):
 
     def setUp(self):
         self.subject = pitmRelay()
-        self.subject._log = Mock()
+        self.subject.groot.log = Mock()
         self.subject.lcdDisplay = Mock()
         self.subject.gpio = Mock()
         self.subject.zoneTemp = 20
@@ -23,7 +23,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.assertEqual(self.subject._log.call_count, 0)
+        self.assertEqual(self.subject.groot.log.call_count, 0)
 
 
     def test_callback_zome_temp_thread_when_ferm_valid_result_HEATING(self):
@@ -48,8 +48,8 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.assertEqual(self.subject._log.call_count, 1)
-        self.subject._log.assert_called_once_with('Temp: 19.0 Target: 20 fridgeHeat: True/True fridgeCool: False/False (delay True) ', importance=0)
+        self.assertEqual(self.subject.groot.log.call_count, 1)
+        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 20 fridgeHeat: True/True fridgeCool: False/False (delay True) ', importance=0)
 
 
     def test_callback_zome_temp_thread_when_ferm_valid_result_COOLING(self):
@@ -75,8 +75,8 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.assertEqual(self.subject._log.call_count, 1)
-        self.subject._log.assert_called_once_with('Temp: 19.0 Target: 18 fridgeHeat: False/False fridgeCool: True/True (delay False) ', importance=0)
+        self.assertEqual(self.subject.groot.log.call_count, 1)
+        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 18 fridgeHeat: False/False fridgeCool: True/True (delay False) ', importance=0)
 
 
     def test_callback_zome_temp_thread_when_ferm_valid_result_TEMP_ERROR(self):
@@ -101,7 +101,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.assertEqual(self.subject._log.call_count, 0)
+        self.assertEqual(self.subject.groot.log.call_count, 0)
         self.subject.lcdDisplay.sendMessage.assert_called_once_with('Temp Result Error', 2)
 
 
@@ -124,7 +124,7 @@ class TestPitmRelay(unittest.TestCase):
         self.assertEqual(self.subject.zoneUpTarget, HEAT_AT_TEMP)
         self.assertEqual(self.subject.zoneDownTarget, COOL_AT_TEMP)
         self.assertEqual(self.subject.zoneTarget, TARGET_TEMP)
-        self.assertEqual(self.subject._log.call_count, 0)
+        self.assertEqual(self.subject.groot.log.call_count, 0)
 
     def test_callback_zome_temp_thread_when_ferm_update_targets_INVALID(self):
         HEAT_AT_TEMP = 4.5
@@ -141,7 +141,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.subject._log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
+        self.subject.groot.log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
 
     def test_callback_zome_temp_thread_when_ferm_update_targets_INVALID_2(self):
         HEAT_AT_TEMP = 10.4
@@ -158,7 +158,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.subject._log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
+        self.subject.groot.log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
 
     def test_callback_zome_temp_thread_when_ferm_update_targets_INVALID_3(self):
         HEAT_AT_TEMP = 10.4
@@ -175,7 +175,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.callback_zone_temp_thread(cm)
 
         # Assert
-        self.subject._log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
+        self.subject.groot.log.assert_called_once_with('Temp Target is invalid %s,%s,%s' % (cm['tempTargetFerm']), importance=2)
 
 
     def test_zoneThread_mode_idle(self):
@@ -272,7 +272,7 @@ class TestPitmRelay(unittest.TestCase):
         return_value = self.subject._safety_check_for_missing_readings()
 
         # Assert
-        self.subject._log.assert_called_with("Critical: no valid readings for 100 seconds")
+        self.subject.groot.log.assert_called_with("Critical: no valid readings for 100 seconds")
         self.subject.gpio.output.assert_has_calls([
             call('fermHeat', 0),
             call('fermCool', 0),
@@ -552,7 +552,7 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.gpio.output.assert_called_once_with('fermCool', 0)
         self.assertEqual(self.subject.fridgeCompressorDelay, 300)
         self.assertEqual(self.subject.meterFermC > 500, True)
-        self.subject._log.assert_called_once()
+        self.subject.groot.log.assert_called_once()
         self.assertEqual(self.subject.fermCoolActiveFor, -1)
 
     def test_turn_heating_off(self):
@@ -566,7 +566,7 @@ class TestPitmRelay(unittest.TestCase):
         # Assert
         self.subject.gpio.output.assert_called_once_with('fermHeat', 0)
         self.assertEqual(self.subject.meterFermH > 500, True)
-        self.subject._log.assert_called_once()
+        self.subject.groot.log.assert_called_once()
         self.assertEqual(self.subject.fermHeatActiveFor, -1)
 
 
@@ -764,7 +764,7 @@ class TestPitmRelay(unittest.TestCase):
 
 
     def test_zone_ferm_target_reached_when_cooling(self):
-        self.subject.zoneTemp = 19.99999
+        self.subject.zoneTemp = 19.299
         self.subject.fridgeCool = True
         self.subject.zoneTarget = 20
         self.subject._safety_check_for_missing_readings = Mock()

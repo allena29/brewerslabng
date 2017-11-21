@@ -12,6 +12,7 @@ import time
 from pitmCfg import pitmCfg
 from pitmLCDisplay import *
 from pitmMcastOperations import pitmMcast
+from pitmLogHandler import pitmLogHandler
 from gpiotools import gpiotools
 
 
@@ -28,18 +29,17 @@ class pitmRelay:
         4) Extract Fan (for boil-time)
 
     The other pins relays are used for 
-        Enable power to Zone A
-        Enable power to Zone B
+        Enable power to Zone A (pitmSsrRelay)
+        Enable power to Zone B (pitmSsrRelay)
         Toggle Zone A use  ** ONE OF THESE RELAYS IS BROKEN **
         Toggle Zone B use
 
     """
     
     def __init__(self):
-        self.logging = 3		# 1 = syslog, 2 = stderr
-        self.lastLog = ["", "", "", "", "", "", "", "", "", "", ""]
-        self.cfg = pitmCfg()
         self.gpio = gpiotools()
+        self.cfg = pitmCfg()
+        self.groot = pitmLogHandler()
         self.lcdDisplay = pitmLCDisplay()
 
         self.fermCoolActiveFor = -1
@@ -65,12 +65,6 @@ class pitmRelay:
         self.zoneUpTarget = -1
         self.zoneDownTarget = -1
 
-        self.ssrZoneA = False
-        self.ssrZoneB = False
-
-        self.ssrPinA = False
-        self.ssrPinB = False
-
         self._mode = "UNKNOWN"
 
         self._gpioFermCool = None
@@ -82,19 +76,8 @@ class pitmRelay:
         self.gpio.output('extractor', 0)
         self.gpio.output("fermHeat", 0)
         self.cycle = 4
-        self.zoneAduty = 0
-        self.zoneBduty = 0
-        self.zoneAmeter = 0
-        self.zoneBmeter = 0
-
-        # used for zone toggling
-        self.useZoneA = True
-        self.zoneToggleCount = 0
-        self.singleZone = True
 
         self.recircfanCount = 0
-
-        self.ssrFanRequiredUntil = -1
 
     def __del__(self):
         self._mode = "shutdown"
@@ -102,39 +85,18 @@ class pitmRelay:
         self.gpio.output('fermCool', 0)
         self.gpio.output('recircfan', 0)
         self.gpio.output('extractor', 0)
-        self.gpio.output('zoneA', 0)
-        self.gpio.output('zoneB', 0)
-        self.gpio.output('tSsrFan', 0)
 
     def uncontrol(self):
-        self._log("Uncontrol Called")
+        self.groot.log("Uncontrol Called")
         self._mode = "shutdown"
         self.gpio.output('fermHeat', 0)
         self.gpio.output('fermCool', 0)
         self.gpio.output('recircfan', 0)
         self.gpio.output('extractor', 0)
-        self.gpio.output('zoneA', 0)
-        self.gpio.output('zoneB', 0)
-        self.gpio.output('tSsrFan', 0)
 
-    def _log(self, msg, importance=10):
-        if self.logging == 1:
-            if importance > 9:
-                syslog.syslog(syslog.LOG_DEBUG, msg)
-        elif self.logging == 2:
-            sys.stderr.write("%s\n" % (msg))
-        elif self.logging == 3:
-            if (importance > 9) or ((("%s" % (time.time())).split(".")[0][-3:] == "000") or (not self.lastLog[importance] == msg)):
-                syslog.syslog(syslog.LOG_DEBUG, msg)
-                self.lastLog[importance] = msg
-            sys.stderr.write("%s\n" % (msg))
-
-    def _err(self, msg):
-        syslog.syslog(syslog.LOG_ERR, msg)
-        sys.stderr.write("%s\n" % (msg))
 
     def submission(self):
-        self._log("Submitting to control of Controller")
+        self.groot.log("Submitting to control of Controller")
         mcast_handler = pitmMcast()
         mcast_handler.open_socket(self.callback_set_mode, self.cfg.mcastPort)
 
@@ -143,7 +105,7 @@ class pitmRelay:
             self._mode = cm['_mode']
 
     def zoneTempThread(self):
-        self._log("Listening for temperature'")
+        self.groot.log("Listening for temperature'")
         mcast_handler = pitmMcast()
         mcast_handler.open_socket(self.callback_zone_temp_thread, self.cfg.mcastTemperaturePort)
 
@@ -161,7 +123,7 @@ class pitmRelay:
                         delay = True
                     else:
                         delay = False
-                    self._log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
+                    self.groot.log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
                                                                                                        self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay), importance=0)
                 else:
                     self.lcdDisplay.sendMessage("Temp Result Error", 2)
@@ -172,7 +134,7 @@ class pitmRelay:
             # zoneTarget when we need to stop cooling/heating
             (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
             if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
-                self._log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm']), importance=2)
+                self.groot.log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm']), importance=2)
             else:
                 (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
 
@@ -213,7 +175,7 @@ class pitmRelay:
 
     def _safety_check_for_missing_readings(self):
         if self._lastValidReading['ferm'] + 100 < time.time():
-            self._log("Critical: no valid readings for 100 seconds")
+            self.groot.log("Critical: no valid readings for 100 seconds")
             self.gpio.output('fermHeat', 0)
             self._gpioFermCool = False
             self._gpioFermHeat = False
@@ -227,7 +189,7 @@ class pitmRelay:
 
     def _safety_check_for_unrealistic_readings(self):
         if self.zoneTemp > 75 or self.zoneTemp < 4:
-            self._log("Unrealistic Temperature Value %s:%s %s\n" % (self.zoneTemp, self.zoneTempTimestamp, self._mode))
+            self.groot.log("Unrealistic Temperature Value %s:%s %s\n" % (self.zoneTemp, self.zoneTempTimestamp, self._mode))
             return False
         return True
 
@@ -241,7 +203,7 @@ class pitmRelay:
 
     def _safety_check_has_fridge_been_running_too_long_if_so_turn_off(self):
         if (time.time() - self.fermCoolActiveFor > 1800) and self.fermCoolActiveFor > 0:
-            self._log("Cooling has been active for %s - resting fridge" % (time.time() - self.fermCoolActiveFor))
+            self.groot.log("Cooling has been active for %s - resting fridge" % (time.time() - self.fermCoolActiveFor))
             self._turn_cooling_off()
             # we have a longer sleep if getting turn off because of long running
             self.fridgeCompressorDelay = 601
@@ -254,7 +216,7 @@ class pitmRelay:
             return False
 
         if self.zoneTemp < self.zoneUpTarget and not self.fridgeHeat:
-            self._log("Heating Requied %s < %s" % (self.zoneTemp, self.zoneUpTarget))
+            self.groot.log("Heating Requied %s < %s" % (self.zoneTemp, self.zoneUpTarget))
             return True
 
         return False
@@ -266,7 +228,7 @@ class pitmRelay:
 		self.fridgeCompressorDelay = 300
         if self.fermCoolActiveFor > 0:
             self.meterFermC = self.meterFermC + (time.time() - self.fermCoolActiveFor)
-            self._log("Cooling total active time %s" % (self.meterFermC))
+            self.groot.log("Cooling total active time %s" % (self.meterFermC))
             self.fermCoolActiveFor = -1
 
     def _turn_cooling_on(self):
@@ -296,7 +258,7 @@ class pitmRelay:
         if self.fermHeatActiveFor > 0:
             self.meterFermH = self.meterFermH + (time.time() - self.fermHeatActiveFor)
             if self.fermHeatActiveFor > 0:
-                self._log("Heating total active time %s" % (self.meterFermH))
+                self.groot.log("Heating total active time %s" % (self.meterFermH))
             self.fermHeatActiveFor = -1
 
     def _turn_recirc_fan_on(self):
@@ -310,7 +272,7 @@ class pitmRelay:
             return False
 
         if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
-            self._log("Cooling Required %s > %s" % (self.zoneTemp, self.zoneDownTarget))
+            self.groot.log("Cooling Required %s > %s" % (self.zoneTemp, self.zoneDownTarget))
             return True
 
         return False
@@ -365,14 +327,14 @@ class pitmRelay:
                 self._turn_cooling_on()
 
 
-        if self.fridgeHeat and self.zoneTemp > self.zoneTarget:
-            self._log("Target Reached stopping heat active for %s" % (time.time() - self.fermHeatActiveFor))
+        if self.fridgeHeat and self.zoneTemp > self.zoneTarget + 0.05:
+            self.groot.log("Target Reached stopping heat active for %s" % (time.time() - self.fermHeatActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
             self._turn_recirc_fan_off()
 
-        if self.fridgeCool and self.zoneTemp < self.zoneTarget:
-            self._log("Target Reached stopping cooling active for %s" % (time.time() - self.fermCoolActiveFor))
+        if self.fridgeCool and self.zoneTemp < self.zoneTarget - 0.05:
+            self.groot.log("Target Reached stopping cooling active for %s" % (time.time() - self.fermCoolActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
             self._turn_recirc_fan_off()
