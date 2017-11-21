@@ -540,10 +540,26 @@ class TestPitmRelay(unittest.TestCase):
         self.assertEqual(self.subject.fermCoolActiveFor> -1, True)
 
 
-    def test_turn_cooling_off(self):
+    def test_turn_cooling_off_fridge_has_not_run_recently(self):
         # Seup
         self.subject.meterFermC = 10
         self.subject.fermCoolActiveFor = time.time() - 500 
+        self.fridge_compressor_delay = 2
+        # Action
+        self.subject._turn_cooling_off()
+
+        # Assert
+        self.subject.gpio.output.assert_called_once_with('fermCool', 0)
+        self.assertEqual(self.subject.fridgeCompressorDelay, 300)
+        self.assertEqual(self.subject.meterFermC > 500, True)
+        self.subject.groot.log.assert_called_once()
+        self.assertEqual(self.subject.fermCoolActiveFor, -1)
+
+    def test_turn_cooling_off_fridge_been_running(self):
+        # Seup
+        self.subject.meterFermC = 10
+        self.subject.fermCoolActiveFor = time.time() - 500 
+        self.subject.fridgeCompressorDelay = -43
 
         # Action
         self.subject._turn_cooling_off()
@@ -782,6 +798,30 @@ class TestPitmRelay(unittest.TestCase):
         self.assertEqual(self.subject._turn_cooling_off.call_count > 0, True)
         self.assertEqual(self.subject._turn_heating_off.call_count > 0, True)
         self.assertEqual(self.subject._turn_recirc_fan_off.call_count > 0, True)
+
+
+    def test_callback_set_mode(self):
+        # Setup
+        self.subject._mode = 'that_other_mode'
+        cm = {'_mode' : 'thismode' }
+
+        # Action
+        self.subject.callback_set_mode(cm)
+
+        # Assert
+        self.assertEqual(self.subject._mode, 'thismode') 
+
+
+    def test_callback_set_mode_wiithout_a_mode(self):
+        # Setup
+        self.subject._mode = 'that_other_mode'
+        cm = {}
+
+        # Action
+        self.subject.callback_set_mode(cm)
+
+        # Assert
+        self.assertEqual(self.subject._mode, 'that_other_mode')
 
 
 if __name__ == '__main__':

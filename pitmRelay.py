@@ -353,23 +353,17 @@ class pitmRelay:
 
 
     def broadcastResult(self):
-        sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        sendSocket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
-        controlMessage = {}
-        controlMessage['_operation'] = 'relay'
-        controlMessage['_checksum'] = "                                        "
-
-        checksum = "%s%s" % (controlMessage, self.cfg.checksum)
-        controlMessage['_checksum'] = hashlib.sha1(self.cfg.checksum).hexdigest()
+        mcast_handler = pitmMcast()
 
         while 1:
+            controlMessage = {}
             controlMessage['gpiorecircfan'] = self._gpiorecircfan
             controlMessage['gpioExtractor'] = self._gpioExtractor
             controlMessage['gpioFermCool'] = self._gpioFermCool
             controlMessage['gpioFermHeat'] = self._gpioFermHeat
-            msg = json.dumps(controlMessage)
-            msg = "%s%s" % (msg, " " * (1200 - len(msg)))
-            sendSocket.sendto(msg, (self.cfg.mcastGroup, self.cfg.mcastRelayPort))
+
+            mcast_handler.send_message(controlMessage, self.cfg.mcastRelayPort, 'relay')
+
             time.sleep(1)
 
 
