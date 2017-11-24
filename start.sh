@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sleep 120
+sleep 55
 
 date >/tmp/slave_bootup
 ping 192.168.1.13 >/dev/null 2>/dev/null  &
@@ -8,6 +8,32 @@ ping 192.168.1.13 >/dev/null 2>/dev/null  &
 
 echo "Remove old flags each reboot"
 rm -f /home/beer/brewerslab/slave/localweb/wifistate/*
+
+if [ -F "/features/diabled/local-wifi-ap" ]
+then
+	if [ -f "/boot/wifipsk.txt" ]
+	then
+		if [ -f "/boot/wifissid.txt" ]
+		then
+			wifi=1
+		else
+			wifi=0
+		fi
+	else
+		wifi=0
+	fi
+
+	if [ $wifi = 0 ]
+	then
+		echo "Starting Local WIFI"
+		sh /home/beer/brewerslab/start-local-wifi-hotspot.sh
+		sleep 2
+		route add default gw 172.12.12.1
+	else
+		echo "Joining real WIFI"
+		sh /home/beer/brewerslab/replace-local-wifi-hotspot.sh     
+	fi
+fi 
 
 
 
@@ -46,14 +72,40 @@ mount 192.168.1.31:/web /web
 /etc/init.d/rpcbind restart
 ###################################
 
+if [ -f features/disabled/pitm-slave ]
+then
+	echo "PTIM SLAVE DISABLED"
+else
+	sh temperature.sh "Launching"
+	sh ssr.sh "Launching"
+	sh relay.sh "Launching"
+	sh grapher.sh "Launching"
+	sh bidir.sh "Launching"
+fi
 
-sh temperature.sh "Launching"
-sh ssr.sh "Launching"
-sh relay.sh "Launching"
-sh grapher.sh "Launching"
-sh bidir.sh "Launching"
+if [ -f features/disabled/led-matrix ]
+then
+	echo "lED MATRIX DISABLED"
+else
+	ip=`ifconfig wlan0 | grep Bcast | sed -e 's/.*ddr://' | sed -e 's/ .*//'`
+	sudo python /home/beer/brewerslab/ledmatrix.py "ready.. http://$ip:54661/cgi/index.py"
+	sudo sh summary.sh "Launchin"
+fi
+
+
+if [ -f "/boot/pitmautostart.txt" ]
+then
+	sh /home/beer/brewerslab/slave/launch-standalone-temp.sh
+fi
 
 
 screen -dmS localweb python localweb/localserve.py
 
+if [ -f features/disabled/elasticsearch ]
+then
+	echo "ELASTICSEARCH DISABLED"
+else
+	cd /home/beer/elasticserch-6.0.0
+	screen -dmS elastic sudo -u beer ES_JAVA_OPTS="-Xms512m -Xmx512m bin/elasticsearch 
+fi
 
