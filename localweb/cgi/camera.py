@@ -8,13 +8,14 @@ form=cgi.FieldStorage()
 
 if form.has_key("get"):
 
-	o=open("/currentdata/cam.jpg")
-	sys.stdout.write("Content-Type: image/jpeg\n")
-	x=o.read()
-	sys.stdout.write("Content-Length: %s\n" %(len(x)))
-	sys.stdout.write("\n")
-	sys.stdout.write(x)
-	o.close()
+        if os.path.exists('/currentdata/cam.jpg'):
+            o=open("/currentdata/cam.jpg")
+            sys.stdout.write("Content-Type: image/jpeg\n")
+            x=o.read()
+            sys.stdout.write("Content-Length: %s\n" %(len(x)))
+            sys.stdout.write("\n")
+            sys.stdout.write(x)
+            o.close()
 
 	os.system("sudo python /home/beer/brewerslab/slave/pitmCamera.py")
 else:

@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(18,0)
 GPIO.output(18,1)
-os.system(" raspistill -o /currentdata/cam.jpg --timeout 1 --nopreview -w 1024 -h 768 -q 33 -ex sports -hf")
+os.system("sudo raspistill -o /currentdata/cam.jpg ")
 GPIO.output(18,0)
 
 
