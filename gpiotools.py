@@ -47,7 +47,10 @@ class gpiotools:
 			'extractor':
 				{'input':False, 'pin':18,
 				 'setup':False,'inverse':True,'pup':True},
-			'pump':
+			'recircfan': 
+				{'input':False, 'pin':12,
+				 'setup':False,'inverse':True,'pup':True},
+			'pump':    #DEPRECATED, USED FOR RE-CIRCULATING FAN
 				{'input':False, 'pin':12,
 				 'setup':False,'inverse':True,'pup':True},
 			'zoneB':
@@ -65,7 +68,7 @@ class gpiotools:
 			'fermCool':
 				{'input':False, 'pin':16,
 				 'setup':False,'inverse':True,'pup':True},
-			'tempProbes':
+			'tempProbes':   #DEPRECATED
 				{'input':False, 'pin':5,
 				 'setup':False,'inverse':True,'pup':True},
 
