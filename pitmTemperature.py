@@ -177,7 +177,9 @@ class pitmTemperature:
                         else:
                             self._accept_adjust_and_add_a_reading(probe, temperature)
 
-                time.sleep(0.25)		# try a 0.05 delay to avoid false readings
+                time.sleep(1.0)
+
+
 
     def submission(self):
         self._log("Submitting to control of Controller")
