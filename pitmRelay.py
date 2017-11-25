@@ -134,7 +134,7 @@ class pitmRelay:
             # zoneTarget when we need to stop cooling/heating
             (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
             if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
-                self.groot.log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm']), importance=2)
+                self.groot.log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm'][0], cm['tempTargetFerm'][1], cm['tempTargetFerm'][2]), importance=2)
             else:
                 (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
 
@@ -362,7 +362,7 @@ class pitmRelay:
             controlMessage['gpioFermCool'] = self._gpioFermCool
             controlMessage['gpioFermHeat'] = self._gpioFermHeat
 
-            mcast_handler.send_message(controlMessage, self.cfg.mcastRelayPort, 'relay')
+            mcast_handler.send_mcast_message(controlMessage, self.cfg.mcastRelayPort, 'relay')
 
             time.sleep(1)
 
