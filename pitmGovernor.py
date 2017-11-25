@@ -54,9 +54,11 @@ class pitmController:
 
 		self.mashDuration=3600
 		self.boilDuration=3600
+		self.whirlpoolDuration=3600
 		self.fermentationDuration=604800
 		self.mashStart=0
 		self.boilStart=0
+		self.whirlpoolStart=0
 		self.fermentationStart=0
 
 		# dryhop, whirlpool, flameout, finishing, aroma, fwh, copper
@@ -139,6 +141,23 @@ class pitmController:
 				controlMessage['boil']=(self.boilLow,self.boilHigh, self.boilTarget)
 #			controlMessage['durations']=(self.mashDuration,self.mashStart,self.boilDuration,self.boilStart,self.fementationDuration,self.fermentationStart)
 
+			if os.path.exists("ipc/hlt-delay-until"):
+				tmpx=open("ipc/hlt-delay-until")
+				hltdelayuntil=tmpx.readline().rstrip()
+				tmpx.close()
+			else:
+				hltdelayuntil=-1
+			controlMessage['hlt-delay-until']=hltdelayuntil
+
+			if os.path.exists("ipc/disabled-ferm-heat"):
+				controlMessage['disabled-ferm-heat']=True
+			else:
+				controlMessage['disabled-ferm-heat']=False
+			if os.path.exists("ipc/disabled-fermcool"):
+				controlMessage['disabled-fermcool']=True
+			else:
+				controlMessage['disabled-fermcool']=False
+
 
 			controlMessage['_recipe']=self._recipe
 			controlMessage['_brewlog']=self._brewlog	
@@ -147,7 +166,7 @@ class pitmController:
 			
 			sendSocket.sendto( msg ,(self.cfg.mcastGroup,self.cfg.mcastPort))
 
-			time.sleep(0.2)
+			time.sleep(0.5)
 
 
 			#
@@ -164,7 +183,7 @@ class pitmController:
 			sendSocket.sendto( msg ,(self.cfg.mcastGroup,self.cfg.mcastStatsPort))
 
 
-			time.sleep(0.8)
+			time.sleep(1.5)
 	
 		sendSocket.close()
 
@@ -224,8 +243,6 @@ class pitmController:
  		#  - monitor (i.e. the stats on the display)
 		#  - temp probe A
 		#  - temp probe B
-		#  - grapher A
-		#  - grapher B
 		#  - SSR
 		#  - buzzer 
 		#  - led flasher 
@@ -255,23 +272,10 @@ class pitmController:
 		self.lcdDisplay.sendMessage("         24%       ",1)
 
 		
-		time.sleep(1)
-		self.lcdDisplay.sendMessage("         36%       ",1)
 
-
-		self._log(" waiting for grapher")
-		# Listen for Grapher
-		self.graphSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.graphSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.graphSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-		self.graphSock.bind(('', self.cfg.mcastGrapherPort))
-		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-		self.graphSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
-		
-
-		(data, addr) = self.graphSock.recvfrom(1200)
-		self.lcdDisplay.sendMessage("         48%       ",1)
+		# previously the grapher would halt start-up if it was missing -
+		# now we are transitioning to elasticserach and external kibana
+		# it's completely optional
 
 
 
@@ -431,11 +435,14 @@ class pitmController:
 		# fetch data from brewerlsab database 
 		#
 		self._log(" - select brewlog fetching stats")
-		try:
-			self._log("http://192.168.1.13:54660/metroui/pitmBrewloglist.py")
-			recipes=json.loads(urllib2.urlopen("http://192.168.1.13:54660/metroui/pitmBrewloglist.py").read())
-		except:
-			self.error('Error:',' unable to fetch',' recipe stats','')
+		if os.path.exists("/tmp/pitmBrewloglist.py"):
+			recipes=json.loads(open("/tmp/pitmBrewloglist.py").read())
+		else:
+			try:
+				self._log("http://192.168.1.13:54660/metroui/pitmBrewloglist.py")
+				recipes=json.loads(urllib2.urlopen("http://192.168.1.13:54660/metroui/pitmBrewloglist.py").read())
+			except:
+				self.error('Error:',' unable to fetch',' recipe stats','')
 
 
 		self._log("Asking for which brewlog")
@@ -539,9 +546,14 @@ class pitmController:
 			self.boilTargetVol=float(brewSelected['boil_vol'])
 			self.fermTargetVol=float(brewSelected['precoolfvvolume'])
 
+
+			o=open("ipc/fermTarget","w")
+			o.write("%s" %(self.fermTarget))
+			o.close()
+
 			self.boilLow=85
 			self.boilHigh=87
-			self.boilTarget=95
+			self.boilTarget=98   # boil temp is dependent upon probe measurement and may be reduced based on real setup
 			self._recipe=brewSelected['recipe']
 			self._brewlog=brewSelected['brewlog']
 			o=open("ipc/brewlog-id","w")
@@ -865,6 +877,22 @@ class pitmController:
 				self.mode="pump" 
 				self.lcdDisplay.sendMessage(" Transfer the wort",3)
 
+			
+			elif os.path.exists("ipc/swPump") and os.path.exists("ipc/whirlpool-started"): 
+				
+				self.mode="pump/cool" 
+				if self.showActivityOrTime > 3:
+					MINUTES="%02d" %( self.mashDuration  /60)
+					SECONDS="%02d" %( self.mashDuration -(int(MINUTES)*60))
+					duration="%sm%ss" %(MINUTES,SECONDS)
+					MINUTES="%02d" %( (time.time()-self.mashStart  )/60)
+					SECONDS="%02d" %( (time.time()-self.mashStart ) -(int(MINUTES)*60))
+					elapsed="%sm%ss" %(MINUTES,SECONDS)
+				
+					self.lcdDisplay.sendMessage(" WrlP %s/%s" %(elapsed,duration),3)
+				else:
+					self.lcdDisplay.sendMessage(" Whirlpool    ",3)
+			
 			elif os.path.exists("ipc/swPump"): 
 				self.mode="pump/cool" 
 				self.lcdDisplay.sendMessage(" Cool The Wort",3)
@@ -1090,6 +1118,10 @@ class pitmController:
 				self._log("Adjusting Fermentation Target to %s" %(newTarget))
 				os.unlink("ipc/adjustFermTarget")
 				self.lcdDisplay.sendMessage(" Target = %s" %(self.fermTarget),2)
+
+				o=open("ipc/fermTarget","w")
+				o.write("%s" %(newTarget))
+				o.close()
 			except:
 				self._log("Adjust Target invalid %s - ignoring" %(newTarget))
 				try:
@@ -1150,7 +1182,16 @@ class pitmController:
 
 
 		if not self.gpio.input('pOk') and self.pOk:
-			self.pOk=False
+			self.pOk=False	
+			if self.mode.count("pump/cool") and os.path.exists("ipc/whirlpool-not-started"):
+				try:
+					whifl=open("ipc/whirlpool-started","w")
+					wrifl.close()
+					self.whirlpoolStart=time.time()
+					os.remove("ipc/whirlpool-not-started")
+				except:
+					pass
+				
 			if self.mode.count("ferm") and self.hopSchedule[0]:
 				flag=open("ipc/activityDryhop","w")
 				flag.close()
