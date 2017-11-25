@@ -105,7 +105,8 @@ if [ -f features/disabled/elasticsearch ]
 then
 	echo "ELASTICSEARCH DISABLED"
 else
-	cd /home/beer/elasticserch-6.0.0
-	screen -dmS elastic sudo -u beer ES_JAVA_OPTS="-Xms512m -Xmx512m bin/elasticsearch 
+	cd /home/beer/elasticsearch-6.0.0
+	screen -dmS elastic sudo -u beer ES_JAVA_OPTS="-Xms512m -Xmx512m" bin/elasticsearch 
+	screen -dmS elastic-sub sh elastic.sh
 fi
 
