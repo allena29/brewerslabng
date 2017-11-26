@@ -182,5 +182,60 @@ class TestStringMethods(unittest.TestCase):
         # Assert
         self.subject._log.assert_called_once_with('Accepting result 52.4 lastResult 0 (Adjusted by 0)')
 
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_first_reading_at_85(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (85, True)
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('rejecting result fermentation-probe 85 (reason: 85 indicates mis-read)')
+
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_reading_at_85_previous_valid_reading(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        self.subject.lastResult['fermentation-probe'] = 84.9
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (85, True)
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 85 lastResult 84.9 (Adjusted by 0)')
+
+
+    @patch('time.sleep')
+    @patch('pitmTemperature.pitmTemperature._read_temperature_from_external_probe')
+    @patch('pitmTemperature.pitmTemperature._get_probes_to_monitor')
+    def test_getResult_with_reading_at_85_previous_valid_reading_2(self, mockGetProbes, mockReadExternal, mockTime):
+        # Setup
+        self.subject.lastResult['fermentation-probe'] = 85.1
+        mockGetProbes.return_value = ['fermentation-probe']
+        self.subject.probesToMonitor['fermentation-probe'] = True
+        mockReadExternal.return_value = (85, True)
+
+        # Action
+        self.subject.getResult()
+
+        # Assert
+        self.subject._log.assert_called_once_with('Accepting result 85 lastResult 85.1 (Adjusted by 0)')
+
+
+
+
 if __name__ == '__main__':
     unittest.main()

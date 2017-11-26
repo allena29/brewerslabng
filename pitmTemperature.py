@@ -156,6 +156,22 @@ class pitmTemperature:
                     probes.append(probe)
         return probes
 
+    def _error_reading_from_external_temperature_probe(self, probe):
+        """
+        A reading of exactly 85 can be an error from the 1wire probe.
+        This rejects a reading of exactly 85 if the preceeding reading isn't 
+        close enough 
+        """
+        if self.lastResult[probe] > 80 and self.lastResult[probe] < 85:
+            pass
+        elif self.lastResult[probe] > 85:
+            pass
+        else:
+            self._reject_result(probe, 85, '85 indicates mis-read')
+            return True
+        return False
+
+
     def getResult(self):
         for probe in self._get_probes_to_monitor():
 
@@ -169,11 +185,15 @@ class pitmTemperature:
                     if not self.lastResult.has_key(probe):
                         self.lastResult[probe] = 0
 
+                    # Exactly 85 indictes misread
+                    if temperature == 85 and self._error_reading_from_external_temperature_probe(probe):
+                        return True
+
                     if (self.lastResult[probe]) == 0 or len(self.odd_readings[probe]) > 5:
                         self._accept_adjust_and_add_a_reading(probe, temperature)
                     else:
                         if temperature > self.lastResult[probe] * 1.05 or temperature < self.lastResult[probe] * 0.95:
-                            self._reject_result(probe, temperature, '+/- 25%% swing')
+                            self._reject_result(probe, temperature, '+/- 5%% swing')
                         else:
                             self._accept_adjust_and_add_a_reading(probe, temperature)
 
