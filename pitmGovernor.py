@@ -314,33 +314,31 @@ class pitmController:
 
 
 
-		self._log(" waiting for flasher")
-		# Listen for Grapher
-		self.flasherSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.flasherSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.flasherSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-		self.flasherSock.bind(('', self.cfg.mcastFlasherPort))
-		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-		self.flasherSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+                if not os.path.exists('features/disabled/led-flasher'):
+                        self._log(" waiting for flasher")
+                        # Listen for Grapher
+                        self.flasherSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                        self.flasherSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                        self.flasherSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+                        self.flasherSock.bind(('', self.cfg.mcastFlasherPort))
+                        mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
+                        self.flasherSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+                        (data, addr) = self.flasherSock.recvfrom(1200)
 
-		
-
-		(data, addr) = self.flasherSock.recvfrom(1200)
 		self.lcdDisplay.sendMessage("         90%       ",1)
 
 
-		self._log(" waiting for button")
-		# Listen for Grapher
-		self.buttonSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		self.buttonSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.buttonSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
-		self.buttonSock.bind(('', self.cfg.mcastButtonPort))
-		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
-		self.buttonSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+                if not os.path.exists('features/disabled/physical-buttons'):
+                        self._log(" waiting for button")
+                        # Listen for Grapher
+                        self.buttonSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                        self.buttonSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                        self.buttonSock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
+                        self.buttonSock.bind(('', self.cfg.mcastButtonPort))
+                        mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
+                        self.buttonSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+                        (data, addr) = self.buttonSock.recvfrom(1200)
 
-		
-
-		(data, addr) = self.buttonSock.recvfrom(1200)
 		self.lcdDisplay.sendMessage("         95%       ",1)
 		self.lcdDisplay.sendMessage("    Nearly There   ",3)
 
@@ -353,9 +351,6 @@ class pitmController:
 		self.bidirSock.bind(('', self.cfg.mcastBidirPort))
 		mreq = struct.pack("4sl", socket.inet_aton(self.cfg.mcastGroup), socket.INADDR_ANY)
 		self.bidirSock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
-		
-
 		(data, addr) = self.bidirSock.recvfrom(1200)
 
 		# check that the slave is mounted to us
