@@ -33,9 +33,8 @@ class pitmMcast:
     def send_mcast_message(self, msg, port, app='unknown-app'):
         if not self.sendSocket:
             self._open_mcast_write_socket()
-        controlMessage = {}
-        controlMessage['_operation'] = self.app
-        controlMessage.join(msg)
+        controlMessage = msg
+        controlMessage['_operation'] = app
 
         # generate the checksum with a bank string first
         controlMessage['_checksum'] = "                                        "

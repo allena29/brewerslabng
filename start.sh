@@ -41,7 +41,7 @@ touch ipc/sparge-not-finished
 touch ipc/ferm-notstarted
 touch ipc/boil_getting-ready
 touch ipc/mash_toggle_type-dough
-
+touch ipc/whirlpool-not-started
 
 sleep 60
 # these should transition to screen type launhces
