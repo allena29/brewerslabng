@@ -2,11 +2,10 @@ import time
 import inspect
 import os
 import sys
-
-if os.path.exists("simulator"):
-	import fakeRPi.GPIO as GPIO
+if os.path.exists("simulator") or 'unittest' in sys.modules:
+        import fakeRPi.GPIO as GPIO
 else:
-	import RPi.GPIO as GPIO
+        import RPi.GPIO as GPIO
 
 class gpiotools2:
 
