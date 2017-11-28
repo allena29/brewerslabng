@@ -36,11 +36,9 @@ class pitmRelay:
 
     """
     
-    def __init__(self):
-        self.gpio = gpiotools()
+    def __init__(self, rpi=True):
         self.cfg = pitmCfg()
         self.groot = pitmLogHandler()
-        self.lcdDisplay = pitmLCDisplay()
 
         self.fermCoolActiveFor = -1
         self.fermHeatActiveFor = -1
@@ -53,8 +51,6 @@ class pitmRelay:
         self.meterFermH = 0
         self.meterFermC = 0
 
-        self.gpio.output('fermHeat', 0)
-        self.gpio.output('fermCool', 0)
         self._lastValidReading = {'ferm': -1}
 
         self.mcastMembership = False
@@ -66,18 +62,22 @@ class pitmRelay:
         self.zoneDownTarget = -1
 
         self._mode = "UNKNOWN"
+        self.cycle = 4
+
+        self.recircfanCount = 0
 
         self._gpioFermCool = None
         self._gpioFermHeat = None
         self._gpiorecircfan = None
         self._gpioExtractor = None
-        self.gpio.output("fermCool", 0)
-        self.gpio.output('recircfan', 0)
-        self.gpio.output('extractor', 0)
-        self.gpio.output("fermHeat", 0)
-        self.cycle = 4
-
-        self.recircfanCount = 0
+        
+        if rpi:
+            self.gpio = gpiotools()
+            self.lcdDisplay = pitmLCDisplay()
+            self.gpio.output("fermCool", 0)
+            self.gpio.output('recircfan', 0)
+            self.gpio.output('extractor', 0)
+            self.gpio.output("fermHeat", 0)
 
     def __del__(self):
         self._mode = "shutdown"

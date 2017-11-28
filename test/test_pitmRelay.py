@@ -7,7 +7,7 @@ from pitmRelay import pitmRelay
 class TestPitmRelay(unittest.TestCase):
 
     def setUp(self):
-        self.subject = pitmRelay()
+        self.subject = pitmRelay(rpi=False)
         self.subject.groot.log = Mock()
         self.subject.lcdDisplay = Mock()
         self.subject.gpio = Mock()
