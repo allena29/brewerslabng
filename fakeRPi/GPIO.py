@@ -1,3 +1,6 @@
+VERSION=0.000
+RPI_REVISION=0
+
 IN = 1
 OUT = 0
 HIGH = True
@@ -13,6 +16,7 @@ REV = 0  # Board revision less than 2.0
 
 debug = False
 gpiomode = MODE_UNKNOWN;
+
 
 pintogpio = [
     [-1, -1, -1, 0, -1, 1, -1, 4, 14, -1, 15, 17, 18, 21, -1, 22, 23, -1, 24, 10, -1, 9, 25, 11, 8, -1, 7],
