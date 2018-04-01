@@ -248,7 +248,9 @@ class pitmTemperature:
         self._targetSparge = (-1, -1, -1)
         self._targetFerm = (-1, -1, -1)
         self._targetBoil = (-1, -1, -1)
-        if cm['_mode'].count("pump") or cm['_mode'].count("cool"):
+        if os.path.exists('ipc/single-temp-probe'):
+	    self.probesToMonitor[self.cfg.hltProbe] = True
+        elif cm['_mode'].count("pump") or cm['_mode'].count("cool"):
             self.doTemperatureing = True
             self.probesToMonitor[self.cfg.fermProbe] = True
             self.probesToMonitor[self.cfg.boilProbe] = True
