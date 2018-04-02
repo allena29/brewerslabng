@@ -211,13 +211,7 @@ class pitmTemperature:
         self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         self.mcastMembership = True
 
-	if os.path.exists("ipc/overrideModeFerm"):
-            self.doTemperatureing = True
-            self.probesToMonitor[self.cfg.fermProbe] = True
-            self._targetFerm = 17
-	    self._mode = 'ferm'
-	    print "Fermentation override mode"	
-        elif os.path.exists("/tmp/standalone-temp-active"):
+        if os.path.exists("/tmp/standalone-temp-active"):
             self.doTemperatureing = True
             self.probesToMonitor[self.cfg.tempProbe] = True
             self._targetFerm = 19
