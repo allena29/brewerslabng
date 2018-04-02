@@ -149,10 +149,7 @@ class pitmMonitor:
 		if cm.has_key("tempTargetMash"):
 			self.tempTargetMash=cm['tempTargetMash']
 		if cm.has_key("tempTargetFerm"):
-			if isinstance(cm['tempTargetFerm'], int):
-				self.tempTargetFerm = (cm['tempTargetFerm'] - 0.3, cm['tempTargetFerm'] + 0.3, cm['tempTargetFerm'])
-			else:
-				self.tempTargetFerm = cm['tempTargetFerm']
+			self.tempTargetFerm=cm['tempTargetFerm']
 		if cm.has_key("tempTargetBoil"):
 			self.tempTargetBoil=cm['tempTargetBoil']
 
