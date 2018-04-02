@@ -97,6 +97,10 @@ class pitmRelay:
 
     def submission(self):
         self.groot.log("Submitting to control of Controller")
+	if os.path.exists('ipc/overrideModeFerm'):
+	    self._mode = 'ferm'
+	    return
+	    
         mcast_handler = pitmMcast()
         mcast_handler.open_socket(self.callback_set_mode, self.cfg.mcastPort)
 
@@ -123,8 +127,8 @@ class pitmRelay:
                         delay = True
                     else:
                         delay = False
-                    self.groot.log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
-                                                                                                       self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay), importance=0)
+                    self.groot.log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s.%s) " % (self.zoneTemp, self.zoneTarget,
+                                                                                                       self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay, self.fridgeCompressorDelay), importance=0)
                 else:
                     self.lcdDisplay.sendMessage("Temp Result Error", 2)
 
@@ -132,12 +136,28 @@ class pitmRelay:
             # zoneDownTarget when we need to start cooling
             # zoneUpTarget when we need to start heating
             # zoneTarget when we need to stop cooling/heating
-            (self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
+	    print cm['tempTargetFerm']
+	    if isinstance(cm['tempTargetFerm'], int):
+		print cm['tempTargetFerm'],'<<<<<<<<'
+		# ??? check this think tempTargetFerm comes from pitmTemperature
+		self_zoneUpTarget = cm['tempTargetFerm'] - 0.3
+		self.zoneUpTarget = cm['tempTargetFerm'] - 0.3
+		self_zoneDownTarget = cm['tempTargetFerm'] + 0.3
+		self.zoneDownTarget = cm['tempTargetFerm'] + 0.3
+		self_zoneTarget = cm['tempTargetFerm']
+		self.zoneTarget = self_zoneTarget
+
+	    else:
+		(self_zoneUpTarget, self_zoneDownTarget, self_zoneTarget) = cm['tempTargetFerm']
+
             if self_zoneUpTarget < 5 or self_zoneDownTarget < 5 or self_zoneTarget < 5:
                 self.groot.log("Temp Target is invalid %s,%s,%s" % (cm['tempTargetFerm'][0], cm['tempTargetFerm'][1], cm['tempTargetFerm'][2]), importance=2)
             else:
-                (self.zoneUpTarget, self.zoneDownTarget, self.zoneTarget) = cm['tempTargetFerm']
+		self_zoneUpTarget = cm['tempTargetFerm'] - 0.3
+		self_zoneDownTarget = cm['tempTargetFerm'] + 0.3
+		self_zoneTarget = cm['tempTargetFerm']
 
+	    print self_zoneUpTarget, self_zoneTarget, self_zoneDownTarget
 
     def _zone_idle_shutdown(self):
             self.fridgeCompressorDelay = 301
@@ -270,7 +290,7 @@ class pitmRelay:
     def _is_cooling_required(self):
         if os.path.exists("ipc/disable-fermcool"):
             return False
-
+	print self.zoneTemp > self.zoneDownTarget,"zoneTemp>zoneDownTarget",self.zoneTemp,self.zoneDownTarget
         if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
             self.groot.log("Cooling Required %s > %s" % (self.zoneTemp, self.zoneDownTarget))
             return True
@@ -327,13 +347,13 @@ class pitmRelay:
                 self._turn_cooling_on()
 
 
-        if self.fridgeHeat and self.zoneTemp > self.zoneTarget + 0.05:
+        if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.05:
             self.groot.log("Target Reached stopping heat active for %s" % (time.time() - self.fermHeatActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
             self._turn_recirc_fan_off()
 
-        if self.fridgeCool and self.zoneTemp < self.zoneTarget - 0.05:
+        if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.05:
             self.groot.log("Target Reached stopping cooling active for %s" % (time.time() - self.fermCoolActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
