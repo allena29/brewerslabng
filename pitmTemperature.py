@@ -31,6 +31,7 @@ class pitmTemperature:
         self._mode = "unknown-mode"
         self._brewlog = "<unknown brewlog.>"
         self._recipe = "<unknown recipe>"
+        self._loop_multicast_socket = True
 
         self.mcastMembership = False
         self.currentScenario = "unknown"
@@ -171,7 +172,6 @@ class pitmTemperature:
             return True
         return False
 
-
     def getResult(self):
         for probe in self._get_probes_to_monitor():
 
@@ -199,8 +199,6 @@ class pitmTemperature:
 
                 time.sleep(1.0)
 
-
-
     def submission(self):
         self._log("Submitting to control of Controller")
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -211,11 +209,27 @@ class pitmTemperature:
         self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         self.mcastMembership = True
 
-        if os.path.exists("/tmp/standalone-temp-active"):
+        if os.path.exists("ipc/overrideModeFerm"):
+            self.doTemperatureing = True
+            self.probesToMonitor[self.cfg.fermProbe] = True
+
+            try:
+                fhandle = open('ipc/overrideModeFerm')
+                target = float(o.readline().rstrip())
+                fhandle.close()
+            except:
+                target = 17
+
+            self._targetFerm = (target - 0.3, target + 0.3, target)
+            self._mode = 'ferm'
+            print "Fermentation override mode - target"
+
+        elif os.path.exists("/tmp/standalone-temp-active"):
             self.doTemperatureing = True
             self.probesToMonitor[self.cfg.tempProbe] = True
             self._targetFerm = 19
-        while True:
+
+        while self._loop_multicast_socket == True:
             (data, addr) = self.sock.recvfrom(1200)
             self.decodeMessage(data)
 
@@ -249,7 +263,7 @@ class pitmTemperature:
         self._targetFerm = (-1, -1, -1)
         self._targetBoil = (-1, -1, -1)
         if os.path.exists('ipc/single-temp-probe'):
-	    self.probesToMonitor[self.cfg.hltProbe] = True
+            self.probesToMonitor[self.cfg.hltProbe] = True
         elif cm['_mode'].count("pump") or cm['_mode'].count("cool"):
             self.doTemperatureing = True
             self.probesToMonitor[self.cfg.fermProbe] = True

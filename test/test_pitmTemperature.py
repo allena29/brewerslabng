@@ -237,5 +237,19 @@ class TestStringMethods(unittest.TestCase):
 
 
 
+    @patch('os.path.exists')
+    @patch('__builtin__.open')
+    def test_submission_with_override_ferm_active(self, mockOpen, mockExists):
+        # Build
+        self.subject._loop_multicast_socket = False
+        self.subject.sock = Mock()
+        self.subject.sock.recvfrom.return_value = ' '*1200
+        mockExists.side_effect = [ True, False ]
+               
+        self.subject.submission()
+
+
+        self.assertEqual(self.subject._targetFerm, (16.7, 17.3, 17.0))
+
 if __name__ == '__main__':
     unittest.main()

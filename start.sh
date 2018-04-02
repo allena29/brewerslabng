@@ -41,6 +41,7 @@ fi
 
 cd /home/beer/brewerslab/slave
 mkdir ipc 2>/dev/null
+mount -t tmpfs -o size=50M tmpfs ipc
 
 
 echo "including i2c"
