@@ -1,0 +1,26 @@
+module tester {
+	namespace "http://confvillain.mellon-collie.net/tester/";
+	prefix tester;
+
+	list list1 {
+		key key1;
+
+		leaf key1 {
+			type string;
+		}
+
+    leaf nonkey {
+      type string;
+    }
+
+    container stats {
+      config false;
+
+      leaf heartrate {
+        type uint32;
+      }
+    }
+
+
+	}
+}

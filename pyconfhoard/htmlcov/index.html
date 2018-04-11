@@ -1,0 +1,212 @@
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage report</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-throttle-debounce.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.index_ready);
+    </script>
+</head>
+<body class="indexfile">
+
+<div id="header">
+    <div class="content">
+        <h1>Coverage report:
+            <span class="pc_cov">5%</span>
+        </h1>
+
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+
+        <form id="filter_container">
+            <input id="filter" type="text" value="" placeholder="filter..." />
+        </form>
+    </div>
+</div>
+
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">n</span>
+        <span class="key">s</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        
+        <span class="key">c</span> &nbsp; change column sorting
+    </p>
+    </div>
+</div>
+
+<div id="index">
+    <table class="index">
+        <thead>
+            
+            <tr class="tablehead" title="Click to sort">
+                <th class="name left headerSortDown shortkey_n">Module</th>
+                <th class="shortkey_s">statements</th>
+                <th class="shortkey_m">missing</th>
+                <th class="shortkey_x">excluded</th>
+                
+                <th class="right shortkey_c">coverage</th>
+            </tr>
+        </thead>
+        
+        <tfoot>
+            <tr class="total">
+                <td class="name left">Total</td>
+                <td>1935</td>
+                <td>1838</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="97 1935">5%</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            
+            <tr class="file">
+                <td class="name left"><a href="binding_py.html">binding.py</a></td>
+                <td>219</td>
+                <td>191</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="28 219">13%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind___init___py.html">pyangbind/__init__.py</a></td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="1 1">100%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_helpers___init___py.html">pyangbind/helpers/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_helpers_identity_py.html">pyangbind/helpers/identity.py</a></td>
+                <td>99</td>
+                <td>99</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 99">0%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_helpers_misc_py.html">pyangbind/helpers/misc.py</a></td>
+                <td>24</td>
+                <td>24</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 24">0%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib___init___py.html">pyangbind/lib/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib_base_py.html">pyangbind/lib/base.py</a></td>
+                <td>74</td>
+                <td>67</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="7 74">9%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib_pybindJSON_py.html">pyangbind/lib/pybindJSON.py</a></td>
+                <td>105</td>
+                <td>105</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 105">0%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib_serialise_py.html">pyangbind/lib/serialise.py</a></td>
+                <td>354</td>
+                <td>354</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 354">0%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib_xpathhelper_py.html">pyangbind/lib/xpathhelper.py</a></td>
+                <td>192</td>
+                <td>158</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="34 192">18%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="pyangbind_lib_yangtypes_py.html">pyangbind/lib/yangtypes.py</a></td>
+                <td>825</td>
+                <td>800</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="25 825">3%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="test___init___py.html">test/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            
+            <tr class="file">
+                <td class="name left"><a href="test_test_serialise_deserialise_py.html">test/test_serialise_deserialise.py</a></td>
+                <td>42</td>
+                <td>40</td>
+                <td>0</td>
+                
+                <td class="right" data-ratio="2 42">5%</td>
+            </tr>
+            
+        </tbody>
+    </table>
+
+    <p id="no_rows">
+        No items found using the specified filter.
+    </p>
+</div>
+
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.5.1</a>,
+            created at 2018-04-11 19:10
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+diff -Naur /tmp/a/base.py /tmp/b/base.py
+--- /tmp/a/base.py	2018-04-03 01:10:21.000000000 +0100
++++ /tmp/b/base.py	2018-04-03 01:09:52.000000000 +0100
+@@ -29,10 +29,11 @@
+   def __str__(self):
+     return str(self.elements())
+ 
+-  def get(self, filter=False):
++  def get(self, filter=False, ignore_opdata=False):
+     def error():
+       return NameError, "element does not exist"
+-
++   
++    print 'boo',self.get,ignore_opdata
+     d = {}
+     # for each YANG element within this container.
+     for element_name in self._pyangbind_elements:
+@@ -47,8 +48,33 @@
+       if hasattr(element, "get"):
+         # this is a YANG container that has its own
+         # get method
+-        d[element_id] = element.get(filter=filter)
+-        if filter is True:
++
++        # We can't really add ignore_opdata into OrderedDict
++        d[element_id] = element.get(filter=filter, ignore_opdata=ignore_opdata)
++
++        if ignore_opdata is True:
++          if isinstance(d[element_id], dict):
++            for entry in d[element_id].keys():
++                if hasattr(d[element_id][entry], "_is_config"):
++                    if not d[element_id][entry]._is_config:
++                        print 'about to deelte', element_id,entry
++                        del d[element_id][entry]
++                
++          # perhaps this is only if the list is the top thing int he yang module?
++          elif isinstance(d[element_id], list):
++            print 'list stuff for ',element_id
++            for list_entry in d[element_id]:
++              if hasattr(list_entry, "_changed"):
++                if not list_entry._changed():
++                  d[element_id].remove(list_entry)
++            if len(d[element_id]) == 0:
++              del d[element_id]
++                
++        # TODO: think about what to do with the list part.
++        # Technically lists could be non config data in yang
++        
++
++        elif filter is True:
+           # if the element hadn't changed but we were
+           # filtering unchanged elements, remove it
+           # from the dictionary
+@@ -85,8 +111,12 @@
+               del d[element_id]
+       else:
+         # this is an attribute that does not have get()
+-        # method
+-        if filter is False and not element._changed() and not element._present() is True:
++        print 'this doesnt have get',element_id
++        # metho
++        print element.__dict__ and '_is_config' in element.__dict__
++        if ignore_opdata and '_is_config' in element.__dict__ and element._is_config is False:
++            pass
++        elif filter is False and not element._changed() and not element._present() is True:
+           if element._default is not False and element._default:
+             d[element_id] = element._default
+           else:
+diff -Naur /tmp/a/pybindJSON.py /tmp/b/pybindJSON.py
+--- /tmp/a/pybindJSON.py	2018-04-03 01:10:21.000000000 +0100
++++ /tmp/b/pybindJSON.py	2018-04-03 01:09:52.000000000 +0100
+@@ -89,7 +89,7 @@
+ 
+ 
+ def dumps(obj, indent=4, filter=True, skip_subtrees=[], select=False,
+-            mode="default"):
++            mode="default", ignore_opdata=False):
+   def lookup_subdict(dictionary, key):
+     if not isinstance(key, list):
+       raise AttributeError('keys should be a list')
+@@ -111,7 +111,7 @@
+   if mode == 'ietf':
+     tree = pybindIETFJSONEncoder.generate_element(obj, flt=filter)
+   else:
+-    tree = obj.get(filter=filter)
++    tree = obj.get(filter=filter, ignore_opdata=ignore_opdata)
+   for p in skip_subtrees:
+     pp = p.split("/")[1:]
+     # Iterate through the skip path and the object's own path to determine
+diff -Naur /tmp/a/yangtypes.py /tmp/b/yangtypes.py
+--- /tmp/a/yangtypes.py	2018-04-03 01:10:21.000000000 +0100
++++ /tmp/b/yangtypes.py	2018-04-03 01:09:52.000000000 +0100
+@@ -805,12 +805,15 @@
+ 
+       return self._members[keystr]
+ 
+-    def get(self, filter=False):
++    def get(self, filter=False, ignore_opdata=False):
++      print 'hoo',self.get,ignore_opdata
+       d = collections.OrderedDict()
+       d._user_ordered = self._members._user_ordered
+       for i in self._members:
+         if hasattr(self._members[i], "get"):
+-          d[i] = self._members[i].get(filter=filter)
++          # this gets called for list items
++          print self._members[i].get
++          d[i] = self._members[i].get(filter=filter, ignore_opdata=ignore_opdata)
+         else:
+           d[i] = self._members[i]
+       return d
