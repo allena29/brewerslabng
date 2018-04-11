@@ -6,13 +6,6 @@ import imp
 import sys
 import importlib
 
-def dump(obj=None, filter=False, ignore_opdata=True, ignore_conf_leaves=False):
-    global p
-    if not obj:
-        obj = p
-    print(pybindJSON.dumps(obj, filter=filter, ignore_opdata=ignore_opdata,
-                           ignore_conf_leaves=ignore_conf_leaves, mode='ietf'))
-
 if __name__ == '__main__':
     description = """
 Launch a PyConfHoard 'thing'.
@@ -54,11 +47,23 @@ if os.path.exists(args.thing):
                 raise ValueError('Could not determine which clas to instantiate from pyangbind')
 
             ph = YANGPathHelper()
-            p = getattr(mod, our_class)(path_helper = ph)
+            p = getattr(mod, our_class)(path_helper=ph)
+            from PyConfHoard import Thing
+            def dump(obj=None):
+                global p
+                if not obj:
+                    obj=p
+                return Thing.dumper(obj, pretty=True)
 
+            def save(obj, file):
+                o=open(file, 'w')
+                o.write(Thing.dumper(obj, pretty=True))
+                o.close()
+            print('Running from %s' % (os.getcwd()))
             print('%s() pyangbind instance => p' % (our_class))
             print('path-helper instance => ph')
-            print('dump() to provide JSON object')
+            print('dump(p) to provide JSON serialised object')
+            print('save(p, file) to save JSON serailised object to file')
             print('launcher is available => launcher')
             IPython.embed(display_banner=False)
         else:

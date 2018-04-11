@@ -89,7 +89,7 @@ class Thing:
         self.log.info('PyConfHoard Started %s' % (self))
 
     @staticmethod
-    def dumper(yang, opdata=False):
+    def dumper(yang, opdata=False, pretty=False):
         """        
         This method stores the in-memory object structure as an IETF JSON object.
         All config based nodes are dumped, but op-data is not.
@@ -107,14 +107,20 @@ class Thing:
             ignore_opdata = True
             ignore_conf_leaves = False
 
-        formal_json = json.loads(pybindJSON.dumps(yang, filter=False, ignore_opdata=ignore_opdata,
-                                                  ignore_conf_leaves=ignore_conf_leaves, mode='ietf'))
+        formal_json = pybindJSON.dumps(yang, filter=False, ignore_opdata=ignore_opdata,
+                                                  ignore_conf_leaves=ignore_conf_leaves, mode='ietf')
+        formal = json.loads(formal_json)
         filtered = {}
-        for key in formal_json:
+        for key in formal:
             newkey = key.split(':')[-1]
-            filtered[newkey] = formal_json[key]
+            filtered[newkey] = formal[key]
             filtered['__namespace'] = key.split(':')[0]
-        return json.dumps(filtered)
+        
+        if pretty:
+            return json.dumps(filtered, indent=4, sort_keys=True)
+        else:
+            return json.dumps(filtered)
+
 
     @staticmethod
     def loader(yang, json_str):
