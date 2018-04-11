@@ -31,14 +31,14 @@ class Thing:
                         goblin is responsible for. (e.g. /brewhouse/temperature)
 
         Note: initial design pattern only supports a 1:1 relationship between portion of the yang
-        module and owning Golbin service.
+        module and owning PyConfHoard service.
         """
         self.__path_helper = YANGPathHelper()
 
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=FORMAT)
         self.log = logging.getLogger(appname)
-        self.log.info('Goblin Init: %s' % (self))
+        self.log.info('PyConfHoard Init: %s' % (self))
 
         # Load pyangbind schema and get down to our child.
         self._yang_obj = None
@@ -62,37 +62,37 @@ class Thing:
         if open_stored_config:
 
             working_directory = os.getcwd()
-            config_directory = '../../hoard'
-            cache_directory = '../../heap'
+            config_directory = '../../datastore'
+            cache_directory = '../../datastore'
 
-            if os.path.exists('%s/persist/%s.cvd' % (config_directory, self.__appname)):
+            if os.path.exists('%s/persist/%s.pch' % (config_directory, self.__appname)):
                 self.log.info('Loading previous persisted data')
-                o = open('%s/persist/%s.cvd' % (config_directory, self.__appname))
+                o = open('%s/persist/%s.pch' % (config_directory, self.__appname))
                 json_str = o.read()
                 o.close()
                 self._yang = self.loader(self._yang, json_str)
 
-            elif os.path.exists('%s/default/%s.cvd' % (config_directory, self.__appname)):
-                self.log.info('Loading default ata')
+            elif os.path.exists('%s/startup/%s.pch' % (config_directory, self.__appname)):
+                self.log.info('Loading startupult ata')
             else:
                 # Note: this is a custom version of pyangbind to filter out opdata
                 self.log.info('No persist or default data to load... using empty schema')
-                running = open('%s/running/%s.cvd' % (cache_directory, self.__appname), 'w')
+                running = open('%s/running/%s.pch' % (cache_directory, self.__appname), 'w')
                 running.write(self.dumper(self._yang))
                 running.close()
 
-            if not os.path.exists('%s/opdata/%s.cvd' % (cache_directory, self.__appname)):
+            if not os.path.exists('%s/operational/%s.pch' % (cache_directory, self.__appname)):
                 self.log.info('No existing opdata... providing empty schema')
-                opdata = open('%s/opdata/%s.cvd' % (cache_directory, self.__appname), 'w')
+                opdata = open('%s/operational/%s.pch' % (cache_directory, self.__appname), 'w')
                 opdata.write(self.dumper(self._yang, opdata=True))
                 opdata.close()
 
 
         if hasattr(self, 'setup') and callable(self.setup):
-            self.log.info('Goblin Setup %s' % (self))
+            self.log.info('PyConfHoard Setup %s' % (self))
             self.setup()
 
-        self.log.info('Goblin Started %s' % (self))
+        self.log.info('PyConfHoard Started %s' % (self))
 
     @staticmethod
     def dumper(yang, opdata=False):
@@ -152,4 +152,4 @@ class Thing:
         return self.__path_helper.get('%s%s' % (self._ourpath, path))
 
     def __del__(self):
-        self.log.info('Goblin Finished: %s' % (self))
+        self.log.info('PyConfHoard Finished: %s' % (self))

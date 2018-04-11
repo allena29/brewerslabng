@@ -4,4 +4,7 @@
 __pycache__
 .tags
 */binding.py
-*.pch
+datastore/persist/*.pch
+datastore/tmpfs/*
+datastore/operational/*
+datastore/running/*
