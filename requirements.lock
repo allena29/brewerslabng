@@ -21,6 +21,7 @@ falcon==1.4.1
 funcsigs==1.0.2
 futures==3.2.0
 gunicorn==19.7.1
+http==0.2
 idna==2.6
 ipaddress==1.0.19
 ipython==5.6.0
