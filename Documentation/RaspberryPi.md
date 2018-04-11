@@ -15,23 +15,27 @@ update_config=1
 
 network={
 	ssid="wellingtonboots"
-	psk="rubberBAGGY6000"
+	psk="passwordhere"
 }
 ```
+
+*/etc/dhcpcd.conf*
+
+In recent versions of Raspbian dhcpcd must be used to set static IP addresses rather than the more traditional /etc/network/interfaces.
 
 
 */etc/rc.local*
 
 This is a kludge.
 
-```
-rfkill unblock all >/tmp/rkill
+```bash
+echo "rfkill unblock all >/tmp/rkill" >>/etc/rc.local
 ```
 
 
 *Update rpasberrypi firmware*
 
-```
+```bash
 sudo rpi-update
 sudo reboot
 sudo apt-get update
@@ -41,24 +45,28 @@ sudo apt-get upgrade
 
 ## Basic Packages
 
-```
+```bash
 sudo apt-get update
 sudo apt-get install git-core mlocate vim cmake autoconf automake libtool screen
 ```
 
 ## Development Packages
 
+```bash
+sudo apt-get install libpcre2-dev flex bison libpcre3 libpcre3-dev libssl-dev
+sudo apt-get install libev-dev libavl-dev python-dev swig libxml2-dev libxslt1-dev
+sudo apt-get install libsodium-dev libffi-dev lua5.1-dev
+sudo apt-get install raspberrypi-kernel-headers libboost-dev python3-dev 
+sudo apt-get install ctags vim-python-jedi libsqlite3-dev
 ```
-apt-get install libpcre2-dev flex bison libpcre3 libpcre3-dev libssl-dev libev-dev libavl-dev python-dev swig libxml2-dev libxslt1-dev libsodium-dev libffi-dev lua5.1-dev
-sudo apt-get install raspberrypi-kernel-headers libboost-dev python3-dev
-```
+
 
 
 # beerng user
 
 Add a user, throughout this respository this will be referred to as **beerng**. 
 
-```
+```bash
 mkdir /home/beerng
 useradd beerng -s /bin/bash
 chown beer:beerng /home/beerng
@@ -67,7 +75,7 @@ chown beer:beerng /home/beerng
 
 ## Python environment
 
-```
+```bash
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 PATH=~/.pyenv/bin:$PATH
 eval "$(pyenv init -)"
@@ -83,4 +91,18 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 EOF
+```
+
+### Get this repository and install python libraries
+
+```bash
+git clone https://github.com/allena29/brewerslabng.git
+cd brewerslabng
+pip install -r requirements.txt
+```
+
+### Optional VIM Enhancements
+
+```bash
+git clone https://github.com/AdamWhittingham/vim-config.git ~/.vim && ~/.vim/install
 ```

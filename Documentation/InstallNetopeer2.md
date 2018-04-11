@@ -1,9 +1,9 @@
-# Insta
+# Install Libraries
 
 
 # libyang
 
-```
+```bash
 git clone https://github.com/CESNET/libyang.git
 cd libyang; mkdir build; cd build
 cmake ..
@@ -13,7 +13,7 @@ sudo make install
 
 # libssh
 
-```
+```bash
 git clone git://git.libssh.org/projects/libssh.git
 cd libssh
 mkdir build; cd build
@@ -24,7 +24,7 @@ sudo make install
 
 # libnetconf2
 
-```
+```bash
 git clone https://github.com/CESNET/libnetconf2.git
 cd libnetconf2
 mkdir build; cd build
@@ -35,7 +35,7 @@ sudo make install
 
 # Google protocol buffers
 
-```
+```bash
 wget https://github.com/google/protobuf/releases/download/v3.5.1/protobuf-all-3.5.1.tar.gz
 cd protobuf
 ./configure
@@ -48,7 +48,7 @@ sudo ldconfig
 
 Note: protobuf bindings for C cannot be compiled until the C++ version is installed.
 
-```
+```bash
 wget https://github.com/protobuf-c/protobuf-c/releases/download/v1.3.0/protobuf-c-1.3.0.tar.gz
 ./confiugre
 make
@@ -60,34 +60,46 @@ make install
 
 Note: the python bindings should be installed into the virtualenv
 
-```
-git clone https://github.com/sysrepo/sysrepo.git
-mkdir build; cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-
-cd /opt/dev/sysrepo
+```bash
+mkdir /home/beerng/repository
 mkdir build_python3
 cd build_python3
-cmake -DGEN_PYTHON_VERSION=3 ..
+cmake -DIS_DEVELOPER_CONFIGURATION=OFF -DGEN_PYTHON_VERSION=3.6.5 -DPYTHON_INCLUDE_DIR=~/.pyenv/versions/3.6.5/include/python3.6m -DPYTHON_INCLUDE_DIR2=~/.pyenv/versions/3.6.5/include/python3.6m -DPYTHON_LIBRARY=~/.pyenv/versions/3.6.5/lib/libpython3.6m.a -D python_version=3 ..
 make -j2
-make install
-
+sudo make install
+sudo ldconfig
 ```
+
+Note: the library was insteadd to `/usr/lib/python3.5/site-packages` copying this to the `~/.pyenv/versions/3.6.5/envs/brewerslabng/lib/python3.6/site-packages/` was the quickest way to get started.
+
+At the end of this install we should have `/etc/sysrepo/yang` and `/etc/sysrepo/data` populated.
 
 
 # Netopeer2
 
-```
+Unfortunately with Netopeer2 when connectivity via SSH the daemon dies a horrible death with a segmentation fault.
+
+```bash
 git clone https://github.com/CESNET/Netopeer2.git
-cd server
-cmake .
-make
-sudo make install
-cd ../cli
+git checkout v0.4-r2
+cd keystore
+mkdir build
 cmake ..
 make
 sudo make install
-```cd
+sudo ldconifg
+
+# cd ~/Netopeer2
+cd server
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+cd ../../cli
+cmake ..
+make
+sudo make install
+```
+
