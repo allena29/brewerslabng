@@ -47,7 +47,7 @@ class Thing:
                 self._yang_obj = obj(path_helper=self.__path_helper)
 
         if not self._yang_obj:
-            raise RuntimeError('Unable to find class % in pyangbinding' % (yangmodule))
+            raise RuntimeError('Unable to find class %s in pyangbinding' % (yangmodule))
         self.log.debug('Found top-level yang module object %s' % (repr(self._yang_obj)))
 
         # Navigate down
