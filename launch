@@ -32,7 +32,7 @@ if os.path.exists(args.thing):
             from pyangbind.lib.xpathhelper import YANGPathHelper
             from pyangbind.lib.serialise import pybindJSONDecoder
             import binding
-           
+
             pyangbindclasses = ['PybindBase', 'YANGBool', 'Decimal', 'attrgetter', 'bitarray']
             mod = importlib.import_module('binding')
             classes = dict([(name, cls) for name, cls in mod.__dict__.items() if isinstance(cls, type)])
@@ -49,14 +49,15 @@ if os.path.exists(args.thing):
             ph = YANGPathHelper()
             p = getattr(mod, our_class)(path_helper=ph)
             from PyConfHoard import Thing
+
             def dump(obj=None):
                 global p
                 if not obj:
-                    obj=p
+                    obj = p
                 return Thing.dumper(obj, pretty=True)
 
             def save(obj, file):
-                o=open(file, 'w')
+                o = open(file, 'w')
                 o.write(Thing.dumper(obj, pretty=True))
                 o.close()
             print('Running from %s' % (os.getcwd()))
@@ -67,10 +68,11 @@ if os.path.exists(args.thing):
             print('launcher is available => launcher')
             IPython.embed(display_banner=False)
         else:
-            launcher.thing(start=True)
+            launch = launcher()
+            launch.thing.start()
 
     else:
         raise ValueError('%s not a valid thing - cannot launch' % (args.thing))
-    
+
 else:
     raise ValueError('%s does not exist' % (args.thing))

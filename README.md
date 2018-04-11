@@ -115,11 +115,11 @@ class Launch:
 
     def __init__(self, start=False):
         try:
-            thing = TemperatureProviderDs18B20('TemperatureProvider',     # friendly app name
+            self.thing = TemperatureProviderDs18B20('TemperatureProvider',     # friendly app name
             									       'brewerslab',              # yang module
             									       '/brewhouse/temperature')  # path owned
             if start:
-                thing.start()
+                self.thing.start()
         except KeyboardInterrupt:
             pass
 

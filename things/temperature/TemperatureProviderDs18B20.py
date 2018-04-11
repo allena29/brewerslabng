@@ -157,9 +157,9 @@ class Launch:
 
     def __init__(self, start=False):
         try:
-            thing = TemperatureProviderDs18B20('TemperatureProvider', 'brewerslab', '/brewhouse/temperature')
+            self.thing = TemperatureProviderDs18B20('TemperatureProvider', 'brewerslab', '/brewhouse/temperature')
             if start:
-                thing.start()
+                self.thing.start()
         except KeyboardInterrupt:
             pass
     
