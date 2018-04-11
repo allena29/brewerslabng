@@ -1,0 +1,162 @@
+module brewerslab {
+
+  namespace "http://brewerslab.mellon-collie.net/";
+  prefix brewerslab;
+
+  
+  description "This yang module provides the basic data structure for the brewerslab
+  homebrew automation software.";
+
+  revision 2018-04-01 {
+    description "First version with basic stats.";
+  }
+
+  container brewhouse {
+    description "Status for the brewhouse itself, excluding recipes";
+
+
+    container temperature {
+
+      container fermentation {
+        leaf monitor {
+          description "This determines if we should monitor the probe.";
+          type boolean;
+          config false;
+        }
+
+        leaf setpoint {
+          type brewerslab:temperature;
+          default 17.0;
+        }
+
+        leaf highpoint {
+          description "The temperature at which we need to start actively cooling.";
+          type brewerslab:temperature;
+          default 17.3;
+        }
+
+        leaf lowpoint {
+          description "The temperature at which we need to start actively heating.";
+          type brewerslab:temperature;
+          default 16.7;
+        }
+
+        container probe {
+          leaf id {
+            description "The probe id to provide measurements.";
+            type string;
+          }
+        } // end of probe
+
+        container results {
+
+          leaf latest {
+            type brewerslab:temperature;
+            config false;
+            default 0.00;
+          }
+
+          container average {
+
+            description "This container is theoretical";
+
+            leaf minute {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+            leaf hourly {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+            leaf daily {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+          }
+
+        }
+      }
+
+      container hardware {
+        list probe {
+          key id;
+          leaf id {
+            description "A given probe id - usually a hardware addressable identifier.";
+            type string;
+          }
+
+          list offsets {
+            description "One or more offsets, if the temperature measured is > low and <= high then 
+            the offset will be applied. This is used because the accuracy of DS18B20 probes varies
+            with higher temperatures.";
+            key "low high";
+
+            leaf low {
+              type brewerslab:temperature;
+            }
+            leaf high {
+              type brewerslab:temperature;
+            }
+            leaf offset {
+              type brewerslab:temperature;
+            }
+          }
+        } // end of probe
+      } // end hardware
+
+    } //end of temperatures
+
+
+  } //end of brewhouse
+
+  container ingredients {
+    
+    list fermentable {
+      key ingredient;
+      
+      leaf ingredient {
+        type string;
+      }
+    }
+
+    // ofcourse this moves into groups
+    list adjunct {
+      key ingredient; 
+      leaf ingredient {
+        type string;
+      }
+    }
+
+    list hops {
+      key ingredient;
+      leaf ingredient {
+        type string;
+      }
+    }
+  }// end ingredients
+
+
+  container recipes {
+    list recipe {
+      key recipename; 
+      leaf recipename {
+        type string;
+      }
+    }
+  } // end recipes
+
+
+  container brewlog {
+
+  } // end brewlog
+
+
+  typedef temperature {
+     type decimal64 {
+         fraction-digits 2;
+     }
+  }
+}
