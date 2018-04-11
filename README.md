@@ -73,3 +73,56 @@ Within the datastore directory there are a number of directories, it is assumed 
 - `datastore/operational` provides periodically refreshed operational data, this is expected to be hosted on a volatile filesystem and will not be recreated if a process restarts.
 
 
+### Things (i.e. data providers, data consumers, processes, services)
+
+A *thing* is something that does some work, they follow a stanard pattern and extend the `PyConfHoard.Thing` class. 
+
+The **Thing** class provides makes use of pyangbind to serialise/deserialise data according to the yang data model - as well as providing functions for logging and to automatically manage the datatsores. 
+
+**TBD** threading and IPC
+
+
+
+#### Starting a Thing
+
+From the top-level project directory use the launch utility.
+
+```bash
+./launch --thing things/directory/python-script.py 
+```
+
+To support debugging it is sometime useful to use ipython, the `--debug` flg can be added to the launcher. This provides an IPython terminal allowing access to the datamodel for debugging an experimenttion as well as allowing the launcher to be run interactively.
+
+
+#### Skeleton Thing
+
+```python
+import PyConfHoard
+
+class TemperatureProviderDs18B20(PyConfHoard.Thing):
+
+	# Note: __init__ is implemented in PyConfHoard.Thing
+	
+	# This takes in the following vales
+	# - friendly app name (e.g. Temperature Provider)
+	# - YANG module (e.g. brewerslab)
+	# - YANG Path relative to YANG Module (e.g. /brewhouse/temperature)
+	
+	def setup(self):
+		# Code run when at the end of the constructor 
+	
+class Launch:
+
+    def __init__(self, start=False):
+        try:
+            thing = TemperatureProviderDs18B20('TemperatureProvider',     # friendly app name
+            									       'brewerslab',              # yang module
+            									       '/brewhouse/temperature')  # path owned
+            if start:
+                thing.start()
+        except KeyboardInterrupt:
+            pass
+
+if __name__ == '__main__':
+    Launch()
+```

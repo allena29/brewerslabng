@@ -74,12 +74,6 @@ class Thing:
 
             elif os.path.exists('%s/startup/%s.pch' % (config_directory, self.__appname)):
                 self.log.info('Loading startupult ata')
-            else:
-                # Note: this is a custom version of pyangbind to filter out opdata
-                self.log.info('No persist or default data to load... using empty schema')
-                running = open('%s/running/%s.pch' % (cache_directory, self.__appname), 'w')
-                running.write(self.dumper(self._yang))
-                running.close()
 
             if not os.path.exists('%s/operational/%s.pch' % (cache_directory, self.__appname)):
                 self.log.info('No existing opdata... providing empty schema')

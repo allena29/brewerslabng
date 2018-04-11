@@ -153,9 +153,16 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
             time.sleep(1)
 
 
+class Launch:
+
+    def __init__(self, start=False):
+        try:
+            thing = TemperatureProviderDs18B20('TemperatureProvider', 'brewerslab', '/brewhouse/temperature')
+            if start:
+                thing.start()
+        except KeyboardInterrupt:
+            pass
+    
 if __name__ == '__main__':
-    try:
-        MONSTER = TemperatureProviderDs18B20('TemperatureProvider', 'brewerslab', '/brewhouse/temperature')
-        MONSTER.start()
-    except KeyboardInterrupt:
-        pass
+    Launch()
+
