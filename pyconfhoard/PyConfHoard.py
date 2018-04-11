@@ -60,20 +60,20 @@ class Thing:
         self.__appname = appname
 
         if open_stored_config:
-
             working_directory = os.getcwd()
-            config_directory = '../../datastore'
-            cache_directory = '../../datastore'
-
-            if os.path.exists('%s/persist/%s.pch' % (config_directory, self.__appname)):
+            datastore = '../../datastore'
+            if os.path.exists('%s/persist/%s.pch' % (datastore, self.__appname)):
                 self.log.info('Loading previous persisted data')
-                o = open('%s/persist/%s.pch' % (config_directory, self.__appname))
+                o = open('%s/persist/%s.pch' % (datastore, self.__appname))
                 json_str = o.read()
                 o.close()
                 self._yang = self.loader(self._yang, json_str)
-
-            elif os.path.exists('%s/startup/%s.pch' % (config_directory, self.__appname)):
-                self.log.info('Loading startupult ata')
+            elif os.path.exists('%s/startup/%s.pch' % (datastore, self.__appname)):
+                self.log.info('Loading startup default data')
+                o = open('%s/startup/%s.pch' % (datastore, self.__appname))
+                json_str = o.read()
+                o.close()
+                self._yang = self.loader(self._yang, json_str)
 
             if not os.path.exists('%s/operational/%s.pch' % (cache_directory, self.__appname)):
                 self.log.info('No existing opdata... providing empty schema')

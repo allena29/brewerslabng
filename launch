@@ -65,7 +65,8 @@ if os.path.exists(args.thing):
             print('path-helper instance => ph')
             print('dump(p) to provide JSON serialised object')
             print('save(p, file) to save JSON serailised object to file')
-            print('launcher is available => launcher')
+            print('launcher is available => launcher (e.g. thing =  launcher().thing')
+            launch = launcher
             IPython.embed(display_banner=False)
         else:
             launch = launcher()

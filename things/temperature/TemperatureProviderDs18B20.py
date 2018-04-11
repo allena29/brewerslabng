@@ -48,8 +48,8 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
         # we need to supress results of 0 and 85 if they are the instant result
         self.lastResult = {}
 
-        if os.path.exists("simulator"):
-            self.one_wire_temp_result_directory = "test/artefacts/sys_bus_w1_devices"
+        if 'FAKE_DS18B20_RESULT_DIR' in os.environ:
+            self.one_wire_temp_result_directory = os.environ['FAKE_DS18B20_RESULT_DIR']
             self.log.warning('Using fake 1wire directory')
         else:
             self.one_wire_temp_result_directory = "/sys/bus/w1/devices/"
@@ -121,7 +121,6 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
         return False
 
     def getResult(self):
-        self.log.debug('getResult - %s' % (self._get_probes_to_monitor()))
         for probe in self._get_probes_to_monitor():
             # A place to store odd results
             if not self.odd_readings.has_key(probe):
