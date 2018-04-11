@@ -11,7 +11,7 @@ import json
 from cmd2 import Cmd
 
 
-class Cli(Cmd):
+class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
 
@@ -36,8 +36,6 @@ class Cli(Cmd):
         if hasattr(Cmd, 'do_eof'): del Cmd.do_eof
         if hasattr(Cmd, 'do_eos'): del Cmd.do_eos
 
-        self.exclude_from_help.append('do_eof')
-        self.exclude_from_help.append('do_conf')
 
         # this comes in 0.8 and will hide eof from tab completion :-)
         self.do_show = self._command_oper_show
@@ -58,6 +56,7 @@ class Cli(Cmd):
         if not 'temperature' in self._db_oper['brewhouse']: self._db_oper['brewhouse']['temperature'] = {}
 
         # need some kind of refresh mechanism for opdata/config
+    def _load_datastores(self):
         self._db_oper['brewhouse']['temperature'] = json.loads(requests.get('http://localhost:8000/v1/datastore/opdata/TemperatureProvider').text)
 
 
@@ -197,5 +196,5 @@ class Cli(Cmd):
 
 
 if __name__ == '__main__':
-    cli = Cli()
+    cli = PyConfHoardCLI()
     cli.cmdloop()

@@ -1,14 +1,13 @@
 import unittest
 import json
+from mock import Mock
+from cli import PyConfHoardCLI
 
-from binding import tester
-from Bandit import Bandit 
-from Villain import Goblin
-
-class TestCli(unittest.TestCase):
+class TestPyConfHoardCLI(unittest.TestCase):
 
     def setUp(self):
-        self.subject = Bandit()
+        self.subject = PyConfHoardCLI()
+        self.subject._load_datastores = Mock()
 
         self.object = {
             "abc123": {

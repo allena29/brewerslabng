@@ -1,3 +1,7 @@
-.pyc
+*.pyc
+*/htmlcov/*
+.coverage
 __pycache__
 .tags
+*/binding.py
+*.pch

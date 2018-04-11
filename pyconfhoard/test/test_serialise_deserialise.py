@@ -1,13 +1,13 @@
 import unittest
 
 from binding import tester
-from Villain import Goblin
+from PyConfHoard import Thing
 
 
 class TestYang(unittest.TestCase):
 
     def setUp(self):
-        self.subject = Goblin('testAppName', 'tester', '', False)
+        self.subject = Thing('testAppName', 'tester', '', False)
 
     def test_build_yang_simple_list(self):
        # Build
