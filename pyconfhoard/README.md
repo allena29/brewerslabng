@@ -129,3 +129,44 @@ class Launch:
 if __name__ == '__main__':
     Launch()
 ```
+
+
+
+## REST Server 
+
+A REST server is implemented using [gunicorn](http://gunicorn.org/) and [Falcon](https://falconframework.org/#sectionCommunity). This should run on a server that has access to the central datastore. It is not mandated that it *must* be on the same server as running the processes.
+
+
+It is expected that the server will also allow clients to write configuration (Authentication/Authorization TBD.. running on HTTPS etc).
+
+The server can be started from the pyconfhord dircetory.
+
+```
+gunicorn --reload rest.app
+```
+
+An example of fetching opdata for the Temperature Provider is shown below.
+
+```
+http localhost:8000/v1/datastore/startup/TemperatureProvider
+HTTP/1.1 200 OK
+Connection: close
+Date: Thu, 12 Apr 2018 00:01:49 GMT
+Server: gunicorn/19.7.1
+content-length: 196
+content-type: application/json; charset=UTF-8
+
+{
+    "__namespace": "brewerslab",
+    "fermentation": {
+        "highpoint": "0",
+        "lowpoint": "0",
+        "probe": {
+            "id": ""
+        },
+        "setpoint": "17"
+    }
+}
+```
+
+
