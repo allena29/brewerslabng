@@ -113,19 +113,12 @@ class Thing:
             ignore_opdata = True
             ignore_conf_leaves = False
 
-        formal_json = pybindJSON.dumps(yang, filter=False, ignore_opdata=ignore_opdata,
-                                                  ignore_conf_leaves=ignore_conf_leaves, mode='ietf')
-        formal = json.loads(formal_json)
-        filtered = {}
-        for key in formal:
-            newkey = key.split(':')[-1]
-            filtered[newkey] = formal[key]
-            filtered['__namespace'] = key.split(':')[0]
-        
+        obj = json.loads(pybindJSON.dumps(yang, filter=False, ignore_opdata=ignore_opdata,
+                                                  ignore_conf_leaves=ignore_conf_leaves, mode='ietf'))
         if pretty:
-            return json.dumps(filtered, indent=4, sort_keys=True)
+            return json.dumps(obj, indent=4, sort_keys=True)
         else:
-            return json.dumps(filtered)
+            return json.dumps(obj)
 
 
     @staticmethod
@@ -136,16 +129,7 @@ class Thing:
         """
 
         try:
-            filtered = json.loads(json_str)
-            if '__namespace' in filtered:
-                namespace = filtered['__namespace']
-                del filtered['__namespace']
-                formal_json = {}
-                for key in filtered:
-                    formal_json['%s:%s' % (namespace, key)] = filtered[key]
-                json_obj = formal_json
-            else:
-                json_obj = filtered
+            json_obj = json.loads(json_str)
         except ValueError as err:
             raise ValueError('Invalid JSON payload provided\n' + err.message)
         return pybindJSONDecoder.load_ietf_json(json_obj, None, None, yang)

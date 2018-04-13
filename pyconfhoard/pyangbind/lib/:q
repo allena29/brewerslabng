@@ -370,13 +370,12 @@ class pybindJSONDecoder(object):
       return obj
 
     for key in d:
-      print '!!! for key in d ', key, d[key],
       # Fix any namespace that was supplied in the JSON
       if ":" in key:
         ykey = key.split(":")[-1]
       else:
         ykey = key
-      print ykey
+
       if key == "@":
         # Handle whole container metadata object
         for k, v in d[key].iteritems():
@@ -390,7 +389,6 @@ class pybindJSONDecoder(object):
       std_method_set = False
       # Handle the case that this is a JSON object
       if isinstance(d[key], dict):
-        print 'DICT...'
         # Iterate through attributes and set to that value
         attr_get = getattr(obj, "_get_%s" % safe_name(ykey), None)
         if attr_get is None and skip_unknown is False:
@@ -409,7 +407,6 @@ class pybindJSONDecoder(object):
                   path_helper=path_helper, extmethods=extmethods,
                       overwrite=overwrite, skip_unknown=skip_unknown)
       elif isinstance(d[key], list):
-        print 'LIST...'
         for elem in d[key]:
           # if this is a list, then this is a YANG list
           this_attr = getattr(obj, "_get_%s" % safe_name(ykey), None)
@@ -452,36 +449,27 @@ class pybindJSONDecoder(object):
             # this is a leaf-list
             std_method_set = True
       else:
-        print 'STD METHOD SET FLAG SET...'
         std_method_set = True
 
       if std_method_set:
         get_method = getattr(obj, "_get_%s" % safe_name(ykey), None)
-        print 'A'
         if get_method is None and skip_unknown is False:
           raise AttributeError("JSON object contained a key that " +
                               "did not exist (%s)" % (ykey))
         elif get_method is None and skip_unknown is not False:
-          print 'B'
           continue
         chk = get_method()
         if chk._is_keyval is True:
-          print 'C'
           pass
         elif chk._yang_type == "empty":
-          print 'D'
-          if d[key] == None: 
+          if d[key] == None:
             set_method(True)
         else:
-          print 'E'
-          try:
-            set_method = getattr(obj, "_set_%s" % safe_name(ykey), None)
-            if set_method is None:
-              raise AttributeError("Invalid attribute specified in JSON - %s"
-                                   % (ykey))
-            set_method(d[key])
-          except ValueError as err:
-            print 'Skiping %s because we dont mtch the yang constraints'
+          set_method = getattr(obj, "_set_%s" % safe_name(ykey), None)
+          if set_method is None:
+            raise AttributeError("Invalid attribute specified in JSON - %s"
+                                    % (ykey))
+          set_method(d[key])
         pybindJSONDecoder.check_metadata_add(key, d, get_method())
     return obj
 
