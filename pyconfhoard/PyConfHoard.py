@@ -50,35 +50,41 @@ class Thing:
             raise RuntimeError('Unable to find class %s in pyangbinding' % (yangmodule))
         self.log.debug('Found top-level yang module object %s' % (repr(self._yang_obj)))
 
+        self._ourmodule = yangmodule
         # Navigate down
-        self._ourpath = yangpath
+        self._ourpath = yangpath    
         try:
             self._yang = self.__path_helper.get(yangpath)[0]
         except:
             raise RuntimeError('Unable to navigate to %s' % (yangpath))
 
-        self.__appname = appname
+        self._appname = appname
 
         if open_stored_config:
             working_directory = os.getcwd()
             datastore = '../../datastore'
-            if os.path.exists('%s/persist/%s.pch' % (datastore, self.__appname)):
+            if os.path.exists('%s/persist/%s.pch' % (datastore, self._appname)):
                 self.log.info('Loading previous persisted data')
-                o = open('%s/persist/%s.pch' % (datastore, self.__appname))
+                o = open('%s/persist/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
                 self._yang = self.loader(self._yang, json_str)
-            elif os.path.exists('%s/startup/%s.pch' % (datastore, self.__appname)):
+            elif os.path.exists('%s/startup/%s.pch' % (datastore, self._appname)):
                 self.log.info('Loading startup default data')
-                o = open('%s/startup/%s.pch' % (datastore, self.__appname))
+                o = open('%s/startup/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
                 self._yang = self.loader(self._yang, json_str)
 
-            if not os.path.exists('%s/operational/%s.pch' % (cache_directory, self.__appname)):
+            if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
-                opdata = open('%s/operational/%s.pch' % (cache_directory, self.__appname), 'w')
+                opdata = open('%s/operational/%s.pch' % (datastore, self._appname), 'w')
                 opdata.write(self.dumper(self._yang, opdata=True))
+                opdata.close()
+            if not os.path.exists('%s/persist/%s.pch' % (datastore, self._appname)):
+                self.log.info('No existing persist.. providing empty schema')
+                opdata = open('%s/persist/%s.pch' % (datastore, self._appname), 'w')
+                opdata.write(self.dumper(self._yang, opdata=False))
                 opdata.close()
 
 
@@ -151,5 +157,17 @@ class Thing:
         self.log.debug('GET: %s => %s' % (path, self.__path_helper.get('%s%s' % (self._ourpath, path))))
         return self.__path_helper.get('%s%s' % (self._ourpath, path))
 
+    def register(self):
+        self.log.info("Registering module")
+        metadata = {
+            'appname': self._appname,
+            'yangmodule': self._ourmodule,
+            'yangpath': self._ourpath,
+        }
+
+        o = open ('../../datastore/registered/%s.pch' % (self._appname), 'w')
+        o.write(json.dumps(metadata))
+        o.close()
+        print 'sdf'
     def __del__(self):
         self.log.info('PyConfHoard Finished: %s' % (self))

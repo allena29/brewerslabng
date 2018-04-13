@@ -85,6 +85,16 @@ The **Thing** class provides makes use of pyangbind to serialise/deserialise dat
 **TBD** threading and IPC
 
 
+#### Registering a Thing
+
+A first step is to register the YANG module, which writes an empty schema based upon the yang module. In future it will be necessary to suport upgrading modles - but in the early stage of development this will not be provided.
+
+> The schema will be written to `datastore/startup`
+
+```bash
+./launch --thing things/directory/python-script.py --register
+```
+
 
 #### Starting a Thing
 
@@ -118,11 +128,11 @@ class Launch:
 
     def __init__(self, start=False):
         try:
-            thing = TemperatureProviderDs18B20('TemperatureProvider',     # friendly app name
+            self.thing = TemperatureProviderDs18B20('TemperatureProvider',     # friendly app name
             									       'brewerslab',              # yang module
             									       '/brewhouse/temperature')  # path owned
             if start:
-                thing.start()
+                self.thing.start()
         except KeyboardInterrupt:
             pass
 
@@ -170,3 +180,10 @@ content-type: application/json; charset=UTF-8
 ```
 
 
+---
+---
+
+# TODO
+
+1. `launch --upgrade` to take datamodel files and upgrade them.
+- Autentication for the CLI module.

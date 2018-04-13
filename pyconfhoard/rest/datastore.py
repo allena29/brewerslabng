@@ -1,7 +1,6 @@
 import json
 import falcon
 import os
-print os.getcwd()
 
 class Resource(object):
 
@@ -15,15 +14,13 @@ class Resource(object):
 
         base = '../datastore/' + datastore 
         db = base + '/' + path + '.pch'
-        
         if os.path.exists(db):
             object = {'xxx'}
             o = open(db)
             resp.body = o.read()
             o.close()
-
-            resp.status = falcon.HTTP_200
         else:
+            resp.body = '{}'
 
-            resp.status = falcon.HTTP_404
+        resp.status = falcon.HTTP_200
 

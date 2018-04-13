@@ -1,19 +1,16 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2.7
 
-import cmd2
 import time
-import random
-import requests
 import sys
-import argparse
 import json
-
+import requests
 from cmd2 import Cmd
 
 
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
+    SERVER = 'http://127.0.0.1:8000'
 
     def __init__(self):
         Cmd.__init__(self)
@@ -23,18 +20,30 @@ class PyConfHoardCLI(Cmd):
 
         # To remove built-in commands entirely, delete their "do_*" function from the
         # cmd2.Cmd class
-        if hasattr(Cmd, 'do_load'): del Cmd.do_load
-        if hasattr(Cmd, 'do_py'): del Cmd.do_py
-        if hasattr(Cmd, 'do_pyscript'): del Cmd.do_pyscript
-        if hasattr(Cmd, 'do_shell'): del Cmd.do_shell
-        if hasattr(Cmd, 'do_alias'): del Cmd.do_alias
-        if hasattr(Cmd, 'do_shortcuts'): del Cmd.do_shortcuts
-        if hasattr(Cmd, 'do_edit'): del Cmd.do_edit
-        if hasattr(Cmd, 'do_set'): del Cmd.do_set
-        if hasattr(Cmd, 'do_quit'): del Cmd.do_quit
-        if hasattr(Cmd, 'do__relative_load'): del Cmd.do__relative_load
-        if hasattr(Cmd, 'do_eof'): del Cmd.do_eof
-        if hasattr(Cmd, 'do_eos'): del Cmd.do_eos
+        if hasattr(Cmd, 'do_load'):
+            del Cmd.do_load
+        if hasattr(Cmd, 'do_py'):
+            del Cmd.do_py
+        if hasattr(Cmd, 'do_pyscript'):
+            del Cmd.do_pyscript
+        if hasattr(Cmd, 'do_shell'):
+            del Cmd.do_shell
+        if hasattr(Cmd, 'do_alias'):
+            del Cmd.do_alias
+        if hasattr(Cmd, 'do_shortcuts'):
+            del Cmd.do_shortcuts
+        if hasattr(Cmd, 'do_edit'):
+            del Cmd.do_edit
+        if hasattr(Cmd, 'do_set'):
+            del Cmd.do_set
+        if hasattr(Cmd, 'do_quit'):
+            del Cmd.do_quit
+        if hasattr(Cmd, 'do__relative_load'):
+            del Cmd.do__relative_load
+        if hasattr(Cmd, 'do_eof'):
+            del Cmd.do_eof
+        if hasattr(Cmd, 'do_eos'):
+            del Cmd.do_eos
 
 
         # this comes in 0.8 and will hide eof from tab completion :-)
@@ -43,23 +52,33 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
-        self._db_conf = {
-                            'abc': {}
-                         }
-
+        self._db_conf = {}
         self._db_oper = {}
 
-        # Need to discove rand programticalyl handle this
-
-        path='brewhouse/temperature'
-        if not 'brewhouse' in self._db_oper: self._db_oper['brewhouse'] = {}
-        if not 'temperature' in self._db_oper['brewhouse']: self._db_oper['brewhouse']['temperature'] = {}
-
         # need some kind of refresh mechanism for opdata/config
+        self._load_datastores()
+
     def _load_datastores(self):
-        self._db_oper['brewhouse']['temperature'] = json.loads(requests.get('http://localhost:8000/v1/datastore/opdata/TemperatureProvider').text)
+        discover = None
+        try:
+            response = requests.get('%s/v1/discover' % (self.SERVER)).text
+            discover = json.loads(response)
+        except Exception as err:
+            raise RuntimeError('Unable to connect to %s' % (self.SERVER))
 
+        for datastore in discover['datastores']:
+            metadata = discover['datastores'][datastore]
+            space_sep_path = metadata['yangpath'][1:].replace('/', ' ')
 
+            response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER,
+                                                                        metadata['appname'])).text
+            oper = json.loads(response)
+            self._get_node(self._db_oper, space_sep_path, create_if_no_match=oper)
+
+            response = requests.get('%s/v1/datastore/persist/%s' % (self.SERVER,
+                                                                    metadata['appname'])).text
+            conf = json.loads(response)
+            self._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
@@ -100,7 +119,7 @@ class PyConfHoardCLI(Cmd):
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
 
-    def _get_node(self, our_node, path, fail_if_no_match=False):
+    def _get_node(self, our_node, path, fail_if_no_match=False, create_if_no_match=None):
         """
         Attempt to filter down an object by it's keys
 
@@ -109,12 +128,17 @@ class PyConfHoardCLI(Cmd):
                    Note: keys cannot contain spaces
         """
         keys_to_navigate = path.split(' ')
+        i = 0 
         for key in keys_to_navigate:
             if len(key):
                 if our_node.has_key(key):
                     our_node = our_node[key]
                 elif fail_if_no_match:
                     raise ValueError('Path: %s does not exist' % (path))
+                elif create_if_no_match and i == len(keys_to_navigate) - 2:
+                    our_node[key] = create_if_no_match
+            i = i + 1     
+
         return our_node
 
     def _auto_complete(self, our_node, line, text, cmd='show '):

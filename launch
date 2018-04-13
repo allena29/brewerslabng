@@ -12,8 +12,9 @@ Launch a PyConfHoard 'thing'.
     """
 
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--thing', required=True)
-    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--thing', required=True, help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
+    parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
+    parser.add_argument('--register', action='store_true', help="Register the yang module")
     args = parser.parse_args()
 
 if os.path.exists(args.thing):
@@ -68,6 +69,9 @@ if os.path.exists(args.thing):
             print('launcher is available => launcher (e.g. thing =  launcher().thing')
             launch = launcher
             IPython.embed(display_banner=False)
+        elif args.register:
+            launch = launcher()
+            launch.thing.register()
         else:
             launch = launcher()
             launch.thing.start()

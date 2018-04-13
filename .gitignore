@@ -5,6 +5,8 @@ __pycache__
 .tags
 */binding.py
 datastore/persist/*.pch
+datastore/registered/*.pch
+datastore/startup/*.pch
 datastore/tmpfs/*
 datastore/operational/*
 datastore/running/*

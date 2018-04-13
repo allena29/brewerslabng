@@ -1,9 +1,12 @@
 THING_MAKEFILES = $(wildcard things/*/Makefile)
 THINGS = $(dir $(THING_MAKEFILES))
 
-.PHONY: $(THINGS) yang things
+.PHONY: $(THINGS) yang things pyconfhoard
 
-all: yang things
+all: pyconfhoard yang things
+
+pyconfhoard:
+	$(MAKE) -C pyconfhoard || exit 1
 
 yang:
 	$(MAKE) -C yang || exit 1
