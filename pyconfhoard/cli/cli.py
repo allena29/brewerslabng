@@ -70,6 +70,7 @@ class PyConfHoardCLI(Cmd):
 
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
+            print 'metadata',metadata
             space_sep_path = metadata['yangpath'][1:].replace('/', ' ')
 
             response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER,
@@ -81,7 +82,7 @@ class PyConfHoardCLI(Cmd):
                                                                     metadata['appname'])).text
             conf = json.loads(response)
             self._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
-
+            print self._db_conf
     def _exit_conf_mode(self):
         self._in_conf_mode = False
         print('')
