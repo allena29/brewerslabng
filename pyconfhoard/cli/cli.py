@@ -45,6 +45,8 @@ class PyConfHoardCLI(Cmd):
         if hasattr(Cmd, 'do_eos'):
             del Cmd.do_eos
 
+        self.exclude_from_help.append('do_eof')
+        self.exclude_from_help.append('do_conf')
 
         # this comes in 0.8 and will hide eof from tab completion :-)
         self.do_show = self._command_oper_show
@@ -147,7 +149,6 @@ class PyConfHoardCLI(Cmd):
         line     - the full line of text (e.g. show fermentation
         text     - the text fragment autom completing (e.g. fermentation)
         """
-
         path_to_find = line[len(cmd):]
         our_node = self._get_node(our_node, path_to_find)
         cmds = []
