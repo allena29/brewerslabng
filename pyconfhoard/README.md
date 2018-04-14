@@ -65,6 +65,9 @@ module: brewerslab
   +--rw brewlog
 ```
 
+> As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct and secondly pyangbind. It is expected the former is the lowest common denominator.
+> 1) typedef's must be defined in the same yang file.
+> 2) grouping's will not work yet.
 
 
 ### Datastore

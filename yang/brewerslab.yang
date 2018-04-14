@@ -132,9 +132,7 @@ module brewerslab {
           type enumeration {
             enum HLT;
             enum KETTLE;
-            enum UNSPECIFIED;
           }
-          default UNSPECIFIED;
         }
 
         list elements {
