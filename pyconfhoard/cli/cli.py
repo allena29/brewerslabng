@@ -126,7 +126,10 @@ class PyConfHoardCLI(Cmd):
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
 
-    def _get_node(self, our_node, path, fail_if_no_match=False, create_if_no_match=None):
+    def _get_node(self, our_node, path,
+                  fail_if_no_match=False,
+                  lazy_fail=False,
+                  create_if_no_match=None):
         """
         Attempt to filter down an object by it's keys
 
@@ -146,6 +149,8 @@ class PyConfHoardCLI(Cmd):
                 if our_node.has_key(key):
 #                    print '.. updating our_node',our_node
                     our_node = our_node[key]
+                elif lazy_fail and i < len(keys_to_navigate)-1:
+                    raise ValueError('%s %s %s %s %s' % (our_node,path, i, len(keys_to_navigate), keys_to_navigate))
                 elif fail_if_no_match:
                     raise ValueError('Path: %s does not exist' % (path))
                 elif create_if_no_match and i == len(keys_to_navigate) - 2:
@@ -173,7 +178,11 @@ class PyConfHoardCLI(Cmd):
         text     - the text fragment autom completing (e.g. fermentation)
         """
         path_to_find = line[len(cmd):]
-        our_node = self._get_node(our_node, path_to_find)
+        try:
+            our_node = self._get_node(our_node, path_to_find, lazy_fail=True)
+        except ValueError as err:
+            return []
+
         cmds = []
         for key in our_node:
             if key[0:len(text)] == text:

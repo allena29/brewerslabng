@@ -74,6 +74,13 @@ class TestPyConfHoardCLI(unittest.TestCase):
 
         self.assertEqual(cmds, ['ZZZ '])
 
+    def test_tab_completion_non_existing_top_level_input(self):
+        line = 'show THISDOESNOTEXIST abcdef xyz XXX YYY'
+        text = ''
+        cmds = self.subject._auto_complete(self.object, line, text)
+
+        self.assertEqual(cmds, [])
+
     def test_get_node_finding_top_level_node_matches(self):
         path = 'abc123'
 

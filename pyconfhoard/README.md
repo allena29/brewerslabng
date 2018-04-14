@@ -262,6 +262,5 @@ robber@localhost> exit
 
 1. `launch --upgrade` to take datamodel files and upgrade them.
 - Autentication for the CLI module.
-- CLI auto complete completes nonsense as first argument - we need to throw exception if show x doesn't exist
 - CLI auto complete let's us replaces containers - we should have metadata to know what is a list item/leaf
 
