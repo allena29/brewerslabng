@@ -13,6 +13,13 @@ module tester {
       type string;
     }
 
+    leaf enumer {
+      type enumeration {
+        enum A;
+        enum B;
+      }
+    }
+
     container stats {
       config false;
 

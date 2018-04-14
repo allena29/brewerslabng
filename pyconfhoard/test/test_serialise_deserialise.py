@@ -17,6 +17,9 @@ class TestYang(unittest.TestCase):
           +--rw list1* [key1]
              +--rw key1      string
              +--rw nonkey?   string
+             +--rw enumer?   enumeration
+             +--ro stats
+                +--ro heartrate?   uint32        
          """
 
         item1 = yang.list1.add('abc123')
@@ -56,6 +59,7 @@ class TestYang(unittest.TestCase):
         # Basic check on the serialisation
         serialised = self.subject.dumper(yang)
         expected_serialised = """{"list1": [{"nonkey": "", "key1": "abc123"}, {"nonkey": "now_this_value_has_been_set", "key1": "xyz987"}, {"nonkey": "", "key1": "ooo000"}]}"""
+        expected_serialised = """{"list1": [{"nonkey": "", "key1": "abc123", "enumer": ""}, {"nonkey": "now_this_value_has_been_set", "key1": "xyz987", "enumer": ""}, {"nonkey": "", "key1": "ooo000", "enumer": ""}]}"""
         self.assertEqual(serialised, expected_serialised)
 
         # After deleting an entry the serialised answer must differ
@@ -72,3 +76,14 @@ class TestYang(unittest.TestCase):
         expected_serialised = """{"list1": [{"key1": "abc123", "stats": {"heartrate": 0}}, {"key1": "ooo000", "stats": {"heartrate": 0}}, {"key1": "xyz987", "stats": {"heartrate": 0}}, {"key1": "from-load", "stats": {"heartrate": 0}}]}"""
 
         self.assertEqual(serialised, expected_serialised)
+
+
+        # Set bad data
+        item2.enumer = 'A'
+        item2.enumer = 'B'
+        try:
+            item2.enumer = 'C'
+            self.fail('expected value error')
+        except ValueError as err:
+            pass
+

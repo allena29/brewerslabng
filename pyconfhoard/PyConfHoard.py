@@ -120,7 +120,17 @@ class Thing:
         else:
             return json.dumps(obj)
 
-
+    @staticmethod
+    def metadata(yang):
+        """
+        This method should provide the metadata associated with an XPATH
+        """
+        constraints = []
+        obj = json.loads(pybindJSON.dumps(yang, filter=False, mode='ietf', 
+                                          save_metadata_to=constraints))
+        
+        # TODO: we can provide the constrint to a client and let them navigte
+        # the data and pre validate
     @staticmethod
     def loader(yang, json_str):
         """

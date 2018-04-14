@@ -1072,7 +1072,11 @@ def get_children(ctx, fd, i_children, module, parent, path=str(),
     source YANG file, then _set_%s is considered as a private
     method. Backends looking to populate this variable should
     do so via calling thisObj._set_%s() directly.%s
-    """''' % (i["name"], i["name"], i["path"],
+    """
+#    if not v:
+#      print 'returning early because we dont have a value'
+#      return
+    ''' % (i["name"], i["name"], i["path"],
                           i["origtype"], i["name"], i["name"],
                           description_str))
       if keyval and i["yang_name"] in keyval:
