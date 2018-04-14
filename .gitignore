@@ -1,4 +1,5 @@
 *.pyc
+*.yin
 htmlcov/
 .coverage
 __pycache__
