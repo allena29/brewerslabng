@@ -152,7 +152,7 @@ It is expected that the server will also allow clients to write configuration (A
 The server can be started from the pyconfhord dircetory.
 
 ```
-gunicorn --reload rest.app
+./launch --rest
 ```
 
 An example of fetching opdata for the Temperature Provider is shown below.

@@ -2,6 +2,7 @@ import unittest
 import json
 from mock import Mock
 from cli import PyConfHoardCLI
+from cli import PyConfHoardCommon
 
 class TestPyConfHoardCLI(unittest.TestCase):
 
@@ -84,21 +85,21 @@ class TestPyConfHoardCLI(unittest.TestCase):
     def test_get_node_finding_top_level_node_matches(self):
         path = 'abc123'
 
-        result = self.subject._get_node(self.object, path)
+        result = PyConfHoardCommon._get_node(self.object, path)
 
         self.assertEqual(result.keys(), ['def'])
 
     def test_get_node_finding_top_level_node_does_not_match(self):
         path = 'abc12'
 
-        result = self.subject._get_node(self.object, path)
+        result = PyConfHoardCommon._get_node(self.object, path)
 
         self.assertEqual(result.keys(), ['abcdef', 'abc123'])
 
     def test_get_node_finding_top_level_node_does_not_match_but_we_match_something_deeper(self):
         path = 'abc12'
 
-        result = self.subject._get_node(self.object, path)
+        result = PyConfHoardCommon._get_node(self.object, path)
 
         self.assertEqual(result.keys(), ['abcdef', 'abc123'])
 

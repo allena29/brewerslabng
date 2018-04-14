@@ -7,6 +7,58 @@ import requests
 from cmd2 import Cmd
 
 
+class PyConfHoardCommon:
+
+    @staticmethod
+    def _get_node(our_node, path,
+                  fail_if_no_match=False,
+                  lazy_fail=False,
+                  create_if_no_match=None):
+        """
+        Attempt to filter down an object by it's keys
+
+        our_node - an object
+        path     - a space separate path of keys
+                   Note: keys cannot contain spaces
+        """
+        if isinstance(path, list):
+            keys_to_navigate = path
+        else:
+            keys_to_navigate = path.split(' ')
+
+        i = 0 
+        for key in keys_to_navigate:
+            if len(key):
+                if our_node.has_key(key):
+                    our_node = our_node[key]
+                elif lazy_fail and i < len(keys_to_navigate)-1:
+                    raise ValueError('%s %s %s %s %s' % (our_node,path, i, len(keys_to_navigate), keys_to_navigate))
+                elif fail_if_no_match:
+                    raise ValueError('Path: %s does not exist' % (path))
+                elif create_if_no_match and i == len(keys_to_navigate) - 2:
+                    our_node[key] = create_if_no_match
+            i = i + 1     
+    
+        return our_node
+
+    @staticmethod
+    def _set_node(obj, text):
+        """
+        This method takes in a string (space separated)
+            like brewehouse power mode val
+
+        We then take the last two elements as the key value and key element
+        """
+
+        set_string = text.split(' ')
+        if len(set_string) < 3:
+            raise ValueError("Invalid command - set some thing value")
+        set_value = set_string.pop()
+        set_key = set_string.pop()
+        node = PyConfHoardCommon._get_node(obj, set_string)
+        node[set_key] = set_value
+
+
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
@@ -76,12 +128,12 @@ class PyConfHoardCLI(Cmd):
             response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER,
                                                                         metadata['appname'])).text
             oper = json.loads(response)
-            self._get_node(self._db_oper, space_sep_path, create_if_no_match=oper)
+            PyConfHoardCommon._get_node(self._db_oper, space_sep_path, create_if_no_match=oper)
 
             response = requests.get('%s/v1/datastore/persist/%s' % (self.SERVER,
                                                                     metadata['appname'])).text
             conf = json.loads(response)
-            self._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
+            PyConfHoardCommon._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
@@ -126,50 +178,6 @@ class PyConfHoardCLI(Cmd):
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
 
-    def _get_node(self, our_node, path,
-                  fail_if_no_match=False,
-                  lazy_fail=False,
-                  create_if_no_match=None):
-        """
-        Attempt to filter down an object by it's keys
-
-        our_node - an object
-        path     - a space separate path of keys
-                   Note: keys cannot contain spaces
-        """
-        if isinstance(path, list):
-            keys_to_navigate = path
-        else:
-            keys_to_navigate = path.split(' ')
-
-        i = 0 
-        for key in keys_to_navigate:
-#            print 'k',i, key
-            if len(key):
-                if our_node.has_key(key):
-#                    print '.. updating our_node',our_node
-                    our_node = our_node[key]
-                elif lazy_fail and i < len(keys_to_navigate)-1:
-                    raise ValueError('%s %s %s %s %s' % (our_node,path, i, len(keys_to_navigate), keys_to_navigate))
-                elif fail_if_no_match:
-                    raise ValueError('Path: %s does not exist' % (path))
-                elif create_if_no_match and i == len(keys_to_navigate) - 2:
-                    our_node[key] = create_if_no_match
-            i = i + 1     
-    
-#        print 'final node', our_node
-        return our_node
-
-    def _set_node(self, text):
-        set_string = text.split(' ')
-        if len(set_string) < 3:
-            raise ValueError("Invalid command - set some thing value")
-        set_value = set_string.pop()
-        set_key = set_string.pop()
-        node = self._get_node(self._db_conf, set_string)
-#        print node, set_key,set_value
-        node[set_key] = set_value
- #       print set_string, '--', set_value, node
 
     def _auto_complete(self, our_node, line, text, cmd='show '):
         """
@@ -179,7 +187,7 @@ class PyConfHoardCLI(Cmd):
         """
         path_to_find = line[len(cmd):]
         try:
-            our_node = self._get_node(our_node, path_to_find, lazy_fail=True)
+            our_node = PyConfHoardCommon._get_node(our_node, path_to_find, lazy_fail=True)
         except ValueError as err:
             return []
 
@@ -192,7 +200,7 @@ class PyConfHoardCLI(Cmd):
         return cmds
 
     def _get_json_cfg_view(self, our_node, path):
-        our_node = self._get_node(our_node, path, fail_if_no_match=True)
+        our_node = PyConfHoardCommon._get_node(our_node, path, fail_if_no_match=True)
         return json.dumps(our_node, sort_keys=True, indent=4, separators=(',', ': '))
 
     # Show Command
@@ -224,7 +232,7 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        self._set_node(args)
+        PyConfHoardCommon._set_node(self._db_conf, args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode: 

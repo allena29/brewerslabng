@@ -11,7 +11,7 @@ pyang:
 
 # TODO: remove hardcoding of the ynag file
 yin:
-	pyang -f yin -o brewerslab.yin brewerslab.yang
+	pyang -f yin -o schema.yin brewerslab.yang
 
 unittest:
 	nose2 -s test -t python -v --with-coverage --coverage-report html

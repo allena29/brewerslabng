@@ -6,18 +6,26 @@ import imp
 import sys
 import importlib
 
-if __name__ == '__main__':
-    description = """
+description = """
 Launch a PyConfHoard 'thing'.
-    """
+"""
 
-    parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--thing', required=True, help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
-    parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
-    parser.add_argument('--register', action='store_true', help="Register the yang module")
-    args = parser.parse_args()
+parser = argparse.ArgumentParser(description=description)
+parser.add_argument('--thing', help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
+parser.add_argument('--rest', action='store_true')
+parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
+parser.add_argument('--register', action='store_true', help="Register the yang module")
+args = parser.parse_args()
 
-if os.path.exists(args.thing):
+if not args.thing and not args.rest:
+    sys.stderr.write('Either --thing or --reset required')
+    sys.exit(1)
+
+if args.rest:
+    os.chdir('pyconfhoard')
+    os.system('gunicorn --reload rest')
+
+elif os.path.exists(args.thing):
     path = args.thing.split('/')
     os.chdir('things')
     if os.path.exists('%s/%s' % (path[1], path[2])):
