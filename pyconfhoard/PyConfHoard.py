@@ -125,12 +125,9 @@ class Thing:
         """
         This method should provide the metadata associated with an XPATH
         """
-        constraints = []
-        obj = json.loads(pybindJSON.dumps(yang, filter=False, mode='ietf', 
-                                          save_metadata_to=constraints))
-        
-        # TODO: we can provide the constrint to a client and let them navigte
-        # the data and pre validate
+        pass
+
+
     @staticmethod
     def loader(yang, json_str):
         """
@@ -162,6 +159,6 @@ class Thing:
         o = open ('../../datastore/registered/%s.pch' % (self._appname), 'w')
         o.write(json.dumps(metadata))
         o.close()
-        print 'sdf'
+
     def __del__(self):
         self.log.info('PyConfHoard Finished: %s' % (self))
