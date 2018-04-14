@@ -70,7 +70,7 @@ class PyConfHoardCLI(Cmd):
 
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
-            print 'metadata',metadata
+            #print 'metadata',metadata
             space_sep_path = metadata['yangpath'][1:].replace('/', ' ')
 
             response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER,
@@ -82,7 +82,7 @@ class PyConfHoardCLI(Cmd):
                                                                     metadata['appname'])).text
             conf = json.loads(response)
             self._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
-            print self._db_conf
+
     def _exit_conf_mode(self):
         self._in_conf_mode = False
         print('')
@@ -92,6 +92,7 @@ class PyConfHoardCLI(Cmd):
         del self.do_delete
         self.do_show = self._command_oper_show
         self.complete_show = self._autocomplete_oper_show
+        del self.complete_set
 
     def _enter_conf_mode(self):
         self._in_conf_mode = True
@@ -101,9 +102,12 @@ class PyConfHoardCLI(Cmd):
         # TODO in later version refresh these commands on tab complete.
         # TODO: make tab completion show a better column based presentation.
         self.do_set = self._command_set
+        self.complete_set = self._autocomplete_conf_set
+
         self.do_delete = self._command_delete
         self.do_show = self._command_conf_show
         self.complete_show = self._autocomplete_conf_show
+
 
     def _ok(self):
         print('')
@@ -130,19 +134,37 @@ class PyConfHoardCLI(Cmd):
         path     - a space separate path of keys
                    Note: keys cannot contain spaces
         """
-        keys_to_navigate = path.split(' ')
+        if isinstance(path, list):
+            keys_to_navigate = path
+        else:
+            keys_to_navigate = path.split(' ')
+
         i = 0 
         for key in keys_to_navigate:
+#            print 'k',i, key
             if len(key):
                 if our_node.has_key(key):
+#                    print '.. updating our_node',our_node
                     our_node = our_node[key]
                 elif fail_if_no_match:
                     raise ValueError('Path: %s does not exist' % (path))
                 elif create_if_no_match and i == len(keys_to_navigate) - 2:
                     our_node[key] = create_if_no_match
             i = i + 1     
-
+    
+#        print 'final node', our_node
         return our_node
+
+    def _set_node(self, text):
+        set_string = text.split(' ')
+        if len(set_string) < 3:
+            raise ValueError("Invalid command - set some thing value")
+        set_value = set_string.pop()
+        set_key = set_string.pop()
+        node = self._get_node(self._db_conf, set_string)
+#        print node, set_key,set_value
+        node[set_key] = set_value
+ #       print set_string, '--', set_value, node
 
     def _auto_complete(self, our_node, line, text, cmd='show '):
         """
@@ -186,7 +208,6 @@ class PyConfHoardCLI(Cmd):
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
         return self._auto_complete(self._db_conf, line, text)
 
-
     def _command_delete(self, args):
         print('command elete called', args)
 
@@ -194,10 +215,11 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        print('command setw called', args)
+        self._set_node(args)
 
-
-
+    def _autocomplete_conf_set(self, text, line, begidx, endidx):
+        if self._in_conf_mode: 
+            return self._auto_complete(self._db_conf, line, text, cmd='set')
 
     def do_eof(self, args):
         # Implements CTRL+D

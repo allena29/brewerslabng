@@ -180,6 +180,81 @@ content-type: application/json; charset=UTF-8
 ```
 
 
+## CLI
+
+A very basic skeleton of a Command Line interface based around the python library `Cmd2` makes a request to `http://localhost:8000/v1/discover` and then downloads the associated configuration and operational datastores.
+
+The CLI itself has basic constructs to show operational/data or configuration and so far has a very primitive option to set data (although there is no awarness of the structure of the yang model).
+
+There is a decision point, do we link the CLI into pyangbind (more overhead for running clients) or add bespoke things to deal with validation and structure etc.
+
+```
+~/brewerslabng/pyconfhoard $ python cli/cli.py
+wild@localhost> show
+{
+    "brewhouse": {
+        "fermentation": {
+            "monitor": false,
+            "results": {
+                "average": {
+                    "daily": "0",
+                    "hourly": "0",
+                    "minute": "0"
+                },
+                "latest": "0"
+            }
+        }
+    }
+}
+
+[ok][Sat Apr 14 18:51:18 2018]
+wild@localhost> conf
+Entering configuration mode private
+
+[ok][Sat Apr 14 18:51:22 2018]
+[edit]
+robber@localhost% show
+{
+    "brewhouse": {
+        "fermentation": {
+            "highpoint": "0",
+            "lowpoint": "0",
+            "probe": {
+                "id": ""
+            },
+            "setpoint": "0"
+        },
+        "power": {
+            "mode": ""
+        }
+    }
+}
+
+[ok][Sat Apr 14 18:51:24 2018]
+robber@localhost% set brewhouse power mode ABC
+robber@localhost% show
+{
+    "brewhouse": {
+        "fermentation": {
+            "highpoint": "0",
+            "lowpoint": "0",
+            "probe": {
+                "id": ""
+            },
+            "setpoint": "0"
+        },
+        "power": {
+            "mode": "ABC"
+        }
+    }
+}
+
+[ok][Sat Apr 14 18:51:39 2018]
+robber@localhost% exit
+
+robber@localhost> exit
+```
+
 ---
 ---
 
@@ -187,3 +262,6 @@ content-type: application/json; charset=UTF-8
 
 1. `launch --upgrade` to take datamodel files and upgrade them.
 - Autentication for the CLI module.
+- CLI auto complete completes nonsense as first argument - we need to throw exception if show x doesn't exist
+- CLI auto complete let's us replaces containers - we should have metadata to know what is a list item/leaf
+
