@@ -23,13 +23,14 @@ class yin_to_json:
         for child in obj:
             # print path, child.tag,child.attrib
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
-
                 schema_by_tree[child.attrib['name']] = {}
+                schema_by_tree[child.attrib['name']]['__path'] = path
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
-
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__list'] = True
+                schema_by_tree[child.attrib['name']]['__elements'] = {}
+                schema_by_tree[child.attrib['name']]['__path'] = path
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
                 keys = ''
                 for tmp in child:
@@ -41,6 +42,7 @@ class yin_to_json:
                 schema_by_tree[child.attrib['name']]['__config'] = True
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
+                schema_by_tree[child.attrib['name']]['__path'] = path
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']
