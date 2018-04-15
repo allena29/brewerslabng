@@ -5,7 +5,6 @@ htmlcov/
 .coverage
 __pycache__
 .tags
-*/binding.py
 datastore/persist/*.pch
 datastore/registered/*.pch
 datastore/startup/*.pch

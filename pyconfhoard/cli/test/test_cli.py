@@ -53,8 +53,8 @@ class TestPyConfHoardCLI(unittest.TestCase):
         try:
             result = self.subject._get_json_cfg_view(self.object, 'show thisdoesnotexist')
             self.fail('Expected to fail because we asked for a non-existing path')
-        except Exception, err:
-            self.assertEqual(err.message, 'Path: show thisdoesnotexist does not exist')
+        except Exception as err:
+            self.assertEqual(str(err), 'Path: show thisdoesnotexist does not exist')
 
 
     def test_show_top_level(self):
@@ -110,21 +110,21 @@ class TestPyConfHoardCLI(unittest.TestCase):
 
         result = PyConfHoardCommon._get_node(self.object, path)
 
-        self.assertEqual(result.keys(), ['def'])
+        self.assertEqual(list(result.keys()), ['def'])
 
     def test_get_node_finding_top_level_node_does_not_match(self):
         path = 'abc12'
 
         result = PyConfHoardCommon._get_node(self.object, path)
 
-        self.assertEqual(result.keys(), ['abcdef', 'abc123'])
+        self.assertEqual(list(result.keys()), ['abc123', 'abcdef'])
 
     def test_get_node_finding_top_level_node_does_not_match_but_we_match_something_deeper(self):
         path = 'abc12'
 
         result = PyConfHoardCommon._get_node(self.object, path)
 
-        self.assertEqual(result.keys(), ['abcdef', 'abc123'])
+        self.assertEqual(list(result.keys()), ['abc123', 'abcdef'])
 
     def test_validate_enumeration_invalid_value(self):
         path = 'abcdef xyz XXX YYY ZZZ middle'
@@ -132,7 +132,7 @@ class TestPyConfHoardCLI(unittest.TestCase):
             result = PyConfHoardCommon._validate_node(self.object, path, self.schema)
             self.fail('ValueError should have been raised because we did not set a known enumeration')
         except ValueError as err:
-            self.assertEqual(err.message, "Invalid Value: key ZZZ value  middle != ['end', 'start']")
+            self.assertEqual(str(err), "Invalid Value: key ZZZ value  middle != ['end', 'start']")
     
     def test_validate_and_set_enumeration_valid_value(self):
         path = 'abcdef xyz XXX YYY ZZZ start'

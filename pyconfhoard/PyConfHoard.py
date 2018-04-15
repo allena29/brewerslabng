@@ -2,19 +2,7 @@ import inspect
 import logging
 import json
 import os
-import binding
-import pyangbind.lib.pybindJSON as pybindJSON
-from pyangbind.lib.serialise import pybindJSONDecoder
-from pyangbind.lib.xpathhelper import YANGPathHelper
 from pydoc import locate
-
-
-try:
-    import binding
-except ImportError:
-    raise RuntimeError('Unable to import pyang bindings.. have you run make-bundle.sh')
-    sys.exit(9)
-
 
 class Thing:
 
@@ -40,7 +28,7 @@ class Thing:
         self.log = logging.getLogger(appname)
         self.log.info('PyConfHoard Init: %s' % (self))
 
-        # Load pyangbind schema and get down to our child.
+        # Load schema file - must have been generate by yin2json
         self._yang_obj = None
         for (name, obj) in inspect.getmembers(binding):
             if name == yangmodule:

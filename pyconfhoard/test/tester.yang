@@ -2,32 +2,10 @@ module tester {
 	namespace "http://confvillain.mellon-collie.net/tester/";
 	prefix tester;
 
-	list list1 {
-		key key1;
-
-		leaf key1 {
-			type string;
-		}
-
-    leaf nonkey {
+  container simplecontainer {
+    leaf string {
       type string;
     }
 
-    leaf enumer {
-      type enumeration {
-        enum A;
-        enum B;
-      }
-    }
-
-    container stats {
-      config false;
-
-      leaf heartrate {
-        type uint32;
-      }
-    }
-
-
-	}
+  }
 }

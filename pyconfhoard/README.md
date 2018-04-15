@@ -8,7 +8,7 @@ This branch is thinking about introducing NETCONF, YANG, CLI, and possibly strea
 
 [Netopeer2](https://github.com/CESNET/Netopeer2) and [Sysrepo](https://github.com/sysrepo/sysrepo) looked promising and even though they build on a raspberry pi the lack of documentation and segmentation fault make this a little unstable.
 
-Therefore this cobbles something together based around pyangbind - as the original *brewerslab* is reworked around a formal datamodel sysrepo/netopeer2 will be re-evaluated.
+Therefore this cobbles something together based around exporting the YIN definition - as the original *brewerslab* is reworked around a formal datamodel sysrepo/netopeer2 will be re-evaluated.
 
 This project in it's current form will never scale to 100,000's requests per second - but the simple act of seriously re-considering code that is >3 years old, putting the structure of a database-moel and discipline of testing will make this project easier to transition to a more industrial solution if needed.
 
@@ -65,8 +65,8 @@ module: brewerslab
   +--rw brewlog
 ```
 
-> As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct and secondly pyangbind. It is expected the former is the lowest common denominator.
-> 1) typedef's must be defined in the same yang file.
+> As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct - this means if the yang model is more complex than the above changes to yin2json.py may be required.
+> 1) typedef's are not validated against (TBD how easy that is)
 > 2) grouping's will not work yet.
 
 
@@ -83,7 +83,7 @@ Within the datastore directory there are a number of directories, it is assumed 
 
 A *thing* is something that does some work, they follow a stanard pattern and extend the `PyConfHoard.Thing` class. 
 
-The **Thing** class provides makes use of pyangbind to serialise/deserialise data according to the yang data model - as well as providing functions for logging and to automatically manage the datatsores. 
+The **Thing** class provides methods to serialise/deserialise data based on the original schema provided.
 
 **TBD** threading and IPC
 
@@ -189,7 +189,6 @@ A very basic skeleton of a Command Line interface based around the python librar
 
 The CLI itself has basic constructs to show operational/data or configuration and so far has a very primitive option to set data (although there is no awarness of the structure of the yang model).
 
-There is a decision point, do we link the CLI into pyangbind (more overhead for running clients) or add bespoke things to deal with validation and structure etc.
 
 ```
 ~/brewerslabng/pyconfhoard $ python cli/cli.py

@@ -1,13 +1,8 @@
 .PHONY: unittest
 
-PYBIND := $(shell PYTHONPATH=../../confvillain /usr/bin/env python -c 'import pyangbind; import os; print ("{}/plugin".format(os.path.dirname(pyangbind.__file__)))')
 PWD := $(shell pwd)
 
-all:	pyang schema unittest
-
-# TODO: need to discover the name of the yang file
-pyang:
-	PYTHONPATH=$(PYTHONPATH):../pyconfhoard pyang --plugindir $(PYBIND) --use-xpathhelper -f pybind -o binding.py brewerslab.yang
+all:schema unittest
 
 # TODO: remove hardcoding of the ynag file
 schema:
