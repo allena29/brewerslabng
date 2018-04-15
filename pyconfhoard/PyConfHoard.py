@@ -1,8 +1,8 @@
-import inspect
 import logging
 import json
 import os
 from pydoc import locate
+from PyConfHoardDatastore import PyConfHoardDatastore
 
 class Thing:
 
@@ -21,7 +21,6 @@ class Thing:
         Note: initial design pattern only supports a 1:1 relationship between portion of the yang
         module and owning PyConfHoard service.
         """
-        self.__path_helper = YANGPathHelper()
 
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=FORMAT)
@@ -30,23 +29,11 @@ class Thing:
 
         # Load schema file - must have been generate by yin2json
         self._yang_obj = None
-        for (name, obj) in inspect.getmembers(binding):
-            if name == yangmodule:
-                self._yang_obj = obj(path_helper=self.__path_helper)
-
-        if not self._yang_obj:
-            raise RuntimeError('Unable to find class %s in pyangbinding' % (yangmodule))
-        self.log.debug('Found top-level yang module object %s' % (repr(self._yang_obj)))
-
-        self._ourmodule = yangmodule
-        # Navigate down
-        self._ourpath = yangpath    
-        try:
-            self._yang = self.__path_helper.get(yangpath)[0]
-        except:
-            raise RuntimeError('Unable to navigate to %s' % (yangpath))
-
         self._appname = appname
+        self._ourpath = yangpath
+
+        self.datastore = PyConfHoardDatastore()
+        self.datastore.load_blank_schema('../../yang/schema.json')
 
         if open_stored_config:
             working_directory = os.getcwd()
@@ -93,7 +80,7 @@ class Thing:
         This makes use of a customised version of pyangbind distributed as part
         of this repository.
         """
-
+        raise ValueError('TODO')
         if opdata:
             ignore_opdata = False
             ignore_conf_leaves = True
@@ -115,6 +102,7 @@ class Thing:
         This method loads a IETF Json string representing the in-memory object structure
         and replaces the in-memory data.
         """
+        raise ValueError('TODO')
 
         try:
             json_obj = json.loads(json_str)
@@ -126,8 +114,9 @@ class Thing:
         """
         This method takes in an XPATH(like?) expresion and returns data objects.
         """
-        self.log.debug('GET: %s => %s' % (path, self.__path_helper.get('%s%s' % (self._ourpath, path))))
-        return self.__path_helper.get('%s%s' % (self._ourpath, path))
+        val = self.datastore.get(self._ourpath + path, separator='/')
+        self.log.debug('GET: %s <= %s', path, val)
+        return val
 
     def register(self):
         self.log.info("Registering module")

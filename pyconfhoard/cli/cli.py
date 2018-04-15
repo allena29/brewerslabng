@@ -5,7 +5,7 @@ import sys
 import json
 import requests
 sys.path.append('../')
-from PyConfHoardCommon import PyConfHoardCommon
+from PyConfHoardDatastore import PyConfHoardDatastore
 from cmd2 import Cmd
 
 
@@ -62,7 +62,7 @@ class PyConfHoardCLI(Cmd):
         self._db_conf = {}
         self._db_oper = {}
 
-        self.datastore = PyConfHoardCommon()
+        self.datastore = PyConfHoardDatastore()
 
         # need some kind of refresh mechanism for opdata/config
         self._load_datastores()
@@ -190,7 +190,7 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        PyConfHoardCommon._set_node(self._db_conf, args)
+        PyConfHoardDatastore._set_node(self._db_conf, args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode: 

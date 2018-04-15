@@ -4,24 +4,24 @@ import sys
 import json
 import dpath.util
 
-class PyConfHoardCommon:
+class PyConfHoardDatastore:
     
     def __init__(self):
         self.db = {}
 
-    def load_blank_schema(self, path):
-        schema_file = open(path)
+    def load_blank_schema(self, json_file):
+        schema_file = open(json_file)
         self.db = json.loads(schema_file.read())
         schema_file.close()
 
-    def decode_path_string(self, path):
+    def decode_path_string(self, path, separator=' '):
         """
         TODO: in future we should look to intelligently seprate on spaces
         i.e. level1 level2 level3 cfgonly "this is a value" should result in a path
         path = ['level1', 'level2', 'level3', 'cfgonly']
         value = 'this is a value'
         """
-        return path.split(' ')
+        return path.split(separator)
 
 
     def get_filtered(self, path_string, config):
@@ -34,7 +34,7 @@ class PyConfHoardCommon:
             # print ('filter_node: %s' %(obj))
             for key in obj:
                 if isinstance(obj[key], dict):
-                    config_test = PyConfHoardCommon._check_for_config_or_not_config(obj[key], config)
+                    config_test = PyConfHoardDatastore._check_for_config_or_not_config(obj[key], config)
             #        print ('configtest...', config_test)
                     if config_test:
                         if not key[0:2] == '__':
@@ -52,7 +52,7 @@ class PyConfHoardCommon:
         new_dict = filter_node(original_obj, new_dict, config)
         return new_dict
 
-    def get(self, path_string):
+    def get(self, path_string, separator=' '):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -63,7 +63,7 @@ class PyConfHoardCommon:
         if isinstance(path_string, list):
             path = path_string
         else:
-            path = self.decode_path_string(path_string)
+            path = self.decode_path_string(path_string, separator)
 
         if path[0] == '':
             return self.db
@@ -98,7 +98,7 @@ class PyConfHoardCommon:
             if isinstance(obj[key], dict):
                 if '__config' in obj[key] and obj[key]['__config'] == config:
                     return True
-                result = PyConfHoardCommon._check_for_config_or_not_config(obj[key], config, result)
+                result = PyConfHoardDatastore._check_for_config_or_not_config(obj[key], config, result)
             else:
                 if key == '__config' and obj[key] == config:
                     return True
@@ -108,7 +108,7 @@ class PyConfHoardCommon:
         """
         Filter to make sure one or more of our decendants match the type
         """
-        result = PyConfHoardCommon._check_for_config_or_not_config(obj, config)
+        result = PyConfHoardDatastore._check_for_config_or_not_config(obj, config)
     #        print ('final answer... for obj',result)
         return result
 
@@ -159,7 +159,7 @@ class PyConfHoardCommon:
             raise ValueError("Invalid command - set some thing value")
         set_value = set_string.pop()
         set_key = set_string.pop()
-        node = PyConfHoardCommon._get_node(obj, set_string)
+        node = PyConfHoardDatastore._get_node(obj, set_string)
         node[set_key] = set_value
        
     @staticmethod
@@ -168,10 +168,10 @@ class PyConfHoardCommon:
         if len(set_string) < 3:
             raise ValueError("Invalid command - set some thing value")
         set_value = set_string.pop()
-        yang_meta = PyConfHoardCommon._get_node(schema, set_string)
+        yang_meta = PyConfHoardDatastore._get_node(schema, set_string)
 
         set_key = set_string.pop()
-        node = PyConfHoardCommon._get_node(obj, set_string)
+        node = PyConfHoardDatastore._get_node(obj, set_string)
  
         if yang_meta['type'] == 'enumeration':
             if set_value not in yang_meta['enum_values']:

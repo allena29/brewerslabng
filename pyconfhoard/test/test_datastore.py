@@ -1,13 +1,13 @@
 import unittest
 import json
 
-from PyConfHoardCommon import PyConfHoardCommon
+from PyConfHoardDatastore import PyConfHoardDatastore
 
 
 class TestYang(unittest.TestCase):
 
     def setUp(self):
-        self.subject = PyConfHoardCommon()
+        self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
 
     def test_list_config_nodes_from_root(self):

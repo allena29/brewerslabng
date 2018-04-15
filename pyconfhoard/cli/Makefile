@@ -5,4 +5,4 @@ all:unittest
 
 
 unittest:
-	nose2 -s test -t python -v --with-coverage --coverage-report html
+	nose2 -s test -t python3 -v --with-coverage --coverage-report html

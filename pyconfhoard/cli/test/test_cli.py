@@ -2,7 +2,6 @@ import unittest
 import json
 from mock import Mock
 from cli import PyConfHoardCLI
-from cli import PyConfHoardCommon
 
 class TestPyConfHoardCLI(unittest.TestCase):
 
@@ -125,20 +124,3 @@ class TestPyConfHoardCLI(unittest.TestCase):
         result = PyConfHoardCommon._get_node(self.object, path)
 
         self.assertEqual(list(result.keys()), ['abc123', 'abcdef'])
-
-    def test_validate_enumeration_invalid_value(self):
-        path = 'abcdef xyz XXX YYY ZZZ middle'
-        try:
-            result = PyConfHoardCommon._validate_node(self.object, path, self.schema)
-            self.fail('ValueError should have been raised because we did not set a known enumeration')
-        except ValueError as err:
-            self.assertEqual(str(err), "Invalid Value: key ZZZ value  middle != ['end', 'start']")
-    
-    def test_validate_and_set_enumeration_valid_value(self):
-        path = 'abcdef xyz XXX YYY ZZZ start'
-        result = PyConfHoardCommon._validate_node(self.object, path, self.schema)
-        PyConfHoardCommon._set_node(self.object, path)
-        updated = PyConfHoardCommon._get_node(self.object, 'abcdef xyz XXX YYY')
-        self.assertEqual(updated['ZZZ'], 'start')
-
-
