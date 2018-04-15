@@ -3,12 +3,28 @@ module: tester
   |  +--rw leafstring?      string
   |  +--ro leafnonconfig?   string
   +--rw level1
-     +--rw level2
-        +--rw level3
-           +--rw withcfg
-           |  +--rw config?   string
-           +--rw withoutcfg
-           |  +--ro nonconfig?   string
-           +--rw mixed
-              +--rw config?      string
-              +--ro nonconfig?   string
+  |  +--rw level2
+  |     +--rw level3
+  |        +--rw withcfg
+  |        |  +--rw config?   string
+  |        +--rw withoutcfg
+  |        |  +--ro nonconfig?   string
+  |        +--rw mixed
+  |           +--rw config?      string
+  |           +--ro nonconfig?   string
+  +--rw simplelist* [item]
+  |  +--rw item       string
+  |  +--ro subitem?   string
+  +--rw types
+     +--rw number?             uint8
+     +--rw biggernumber?       uint16
+     +--rw bignumber?          uint32
+     +--rw hugenumber?         uint64
+     +--rw secondlist* [item]
+     |  +--rw item                enumeration
+     |  +--rw thingwithdefault?   string
+     |  +--rw innerlist* [item]
+     |     +--rw item    string
+     +--rw compositekeylist* [keyA keyB]
+        +--rw keyA    string
+        +--rw keyB    string

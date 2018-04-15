@@ -30,9 +30,12 @@ class yin_to_json:
 
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__list'] = True
-                schema_by_tree[child.attrib['name']]['__keys'] = []
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
-
+                keys = ''
+                for tmp in child:
+                    if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
+                        keys = tmp.attrib['value']
+                schema_by_tree[child.attrib['name']]['__keys'] = keys
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__config'] = True

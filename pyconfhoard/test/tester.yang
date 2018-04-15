@@ -39,4 +39,74 @@ module tester {
     }
 
   }
+
+  list simplelist {
+    key item;
+
+    leaf item {
+      type string;
+    }
+
+    leaf subitem {
+      type string;
+      config false;
+    }
+
+  }
+
+ 
+  container types {
+    leaf number {
+      type uint8;
+    }
+
+    leaf biggernumber {
+      type uint16;
+    }
+
+    leaf bignumber {
+      type uint32;
+    }
+
+    leaf hugenumber {
+      type uint64;
+    }
+
+    list secondlist {
+      key item;
+        
+      leaf item {
+        type enumeration {
+          enum A;
+          enum B;
+        }
+      }
+
+      leaf thingwithdefault {
+        type string;
+        default 'HELLO';
+      }
+
+      list innerlist {
+        key item;
+
+        leaf item {
+          description "This is a description of an item";
+          type string;
+        }
+      }
+    }
+
+    list compositekeylist {
+      key "keyA keyB";
+
+      leaf keyA {
+        type string;
+      }
+
+      leaf keyB {
+        type string;
+      }
+    }
+  }
 }

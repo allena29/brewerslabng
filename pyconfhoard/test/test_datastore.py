@@ -9,10 +9,10 @@ class TestYang(unittest.TestCase):
     def setUp(self):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
-
+        self.maxDiff=4888
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
-        self.assertEqual(result, ['simplecontainer', 'level1'])
+        self.assertEqual(result, ['simplecontainer', 'level1', 'simplelist', 'types'])
 
 
     def test_list_config_nodes_from_child(self):
@@ -71,8 +71,29 @@ class TestYang(unittest.TestCase):
                 }
             }
         }
+    },
+    "simplelist": {
+        "item": {}
+    },
+    "types": {
+        "number": {},
+        "biggernumber": {},
+        "bignumber": {},
+        "hugenumber": {},
+        "secondlist": {
+            "item": {},
+            "thingwithdefault": {},
+            "innerlist": {
+                "item": {}
+            }
+        },
+        "compositekeylist": {
+            "keyA": {},
+            "keyB": {}
+        }
     }
 }"""
+        print (json.dumps(result, indent=4))
         self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
                                             
     
@@ -94,8 +115,11 @@ class TestYang(unittest.TestCase):
                 }
             }
         }
+    },
+    "simplelist": {
+        "subitem": {}
     }
 }"""
         self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
                                             
-    
+ 
