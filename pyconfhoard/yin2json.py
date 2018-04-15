@@ -22,7 +22,6 @@ class yin_to_json:
     def process(self, obj, path, schema_by_tree, keys=[]):
         for child in obj:
             # print path, child.tag,child.attrib
-            print (path,child.attrib,keys)
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
@@ -44,7 +43,6 @@ class yin_to_json:
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
                 schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
-                print ('>>>>>>>>...',child.attrib['name'], child.attrib['name'] in keys, keys)
                 if child.attrib['name'] in keys:
                     schema_by_tree[child.attrib['name']]['__listkey'] = True
                 else:
