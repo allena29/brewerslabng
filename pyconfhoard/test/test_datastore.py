@@ -10,9 +10,14 @@ class TestYang(unittest.TestCase):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
         self.maxDiff=4888
+
+    def test_decode_path_string(self):
+        result = self.subject.decode_path_string('////abc/1234///ef', separator='/')
+        self.assertEqual(result, ['abc', '1234', 'ef'])
+
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
-        self.assertEqual(result, ['simplecontainer', 'level1', 'simplelist', 'types'])
+        self.assertEqual(result, ['simplestleaf', 'simplecontainer', 'level1', 'simplelist', 'types'])
 
 
     def test_list_config_nodes_from_child(self):
@@ -57,6 +62,7 @@ class TestYang(unittest.TestCase):
         result = self.subject.get_filtered('', config=True)
 
         expected_result = """{
+    "simplestleaf": {},
     "simplecontainer": {
         "leafstring": {}
     },
@@ -93,9 +99,8 @@ class TestYang(unittest.TestCase):
         }
     }
 }"""
-        print (json.dumps(result, indent=4))
+        # print (json.dumps(result, indent=4))
         self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
-                                            
     
     def test_get_filtered_operational_view(self):
         result = self.subject.get_filtered('', config=False)
@@ -122,4 +127,12 @@ class TestYang(unittest.TestCase):
 }"""
         self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
                                             
- 
+    def test_set_simple_leaf(self):
+        before_update = self.subject.get('/simplestleaf', separator='/')
+        self.assertEqual(before_update, None)
+
+        self.subject.set('/simplestleaf', 'this can be any string', separator='/')
+
+        after_update = self.subject.get('/simplestleaf', separator='/')
+        self.assertEqual(after_update, 'this can be any string')
+

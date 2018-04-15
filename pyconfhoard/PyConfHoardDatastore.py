@@ -21,7 +21,13 @@ class PyConfHoardDatastore:
         path = ['level1', 'level2', 'level3', 'cfgonly']
         value = 'this is a value'
         """
-        return path.split(separator)
+        separated = path.split(separator)
+        seplen = len(separated)
+        for i in range(seplen):
+            if separated[seplen-i-1] == '':
+                separated.pop(seplen-i-1)
+
+        return separated
 
 
     def get_filtered(self, path_string, config):
@@ -52,7 +58,24 @@ class PyConfHoardDatastore:
         new_dict = filter_node(original_obj, new_dict, config)
         return new_dict
 
-    def get(self, path_string, separator=' '):
+    def set(self, path_string, set_val, separator=' '):
+        """
+        This methods sets a value in the datastore at the pat provided.
+
+        Initial implementation will not allow this to be used for creating
+        list items.
+        """
+        if isinstance(path_string, list):
+            path = path_string
+        else:
+            path = self.decode_path_string(path_string, separator)
+
+        # TODO: validation required on set 
+        path.append('__value')
+        dpath.util.set(self.db, path, set_val)
+        node = self.get(path_string, get_value=False, separator=separator)
+
+    def get(self, path_string, get_value=True, separator=' '):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -65,9 +88,30 @@ class PyConfHoardDatastore:
         else:
             path = self.decode_path_string(path_string, separator)
 
-        if path[0] == '':
+        if len(path) == 0:
             return self.db
-        return dpath.util.get(self.db, path)
+
+        if get_value:
+            return self._get_value(dpath.util.get(self.db, path))
+        else:
+            return dpath.util.get(self.db, path)
+
+    def _get_value(self, obj):
+        """
+        This method takes an object and return the value or None.
+        If a default is set and there is not __value we will return
+        __default instead.
+        """
+        if '__leaf' in obj and obj['__leaf'] == True:
+            if '__value' in obj and obj['__value']:
+                return obj['__value']
+            elif '__default' in obj:
+                return obj['__default']
+            else:
+                return None
+
+        else:
+            return obj
 
     def list_lazy(self, path_string, config=True):
         path = self.decode_path_string(path_string)
@@ -111,71 +155,3 @@ class PyConfHoardDatastore:
         result = PyConfHoardDatastore._check_for_config_or_not_config(obj, config)
     #        print ('final answer... for obj',result)
         return result
-
-
-    @staticmethod
-    def _get_node(our_node, path,
-                  fail_if_no_match=False,
-                  lazy_fail=False,
-                  create_if_no_match=None):
-        """
-        Attempt to filter down an object by it's keys
-
-        our_node - an object
-        path     - a space separate path of keys
-                   Note: keys cannot contain spaces
-        """
-        if isinstance(path, list):
-            keys_to_navigate = path
-        else:
-            keys_to_navigate = path.split(' ')
-
-        i = 0 
-        for key in keys_to_navigate:
-            if len(key):
-                if key in our_node:
-                    our_node = our_node[key]
-                elif lazy_fail and i < len(keys_to_navigate)-1:
-                    raise ValueError('%s %s %s %s %s' % (our_node,path, i, len(keys_to_navigate), keys_to_navigate))
-                elif fail_if_no_match:
-                    raise ValueError('Path: %s does not exist' % (path))
-                elif create_if_no_match and i == len(keys_to_navigate) - 2:
-                    our_node[key] = create_if_no_match
-            i = i + 1     
-    
-        return our_node
-
-    @staticmethod
-    def _set_node(obj, text):
-        """
-        This method takes in a string (space separated)
-            like brewehouse power mode val
-
-        We then take the last two elements as the key value and key element
-        """
-
-        set_string = text.split(' ')
-        if len(set_string) < 3:
-            raise ValueError("Invalid command - set some thing value")
-        set_value = set_string.pop()
-        set_key = set_string.pop()
-        node = PyConfHoardDatastore._get_node(obj, set_string)
-        node[set_key] = set_value
-       
-    @staticmethod
-    def _validate_node(obj, text, schema):
-        set_string = text.split(' ')
-        if len(set_string) < 3:
-            raise ValueError("Invalid command - set some thing value")
-        set_value = set_string.pop()
-        yang_meta = PyConfHoardDatastore._get_node(schema, set_string)
-
-        set_key = set_string.pop()
-        node = PyConfHoardDatastore._get_node(obj, set_string)
- 
-        if yang_meta['type'] == 'enumeration':
-            if set_value not in yang_meta['enum_values']:
-                raise ValueError('Invalid Value: key %s value  %s != %s' % (set_key, set_value, yang_meta['enum_values']))
-
-        return set_value
-

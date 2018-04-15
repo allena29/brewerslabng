@@ -65,6 +65,9 @@ module: brewerslab
   +--rw brewlog
 ```
 
+The yang file is transformed to `YIN` format (stanard pyang) and then this is transformed to a simple JSON representation (custom format). This is stored in the yang sub-directory as `schema.json`
+
+
 > As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct - this means if the yang model is more complex than the above changes to yin2json.py may be required.
 > 1) typedef's are not validated against (TBD how easy that is)
 > 2) grouping's will not work yet.
@@ -75,10 +78,14 @@ Note: the implementation is heavily based around rendering a JSON object from th
 
 Within the datastore directory there are a number of directories, it is assumed that all functions will run either on a single host, or have access (e.g. NFS/CIFS/AFS) to the common datastore directory. 
 
+All operations around the datastore are formed based upon `yang/schema.json` and `PyConfHoardDatatstore`
+
 - `datatsore/persist` provides a directory which will contain the saved configuration, this will be updated following a commit. This may be empty when there is no configuration generated. When a process restarts if this file exists it will provide the initial configuration and the next file will not be used.
 - `datastore/startup` provide a directory which contains default configuration to load if a datastore is empty.
 - `datastore/operational` provides periodically refreshed operational data, this is expected to be hosted on a volatile filesystem and will not be recreated if a process restarts.
 
+
+The management of 
 
 ### Things (i.e. data providers, data consumers, processes, services)
 

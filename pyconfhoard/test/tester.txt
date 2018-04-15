@@ -1,4 +1,5 @@
 module: tester
+  +--rw simplestleaf?      string
   +--rw simplecontainer
   |  +--rw leafstring?      string
   |  +--ro leafnonconfig?   string

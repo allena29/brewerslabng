@@ -2,6 +2,10 @@ module tester {
 	namespace "http://confvillain.mellon-collie.net/tester/";
 	prefix tester;
 
+  leaf simplestleaf {
+    type string;
+  }
+
   container simplecontainer {
     leaf leafstring {
       type string;
