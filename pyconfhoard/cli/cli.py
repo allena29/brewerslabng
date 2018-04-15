@@ -58,10 +58,6 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
-        # TODO: get rid of these - instead we will filter on demand
-        self._db_conf = {}
-        self._db_oper = {}
-
         self.datastore = PyConfHoardDatastore()
 
         # need some kind of refresh mechanism for opdata/config
@@ -136,7 +132,6 @@ class PyConfHoardCLI(Cmd):
         Note: cmd2 will swallow any exceptions and the command-line-completion
         won't behave as we expect.
         """
-
         try:
             path_to_find = line[len(cmd):]
             # Attempt to get the path which might not exist
@@ -157,7 +152,10 @@ class PyConfHoardCLI(Cmd):
 
 
     def _get_json_cfg_view(self, path, config=True):
-        our_node = self.datastore.get_filtered(path, config)
+        try:
+            our_node = self.datastore.get_filtered(path, config)
+        except KeyError as err:
+            raise ValueError('Path: %s does not exist' % (path))
 
         return json.dumps(our_node, sort_keys=True, indent=4, separators=(',', ': '))
 

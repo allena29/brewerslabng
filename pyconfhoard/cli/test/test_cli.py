@@ -1,4 +1,5 @@
 import unittest
+import os
 import json
 from mock import Mock
 from cli import PyConfHoardCLI
@@ -8,119 +9,64 @@ class TestPyConfHoardCLI(unittest.TestCase):
     def setUp(self):
         self.subject = PyConfHoardCLI()
         self.subject._load_datastores = Mock()
+        self.subject.datastore.db = json.loads(open('test/schema.json').read())
+        self.object = self.subject.datastore.db
 
-        self.object = {
-            "abc123": {
-                "def": "456"
-            },
-            "abcdef": {
-                "xyz": {
-                    "XXX": {
-                        "YYY": {
-                            "ZZZ": 'end'
-                        }
-                    }
-                }
-            }
-        }
-
-        self.schema = {
-            'abc123': {
-                'def': {
-                    'type': 'string',
-                    'config': True
-                }
-            },
-            'abcdef': {
-                'xyz': {
-                    'XXX': {
-                        'YYY': {
-                            'ZZZ': {
-                                'type': 'enumeration',
-                                'enum_values': [
-                                    'end',
-                                    'start',
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        }
     def test_show_of_non_existing_path(self):
-        
         try:
-            result = self.subject._get_json_cfg_view(self.object, 'show thisdoesnotexist')
+            result = self.subject._get_json_cfg_view('show thisdoesnotexist')
             self.fail('Expected to fail because we asked for a non-existing path')
-        except Exception as err:
+        except ValueError as err:
             self.assertEqual(str(err), 'Path: show thisdoesnotexist does not exist')
-
-
+            
     def test_show_top_level(self):
-        result = self.subject._get_json_cfg_view(self.object, '')
+        result = self.subject._get_json_cfg_view('')
         result = json.loads(result)
 
-        self.assertEqual(result['abc123']['def'], "456")
-        self.assertEqual(result['abcdef']['xyz']['XXX']['YYY']['ZZZ'], "end")
+        # These asserts access the structures directly - but we should of course
+        # always use .get() on the path
+        self.assertEqual(result['simplestleaf'],{})
+        self.assertEqual(result['types']['number'], {})
 
     def test_show_bottom_leaf(self):
         self.subject._db_oper = self.object
-        result = self.subject._get_json_cfg_view(self.object, 'abcdef xyz XXX YYY ZZZ')
+        result = self.subject._get_json_cfg_view('types')
         result = json.loads(result)
 
-        self.assertEqual(result, "end")
+        self.assertEqual(result['number'], {})
+        self.assertEqual(result['number'], {})
 
     def test_show_mid_container(self):
-        result = self.subject._get_json_cfg_view(self.object, 'abcdef xyz XXX YYY')
+        result = self.subject._get_json_cfg_view('level1 level2 level3')
         result = json.loads(result)
 
-        self.assertEqual(result['ZZZ'], "end")
+        self.assertEqual(result['mixed'], {'config': {}})
+        self.assertEqual(result['withcfg'], {'config': {}})
 
     def test_tab_completion_top_level_non_unique_input(self):
-        line = 'show ab'
-        text = 'ab'
+        line = 'show sim'
+        text = 'sim'
         cmds = self.subject._auto_complete(self.object, line, text)
 
-        self.assertEqual(cmds, ['abc123 ', 'abcdef '])
+        self.assertEqual(cmds, ['simplecontainer ', 'simplelist ', 'simplestleaf '])
 
     def test_tab_completion_top_level_unique_input(self):
-        line = 'show abc12'
-        text = 'abc12'
+        line = 'show simpleco'
+        text = 'simpleco'
         cmds = self.subject._auto_complete(self.object, line, text)
 
-        self.assertEqual(cmds, ['abc123 '])
+        self.assertEqual(cmds, ['simplecontainer '])
 
-    def test_tab_completion_top_level_unique_input_for_something_deep(self):
-        line = 'show abcdef xyz XXX YYY'
+    def test_tab_completion_mid_level_unique_input_for_something_deep(self):
+        line = 'show level1 level2 level3'
         text = ''
         cmds = self.subject._auto_complete(self.object, line, text)
 
-        self.assertEqual(cmds, ['ZZZ '])
+        self.assertEqual(cmds, ['mixed ', 'withcfg '])
 
     def test_tab_completion_non_existing_top_level_input(self):
         line = 'show THISDOESNOTEXIST abcdef xyz XXX YYY'
-        text = ''
+        text = 'YYY'
         cmds = self.subject._auto_complete(self.object, line, text)
 
         self.assertEqual(cmds, [])
-
-    def test_get_node_finding_top_level_node_matches(self):
-        path = 'abc123'
-
-        result = PyConfHoardCommon._get_node(self.object, path)
-
-        self.assertEqual(list(result.keys()), ['def'])
-
-    def test_get_node_finding_top_level_node_does_not_match(self):
-        path = 'abc12'
-
-        result = PyConfHoardCommon._get_node(self.object, path)
-
-        self.assertEqual(list(result.keys()), ['abc123', 'abcdef'])
-
-    def test_get_node_finding_top_level_node_does_not_match_but_we_match_something_deeper(self):
-        path = 'abc12'
-
-        result = PyConfHoardCommon._get_node(self.object, path)
-
-        self.assertEqual(list(result.keys()), ['abc123', 'abcdef'])

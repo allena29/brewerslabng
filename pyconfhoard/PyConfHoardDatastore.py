@@ -54,7 +54,7 @@ class PyConfHoardDatastore:
 
             return new_dict
 
-        original_obj = self.get(path_string)
+        original_obj = self.get_object(path_string)
         new_dict = {}
         new_dict = filter_node(original_obj, new_dict, config)
         return new_dict
@@ -176,6 +176,7 @@ class PyConfHoardDatastore:
                 return self._build_list(obj, config)
             except:
                 x = path.pop()
+        return self._build_list(self.db, config)
 
     def list(self, path_string, config=True):
         obj = self.get_object(path_string)
