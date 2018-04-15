@@ -1,5 +1,4 @@
 import json
-import xmltodict
 import falcon
 import os
 
@@ -17,8 +16,8 @@ class Resource(object):
                 o.close()
                 datastores[item[:-4]] = metadata
 
-        yin = open('../yang/schema.yin')    
-        schema = xmltodict.parse(yin.read())
+        yin = open('../yang/schema.json')    
+        schema = json.loads(yin.read())
         yin.close()
         resp.body = json.dumps({'datastores': datastores, 'schema': schema})
         resp.status = falcon.HTTP_200

@@ -120,13 +120,6 @@ class Thing:
         else:
             return json.dumps(obj)
 
-    @staticmethod
-    def metadata(yang):
-        """
-        This method should provide the metadata associated with an XPATH
-        """
-        pass
-
 
     @staticmethod
     def loader(yang, json_str):

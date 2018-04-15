@@ -57,6 +57,23 @@ class PyConfHoardCommon:
         set_key = set_string.pop()
         node = PyConfHoardCommon._get_node(obj, set_string)
         node[set_key] = set_value
+       
+    @staticmethod
+    def _validate_node(obj, text, schema):
+        set_string = text.split(' ')
+        if len(set_string) < 3:
+            raise ValueError("Invalid command - set some thing value")
+        set_value = set_string.pop()
+        yang_meta = PyConfHoardCommon._get_node(schema, set_string)
+
+        set_key = set_string.pop()
+        node = PyConfHoardCommon._get_node(obj, set_string)
+ 
+        if yang_meta['type'] == 'enumeration':
+            if set_value not in yang_meta['enum_values']:
+                raise ValueError('Invalid Value: key %s value  %s != %s' % (set_key, set_value, yang_meta['enum_values']))
+
+        return set_value
 
 
 class PyConfHoardCLI(Cmd):
