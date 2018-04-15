@@ -29,12 +29,15 @@ class yin_to_json:
             elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
 
                 schema_by_tree[child.attrib['name']] = {}
+                schema_by_tree[child.attrib['name']]['__list'] = True
+                schema_by_tree[child.attrib['name']]['__keys'] = []
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
 
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__config'] = True
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
+                schema_by_tree[child.attrib['name']]['__value'] = None
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']

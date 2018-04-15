@@ -30,7 +30,27 @@ class PyConfHoardCommon:
         If we request not to see config=True or config=False these nodes will be
         removed.
         """
-        return self.get(path_string)
+        def filter_node(obj, new_dict, config):
+            # print ('filter_node: %s' %(obj))
+            for key in obj:
+                if isinstance(obj[key], dict):
+                    config_test = PyConfHoardCommon._check_for_config_or_not_config(obj[key], config)
+            #        print ('configtest...', config_test)
+                    if config_test:
+                        if not key[0:2] == '__':
+ #                           print ('creating key on new_idct', key, obj[key])
+                            new_dict[key] = {}
+                            xx = filter_node(obj[key], new_dict[key], config)
+                else:
+                    if key == '__value' and obj[key]:
+                        new_dict[key] = obj[key]
+
+            return new_dict
+
+        original_obj = self.get(path_string)
+        new_dict = {}
+        new_dict = filter_node(original_obj, new_dict, config)
+        return new_dict
 
     def get(self, path_string):
         """
@@ -70,27 +90,26 @@ class PyConfHoardCommon:
 
         return keys
 
-    
+    @staticmethod
+    def _check_for_config_or_not_config(obj, config, result=False):
+        if result:
+            return True
+        for key in obj:
+            if isinstance(obj[key], dict):
+                if '__config' in obj[key] and obj[key]['__config'] == config:
+                    return True
+                result = PyConfHoardCommon._check_for_config_or_not_config(obj[key], config, result)
+            else:
+                if key == '__config' and obj[key] == config:
+                    return True
+        return result
+
     def _filter(self, obj, config):
         """
         Filter to make sure one or more of our decendants match the type
         """
-        def check_for_config_or_not_config(obj, config, result=False):
-            if result:
-                return True
-            for key in obj:
-                if isinstance(obj[key], dict):
-                    if '__config' in obj[key] and obj[key]['__config'] == config:
-                        return True
-                    result = check_for_config_or_not_config(obj[key], config, result)
-                else:
-                    if key == '__config' and obj[key] == config:
-                        return True
-            return result
-        
-        
-        result = check_for_config_or_not_config(obj, config)
-#        print ('final answer... for obj',result)
+        result = PyConfHoardCommon._check_for_config_or_not_config(obj, config)
+    #        print ('final answer... for obj',result)
         return result
 
 

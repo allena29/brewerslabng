@@ -1,4 +1,5 @@
 import unittest
+import json
 
 from PyConfHoardCommon import PyConfHoardCommon
 
@@ -52,4 +53,49 @@ class TestYang(unittest.TestCase):
         result = self.subject.list_lazy('nonexist')
         self.assertEqual(result, None)
 
+    def test_get_filtered_configuration_view(self):
+        result = self.subject.get_filtered('', config=True)
+
+        expected_result = """{
+    "simplecontainer": {
+        "leafstring": {}
+    },
+    "level1": {
+        "level2": {
+            "level3": {
+                "withcfg": {
+                    "config": {}
+                },
+                "mixed": {
+                    "config": {}
+                }
+            }
+        }
+    }
+}"""
+        self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
+                                            
+    
+    def test_get_filtered_operational_view(self):
+        result = self.subject.get_filtered('', config=False)
+
+        expected_result = """{
+    "simplecontainer": {
+        "leafnonconfig": {}
+    },
+    "level1": {
+        "level2": {
+            "level3": {
+                "withoutcfg": {
+                    "nonconfig": {}
+                },
+                "mixed": {
+                    "nonconfig": {}
+                }
+            }
+        }
+    }
+}"""
+        self.assertMultiLineEqual(json.dumps(result, indent=4), expected_result)
+                                            
     

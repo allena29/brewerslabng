@@ -68,7 +68,8 @@ module: brewerslab
 > As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct - this means if the yang model is more complex than the above changes to yin2json.py may be required.
 > 1) typedef's are not validated against (TBD how easy that is)
 > 2) grouping's will not work yet.
-
+> 3) container presence nodes unsupported
+Note: the implementation is heavily based around rendering a JSON object from the YIN representation, which is then managed as a simple python dictionary - supporting leaf-ref's is almost certainly not going to happen without serious kludges.
 
 ### Datastore
 
@@ -182,6 +183,11 @@ content-type: application/json; charset=UTF-8
 }
 ```
 
+#### TODO:
+
+1. Allow data to be saved on the backend
+- If data is updated we need to trigger things
+
 
 ## CLI
 
@@ -257,12 +263,10 @@ robber@localhost% exit
 robber@localhost> exit
 ```
 
----
----
+#### TODO
 
-# TODO
+1. Cosmetic: filter out nodes which have no contents 
+- Feature: authentication for CLI module.
 
-1. `launch --upgrade` to take datamodel files and upgrade them.
-- Autentication for the CLI module.
-- CLI auto complete let's us replaces containers - we should have metadata to know what is a list item/leaf
+
 
