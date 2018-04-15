@@ -19,30 +19,37 @@ class yin_to_json:
         o.write(json.dumps(self.schema, indent=4))
         o.close()
     
-    def process(self, obj, path, schema_by_tree):
+    def process(self, obj, path, schema_by_tree, keys=[]):
         for child in obj:
             # print path, child.tag,child.attrib
+            print (path,child.attrib,keys)
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
                 schema_by_tree[child.attrib['name']] = {}
-                schema_by_tree[child.attrib['name']]['__path'] = path
+                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__list'] = True
                 schema_by_tree[child.attrib['name']]['__elements'] = {}
-                schema_by_tree[child.attrib['name']]['__path'] = path
-                self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
+                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
                 keys = ''
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
                 schema_by_tree[child.attrib['name']]['__keys'] = keys
+                self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__config'] = True
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
-                schema_by_tree[child.attrib['name']]['__path'] = path
+                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
+                print ('>>>>>>>>...',child.attrib['name'], child.attrib['name'] in keys, keys)
+                if child.attrib['name'] in keys:
+                    schema_by_tree[child.attrib['name']]['__listkey'] = True
+                else:
+                    schema_by_tree[child.attrib['name']]['__listkey'] = False
+
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']

@@ -31,7 +31,7 @@ class TestYang(unittest.TestCase):
 
 
     def test_get_depper_from_root(self):
-        result = self.subject.get('level1 level2')
+        result = self.subject.get_object('level1 level2')
         self.assertTrue('level3' in result)
         self.assertTrue('mixed' in result['level3'])
 
@@ -135,4 +135,55 @@ class TestYang(unittest.TestCase):
 
         after_update = self.subject.get('/simplestleaf', separator='/')
         self.assertEqual(after_update, 'this can be any string')
+
+    def test_set_simple_deep_leaf(self):
+        val = """This a multiline\nstring"""
+        self.subject.set('/level1/level2/level3/mixed/config', val, separator='/')
+
+        after_update = self.subject.get('/level1/level2/level3/mixed/config', separator='/')
+        self.assertEqual(after_update, val)
+
+    def test_attempt_to_set_a_non_leaf(self):
+        try:
+            self.subject.set('level1 level2 level3', 'val')
+            self.fail('Set on a non-leaf must fail')
+        except ValueError as err:
+            self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
+
+    def test_create_list_item(self):
+        listval = self.subject.get_object('simplelist')
+        self.subject.create('simplelist', 'valueForFirstKey')
+        listval = self.subject.get_object('simplelist')
+
+        self.subject.set('simplelist valueForFirstKey subitem', 'abc')
+
+        self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
+
+
+    def test_changing_a_list_key(self):
+        listval = self.subject.get_object('simplelist')
+        self.subject.create('simplelist', 'valueForFirstKey')
+
+        try:
+            self.subject.set('simplelist valueForFirstKey item', 'abc')
+        except ValueError as err:
+            self.assertEqual(str(err), "Path: ['simplelist', 'valueForFirstKey', 'item'] is a list key - cannot set keys")
+
+        listelement = self.subject.get_object('simplelist valueForFirstKey')
+
+    def test_create_list_item_with_wrong_number_of_keys(self):
+        try:
+            self.subject.create('simplelist', 'firstkeyVal secondkeyVal')
+            self.fail('Set on a list with the wrong number of keys must fail')
+        except ValueError as err:
+            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys ['item'] - 2 keys provided")
+
+
+    def test_create_list_item_on_a_non_list(self):
+        try:
+            self.subject.create('level1 level2 level3', 'val')
+            self.fail('Set on a non-leaf must fail')
+        except ValueError as err:
+            self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
+
 

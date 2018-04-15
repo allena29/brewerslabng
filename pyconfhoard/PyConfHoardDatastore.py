@@ -1,5 +1,6 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
+import copy
 import sys
 import json
 import dpath.util
@@ -21,7 +22,8 @@ class PyConfHoardDatastore:
         path = ['level1', 'level2', 'level3', 'cfgonly']
         value = 'this is a value'
         """
-        separated = path.split(separator)
+        if not isinstance(path, list):
+            separated = path.split(separator)
         seplen = len(separated)
         for i in range(seplen):
             if separated[seplen-i-1] == '':
@@ -44,7 +46,6 @@ class PyConfHoardDatastore:
             #        print ('configtest...', config_test)
                     if config_test:
                         if not key[0:2] == '__':
- #                           print ('creating key on new_idct', key, obj[key])
                             new_dict[key] = {}
                             xx = filter_node(obj[key], new_dict[key], config)
                 else:
@@ -71,11 +72,23 @@ class PyConfHoardDatastore:
             path = self.decode_path_string(path_string, separator)
 
         # TODO: validation required on set 
+        leaf_metadata = self._get(path, get_value=False, separator=separator)
+        if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
+            raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
+        if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
+            raise ValueError('Path: %s is a list key - cannot set keys' %(path))
+
         path.append('__value')
         dpath.util.set(self.db, path, set_val)
-        node = self.get(path_string, get_value=False, separator=separator)
+        node = self._get(path_string, get_value=False, separator=separator)
 
-    def get(self, path_string, get_value=True, separator=' '):
+    def get(self, path_string, separator=' '):
+        return self._get(path_string, get_value=True, separator=separator)
+
+    def get_object(self, path_string, separator=' '):
+        return self._get(path_string, get_value=False, separator=separator)
+
+    def _get(self, path_string, get_value=True, separator=' '):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -92,11 +105,49 @@ class PyConfHoardDatastore:
             return self.db
 
         if get_value:
-            return self._get_value(dpath.util.get(self.db, path))
+            return self._get_value(path, dpath.util.get(self.db, path))
         else:
             return dpath.util.get(self.db, path)
 
-    def _get_value(self, obj):
+    def create(self, path_string, keys, separator=' '):
+        """Create a list item
+        Note: keys is a space separated list of key values
+        """
+        # TODO: validation required on set of each of the keys
+        leaf_metadata = self._get(path_string, get_value=False, separator=separator)
+        if not ('__list' in leaf_metadata and leaf_metadata['__list']):
+            raise ValueError('Path: %s is not a list - cannot create an item' % (self.decode_path_string(path_string)))
+        if not ('__keys') in leaf_metadata:
+            raise ValueError('List does not have any keys')
+
+        our_keys = keys.split(' ')
+        required_keys = leaf_metadata['__keys'].split(' ')
+
+        if not len(our_keys) == len(required_keys):
+            raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
+                             (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
+                                 
+
+        #print ('xxxxsetting', path_string + separator + key)
+        list_element = self.get_object(path_string)
+        if keys in list_element:
+            raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
+
+        new_list_element = {}
+        for list_item in list_element:
+            if list_item[0:2] == '__':
+                pass
+            else:
+                new_list_element[list_item] = copy.deepcopy(list_element[list_item])
+        
+        list_element[keys] = new_list_element
+        for keyidx in range(len(required_keys)):
+            this_key_name = required_keys[keyidx]
+            list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
+        # print (json.dumps(list_element, indent=4)) 
+
+
+    def _get_value(self, path, obj):
         """
         This method takes an object and return the value or None.
         If a default is set and there is not __value we will return
@@ -111,19 +162,23 @@ class PyConfHoardDatastore:
                 return None
 
         else:
-            return obj
+            raise ValueError('Path: %s is not a leaf - cannot get a value')
 
     def list_lazy(self, path_string, config=True):
+        """
+        This methd takes a oath and will try to find the deepest path possible
+        Intended to be used by auto_complete for CLI
+        """
         path = self.decode_path_string(path_string)
         while len(path):
             try:
-                obj = self.get(path)
+                obj = self.get_object(path)
                 return self._build_list(obj, config)
             except:
                 x = path.pop()
 
     def list(self, path_string, config=True):
-        obj = self.get(path_string)
+        obj = self.get_object(path_string)
         return self._build_list(obj, config)
 
     def _build_list(self, obj, config):
@@ -139,7 +194,9 @@ class PyConfHoardDatastore:
         if result:
             return True
         for key in obj:
-            if isinstance(obj[key], dict):
+            if not isinstance(obj, dict):
+                pass
+            elif isinstance(obj[key], dict) :
                 if '__config' in obj[key] and obj[key]['__config'] == config:
                     return True
                 result = PyConfHoardDatastore._check_for_config_or_not_config(obj[key], config, result)
