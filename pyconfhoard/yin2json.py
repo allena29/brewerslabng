@@ -34,6 +34,7 @@ class yin_to_json:
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__config'] = True
+                schema_by_tree[child.attrib['name']]['__leaf'] = True
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']

@@ -3,8 +3,39 @@ module tester {
 	prefix tester;
 
   container simplecontainer {
-    leaf string {
+    leaf leafstring {
       type string;
+    }
+    leaf leafnonconfig {
+      type string;
+      config false;
+    }
+  }
+
+  container level1 {
+    container level2 {
+      container level3 {
+        container withcfg {
+          leaf config {
+            type string;
+          }
+        }
+        container withoutcfg {
+          leaf nonconfig {
+            type string;
+            config false;
+          }
+        }
+        container mixed {
+          leaf config {
+            type string;
+          }
+          leaf nonconfig {
+            type string;
+            config false;
+          }
+        }
+      }
     }
 
   }

@@ -1,0 +1,14 @@
+module: tester
+  +--rw simplecontainer
+  |  +--rw leafstring?      string
+  |  +--ro leafnonconfig?   string
+  +--rw level1
+     +--rw level2
+        +--rw level3
+           +--rw withcfg
+           |  +--rw config?   string
+           +--rw withoutcfg
+           |  +--ro nonconfig?   string
+           +--rw mixed
+              +--rw config?      string
+              +--ro nonconfig?   string
