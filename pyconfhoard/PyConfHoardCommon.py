@@ -23,19 +23,51 @@ class PyConfHoardCommon:
         """
         return path.split(' ')
 
+
+    def get_filtered(self, path_string, config):
+        """
+        Get a filtered view of configuration from the database.
+        If we request not to see config=True or config=False these nodes will be
+        removed.
+        """
+        return self.get(path_string)
+
     def get(self, path_string):
-        path = self.decode_path_string(path_string)
+        """
+        This method returns an explicit object from the database.
+        The input can be a path_string and will be decoded, if we are passed a list
+        we will decode it further.
+
+        See also get_filtered
+        """
+        if isinstance(path_string, list):
+            path = path_string
+        else:
+            path = self.decode_path_string(path_string)
+
         if path[0] == '':
             return self.db
         return dpath.util.get(self.db, path)
 
-    def list(self, path, config=True):
-        obj = self.get(path)
+    def list_lazy(self, path_string, config=True):
+        path = self.decode_path_string(path_string)
+        while len(path):
+            try:
+                obj = self.get(path)
+                return self._build_list(obj, config)
+            except:
+                x = path.pop()
+
+    def list(self, path_string, config=True):
+        obj = self.get(path_string)
+        return self._build_list(obj, config)
+
+    def _build_list(self, obj, config):
         keys = []
         for key in obj:
-            print("Sart Filter %s\n\n" %(key))
             if self._filter(obj[key], config):
                 keys.append(key)
+
         return keys
 
     
@@ -49,16 +81,16 @@ class PyConfHoardCommon:
             for key in obj:
                 if isinstance(obj[key], dict):
                     if '__config' in obj[key] and obj[key]['__config'] == config:
-                        print('about to return true', key)
                         return True
                     result = check_for_config_or_not_config(obj[key], config, result)
-                    
-            print('about to return false',key)
+                else:
+                    if key == '__config' and obj[key] == config:
+                        return True
             return result
         
         
         result = check_for_config_or_not_config(obj, config)
-        print('final answer...', check_for_config_or_not_config(obj, config))
+#        print ('final answer... for obj',result)
         return result
 
 

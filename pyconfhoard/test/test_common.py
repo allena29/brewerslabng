@@ -13,6 +13,11 @@ class TestYang(unittest.TestCase):
         result = self.subject.list('')
         self.assertEqual(result, ['simplecontainer', 'level1'])
 
+
+    def test_list_config_nodes_from_child(self):
+        result = self.subject.list('simplecontainer')
+        self.assertEqual(result, ['leafstring'])
+
     def test_get_config_nodes_from_root(self):
         result = self.subject.get('')
         self.assertTrue('simplecontainer' in result)
@@ -31,5 +36,20 @@ class TestYang(unittest.TestCase):
     def test_filtering_of_non_config_nodes_in_a_list(self):
         result = self.subject.list('level1 level2 level3', config=False)
         self.assertEqual(result, ['withoutcfg', 'mixed'])
+
+    def test_listing_non_existant_path(self):
+        try:
+            self.subject.list('simplecontainer nonexist')
+            self.fail('Listing a non existant node should throw an exception')
+        except Exception as err:
+            self.assertEqual(str(err), "['simplecontainer', 'nonexist']")
+    
+    def test_listing_non_existant_path_lower_down_lazy_list(self):
+        result = self.subject.list_lazy('simplecontainer nonexist')
+        self.assertEqual(result, ['leafstring'])
+
+    def test_listing_non_existant_path_at_root_lazy_list(self):
+        result = self.subject.list_lazy('nonexist')
+        self.assertEqual(result, None)
 
     

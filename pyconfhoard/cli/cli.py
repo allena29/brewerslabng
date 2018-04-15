@@ -20,7 +20,7 @@ class PyConfHoardCLI(Cmd):
         Cmd.__init__(self)
 
         self.allow_redirection = False
-        self.debug = False
+        self.debug = True
 
         # To remove built-in commands entirely, delete their "do_*" function from the
         # cmd2.Cmd class
@@ -58,13 +58,17 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
+        # TODO: get rid of these - instead we will filter on demand
         self._db_conf = {}
         self._db_oper = {}
+
+        self.datastore = PyConfHoardCommon()
 
         # need some kind of refresh mechanism for opdata/config
         self._load_datastores()
 
     def _load_datastores(self):
+
         discover = None
         try:
             response = requests.get('%s/v1/discover' % (self.SERVER)).text
@@ -72,21 +76,13 @@ class PyConfHoardCLI(Cmd):
         except Exception as err:
             raise RuntimeError('Unable to connect to %s' % (self.SERVER))
 
+        self.datastore.db = discover['schema']
+
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
-            #print 'metadata',metadata
-            space_sep_path = metadata['yangpath'][1:].replace('/', ' ')
 
-            response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER,
-                                                                        metadata['appname'])).text
-            oper = json.loads(response)
-            PyConfHoardCommon._get_node(self._db_oper, space_sep_path, create_if_no_match=oper)
-
-            response = requests.get('%s/v1/datastore/persist/%s' % (self.SERVER,
-                                                                    metadata['appname'])).text
-            conf = json.loads(response)
-            PyConfHoardCommon._get_node(self._db_conf, space_sep_path, create_if_no_match=conf)
-
+            print ('TODO - we need to stitch in data at path', metadata) 
+            
     def _exit_conf_mode(self):
         self._in_conf_mode = False
         print('')
@@ -119,9 +115,9 @@ class PyConfHoardCLI(Cmd):
 
     def _error(self, err=None):
         if err:
-            print(err.message)
-        print('')
-        print('[error][%s]' % (time.ctime()))
+            print (str(err))
+        print ('')
+        print ('[error][%s]' % (time.ctime()))
 
     def _conf_header(self):
         self._ok()
@@ -136,46 +132,56 @@ class PyConfHoardCLI(Cmd):
         our_node - an object
         line     - the full line of text (e.g. show fermentation
         text     - the text fragment autom completing (e.g. fermentation)
+
+        Note: cmd2 will swallow any exceptions and the command-line-completion
+        won't behave as we expect.
         """
-        path_to_find = line[len(cmd):]
+
         try:
-            our_node = PyConfHoardCommon._get_node(our_node, path_to_find, lazy_fail=True)
-        except ValueError as err:
-            return []
+            path_to_find = line[len(cmd):]
+            # Attempt to get the path which might not exist
+            xcmds = self.datastore.list_lazy(path_to_find)
+            if not xcmds:
+                # If we didn't have commands we have to return top of the database
+                xcmds = self.datastore.list_lazy('')
 
-        cmds = []
-        for key in our_node:
-            if key[0:len(text)] == text:
-                cmds.append(key+ ' ')
+            cmds = []
+            for key in xcmds:
+                if key[0:len(text)] == text:
+                    cmds.append(key + ' ')
+            cmds.sort()
+        except Exception as err:
+            print('!!!!! exception in autocomplete %s' % (str(err)))
 
-        cmds.sort()
         return cmds
 
-    def _get_json_cfg_view(self, our_node, path):
-        our_node = PyConfHoardCommon._get_node(our_node, path, fail_if_no_match=True)
+
+    def _get_json_cfg_view(self, path, config=True):
+        our_node = self.datastore.get_filtered(path, config)
+
         return json.dumps(our_node, sort_keys=True, indent=4, separators=(',', ': '))
 
     # Show Command
     def _command_oper_show(self, args):
         'Show node in the operational database'
         try:
-            print(self._get_json_cfg_view(self._db_oper, args))
+            print(self._get_json_cfg_view(args, config=False))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _command_conf_show(self, args):
         try:
-            print(self._get_json_cfg_view(self._db_conf, args))
+            print(self._get_json_cfg_view(args, config=True))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _autocomplete_oper_show(self, text, line, begidx, endidx):
-        return self._auto_complete(self._db_oper, line, text)
+        return self._auto_complete(False, line, text)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
-        return self._auto_complete(self._db_conf, line, text)
+        return self._auto_complete(True, line, text)
 
     def _command_delete(self, args):
         print('command elete called', args)
