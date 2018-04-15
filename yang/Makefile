@@ -7,7 +7,7 @@ all:schema unittest
 # TODO: remove hardcoding of the ynag file
 schema:
 	pyang -f yin -o schema.yin brewerslab.yang
-	python ../pyconfhoard/yin2json.py >schema.json
+	python ../pyconfhoard/yin2json.py --input=schema.yin --output=schema.json
 
 unittest:
 	nose2 -s test -t python -v --with-coverage --coverage-report html
