@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -9,7 +9,6 @@ import importlib
 description = """
 Launch a PyConfHoard 'thing'.
 """
-
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('--thing', help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
 parser.add_argument('--rest', action='store_true')
@@ -17,13 +16,13 @@ parser.add_argument('--debug', action='store_true', help="Launch in interactive 
 parser.add_argument('--register', action='store_true', help="Register the yang module")
 args = parser.parse_args()
 
+
 if not args.thing and not args.rest:
-    sys.stderr.write('Either --thing or --reset required')
+    sys.stderr.write('Either --thing or --rest required')
     sys.exit(1)
 
 if args.rest:
-    os.chdir('pyconfhoard')
-    os.system('gunicorn --reload rest')
+    os.system('gunicorn --reload pyconfhoard.rest.server')
 
 elif os.path.exists(args.thing):
     path = args.thing.split('/')
@@ -34,47 +33,9 @@ elif os.path.exists(args.thing):
         sys.path.insert(0, '../../yang')
         py_mod = imp.load_source(path[2].split('.')[0], path[2])
         launcher = getattr(py_mod, 'Launch')
-
         if args.debug:
             import IPython
-            import pyangbind.lib.pybindJSON as pybindJSON
-            from pyangbind.lib.xpathhelper import YANGPathHelper
-            from pyangbind.lib.serialise import pybindJSONDecoder
-            import binding
-
-            pyangbindclasses = ['PybindBase', 'YANGBool', 'Decimal', 'attrgetter', 'bitarray']
-            mod = importlib.import_module('binding')
-            classes = dict([(name, cls) for name, cls in mod.__dict__.items() if isinstance(cls, type)])
-            our_class = None
-            for cls in classes:
-                if not cls[0:3] == 'yc_' and not cls in pyangbindclasses:
-                    if our_class:
-                        raise ValueError('Could not determine which class to instantiate from pyangbinding')
-                    our_class = cls
-
-            if not our_class:
-                raise ValueError('Could not determine which clas to instantiate from pyangbind')
-
-            ph = YANGPathHelper()
-            p = getattr(mod, our_class)(path_helper=ph)
-            from PyConfHoard import Thing
-
-            def dump(obj=None):
-                global p
-                if not obj:
-                    obj = p
-                return Thing.dumper(obj, pretty=True)
-
-            def save(obj, file):
-                o = open(file, 'w')
-                o.write(Thing.dumper(obj, pretty=True))
-                o.close()
             print('Running from %s' % (os.getcwd()))
-            print('%s() pyangbind instance => p' % (our_class))
-            print('path-helper instance => ph')
-            print('dump(p) to provide JSON serialised object')
-            print('save(p, file) to save JSON serailised object to file')
-            print('launcher is available => launcher (e.g. thing =  launcher().thing')
             launch = launcher
             IPython.embed(display_banner=False)
         elif args.register:
