@@ -47,22 +47,28 @@ class Thing:
                 o = open('%s/persist/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
+
                 print ('TODO merge required here')
+                print ('After tha we should overwrite running')
+
             elif os.path.exists('%s/startup/%s.pch' % (datastore, self._appname)):
                 self.log.info('Loading startup default data')
                 o = open('%s/startup/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
                 print ('TODO merge required here')
+                print ('After tha we should overwrite running')
+
+
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
                 opdata = open('%s/operational/%s.pch' % (datastore, self._appname), 'w')
                 opdata.write(json.dumps(self.datastore.get_object(''), indent=4))
                 opdata.close()
 
-            if not os.path.exists('%s/persist/%s.pch' % (datastore, self._appname)):
-                self.log.info('No existing persist.. providing empty schema')
-                cfgdata = open('%s/persist/%s.pch' % (datastore, self._appname), 'w')
+            if not os.path.exists('%s/running/%s.pch' % (datastore, self._appname)):
+                self.log.info('No existing running.. providing empty schema')
+                cfgdata = open('%s/running/%s.pch' % (datastore, self._appname), 'w')
                 cfgdata.write(json.dumps(self.datastore.get_object(''), indent=4))
                 opdata.close()
 

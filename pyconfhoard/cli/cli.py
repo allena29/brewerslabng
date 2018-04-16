@@ -4,7 +4,6 @@ import time
 import sys
 import json
 import requests
-sys.path.append('../')
 from PyConfHoardDatastore import PyConfHoardDatastore
 from cmd2 import Cmd
 
@@ -16,7 +15,7 @@ class PyConfHoardCLI(Cmd):
     prompt = 'wild@localhost> '
     SERVER = 'http://127.0.0.1:8000'
 
-    def __init__(self):
+    def __init__(self, no_networking=False):
         Cmd.__init__(self)
 
         self.allow_redirection = False
@@ -61,7 +60,8 @@ class PyConfHoardCLI(Cmd):
         self.datastore = PyConfHoardDatastore()
 
         # need some kind of refresh mechanism for opdata/config
-        self._load_datastores()
+        if not no_networking:
+            self._load_datastores()
 
     def _load_datastores(self):
 

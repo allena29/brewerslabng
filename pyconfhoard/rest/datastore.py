@@ -8,7 +8,7 @@ class Resource(object):
         req.get_header('TOKEN')
 
 
-        valid_datastores = ['operational', 'persist', 'startup']
+        valid_datastores = ['operational', 'persist', 'running']
         if datastore not in valid_datastores:
             raise ValueError('Invalid datastore %s: select from %s' % (valid_datastores))
 

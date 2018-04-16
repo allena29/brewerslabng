@@ -7,7 +7,7 @@ from cli import PyConfHoardCLI
 class TestPyConfHoardCLI(unittest.TestCase):
 
     def setUp(self):
-        self.subject = PyConfHoardCLI()
+        self.subject = PyConfHoardCLI(no_networking=True)
         self.subject._load_datastores = Mock()
         self.subject.datastore.db = json.loads(open('test/schema.json').read())
         self.object = self.subject.datastore.db

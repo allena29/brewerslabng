@@ -12,18 +12,21 @@ Launch a PyConfHoard 'thing'.
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('--thing', help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
 parser.add_argument('--rest', action='store_true')
+parser.add_argument('--cli', action='store_true')
 parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
 parser.add_argument('--register', action='store_true', help="Register the yang module")
 args = parser.parse_args()
 
 
-if not args.thing and not args.rest:
-    sys.stderr.write('Either --thing or --rest required')
+if not args.thing and not args.rest and not args.cli:
+    sys.stderr.write('Either --thing or --rest or --cli required')
     sys.exit(1)
 
 if args.rest:
     os.system('gunicorn --reload pyconfhoard.rest.server')
-
+elif args.cli:
+    os.chdir('pyconfhoard/cli')
+    os.system('PYTHONPATH=$PYTHONPATH:../ python cli.py')
 elif os.path.exists(args.thing):
     path = args.thing.split('/')
     os.chdir('things')
