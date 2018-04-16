@@ -202,6 +202,7 @@ A very basic skeleton of a Command Line interface based around the python librar
 
 The CLI itself has basic constructs to show operational/data or configuration and so far has a very primitive option to set data (although there is no awarness of the structure of the yang model).
 
+For no real reason, the CLI colour-codes the status of downloading datastores (and changes the colour to indiciate status)
 
 ```
 ~/brewerslabng/pyconfhoard $ python cli/cli.py

@@ -4,6 +4,8 @@ import time
 import sys
 import json
 import requests
+from colorama import Fore
+from colorama import Style
 from PyConfHoardDatastore import PyConfHoardDatastore
 from cmd2 import Cmd
 
@@ -77,8 +79,42 @@ class PyConfHoardCLI(Cmd):
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
 
-            print ('TODO - we need to stitch in data at path', metadata) 
-            
+            msg = 'Loading..<OPER:%s>' % (metadata['appname'])
+            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
+            try:
+                response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
+                if len(response):
+                    operdata = json.loads(response)
+                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
+                self.datastore.merge_node(operdata)
+            except Exception as err:
+                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
+                raise err
+
+            msg = 'Loading..<CFG:%s>' % (metadata['appname'])
+            PyConfHoardCLI.xterm_message(msg,Fore.YELLOW)
+            try:
+                response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
+                if len(response):
+                    config = json.loads(response)
+                self.datastore.merge_node(config)
+                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
+            except Exception as err:
+                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
+
+            if config == {}:
+                msg = 'Loading..<INIT:%s>' % (metadata['appname'])
+                PyConfHoardCLI.xterm_message(msg,Fore.YELLOW)
+                try:
+                    response = requests.get('%s/v1/datastore/default/%s' % (self.SERVER, metadata['appname'])).text
+                    if len(response):
+                        config = json.loads(response)
+                    self.datastore.merge_node(config)
+                    PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
+                except Exception as err:
+                    PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
+
+
     def _exit_conf_mode(self):
         self._in_conf_mode = False
         print('')
@@ -223,6 +259,20 @@ class PyConfHoardCLI(Cmd):
     # Ideally we would be able to tab complet confi... config... configure...
     def do_conf(self, args):
         self.do_configure(args)
+   
+    @staticmethod
+    def xterm_message(msg, colour, oldmsg="", newline=False):
+        if len(oldmsg):
+            sys.stdout.write('\033[%sD' % (len(oldmsg)))
+        sys.stdout.write(colour)
+        sys.stdout.write(msg)
+        sys.stdout.write(Style.RESET_ALL)    
+        if len(msg) < len(oldmsg):
+            sys.stdout.write(' ' *(len(oldmsg) - len(msg)))
+
+        if newline:
+            sys.stdout.write('\n')
+        sys.stdout.flush()
 
 
 if __name__ == '__main__':

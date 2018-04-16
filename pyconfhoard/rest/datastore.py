@@ -8,11 +8,11 @@ class Resource(object):
         req.get_header('TOKEN')
 
 
-        valid_datastores = ['operational', 'persist', 'running']
+        valid_datastores = ['operational', 'persist', 'running', 'default']
         if datastore not in valid_datastores:
             raise ValueError('Invalid datastore %s: select from %s' % (valid_datastores))
 
-        base = '../datastore/' + datastore 
+        base = 'datastore/' + datastore 
         db = base + '/' + path + '.pch'
         if os.path.exists(db):
             object = {'xxx'}
