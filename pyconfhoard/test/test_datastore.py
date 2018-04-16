@@ -12,8 +12,12 @@ class TestYang(unittest.TestCase):
         self.maxDiff=10000
 
     def test_decode_path_string(self):
-        result = self.subject.decode_path_string('////abc/1234///ef', separator='/')
-        self.assertEqual(result, ['abc', '1234', 'ef'])
+        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/')
+        self.assertEqual(result, ['abc', '1234', 'ef', 'g'])
+
+    def test_decode_path_string_remove_n_2(self):
+        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/', ignore_last_n=2)
+        self.assertEqual(result, ['abc', '1234'])
 
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')

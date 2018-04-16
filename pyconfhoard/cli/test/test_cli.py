@@ -43,6 +43,20 @@ class TestPyConfHoardCLI(unittest.TestCase):
         self.assertEqual(result['mixed'], {'config': {}})
         self.assertEqual(result['withcfg'], {'config': {}})
 
+    def test_tab_completion_without_leading_text(self):
+        line = 'show level1 '
+        text = ''
+        cmds = self.subject._auto_complete(self.object, line, text)
+
+        self.assertEqual(cmds, ['level2 '])
+
+    def test_tab_completion_with_leading_text(self):
+        line = 'show level1 le'
+        text = 'le'
+        cmds = self.subject._auto_complete(self.object, line, text)
+
+        self.assertEqual(cmds, ['level2 '])
+
     def test_tab_completion_top_level_non_unique_input(self):
         line = 'show sim'
         text = 'sim'

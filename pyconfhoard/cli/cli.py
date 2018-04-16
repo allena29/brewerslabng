@@ -125,21 +125,22 @@ class PyConfHoardCLI(Cmd):
         self.do_show = self._command_oper_show
         self.complete_show = self._autocomplete_oper_show
         del self.complete_set
+        del self.do_create
+        del self.complete_create
 
     def _enter_conf_mode(self):
         self._in_conf_mode = True
         self.prompt = 'robber@localhost% '
         print('Entering configuration mode private')
         self._conf_header()
-        # TODO in later version refresh these commands on tab complete.
-        # TODO: make tab completion show a better column based presentation.
         self.do_set = self._command_set
         self.complete_set = self._autocomplete_conf_set
 
         self.do_delete = self._command_delete
         self.do_show = self._command_conf_show
         self.complete_show = self._autocomplete_conf_show
-
+        self.complete_create = self._autocomplete_conf_create
+        self.do_create = self._command_create
 
     def _ok(self):
         print('')
@@ -171,13 +172,18 @@ class PyConfHoardCLI(Cmd):
         try:
             path_to_find = line[len(cmd):]
             # Attempt to get the path which might not exist
-
             cmds = []
             try:
                 # TODO: although we pass in config ti's not taking effect
-                if line.count(' ') == 1:
+                if path_to_find.count(' ') < 1:
+                    # print ('case1',path_to_find)
                     xcmds = self.datastore.list_root(config=config)
                 else:
+                    # print ('case2',path_to_find)
+                    if text == '':
+                        path_to_find = self.datastore.decode_path_string(path_to_find, ignore_last_n=0)
+                    else:
+                        path_to_find = self.datastore.decode_path_string(path_to_find, ignore_last_n=1)
                     xcmds = self.datastore.list(path_to_find, config=config)
                 cmds = []
                 for key in xcmds:
@@ -218,13 +224,19 @@ class PyConfHoardCLI(Cmd):
 
     def _autocomplete_oper_show(self, text, line, begidx, endidx):
         if text == '':
-            print ('text is blank')
             text=line.split(' ')[-1]
-        print ('...text/line  %s/%s' %(text,line))
+#        print ('...text/line  %s/%s' %(text,line))
         return self._auto_complete(False, line, text)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
         return self._auto_complete(True, line, text)
+
+    def _autocomplete_conf_create(self, text, line, begidx, endidx):
+        # TODO: in future we shouldn't auto complete things that don't have a list as a decednant
+        return self._auto_complete(True, line, text, 'create ')
+
+    def _command_create(self, args):
+        print('command create called', args)
 
     def _command_delete(self, args):
         print('command elete called', args)
@@ -233,11 +245,12 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        PyConfHoardDatastore._set_node(self._db_conf, args)
+        print ('set command not implement')
+#        PyConfHoardDatastore._set_node(self._db_conf, args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode: 
-            return self._auto_complete(self._db_conf, line, text, cmd='set')
+            return self._auto_complete(self._db_conf, line, text, cmd='set ')
 
     def do_eof(self, args):
         # Implements CTRL+D

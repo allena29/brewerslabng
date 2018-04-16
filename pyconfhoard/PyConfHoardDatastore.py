@@ -15,7 +15,7 @@ class PyConfHoardDatastore:
         self.db = json.loads(schema_file.read())
         schema_file.close()
 
-    def decode_path_string(self, path, separator=' '):
+    def decode_path_string(self, path, separator=' ', ignore_last_n=0):
         """
         TODO: in future we should look to intelligently seprate on spaces
         i.e. level1 level2 level3 cfgonly "this is a value" should result in a path
@@ -25,9 +25,16 @@ class PyConfHoardDatastore:
         if not isinstance(path, list):
             separated = path.split(separator)
         seplen = len(separated)
+        # Remove anything which is a null string
         for i in range(seplen):
             if separated[seplen-i-1] == '':
                 separated.pop(seplen-i-1)
+
+        for i in range(ignore_last_n):
+            try:
+                separated.pop()
+            except:
+                pass
 
         return separated
 

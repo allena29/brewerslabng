@@ -205,7 +205,7 @@ The CLI itself has basic constructs to show operational/data or configuration an
 For no real reason, the CLI colour-codes the status of downloading datastores (and changes the colour to indiciate status)
 
 ```
-~/brewerslabng/pyconfhoard $ python cli/cli.py
+~/brewerslabng/ $ ./launch --cli
 wild@localhost> show
 {
     "brewhouse": {
