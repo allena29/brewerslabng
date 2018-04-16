@@ -236,7 +236,11 @@ class PyConfHoardCLI(Cmd):
         return self._auto_complete(True, line, text, 'create ')
 
     def _command_create(self, args):
-        print('command create called', args)
+
+        path_to_list = self.datastore.decode_path_string(args, ignore_last_n=1)
+        key = self.datastore.decode_path_string(args, get_index=-1)
+        self.datastore.create(path_to_list, key)
+
 
     def _command_delete(self, args):
         print('command elete called', args)

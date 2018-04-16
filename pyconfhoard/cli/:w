@@ -43,19 +43,6 @@ class TestPyConfHoardCLI(unittest.TestCase):
         self.assertEqual(result['mixed'], {'config': {}})
         self.assertEqual(result['withcfg'], {'config': {}})
 
-    def test_tab_completion_without_leading_text(self):
-        line = 'show level1 '
-        text = ''
-        cmds = self.subject._auto_complete(self.object, line, text)
-
-        self.assertEqual(cmds, ['level2 '])
-
-    def test_tab_completion_with_leading_text(self):
-        line = 'show level1 le'
-        text = 'le'
-        cmds = self.subject._auto_complete(self.object, line, text)
-
-        self.assertEqual(cmds, ['level2 '])
 
     def test_tab_completion_top_level_non_unique_input(self):
         line = 'show sim'
@@ -91,18 +78,3 @@ class TestPyConfHoardCLI(unittest.TestCase):
         cmds = self.subject._auto_complete(self.object, line, text)
 
         self.assertEqual(cmds, [])
-
-    def test_tab_completion_create_list(self):
-        line = 'create types secondlis'
-        text = 'secondlis'
-        cmds = self.subject._auto_complete(self.object, line, text, cmd='create ')
-
-        self.assertEqual(cmds, ['secondlist '])
-
-    def test_create_list_key(self):
-        args = 'create types secondlist KEY'
-        self.subject._command_create('types secondlist KEY')
-
-        list_item_key = self.subject.datastore.get('types secondlist KEY item')
-        self.assertEqual(list_item_key, 'KEY')
-
