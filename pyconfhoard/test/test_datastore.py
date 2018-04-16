@@ -9,7 +9,7 @@ class TestYang(unittest.TestCase):
     def setUp(self):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
-        self.maxDiff=4888
+        self.maxDiff=10000
 
     def test_decode_path_string(self):
         result = self.subject.decode_path_string('////abc/1234///ef', separator='/')
@@ -178,4 +178,177 @@ class TestYang(unittest.TestCase):
         except ValueError as err:
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
 
+
+    def test_merge_empty_conf_data_into_existing_schema(self):
+        before_merge = json.dumps(self.subject.get_object(''), indent=4)
+        # print (before_merge)
+        new_node = json.loads("""
+{
+    "level1": {
+        "__path": "/level1",
+        "level2": {
+            "__path": "/level1/level2",
+            "level3": {
+                "__path": "/level1/level2/level3",
+                "withcfg": {
+                    "__path": "/level1/level2/level3/withcfg",
+                    "config": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/withcfg/config",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                },
+                "withoutcfg": {
+                    "__path": "/level1/level2/level3/withoutcfg",
+                    "nonconfig": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/withoutcfg/nonconfig",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                },
+                "mixed": {
+                    "__path": "/level1/level2/level3/mixed",
+                    "config": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/mixed/config",
+                        "__listkey": false,
+                        "__type": "string"
+                    },
+                    "nonconfig": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/mixed/nonconfig",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "simplelist": {
+        "__list": true,
+        "__elements": {},
+        "__path": "/simplelist",
+        "__keys": "item",
+        "item": {
+            "__config": true,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/item",
+            "__listkey": true,
+            "__type": "string"
+        },
+        "subitem": {
+            "__config": false,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/subitem",
+            "__listkey": false,
+            "__type": "string"
+        }
+    }
+}
+""")
+
+        self.subject.merge_node(new_node)
+
+        after_merge = json.dumps(self.subject.get_object(''), indent=4)
+        self.assertEqual(before_merge, after_merge)
+
+
+    def test_merge_new_conf_data_into_existing_schema(self):
+        before_merge = json.dumps(self.subject.get_object(''), indent=4)
+        # print (before_merge)
+        new_node = json.loads("""
+{
+    "level1": {
+        "__path": "/level1",
+        "level2": {
+            "__path": "/level1/level2",
+            "level3": {
+                "__path": "/level1/level2/level3",
+                "withcfg": {
+                    "__path": "/level1/level2/level3/withcfg",
+                    "config": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__value": "this-has-been-set-in-merge",
+                        "__path": "/level1/level2/level3/withcfg/config",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                },
+                "withoutcfg": {
+                    "__path": "/level1/level2/level3/withoutcfg",
+                    "nonconfig": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/withoutcfg/nonconfig",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                },
+                "mixed": {
+                    "__path": "/level1/level2/level3/mixed",
+                    "config": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/mixed/config",
+                        "__listkey": false,
+                        "__type": "string"
+                    },
+                    "nonconfig": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__value": null,
+                        "__path": "/level1/level2/level3/mixed/nonconfig",
+                        "__listkey": false,
+                        "__type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "simplelist": {
+        "__list": true,
+        "__elements": {},
+        "__path": "/simplelist",
+        "__keys": "item",
+        "item": {
+            "__config": true,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/item",
+            "__listkey": true,
+            "__type": "string"
+        },
+        "subitem": {
+            "__config": false,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/subitem",
+            "__listkey": false,
+            "__type": "string"
+        }
+    }
+}
+""")
+
+        self.subject.merge_node(new_node)
+
+        after_merge = json.dumps(self.subject.get_object(''), indent=4)
+
+        updated_node_val = self.subject.get('/level1/level2/level3/withcfg/config', separator='/')
+        self.assertEqual(updated_node_val, 'this-has-been-set-in-merge')
 

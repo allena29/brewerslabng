@@ -59,6 +59,12 @@ class PyConfHoardDatastore:
         new_dict = filter_node(original_obj, new_dict, config)
         return new_dict
 
+    def merge_node(self, new_node, separator=' '):
+        node = self.get_object('', separator=separator)
+#        print ('trying to merge into ... ', node)
+#        print ('want to merge in.... ', new_node)
+        dpath.util.merge(node, new_node)
+
     def set(self, path_string, set_val, separator=' '):
         """
         This methods sets a value in the datastore at the pat provided.

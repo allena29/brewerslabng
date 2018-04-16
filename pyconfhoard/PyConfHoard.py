@@ -31,9 +31,13 @@ class Thing:
         self._yang_obj = None
         self._appname = appname
         self._ourpath = yangpath
+        self._ourmodule = yangmodule
 
         self.datastore = PyConfHoardDatastore()
         self.datastore.load_blank_schema('../../yang/schema.json')
+        self.log.info('PyConfHoard Load Default Schema: OK')
+        self.datastore.db = self.datastore.get_object(self._ourpath, separator='/')
+        self.log.info('PyConfHoard Filtered Datastore: %s', self._ourpath)
 
         if open_stored_config:
             working_directory = os.getcwd()
@@ -43,23 +47,23 @@ class Thing:
                 o = open('%s/persist/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
-                self._yang = self.loader(self._yang, json_str)
+                print ('TODO merge required here')
             elif os.path.exists('%s/startup/%s.pch' % (datastore, self._appname)):
                 self.log.info('Loading startup default data')
                 o = open('%s/startup/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
-                self._yang = self.loader(self._yang, json_str)
-
+                print ('TODO merge required here')
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
                 opdata = open('%s/operational/%s.pch' % (datastore, self._appname), 'w')
-                opdata.write(self.dumper(self._yang, opdata=True))
+                opdata.write(json.dumps(self.datastore.get_object(''), indent=4))
                 opdata.close()
+
             if not os.path.exists('%s/persist/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing persist.. providing empty schema')
-                opdata = open('%s/persist/%s.pch' % (datastore, self._appname), 'w')
-                opdata.write(self.dumper(self._yang, opdata=False))
+                cfgdata = open('%s/persist/%s.pch' % (datastore, self._appname), 'w')
+                cfgdata.write(json.dumps(self.datastore.get_object(''), indent=4))
                 opdata.close()
 
 
@@ -69,46 +73,6 @@ class Thing:
 
         self.log.info('PyConfHoard Started %s' % (self))
 
-    @staticmethod
-    def dumper(yang, opdata=False, pretty=False):
-        """        
-        This method stores the in-memory object structure as an IETF JSON object.
-        All config based nodes are dumped, but op-data is not.
-
-        The yang object must be provided to this method.
-
-        This makes use of a customised version of pyangbind distributed as part
-        of this repository.
-        """
-        raise ValueError('TODO')
-        if opdata:
-            ignore_opdata = False
-            ignore_conf_leaves = True
-        else:
-            ignore_opdata = True
-            ignore_conf_leaves = False
-
-        obj = json.loads(pybindJSON.dumps(yang, filter=False, ignore_opdata=ignore_opdata,
-                                                  ignore_conf_leaves=ignore_conf_leaves, mode='ietf'))
-        if pretty:
-            return json.dumps(obj, indent=4, sort_keys=True)
-        else:
-            return json.dumps(obj)
-
-
-    @staticmethod
-    def loader(yang, json_str):
-        """
-        This method loads a IETF Json string representing the in-memory object structure
-        and replaces the in-memory data.
-        """
-        raise ValueError('TODO')
-
-        try:
-            json_obj = json.loads(json_str)
-        except ValueError as err:
-            raise ValueError('Invalid JSON payload provided\n' + err.message)
-        return pybindJSONDecoder.load_ietf_json(json_obj, None, None, yang)
 
     def get_config(self, path):
         """
