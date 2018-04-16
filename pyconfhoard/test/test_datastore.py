@@ -48,16 +48,8 @@ class TestYang(unittest.TestCase):
             self.subject.list('simplecontainer nonexist')
             self.fail('Listing a non existant node should throw an exception')
         except Exception as err:
-            self.assertEqual(str(err), "['simplecontainer', 'nonexist']")
+            self.assertEqual(str(err), "Path: simplecontainer/nonexist does not exist - cannot build list")
     
-    def test_listing_non_existant_path_lower_down_lazy_list(self):
-        result = self.subject.list_lazy('simplecontainer nonexist')
-        self.assertEqual(result, ['leafstring'])
-
-    def test_listing_non_existant_path_at_root_lazy_list(self):
-        result = self.subject.list_lazy('nonexist')
-        self.assertEqual(result, None)
-
     def test_get_filtered_configuration_view(self):
         result = self.subject.get_filtered('', config=True)
 

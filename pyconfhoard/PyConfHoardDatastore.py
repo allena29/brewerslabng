@@ -164,22 +164,15 @@ class PyConfHoardDatastore:
         else:
             raise ValueError('Path: %s is not a leaf - cannot get a value')
 
-    def list_lazy(self, path_string, config=True):
-        """
-        This methd takes a oath and will try to find the deepest path possible
-        Intended to be used by auto_complete for CLI
-        """
-        path = self.decode_path_string(path_string)
-        while len(path):
-            try:
-                obj = self.get_object(path)
-                return self._build_list(obj, config)
-            except:
-                x = path.pop()
-        return self._build_list(self.db, config)
-
     def list(self, path_string, config=True):
-        obj = self.get_object(path_string)
+        try:
+            obj = self.get_object(path_string)
+        except KeyError:
+            raise ValueError('Path: %s does not exist - cannot build list' % (path_string.replace(' ','/')))
+        return self._build_list(obj, config)
+
+    def list_root(self, config=True):
+        obj = self.db
         return self._build_list(obj, config)
 
     def _build_list(self, obj, config):

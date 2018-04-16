@@ -64,9 +64,16 @@ class TestPyConfHoardCLI(unittest.TestCase):
 
         self.assertEqual(cmds, ['mixed ', 'withcfg '])
 
-    def test_tab_completion_non_existing_top_level_input(self):
+    def test_tab_completion_non_existing_everything(self):
         line = 'show THISDOESNOTEXIST abcdef xyz XXX YYY'
         text = 'YYY'
+        cmds = self.subject._auto_complete(self.object, line, text)
+
+        self.assertEqual(cmds, [])
+
+    def test_tab_completion_non_existing_except_the_second_thing(self):
+        line = 'show THISDOESNOTEXIST level1 abcdef xyz XXX YYY'
+        text = ''
         cmds = self.subject._auto_complete(self.object, line, text)
 
         self.assertEqual(cmds, [])

@@ -123,7 +123,7 @@ class PyConfHoardCLI(Cmd):
     # or added based on mode.
 
 
-    def _auto_complete(self, our_node, line, text, cmd='show '):
+    def _auto_complete(self, our_node, line, text, cmd='show ', config=True):
         """
         our_node - an object
         line     - the full line of text (e.g. show fermentation
@@ -135,15 +135,20 @@ class PyConfHoardCLI(Cmd):
         try:
             path_to_find = line[len(cmd):]
             # Attempt to get the path which might not exist
-            xcmds = self.datastore.list_lazy(path_to_find)
-            if not xcmds:
-                # If we didn't have commands we have to return top of the database
-                xcmds = self.datastore.list_lazy('')
 
             cmds = []
-            for key in xcmds:
-                if key[0:len(text)] == text:
-                    cmds.append(key + ' ')
+            try:
+                # TODO: although we pass in config ti's not taking effect
+                if line.count(' ') == 1:
+                    xcmds = self.datastore.list_root(config=config)
+                else:
+                    xcmds = self.datastore.list(path_to_find, config=config)
+                cmds = []
+                for key in xcmds:
+                    if key[0:len(text)] == text:
+                        cmds.append(key + ' ')
+            except:
+                pass
             cmds.sort()
         except Exception as err:
             print('!!!!! exception in autocomplete %s' % (str(err)))
@@ -176,6 +181,10 @@ class PyConfHoardCLI(Cmd):
             self._error(err)
 
     def _autocomplete_oper_show(self, text, line, begidx, endidx):
+        if text == '':
+            print ('text is blank')
+            text=line.split(' ')[-1]
+        print ('...text/line  %s/%s' %(text,line))
         return self._auto_complete(False, line, text)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
