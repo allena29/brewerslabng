@@ -68,24 +68,111 @@ module: brewerslab
 The yang file is transformed to `YIN` format (stanard pyang) and then this is transformed to a simple JSON representation (custom format). This is stored in the yang sub-directory as `schema.json`
 
 
-> As this project is built from the groun-up there are some constraints to the complexity of the YANG model. There are two things, firstly yin2json.py must support the yang construct - this means if the yang model is more complex than the above changes to yin2json.py may be required.
-> 1) typedef's are not validated against (TBD how easy that is)
-> 2) grouping's will not work yet.
-> 3) container presence nodes unsupported
-Note: the implementation is heavily based around rendering a JSON object from the YIN representation, which is then managed as a simple python dictionary - supporting leaf-ref's is almost certainly not going to happen without serious kludges.
-
 ### Datastore
+
+#### Python Access
+
+The manipulation of the datastore is the responsibility of `PyConfHoardDataStore` which makes use of the dpath library to provide the navigation. The schema is a straightforward JSON structure. Each key within the JSON structure containing '__' details the metadata associated wtih a node, otherwise it is part of the structure itself.
+
+When providing paths they can either be provided as lists, or a delimeter separated string (default is space - but most operations take in a `separator` keyword.
+
+```json
+{
+    "simplestleaf": {
+        "__config": true,
+        "__leaf": true,
+        "__value": null,
+        "__path": "/simplestleaf",
+        "__listkey": false,
+        "__type": "string"
+    },
+    "simplecontainer": {
+        "__path": "/simplecontainer",
+        "leafstring": {
+            "__config": true,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplecontainer/leafstring",
+            "__listkey": false,
+            "__type": "string"
+        },
+        "leafnonconfig": {
+            "__config": false,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplecontainer/leafnonconfig",
+            "__listkey": false,
+            "__type": "string"
+        }
+    },
+    "simplelist": {
+        "__list": true,
+        "__elements": {},
+        "__path": "/simplelist",
+        "__keys": "item",
+        "item": {
+            "__config": true,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/item",
+            "__listkey": true,
+            "__type": "string"
+        },
+        "subitem": {
+            "__config": false,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/subitem",
+            "__listkey": false,
+            "__type": "string"
+        }
+    } 
+}
+```
+
+ 
+#### Datastore Operations
+
+
+- `get(path)` - returns the __value associated with the node
+- `list(path)` - lists the children (keys) associated with the node
+- `create(path, key)` - creates an instance of the node at path and stores it in the reserved `__elements` key.
+
+
+#### Mapping to YANG
+
+As the `schema.json` is rendered based upon the YIN file of the YANG and implemented by PyConfHoardDatastore.py any YANG option *MUST* be supported by both. [test/example-schema.json](test/example-schema.json) provides an overview of the YANG concepts ~~tested~~ planned to be supported.
+
+Particular Points 
+
+- **restrictions (part1)** simple valiation of restrictions
+- **enumeration** schema.json records the keys of enumerations (TBD: do we implement enumerations properly mapping to an ID or use the value itself)
+- **typedefs** no plan to support
+- **imported yang files** YIN may provide a completely transparent rendering even if the yang model of interest iports others.
+- **grouping** potentially YIN makes this transparent - in which case support may be implicit
+- **container presence nodes** - likely a trivial extension to 
+- **mandatory siblings/children** - if we create a list (*or presence node*) we should ensure that sibilings/chidlren that are marked mandatory are provided
+
+>To implement new YANG constructs the following requirements need to be satisifed
+>
+>1. ensure yin2json.py provides sensible output
+>- ensure PyConfHoardDataStore handles the new contraints yang
+>- update cli to provide sensible handling.
+
+
+
+#### Datastore Storage
 
 Within the datastore directory there are a number of directories, it is assumed that all functions will run either on a single host, or have access (e.g. NFS/CIFS/AFS) to the common datastore directory. 
 
 All operations around the datastore are formed based upon `yang/schema.json` and `PyConfHoardDatatstore`
 
-- `datatsore/persist` provides a directory which will contain the saved configuration, this will be updated following a commit. This may be empty when there is no configuration generated. When a process restarts if this file exists it will provide the initial configuration and the next file will not be used.
-- `datastore/startup` provide a directory which contains default configuration to load if a datastore is empty.
+- `datatsore/persist` provides a directory which will contain the saved configuration, this will be updated following a commit. When a process restarts if this file exists it will provide the initial configuration.
+- `datastore/default` provide a directory which contains default configuration to load if a datastore is empty.
+- `datastore/running` provides a directory which contains running configuration, other processes will use this when reading data. This implies the persist data may *never* exst. This should be created as soon as a default configuration is parsed.
 - `datastore/operational` provides periodically refreshed operational data, this is expected to be hosted on a volatile filesystem and will not be recreated if a process restarts.
 
 
-The management of 
 
 ### Things (i.e. data providers, data consumers, processes, services)
 

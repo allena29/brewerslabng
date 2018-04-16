@@ -19,6 +19,10 @@ class TestYang(unittest.TestCase):
         result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/', ignore_last_n=2)
         self.assertEqual(result, ['abc', '1234'])
 
+    def test_decode_path_string_get_index(self):
+        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/', get_index=-1)
+        self.assertEqual(result, 'g')
+
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
         self.assertEqual(result, ['simplestleaf', 'simplecontainer', 'level1', 'simplelist', 'types'])
