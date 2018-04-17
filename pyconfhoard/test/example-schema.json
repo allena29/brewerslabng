@@ -9,6 +9,7 @@
     },
     "simplecontainer": {
         "__path": "/simplecontainer",
+        "__container": true,
         "leafstring": {
             "__config": true,
             "__leaf": true,
@@ -28,12 +29,16 @@
     },
     "level1": {
         "__path": "/level1",
+        "__container": true,
         "level2": {
             "__path": "/level1/level2",
+            "__container": true,
             "level3": {
                 "__path": "/level1/level2/level3",
+                "__container": true,
                 "withcfg": {
                     "__path": "/level1/level2/level3/withcfg",
+                    "__container": true,
                     "config": {
                         "__config": true,
                         "__leaf": true,
@@ -45,6 +50,7 @@
                 },
                 "withoutcfg": {
                     "__path": "/level1/level2/level3/withoutcfg",
+                    "__container": true,
                     "nonconfig": {
                         "__config": false,
                         "__leaf": true,
@@ -56,6 +62,7 @@
                 },
                 "mixed": {
                     "__path": "/level1/level2/level3/mixed",
+                    "__container": true,
                     "config": {
                         "__config": true,
                         "__leaf": true,
@@ -100,6 +107,7 @@
     },
     "types": {
         "__path": "/types",
+        "__container": true,
         "number": {
             "__config": true,
             "__leaf": true,

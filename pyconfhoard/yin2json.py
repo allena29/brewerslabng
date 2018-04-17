@@ -25,6 +25,7 @@ class yin_to_json:
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
+                schema_by_tree[child.attrib['name']]['__container'] = True
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}

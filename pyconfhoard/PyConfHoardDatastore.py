@@ -5,6 +5,33 @@ import sys
 import json
 import dpath.util
 
+
+class PyConfHoardDataFilter:
+
+
+    def __init__(self):
+        self.root = {}
+        
+    def _convert(self, _obj):
+
+        for key in _obj:
+            if isinstance(_obj[key], dict):
+                if '__path' in _obj[key]:
+                    # print (_obj[key]['__path'], key, _obj[key])
+                    if '__container' in _obj[key] and _obj[key]['__container']:
+                        dpath.util.new(self.root, _obj[key]['__path'], {})
+                    if '__list' in _obj[key] and _obj[key]['__list']:
+                        dpath.util.new(self.root, _obj[key]['__path'], {})
+                    if '__value' in _obj[key] and _obj[key]['__value']:
+                        dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
+                    self._convert(_obj[key])
+#            else:
+#                print (_obj.keys())
+                
+    def convert(self, _obj):
+        self._convert(_obj)
+
+
 class PyConfHoardDatastore:
     
     def __init__(self):
@@ -42,7 +69,6 @@ class PyConfHoardDatastore:
             return separated[get_index]
 
         return separated
-
 
     def get_filtered(self, path_string, config):
         """
