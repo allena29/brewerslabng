@@ -145,6 +145,7 @@ As the `schema.json` is rendered based upon the YIN file of the YANG and impleme
 
 Particular Points 
 
+- **integers/booleans** show these as non-quoted strings when showing the Filtered/pretty view - cosmetic change only
 - **restrictions (part1)** simple valiation of restrictions
 - **enumeration** schema.json records the keys of enumerations (TBD: do we implement enumerations properly mapping to an ID or use the value itself)
 - **typedefs** no plan to support

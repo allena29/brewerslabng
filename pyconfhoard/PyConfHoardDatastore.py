@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import copy
+import json
 import sys
 import json
 import dpath.util
@@ -30,6 +31,8 @@ class PyConfHoardDataFilter:
                 
     def convert(self, _obj):
         self._convert(_obj)
+        return self.root
+
 
 
 class PyConfHoardDatastore:
@@ -70,32 +73,15 @@ class PyConfHoardDatastore:
 
         return separated
 
-    def get_filtered(self, path_string, config):
+    def view(self, path_string, config):
         """
-        Get a filtered view of configuration from the database.
-        If we request not to see config=True or config=False these nodes will be
-        removed.
+        TBD
         """
-        def filter_node(obj, new_dict, config):
-            # print ('filter_node: %s' %(obj))
-            for key in obj:
-                if isinstance(obj[key], dict):
-                    config_test = PyConfHoardDatastore._check_for_config_or_not_config(obj[key], config)
-            #        print ('configtest...', config_test)
-                    if config_test:
-                        if not key[0:2] == '__':
-                            new_dict[key] = {}
-                            xx = filter_node(obj[key], new_dict[key], config)
-                else:
-                    if key == '__value' and obj[key]:
-                        new_dict[key] = obj[key]
+        print  ('config option not yet supported here')
+        pretty = PyConfHoardDataFilter()
+        pretty.convert(self.get_object(path_string))
 
-            return new_dict
-
-        original_obj = self.get_object(path_string)
-        new_dict = {}
-        new_dict = filter_node(original_obj, new_dict, config)
-        return new_dict
+        return pretty.root
 
     def merge_node(self, new_node, separator=' '):
         node = self.get_object('', separator=separator)

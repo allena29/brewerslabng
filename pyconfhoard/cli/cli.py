@@ -200,11 +200,10 @@ class PyConfHoardCLI(Cmd):
 
     def _get_json_cfg_view(self, path, config=True):
         try:
-            our_node = self.datastore.get_filtered(path, config)
+            our_cfg = self.datastore.view(path, config)
         except KeyError as err:
             raise ValueError('Path: %s does not exist' % (path))
-
-        return json.dumps(our_node, sort_keys=True, indent=4, separators=(',', ': '))
+        return json.dumps(our_cfg, indent=4)
 
     # Show Command
     def _command_oper_show(self, args):
