@@ -164,10 +164,8 @@ class PyConfHoardCLI(Cmd):
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
 
-
-    def _auto_complete(self, our_node, line, text, cmd='show ', config=True):
+    def _auto_complete(self, line, text, cmd='show ', config=True, include_blank=False):
         """
-        our_node - an object
         line     - the full line of text (e.g. show fermentation
         text     - the text fragment autom completing (e.g. fermentation)
 
@@ -185,7 +183,6 @@ class PyConfHoardCLI(Cmd):
 
 
         """
-        filter_blank_values = False
         try:
             strip_partial_elements = 0
             # Attempt to get the path which might not exist
@@ -193,12 +190,13 @@ class PyConfHoardCLI(Cmd):
             try:
                 if line.count(' ') == 1:
                     xcmds = list(self.datastore.db.keys())
+                    print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
                 else:
                     if not text == '':
                         strip_partial_elements = 1
                     print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
                     path_to_find = self.datastore.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=filter_blank_values)
+                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=include_blank)
                 print(' xcmds',xcmds)
                 cmds = []
                 for key in xcmds:
@@ -241,14 +239,14 @@ class PyConfHoardCLI(Cmd):
         if text == '':
             text=line.split(' ')[-1]
 #        print ('...text/line  %s/%s' %(text,line))
-        return self._auto_complete(False, line, text)
+        return self._auto_complete(line, text, config=False)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
-        return self._auto_complete(True, line, text)
+        return self._auto_complete(line, text, config=True)
 
     def _autocomplete_conf_create(self, text, line, begidx, endidx):
         # TODO: in future we shouldn't auto complete things that don't have a list as a decednant
-        return self._auto_complete(True, line, text, 'create ')
+        return self._auto_complete(line, text, 'create ', config=True, include_blank=True)
 
     def _command_create(self, args):
 

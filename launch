@@ -41,10 +41,10 @@ elif args.debug:
     D = PyConfHoardDatastore()
     c = PyConfHoardCLI(no_networking=True)
     C = PyConfHoardCLI(no_networking=True)
-    c.datastore.db = d.db
-    C.datastore.db = D.db
     d.load_blank_schema('yang/schema.json')
     D.load_blank_schema('pyconfhoard/test/schema.json')
+    C.datastore.db = D.db
+    c.datastore.db = d.db
     dp = dpath.util
     print('Running from %s' % (os.getcwd()))
     print('dp = dpath.util')

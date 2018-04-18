@@ -46,56 +46,56 @@ class TestPyConfHoardCLI(unittest.TestCase):
     def test_tab_completion_without_leading_text(self):
         line = 'show level1 '
         text = ''
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['level2 '])
 
     def test_tab_completion_with_leading_text(self):
         line = 'show level1 le'
         text = 'le'
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['level2 '])
 
     def test_tab_completion_top_level_non_unique_input(self):
         line = 'show sim'
         text = 'sim'
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['simplecontainer ', 'simplelist ', 'simplestleaf '])
 
     def test_tab_completion_top_level_unique_input(self):
         line = 'show simpleco'
         text = 'simpleco'
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['simplecontainer '])
 
     def test_tab_completion_mid_level_unique_input_for_something_deep(self):
         line = 'show level1 level2 level3'
         text = ''
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['mixed ', 'withcfg '])
 
     def test_tab_completion_non_existing_everything(self):
         line = 'show THISDOESNOTEXIST abcdef xyz XXX YYY'
         text = 'YYY'
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, [])
 
     def test_tab_completion_non_existing_except_the_second_thing(self):
         line = 'show THISDOESNOTEXIST level1 abcdef xyz XXX YYY'
         text = ''
-        cmds = self.subject._auto_complete(self.object, line, text)
+        cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, [])
 
     def test_tab_completion_create_list(self):
         line = 'create types secondlis'
         text = 'secondlis'
-        cmds = self.subject._auto_complete(self.object, line, text, cmd='create ')
+        cmds = self.subject._auto_complete(line, text, cmd='create ')
 
         self.assertEqual(cmds, ['secondlist '])
 
