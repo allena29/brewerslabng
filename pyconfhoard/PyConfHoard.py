@@ -1,7 +1,6 @@
 import logging
 import json
 import os
-from pydoc import locate
 from PyConfHoardDatastore import PyConfHoardDatastore
 
 class Thing:

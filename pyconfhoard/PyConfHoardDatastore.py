@@ -13,7 +13,7 @@ class PyConfHoardDataFilter:
     def __init__(self):
         self.root = {}
         
-    def _convert(self, _obj):
+    def _convert(self, _obj, filter_blank_values=True):
 
         for key in _obj:
             if isinstance(_obj[key], dict):
@@ -23,16 +23,18 @@ class PyConfHoardDataFilter:
                         dpath.util.new(self.root, _obj[key]['__path'], {})
                     if '__list' in _obj[key] and _obj[key]['__list']:
                         dpath.util.new(self.root, _obj[key]['__path'], {})
-                    if '__value' in _obj[key] and _obj[key]['__value']:
+
+                    if '__value' in _obj[key] and _obj[key]['__value'] and filter_blank_values:
                         dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
-                    self._convert(_obj[key])
+                    elif filter_blank_values == False:
+                        dpath.util.new(self.root, _obj[key]['__path'], {})
+                    self._convert(_obj[key], filter_blank_values=filter_blank_values)
 #            else:
 #                print (_obj.keys())
                 
     def convert(self, _obj):
         self._convert(_obj)
         return self.root
-
 
 
 class PyConfHoardDatastore:
@@ -47,6 +49,10 @@ class PyConfHoardDatastore:
 
     def decode_path_string(self, path, separator=' ', ignore_last_n=0, get_index=None):
         """
+        This method should always be used to provide safe paths for dpath to work with.
+        In particular this will add a fake 'root' element at the begining of the list
+        as dpath functions don't like an empty glob.
+
         TODO: in future we should look to intelligently seprate on spaces
         i.e. level1 level2 level3 cfgonly "this is a value" should result in a path
         path = ['level1', 'level2', 'level3', 'cfgonly']
@@ -84,9 +90,9 @@ class PyConfHoardDatastore:
         return pretty.root
 
     def merge_node(self, new_node, separator=' '):
-        node = self.get_object('', separator=separator)
-#        print ('trying to merge into ... ', node)
-#        print ('want to merge in.... ', new_node)
+        node = self.get_object([], separator=separator)
+        # print ('trying to merge into ... ', node)
+        # print ('want to merge in.... ', new_node)
         dpath.util.merge(node, new_node)
 
     def set(self, path_string, set_val, separator=' '):
@@ -194,24 +200,23 @@ class PyConfHoardDatastore:
         else:
             raise ValueError('Path: %s is not a leaf - cannot get a value')
 
-    def list(self, path_string, config=True):
+    def list(self, path, config=True, filter_blank_values=True):
+        print ('list..',path)
         try:
-            obj = self.get_object(path_string)
+            obj = self.get_object(path)
         except KeyError:
-            raise ValueError('Path: %s does not exist - cannot build list' % (path_string.replace(' ','/')))
-        return self._build_list(obj, config)
-
-    def list_root(self, config=True):
-        obj = self.db
-        return self._build_list(obj, config)
-
-    def _build_list(self, obj, config):
-        keys = []
-        for key in obj:
-            if self._filter(obj[key], config):
-                keys.append(key)
-
-        return keys
+            print ('raise vale')
+            raise ValueError('Path: %s does not exist - cannot build list' % (path.replace(' ','/')))
+        filter = PyConfHoardDataFilter()
+        filtered = filter.convert(obj)
+        # If we filtered the object get the last key we filtered on
+        if len(path) > 0:
+            # print ('return here because %s has more than 0 elements' %(path))
+            # print ('b>', dpath.util.get(filtered, path).keys())
+            return dpath.util.get(filtered, path).keys()
+        else:
+            # print ('a>', dpath.util.get(filtered, path).keys())
+            return dpath.util.get(filtered, path).keys()
 
     @staticmethod
     def _check_for_config_or_not_config(obj, config, result=False):
@@ -227,12 +232,4 @@ class PyConfHoardDatastore:
             else:
                 if key == '__config' and obj[key] == config:
                     return True
-        return result
-
-    def _filter(self, obj, config):
-        """
-        Filter to make sure one or more of our decendants match the type
-        """
-        result = PyConfHoardDatastore._check_for_config_or_not_config(obj, config)
-    #        print ('final answer... for obj',result)
         return result

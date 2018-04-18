@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-
+import traceback
 import time
 import sys
 import json
@@ -68,12 +68,16 @@ class PyConfHoardCLI(Cmd):
     def _load_datastores(self):
 
         discover = None
+        msg = 'Connecting...'
+        PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
         try:
             response = requests.get('%s/v1/discover' % (self.SERVER)).text
             discover = json.loads(response)
+            PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
-            raise RuntimeError('Unable to connect to %s' % (self.SERVER))
-
+            PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
+#            raise RuntimeError('Unable to connect to %s' % (self.SERVER))
+            sys.exit(0)
         self.datastore.db = discover['schema']
 
         for datastore in discover['datastores']:
@@ -85,19 +89,20 @@ class PyConfHoardCLI(Cmd):
                 response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     operdata = json.loads(response)
+                    self.datastore.merge_node(operdata)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-                self.datastore.merge_node(operdata)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
                 raise err
 
+            config = {}
             msg = 'Loading..<CFG:%s>' % (metadata['appname'])
             PyConfHoardCLI.xterm_message(msg,Fore.YELLOW)
             try:
                 response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     config = json.loads(response)
-                self.datastore.merge_node(config)
+                    self.datastore.merge_node(config)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
@@ -109,9 +114,9 @@ class PyConfHoardCLI(Cmd):
                     response = requests.get('%s/v1/datastore/default/%s' % (self.SERVER, metadata['appname'])).text
                     if len(response):
                         config = json.loads(response)
-                    self.datastore.merge_node(config)
+                        self.datastore.merge_node(config)
                     PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-                except Exception as err:
+                except ImportError as err:
                     PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
 
@@ -168,33 +173,44 @@ class PyConfHoardCLI(Cmd):
 
         Note: cmd2 will swallow any exceptions and the command-line-completion
         won't behave as we expect.
+
+        Examples:
+
+            line            text        result
+            'show '         ''          ['brewhouse ' ', 'ingredients ', 'recipes ']
+            'show br'       'br'        ['brewhouse ']
+
+            if text = '' then we search datastore for the full pth
+            if text != '' then we have to search the datastore for everything except the prtial element.
+
+
         """
+        filter_blank_values = False
         try:
-            path_to_find = line[len(cmd):]
+            strip_partial_elements = 0
             # Attempt to get the path which might not exist
             cmds = []
             try:
-                # TODO: although we pass in config ti's not taking effect
-                if path_to_find.count(' ') < 1:
-                    # print ('case1',path_to_find)
-                    xcmds = self.datastore.list_root(config=config)
+                if line.count(' ') == 1:
+                    xcmds = list(self.datastore.db.keys())
                 else:
-                    # print ('case2',path_to_find)
-                    if text == '':
-                        path_to_find = self.datastore.decode_path_string(path_to_find, ignore_last_n=0)
-                    else:
-                        path_to_find = self.datastore.decode_path_string(path_to_find, ignore_last_n=1)
-                    xcmds = self.datastore.list(path_to_find, config=config)
+                    if not text == '':
+                        strip_partial_elements = 1
+                    print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
+                    path_to_find = self.datastore.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
+                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=filter_blank_values)
+                print(' xcmds',xcmds)
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except:
+            except Exception as err:
+                print('!!!!! AAA xception in autocomplete %s' % (str(err)))
                 pass
             cmds.sort()
-        except Exception as err:
+        except ImportError as err:
             print('!!!!! exception in autocomplete %s' % (str(err)))
-
+        print ('cmds:%s,' %(cmds))
         return cmds
 
 
