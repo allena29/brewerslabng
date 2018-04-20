@@ -161,6 +161,39 @@ Particular Points
 >- update cli to provide sensible handling.
 
 
+To help develop and understand how the data mapping works when jin2json convers the YANG model into it's JSON representation a terse summary will be sent to the terminal. 
+
+```
+/simplestleaf leaf string conf-data
+/simplecontainer container conf-data-decendents oper-data-decendents
+/simplecontainer/leafstring leaf string conf-data
+/simplecontainer/leafnonconfig leaf string oper-data
+/level1 container conf-data-decendents oper-data-decendents
+/level1/level2 container conf-data-decendents oper-data-decendents
+/level1/level2/level3 container conf-data-decendents oper-data-decendents
+/level1/level2/level3/withcfg container conf-data-decendents
+/level1/level2/level3/withcfg/config leaf string conf-data
+/level1/level2/level3/withoutcfg container oper-data-decendents
+/level1/level2/level3/withoutcfg/nonconfig leaf string oper-data
+/level1/level2/level3/mixed container conf-data-decendents oper-data-decendents
+/level1/level2/level3/mixed/config leaf string conf-data
+/level1/level2/level3/mixed/nonconfig leaf string oper-data
+/simplelist list conf-data-decendents oper-data-decendents
+/simplelist/item leaf string conf-data
+/simplelist/subitem leaf string oper-data
+/types container conf-data-decendents
+/types/number leaf uint8 conf-data
+/types/biggernumber leaf uint16 conf-data
+/types/bignumber leaf uint32 conf-data
+/types/hugenumber leaf uint64 conf-data
+/types/secondlist list conf-data-decendents
+/types/secondlist/item leaf enumeration conf-data
+                  Enum Values:  ['A', 'B']
+/types/secondlist/thingwithdefault leaf string conf-data
+                  Default HELLO
+                  
+```
+
 
 #### Datastore Storage
 

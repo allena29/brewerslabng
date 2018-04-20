@@ -1,6 +1,10 @@
 import json
+import sys
+import dpath.util
 import argparse
 import xml.etree.ElementTree as ET
+from colorama import Fore
+from colorama import Style
 
 
 class yin_to_json:
@@ -11,21 +15,38 @@ class yin_to_json:
         tree = ET.parse(input)
         root = tree.getroot()
 
+        self.chain = []
+        self.final_pop_done = False
+
         self.process(root, path, schema_by_tree)
         self.schema = schema_by_tree
+
 
     def save(self, output):
         o = open(output, 'w')
         o.write(json.dumps(self.schema, indent=4))
         o.close()
-    
+   
+
     def process(self, obj, path, schema_by_tree, keys=[]):
+        cpath = '/'
+        if len(path):
+            cpath = path
+        sys.stderr.write('%s%s%s%s\n' % (Fore.MAGENTA, Style.BRIGHT, cpath, Style.RESET_ALL))
+
         for child in obj:
-            # print path, child.tag,child.attrib
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
                 schema_by_tree[child.attrib['name']]['__container'] = True
+                schema_by_tree[child.attrib['name']]['__decendentconfig'] = False
+                schema_by_tree[child.attrib['name']]['__decendentoper'] = False
+                if len(self.chain) == 0:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                else:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+                    
+                self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}
@@ -37,9 +58,19 @@ class yin_to_json:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
                 schema_by_tree[child.attrib['name']]['__keys'] = keys
+                schema_by_tree[child.attrib['name']]['__decendentconfig'] = False
+                schema_by_tree[child.attrib['name']]['__decendentoper'] = False
+                if len(self.chain) == 0:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                else:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+
+                self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
-            elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
+            elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':                
+                sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
                 schema_by_tree[child.attrib['name']] = {}
+        
                 schema_by_tree[child.attrib['name']]['__config'] = True
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
@@ -62,9 +93,57 @@ class yin_to_json:
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}config':
                         if tmp.attrib['value'] == 'false':
                             schema_by_tree[child.attrib['name']]['__config'] = False
+
+                for elder in self.chain:
+                    if schema_by_tree[child.attrib['name']]['__config']:
+                        elder['__decendentconfig'] = True
+                    else:
+                        elder['__decendentoper'] = True
+                if len(self.chain) == 0:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                else:
+                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+#                        elder[
     #                else:
     #                    print tmp.tag
+#        for child in obj:
 
+#        for x in self.chain:
+#           print ('    %s' %(x['__path']))
+
+        if len(self.chain):
+            self.chain.pop()
+        elif self.final_pop_done:
+            raise ValueError('Bad structure - tried to go beyond our root')
+        else:
+            self.final_pop_done = True
+        
+        
+    def validate(self, obj):
+        for childname in obj:
+            child = obj[childname]
+            if isinstance(child, dict):
+#                sys.stderr.write('%s\n' %(child))
+                if '__path' in child:
+
+                    if child['__rootlevel']:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'ROOT', Style.RESET_ALL))
+                    else:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, '    ', Style.RESET_ALL))
+                    if '__container' in child and child['__container']:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'CONTAINER', Style.RESET_ALL))
+                    elif '__list' in child and child['__list']:                    
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'LIST     ', Style.RESET_ALL))
+                    else:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'LEAF     ', Style.RESET_ALL))
+                    sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, child['__path'], Style.RESET_ALL))
+
+                    if '__default' in child:
+                        sys.stderr.write('%s%s%s%s%s ' % (Fore.GREEN, Style.DIM, ' Default ', child['__default'], Style.RESET_ALL))
+
+
+                    self.validate(child)
+                   
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Convert YIN document to JSON")
@@ -73,5 +152,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     worker = yin_to_json(args.input)
+    worker.validate(worker.schema)
     worker.save(args.output)
 
