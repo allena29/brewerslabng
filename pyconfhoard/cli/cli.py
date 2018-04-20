@@ -164,7 +164,7 @@ class PyConfHoardCLI(Cmd):
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
 
-    def _auto_complete(self, line, text, cmd='show ', config=True, include_blank=False):
+    def _auto_complete(self, line, text, cmd='show ', config=True, filter_blank_values=False):
         """
         line     - the full line of text (e.g. show fermentation
         text     - the text fragment autom completing (e.g. fermentation)
@@ -183,6 +183,7 @@ class PyConfHoardCLI(Cmd):
 
 
         """
+
         try:
             strip_partial_elements = 0
             # Attempt to get the path which might not exist
@@ -196,13 +197,13 @@ class PyConfHoardCLI(Cmd):
                         strip_partial_elements = 1
                     print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
                     path_to_find = self.datastore.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=include_blank)
+                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=filter_blank_values)
                 print(' xcmds',xcmds)
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except Exception as err:
+            except ImportError as err:
                 print('!!!!! AAA xception in autocomplete %s' % (str(err)))
                 pass
             cmds.sort()

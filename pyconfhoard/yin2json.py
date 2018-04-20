@@ -126,22 +126,37 @@ class yin_to_json:
 #                sys.stderr.write('%s\n' %(child))
                 if '__path' in child:
 
-                    if child['__rootlevel']:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'ROOT', Style.RESET_ALL))
-                    else:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, '    ', Style.RESET_ALL))
-                    if '__container' in child and child['__container']:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'CONTAINER', Style.RESET_ALL))
-                    elif '__list' in child and child['__list']:                    
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'LIST     ', Style.RESET_ALL))
-                    else:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'LEAF     ', Style.RESET_ALL))
                     sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, child['__path'], Style.RESET_ALL))
+                    if '__container' in child and child['__container']:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' container', Style.RESET_ALL))
+                        if '__decendentconfig' and child['__decendentconfig']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data-decendents', Style.RESET_ALL))
+                        if '__decendentoper' and child['__decendentoper']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
 
+                    elif '__list' in child and child['__list']:                    
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' list', Style.RESET_ALL))
+
+                        if '__decendentconfig' and child['__decendentconfig']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data-decendents', Style.RESET_ALL))
+                        if '__decendentoper' and child['__decendentoper']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
+                    else:
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' %(child['__type']), Style.RESET_ALL))
+
+                        if '__config' in child and child['__config']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data', Style.RESET_ALL))
+                        else:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data', Style.RESET_ALL))
+
+
+                    newline='\n                 '
                     if '__default' in child:
-                        sys.stderr.write('%s%s%s%s%s ' % (Fore.GREEN, Style.DIM, ' Default ', child['__default'], Style.RESET_ALL))
+                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Default ', child['__default'], Style.RESET_ALL))
+                    if '__enum_values' in child:
+                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Enum Values:  ', child['__enum_values'], Style.RESET_ALL))
 
-
+                    sys.stderr.write('\n')
                     self.validate(child)
                    
 

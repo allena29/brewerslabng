@@ -12,28 +12,53 @@ class PyConfHoardDataFilter:
 
     def __init__(self):
         self.root = {}
+    
+    def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
+        if '__value' in _obj and _obj['__value']:
+            return True
+        elif filter_blank_values is False:
+            return True
+        return False
+
+    def _check_if_suitable_config_non_config(self, _obj, config):
+        if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
+            return True
+        elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
+            return True
+        return False
+
+    def _check_suitability(self, _obj, config, filter_blank_values):
+        suitable = self._check_if_suitable_config_non_config(_obj, config)
+        if not suitable:
+            return False
+        return self._check_if_suitable_blank_values(_obj, filter_blank_values)
         
-    def _convert(self, _obj, filter_blank_values=True):
+
+    def _convert(self, _obj, filter_blank_values=True, config=None):
 
         for key in _obj:
             if isinstance(_obj[key], dict):
                 if '__path' in _obj[key]:
-                    # print (_obj[key]['__path'], key, _obj[key])
-                    if '__container' in _obj[key] and _obj[key]['__container']:
-                        dpath.util.new(self.root, _obj[key]['__path'], {})
-                    if '__list' in _obj[key] and _obj[key]['__list']:
-                        dpath.util.new(self.root, _obj[key]['__path'], {})
+                    val = None
+                    suitable = self._check_suitability(_obj[key], config, filter_blank_values)
+                                
+                    print ('STATUS... %s -> suitable %s' %(_obj[key]['__path'], suitable))
+                    if suitable:
+                        # print (_obj[key]['__path'], key, _obj[key])
+                        if '__container' in _obj[key] and _obj[key]['__container']:
+                            dpath.util.new(self.root, _obj[key]['__path'], {})
+                        elif '__list' in _obj[key] and _obj[key]['__list']:
+                            dpath.util.new(self.root, _obj[key]['__path'], {})
+                        else:
+                            dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
 
-                    if '__value' in _obj[key] and _obj[key]['__value'] and filter_blank_values:
-                        dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
-                    elif filter_blank_values == False:
-                        dpath.util.new(self.root, _obj[key]['__path'], {})
-                    self._convert(_obj[key], filter_blank_values=filter_blank_values)
+                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
 #            else:
 #                print (_obj.keys())
                 
-    def convert(self, _obj):
-        self._convert(_obj)
+    def convert(self, _obj, config=None, filter_blank_values=True):
+        print
+        self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
         return self.root
 
 
@@ -201,14 +226,16 @@ class PyConfHoardDatastore:
             raise ValueError('Path: %s is not a leaf - cannot get a value')
 
     def list(self, path, config=True, filter_blank_values=True):
-        print ('list..',path)
+        print ('list..',path, config, filter_blank_values)
         try:
             obj = self.get_object(path)
         except KeyError:
             print ('raise vale')
             raise ValueError('Path: %s does not exist - cannot build list' % (path.replace(' ','/')))
+        print ('prefiltered',obj)
         filter = PyConfHoardDataFilter()
-        filtered = filter.convert(obj)
+        filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
+        print ('filtered',filtered)
         # If we filtered the object get the last key we filtered on
         if len(path) > 0:
             # print ('return here because %s has more than 0 elements' %(path))

@@ -5,18 +5,23 @@
         "__value": null,
         "__path": "/simplestleaf",
         "__listkey": false,
-        "__type": "string"
+        "__type": "string",
+        "__rootlevel": true
     },
     "simplecontainer": {
         "__path": "/simplecontainer",
         "__container": true,
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__rootlevel": true,
         "leafstring": {
             "__config": true,
             "__leaf": true,
             "__value": null,
             "__path": "/simplecontainer/leafstring",
             "__listkey": false,
-            "__type": "string"
+            "__type": "string",
+            "__rootlevel": false
         },
         "leafnonconfig": {
             "__config": false,
@@ -24,52 +29,74 @@
             "__value": null,
             "__path": "/simplecontainer/leafnonconfig",
             "__listkey": false,
-            "__type": "string"
+            "__type": "string",
+            "__rootlevel": false
         }
     },
     "level1": {
         "__path": "/level1",
         "__container": true,
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__rootlevel": true,
         "level2": {
             "__path": "/level1/level2",
             "__container": true,
+            "__decendentconfig": true,
+            "__decendentoper": true,
+            "__rootlevel": false,
             "level3": {
                 "__path": "/level1/level2/level3",
                 "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": true,
+                "__rootlevel": false,
                 "withcfg": {
                     "__path": "/level1/level2/level3/withcfg",
                     "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": false,
+                    "__rootlevel": false,
                     "config": {
                         "__config": true,
                         "__leaf": true,
                         "__value": null,
                         "__path": "/level1/level2/level3/withcfg/config",
                         "__listkey": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__rootlevel": false
                     }
                 },
                 "withoutcfg": {
                     "__path": "/level1/level2/level3/withoutcfg",
                     "__container": true,
+                    "__decendentconfig": false,
+                    "__decendentoper": true,
+                    "__rootlevel": false,
                     "nonconfig": {
                         "__config": false,
                         "__leaf": true,
                         "__value": null,
                         "__path": "/level1/level2/level3/withoutcfg/nonconfig",
                         "__listkey": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__rootlevel": false
                     }
                 },
                 "mixed": {
                     "__path": "/level1/level2/level3/mixed",
                     "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": true,
+                    "__rootlevel": false,
                     "config": {
                         "__config": true,
                         "__leaf": true,
                         "__value": null,
                         "__path": "/level1/level2/level3/mixed/config",
                         "__listkey": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__rootlevel": false
                     },
                     "nonconfig": {
                         "__config": false,
@@ -77,7 +104,8 @@
                         "__value": null,
                         "__path": "/level1/level2/level3/mixed/nonconfig",
                         "__listkey": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__rootlevel": false
                     }
                 }
             }
@@ -88,13 +116,17 @@
         "__elements": {},
         "__path": "/simplelist",
         "__keys": "item",
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__rootlevel": true,
         "item": {
             "__config": true,
             "__leaf": true,
             "__value": null,
             "__path": "/simplelist/item",
             "__listkey": true,
-            "__type": "string"
+            "__type": "string",
+            "__rootlevel": false
         },
         "subitem": {
             "__config": false,
@@ -102,19 +134,24 @@
             "__value": null,
             "__path": "/simplelist/subitem",
             "__listkey": false,
-            "__type": "string"
+            "__type": "string",
+            "__rootlevel": false
         }
     },
     "types": {
         "__path": "/types",
         "__container": true,
+        "__decendentconfig": true,
+        "__decendentoper": false,
+        "__rootlevel": true,
         "number": {
             "__config": true,
             "__leaf": true,
             "__value": null,
             "__path": "/types/number",
             "__listkey": false,
-            "__type": "uint8"
+            "__type": "uint8",
+            "__rootlevel": false
         },
         "biggernumber": {
             "__config": true,
@@ -122,7 +159,8 @@
             "__value": null,
             "__path": "/types/biggernumber",
             "__listkey": false,
-            "__type": "uint16"
+            "__type": "uint16",
+            "__rootlevel": false
         },
         "bignumber": {
             "__config": true,
@@ -130,7 +168,8 @@
             "__value": null,
             "__path": "/types/bignumber",
             "__listkey": false,
-            "__type": "uint32"
+            "__type": "uint32",
+            "__rootlevel": false
         },
         "hugenumber": {
             "__config": true,
@@ -138,13 +177,17 @@
             "__value": null,
             "__path": "/types/hugenumber",
             "__listkey": false,
-            "__type": "uint64"
+            "__type": "uint64",
+            "__rootlevel": false
         },
         "secondlist": {
             "__list": true,
             "__elements": {},
             "__path": "/types/secondlist",
             "__keys": "item",
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__rootlevel": false,
             "item": {
                 "__config": true,
                 "__leaf": true,
@@ -155,7 +198,8 @@
                 "__enum_values": [
                     "A",
                     "B"
-                ]
+                ],
+                "__rootlevel": false
             },
             "thingwithdefault": {
                 "__config": true,
@@ -164,20 +208,25 @@
                 "__path": "/types/secondlist/thingwithdefault",
                 "__listkey": false,
                 "__type": "string",
-                "__default": "HELLO"
+                "__default": "HELLO",
+                "__rootlevel": false
             },
             "innerlist": {
                 "__list": true,
                 "__elements": {},
                 "__path": "/types/secondlist/innerlist",
                 "__keys": "item",
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__rootlevel": false,
                 "item": {
                     "__config": true,
                     "__leaf": true,
                     "__value": null,
                     "__path": "/types/secondlist/innerlist/item",
                     "__listkey": true,
-                    "__type": "string"
+                    "__type": "string",
+                    "__rootlevel": false
                 }
             }
         },
@@ -186,13 +235,17 @@
             "__elements": {},
             "__path": "/types/compositekeylist",
             "__keys": "keyA keyB",
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__rootlevel": false,
             "keyA": {
                 "__config": true,
                 "__leaf": true,
                 "__value": null,
                 "__path": "/types/compositekeylist/keyA",
                 "__listkey": true,
-                "__type": "string"
+                "__type": "string",
+                "__rootlevel": false
             },
             "keyB": {
                 "__config": true,
@@ -200,7 +253,8 @@
                 "__value": null,
                 "__path": "/types/compositekeylist/keyB",
                 "__listkey": true,
-                "__type": "string"
+                "__type": "string",
+                "__rootlevel": false
             }
         }
     }
