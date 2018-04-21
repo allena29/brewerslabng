@@ -1,51 +1,44 @@
 # brewerslabng
 
-This project is a clean-reworking of [Brewerslab](https://github.com/allena29/brewerslab) which is looking to use [Netopeer2](https://github.com/CESNET/Netopeer2) and [Sysrepo](https://github.com/sysrepo/sysrepo) to provide the datastore and NETCONF.
+This project is a clean-reworking of [Brewerslab](https://github.com/allena29/brewerslab) which is looking to provide an datamodel and associated implementation for a small brewery.
+
+The data for the brewery will use a strong data model (YANG), and will use [**PyConfHoard**](pyconfhoard/README.md) to store and manage the data.
 
 
 ## Setup
 
 1. [Raspberry PI Basic Setup](Documentation/RaspberryPi.md)
-2. [Netopeer2 Install](Documentation/InstallNetopeer2.md)
+
+
+## Hardware 
+
+- Raspberry Pi 
+- DS18B20 - 1 Wire Temperature Probes
 
 
 
-## Overview
+# Things
 
-### sysrepod
+## Temperature Monitoring (DS18B20 1-Wire Sensors)
 
-- `/etc/sysrepod/yang` and `/etc/sysrepod/data` contains the installed list of yang modules and the data for each module within the database.
+The temperature monitor uses 1-wire DS18B20 probes, which write their data into `/sys/bus/w1/devices/28-0415014ba0ff/w1_slave` in a simple text format. Each probe has a unique burned-in ID (e.g. 0415014ba0ff in this case), if multiple probes are present a unique directory for each probe will be created and each will have a w1\_slave file instide. The contents of the w1\_slave file is as below. 
+
+If the CRC checksum for the reading is not valid we will see NO at the end of the first line. It shoudl be noted that we can receive results with a CRC checksum which is correct but the temperature reading itself is not correct. In many cases 85000 appears. 
+
+The temperature itself is shown on the end of the second line, in this case the result would have been 16.625degC.
 
 
-### Install YANG
+> 0a 01 55 00 7f ff 0c 10 64 : crc=64 YES  
+> 0a 01 55 00 7f ff 0c 10 64 t=16625
+
+
 
 ```bash
-sudo sysrepoctl --install --yang=/home/user/ietf-interfaces.yang
-sudo sysrepoctl --change --module=brewerslab  --owner=beerng:beerng
-sysrepoctl --list
-```
+# Launching - with real hardware
+./launch --thing things/temperature/TemperatureProviderDs18B20.py
 
-### Basic Python access to sysrepo
-
-```python
-import libsysrepoPython3 as sr
-conn = sr.Connection("example_application")
-sess = sr.Session(conn)
-subscribe = sr.Subscribe(sess)
-
-print('Showing our schemas')
-schemas = sess.list_schemas()
-for i in range(schemas.schema_cnt()):
-     print(schemas.schema(i).module_name())
-
-
-def cb_module_change(sess, module_name, event, private_ctx):
-    print('cb_module_change %s %s %s %s' % (sess, module_name, event, private_ctx))
-    
-    
-    
-module_name = 'brewerslab'
-subscribe.module_change_subscribe(module_name, cb_module_change)
+# Launching - with FAKE directories.
+FAKE_DS18B20_RESULT_DIR=/tmp/1wire ./launch --thing things/temperature/TemperatureProviderDs18B20.py
 ```
 
 

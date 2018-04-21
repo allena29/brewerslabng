@@ -82,8 +82,11 @@ eval "$(pyenv init -)"
 export PYENV_ROOT="$HOME/.pyenv"
 git clone https://github.com/pyenv/pyenv-virtualenv.git ~/.pyenv/plugins/pyenv-virtualenv
 pyenv install 3.6.5
+pyenv install 2.7.14
 eval "$(pyenv virtualenv-init -)"
 pyenv virtualenv 3.6.5 brewerslabng
+pyenv virtualenv 2.7.14 brewerslabng2
+
 
 cat <<'EOF' >> ~/.bashrc
 export PYENV_ROOT="$HOME/.pyenv"

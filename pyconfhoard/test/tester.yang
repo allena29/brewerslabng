@@ -1,0 +1,116 @@
+module tester {
+	namespace "http://confvillain.mellon-collie.net/tester/";
+	prefix tester;
+
+  leaf simplestleaf {
+    type string;
+  }
+
+  container simplecontainer {
+    leaf leafstring {
+      type string;
+    }
+    leaf leafnonconfig {
+      type string;
+      config false;
+    }
+  }
+
+  container level1 {
+    container level2 {
+      container level3 {
+        container withcfg {
+          leaf config {
+            type string;
+          }
+        }
+        container withoutcfg {
+          leaf nonconfig {
+            type string;
+            config false;
+          }
+        }
+        container mixed {
+          leaf config {
+            type string;
+          }
+          leaf nonconfig {
+            type string;
+            config false;
+          }
+        }
+      }
+    }
+
+  }
+
+  list simplelist {
+    key item;
+
+    leaf item {
+      type string;
+    }
+
+    leaf subitem {
+      type string;
+      config false;
+    }
+
+  }
+
+ 
+  container types {
+    leaf number {
+      type uint8;
+    }
+
+    leaf biggernumber {
+      type uint16;
+    }
+
+    leaf bignumber {
+      type uint32;
+    }
+
+    leaf hugenumber {
+      type uint64;
+    }
+
+    list secondlist {
+      key item;
+        
+      leaf item {
+        type enumeration {
+          enum A;
+          enum B;
+        }
+      }
+
+      leaf thingwithdefault {
+        type string;
+        default 'HELLO';
+      }
+
+      list innerlist {
+        key item;
+
+        leaf item {
+          description "This is a description of an item";
+          type string;
+        }
+      }
+    }
+
+    list compositekeylist {
+      key "keyA keyB";
+
+      leaf keyA {
+        type string;
+      }
+
+      leaf keyB {
+        type string;
+      }
+    }
+  }
+}

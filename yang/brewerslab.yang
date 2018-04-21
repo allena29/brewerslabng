@@ -16,6 +16,7 @@ module brewerslab {
 
 
     container temperature {
+      // implemented by TemperatureProvider
 
       container fermentation {
         leaf monitor {
@@ -109,6 +110,56 @@ module brewerslab {
 
     } //end of temperatures
 
+
+    container power {
+    
+      description "This collects together the power control of the brewery.
+      
+      Unfortuntely this part of the model provides a few issues with complexity.
+
+      1) Enumerations - PYANG Bind *does* validate to make sure a leaf (like mode)
+      has a valid value - but doesn't apply the default. So we can't dump the object
+      *UNTIL* we have populated all defaults
+
+      2) Validations - if we have the CLI setting data it needs to be aware of the
+      valiations otherwise it can set bad data
+      ";
+
+      container heating {
+        // implemented by ssr
+
+        leaf mode {
+          type enumeration {
+            enum HLT;
+            enum KETTLE;
+          }
+        }
+
+        list elements {
+          key element;
+
+          leaf element {
+            type enumeration {
+              enum A;
+              enum B;
+            }
+          }
+
+          leaf forceoff {
+            type boolean;
+          }
+
+          leaf active {
+            type boolean;
+            config false;
+          }
+
+
+        }
+      }
+
+
+    }
 
   } //end of brewhouse
 
