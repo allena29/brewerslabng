@@ -156,7 +156,7 @@ Particular Points
 
 >To implement new YANG constructs the following requirements need to be satisifed
 >
->1. ensure yin2json.py provides sensible output
+>1. ensure PyConfHoardSchema.py provides sensible output
 >- ensure PyConfHoardDataStore handles the new contraints yang
 >- update cli to provide sensible handling.
 

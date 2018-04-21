@@ -9,12 +9,12 @@ from colorama import Style
 
 class yin_to_json:
 
-    def __init__(self, input):
+    def __init__(self, input, quiet=False):
         schema_by_tree = {}
         path =''
         tree = ET.parse(input)
         root = tree.getroot()
-
+        self.quiet = quiet
         self.chain = []
         self.final_pop_done = False
 
@@ -32,7 +32,9 @@ class yin_to_json:
         cpath = '/'
         if len(path):
             cpath = path
-        sys.stderr.write('%s%s%s%s\n' % (Fore.MAGENTA, Style.BRIGHT, cpath, Style.RESET_ALL))
+
+        if not self.quiet:
+            sys.stderr.write('%s%s%s%s\n' % (Fore.MAGENTA, Style.BRIGHT, cpath, Style.RESET_ALL))
 
         for child in obj:
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
@@ -68,7 +70,8 @@ class yin_to_json:
                 self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':                
-                sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
+                if not self.quiet:
+                    sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
                 schema_by_tree[child.attrib['name']] = {}
         
                 schema_by_tree[child.attrib['name']]['__config'] = True
@@ -164,9 +167,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Convert YIN document to JSON")
     parser.add_argument('--input', required=True, help="Path a YIN file")
     parser.add_argument('--output', required=True, help="Path to store YIN document")
+    parser.add_argument('--quiet', action='store_true', help="Don't show progress")
     args = parser.parse_args()
 
-    worker = yin_to_json(args.input)
-    worker.validate(worker.schema)
+    worker = yin_to_json(args.input, args.quiet)
+    if not args.quiet:
+        worker.validate(worker.schema)
+
     worker.save(args.output)
 

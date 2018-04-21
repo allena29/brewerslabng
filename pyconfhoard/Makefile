@@ -1,7 +1,7 @@
-.PHONY: unittest cli
+.PHONY: unittest cli schema schema-quiet
 
 
-wall: cli schema unittest
+wall: cli schema-quiet unittest
 
 cli: 
 	$(MAKE) -C cli
@@ -9,7 +9,13 @@ cli:
 schema:
 	pyang -f yin -o test/tester.yin test/tester.yang 
 	pyang -f tree -o test/tester.txt test/tester.yang
-	python yin2json.py --input=test/tester.yin --output=test/schema.json
+	python PyConfHoardSchema.py --input=test/tester.yin --output=test/schema.json
+	cp test/schema.json test/example-schema.json
+
+schema-quiet:
+	pyang -f yin -o test/tester.yin test/tester.yang 
+	pyang -f tree -o test/tester.txt test/tester.yang
+	python PyConfHoardSchema.py --input=test/tester.yin --output=test/schema.json --quiet
 	cp test/schema.json test/example-schema.json
 
 unittest: 
