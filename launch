@@ -20,7 +20,6 @@ parser.add_argument('--thing', help="Path to a thing (e.g. things/temperature/Te
 parser.add_argument('--rest', action='store_true')
 parser.add_argument('--cli', action='store_true')
 parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
-parser.add_argument('--register', action='store_true', help="Register the yang module")
 args = parser.parse_args()
 
 
@@ -67,12 +66,9 @@ elif os.path.exists(args.thing):
         os.chdir(path[1])
         py_mod = imp.load_source(path[2].split('.')[0], path[2])
         launcher = getattr(py_mod, 'Launch')
-        if args.register:
-            launch = launcher()
-            launch.thing.register()
-        else:
-            launch = launcher()
-            launch.thing.start()
+        launch = launcher()
+        launch.thing.register()
+        launch.thing.start()
 
     else:
         raise ValueError('%s not a valid thing - cannot launch' % (args.thing))

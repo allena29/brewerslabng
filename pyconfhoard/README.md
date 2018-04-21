@@ -217,16 +217,6 @@ The **Thing** class provides methods to serialise/deserialise data based on the 
 **TBD** threading and IPC
 
 
-#### Registering a Thing
-
-A first step is to register the YANG module, which writes an empty schema based upon the yang module. In future it will be necessary to suport upgrading modles - but in the early stage of development this will not be provided.
-
-> The schema will be written to `datastore/startup`
-
-```bash
-./launch --thing things/directory/python-script.py --register
-```
-
 
 #### Starting a Thing
 
