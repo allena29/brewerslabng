@@ -203,19 +203,19 @@ class PyConfHoardCLI(Cmd):
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except ImportError as err:
+            except Exception as err:
                 print('!!!!! AAA xception in autocomplete %s' % (str(err)))
                 pass
             cmds.sort()
-        except ImportError as err:
+        except Exception as err:
             print('!!!!! exception in autocomplete %s' % (str(err)))
         print ('cmds:%s,' %(cmds))
         return cmds
 
 
-    def _get_json_cfg_view(self, path, config=True):
+    def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
         try:
-            our_cfg = self.datastore.view(path, config)
+            our_cfg = self.datastore.view(path, config, filter_blank_values=filter_blank_values)
         except KeyError as err:
             raise ValueError('Path: %s does not exist' % (path))
         return json.dumps(our_cfg, indent=4)

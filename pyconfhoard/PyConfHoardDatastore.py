@@ -15,23 +15,35 @@ class PyConfHoardDataFilter:
     
     def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
         if '__value' in _obj and _obj['__value']:
+            print (' filter_ban retrun True (we have a vlue', _obj['__path'])
             return True
         elif filter_blank_values is False:
+            print (' filter_ban retrun True (we dont care)', _obj['__path'])
             return True
+        print (' filter_ban retrun False', _obj['__path'])
         return False
 
     def _check_if_suitable_config_non_config(self, _obj, config):
-        if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
-            return True
-        elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
-            return True
+        if '__leaf' in _obj and _obj['__leaf'] is True:
+            if config == _obj['__config']:
+                print ('cfgleaf...', _obj['__config'],_obj['__path'], config)
+                return True
+        else:
+            if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
+                print ('  decend config returning true', _obj['__path'])
+                return True
+            elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
+                print ('decend oper returning true', _obj['__path'])
+                return True
+            print ('decend oper false :-(', _obj['__path'])
         return False
 
     def _check_suitability(self, _obj, config, filter_blank_values):
-        suitable = self._check_if_suitable_config_non_config(_obj, config)
-        if not suitable:
-            return False
-        return self._check_if_suitable_blank_values(_obj, filter_blank_values)
+        config = self._check_if_suitable_config_non_config(_obj, config)
+        blanks = self._check_if_suitable_blank_values(_obj, filter_blank_values)
+        overall = config and blanks
+        print ('OVERAL  %s config %s blanks %s overall %s ' % (_obj['__path'], config, blanks, overall))
+        return config and blanks
         
 
     def _convert(self, _obj, filter_blank_values=True, config=None):
@@ -41,10 +53,7 @@ class PyConfHoardDataFilter:
                 if '__path' in _obj[key]:
                     val = None
                     suitable = self._check_suitability(_obj[key], config, filter_blank_values)
-                                
-                    print ('STATUS... %s -> suitable %s' %(_obj[key]['__path'], suitable))
                     if suitable:
-                        # print (_obj[key]['__path'], key, _obj[key])
                         if '__container' in _obj[key] and _obj[key]['__container']:
                             dpath.util.new(self.root, _obj[key]['__path'], {})
                         elif '__list' in _obj[key] and _obj[key]['__list']:
@@ -53,11 +62,8 @@ class PyConfHoardDataFilter:
                             dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
 
                     self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
-#            else:
-#                print (_obj.keys())
                 
     def convert(self, _obj, config=None, filter_blank_values=True):
-        print
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
         return self.root
 
@@ -104,20 +110,29 @@ class PyConfHoardDatastore:
 
         return separated
 
-    def view(self, path_string, config):
+    def view(self, path_string, config, filter_blank_values=True):
         """
-        TBD
-        """
-        print  ('config option not yet supported here')
-        pretty = PyConfHoardDataFilter()
-        pretty.convert(self.get_object(path_string))
+        This method provides a human readable rendering of the datastore.
+        A new dictionary is returned which removes all the internal metadata
+        
+        Schema                                  Filtered
+        {'key': {                               {'key': 123}
+            '__path': '/key',
+            '__value': None,
+            '__default': 123
+            }
+        }
 
-        return pretty.root
+        """
+
+        pretty = PyConfHoardDataFilter()
+        raw_object = self.get_object(path_string)
+        filtered = pretty.convert(raw_object, config=config, filter_blank_values=filter_blank_values)
+        navigated = self._get(path_string, obj=filtered, get_value=False)
+        return navigated
 
     def merge_node(self, new_node, separator=' '):
         node = self.get_object([], separator=separator)
-        # print ('trying to merge into ... ', node)
-        # print ('want to merge in.... ', new_node)
         dpath.util.merge(node, new_node)
 
     def set(self, path_string, set_val, separator=' '):
@@ -149,26 +164,34 @@ class PyConfHoardDatastore:
     def get_object(self, path_string, separator=' '):
         return self._get(path_string, get_value=False, separator=separator)
 
-    def _get(self, path_string, get_value=True, separator=' '):
+    def _get(self, path_string, get_value=True, separator=' ', obj=None):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
         we will decode it further.
 
-        See also get_filtered
+        By default this operates on the default datastore (self.db) but
+        an optional object can be passed in instead.
+
+        TODO: in future we should intelligently derrive if get_value is required
+        or get is rquried.
         """
+
+        if not obj:
+            obj = self.db
+
         if isinstance(path_string, list):
             path = path_string
         else:
             path = self.decode_path_string(path_string, separator)
 
         if len(path) == 0:
-            return self.db
-
+            return obj
+        
         if get_value:
-            return self._get_value(path, dpath.util.get(self.db, path))
+            return self._get_value(path, dpath.util.get(obj, path))
         else:
-            return dpath.util.get(self.db, path)
+            return dpath.util.get(obj, path)
 
     def create(self, path_string, keys, separator=' '):
         """Create a list item
@@ -189,7 +212,6 @@ class PyConfHoardDatastore:
                              (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
                                  
 
-        #print ('xxxxsetting', path_string + separator + key)
         list_element = self.get_object(path_string)
         if keys in list_element:
             raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
@@ -205,7 +227,6 @@ class PyConfHoardDatastore:
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
             list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
-        # print (json.dumps(list_element, indent=4)) 
 
 
     def _get_value(self, path, obj):
@@ -223,40 +244,17 @@ class PyConfHoardDatastore:
                 return None
 
         else:
-            raise ValueError('Path: %s is not a leaf - cannot get a value')
+            raise ValueError('Path: %s is not a leaf - cannot get a value' % (path))
 
     def list(self, path, config=True, filter_blank_values=True):
-        print ('list..',path, config, filter_blank_values)
         try:
             obj = self.get_object(path)
         except KeyError:
-            print ('raise vale')
-            raise ValueError('Path: %s does not exist - cannot build list' % (path.replace(' ','/')))
-        print ('prefiltered',obj)
+            raise ValueError('Path: %s does not exist - cannot build list' % (path))
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
-        print ('filtered',filtered)
         # If we filtered the object get the last key we filtered on
         if len(path) > 0:
-            # print ('return here because %s has more than 0 elements' %(path))
-            # print ('b>', dpath.util.get(filtered, path).keys())
             return dpath.util.get(filtered, path).keys()
         else:
-            # print ('a>', dpath.util.get(filtered, path).keys())
             return dpath.util.get(filtered, path).keys()
-
-    @staticmethod
-    def _check_for_config_or_not_config(obj, config, result=False):
-        if result:
-            return True
-        for key in obj:
-            if not isinstance(obj, dict):
-                pass
-            elif isinstance(obj[key], dict) :
-                if '__config' in obj[key] and obj[key]['__config'] == config:
-                    return True
-                result = PyConfHoardDatastore._check_for_config_or_not_config(obj[key], config, result)
-            else:
-                if key == '__config' and obj[key] == config:
-                    return True
-        return result

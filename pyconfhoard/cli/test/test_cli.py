@@ -11,7 +11,7 @@ class TestPyConfHoardCLI(unittest.TestCase):
         self.subject._load_datastores = Mock()
         self.subject.datastore.db = json.loads(open('test/schema.json').read())
         self.object = self.subject.datastore.db
-
+        self.maxDiff = 10000
     def test_show_of_non_existing_path(self):
         try:
             result = self.subject._get_json_cfg_view('show thisdoesnotexist')
@@ -20,28 +20,34 @@ class TestPyConfHoardCLI(unittest.TestCase):
             self.assertEqual(str(err), 'Path: show thisdoesnotexist does not exist')
             
     def test_show_top_level(self):
+        self.subject.datastore.set('simplestleaf', 243)
         result = self.subject._get_json_cfg_view('')
         result = json.loads(result)
-
         # These asserts access the structures directly - but we should of course
         # always use .get() on the path
-        self.assertEqual(result['simplestleaf'],{})
-        self.assertEqual(result['types']['number'], {})
+        self.assertEqual(result['simplestleaf'], 243)
 
     def test_show_bottom_leaf(self):
         self.subject._db_oper = self.object
-        result = self.subject._get_json_cfg_view('types')
+        result = self.subject._get_json_cfg_view('types', filter_blank_values=False)
         result = json.loads(result)
 
-        self.assertEqual(result['number'], {})
-        self.assertEqual(result['number'], {})
+        self.assertEqual(result['number'], None)
 
     def test_show_mid_container(self):
+        self.subject.datastore.set('level1 level2 level3 mixed config', 'this-value-has-been-set')
+        self.subject.datastore.set('level1 level2 level3 withcfg config', 'this-value-has-been-set2')
         result = self.subject._get_json_cfg_view('level1 level2 level3')
-        result = json.loads(result)
 
-        self.assertEqual(result['mixed'], {'config': {}})
-        self.assertEqual(result['withcfg'], {'config': {}})
+        expected = """{
+    "withcfg": {
+        "config": "this-value-has-been-set2"
+    },
+    "mixed": {
+        "config": "this-value-has-been-set"
+    }
+}"""
+        self.assertEqual(result, expected)
 
     def test_tab_completion_without_leading_text(self):
         line = 'show level1 '
