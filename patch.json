@@ -1,0 +1,16 @@
+{
+    "brewhouse": {
+        "temperature": {
+            "fermentation": {
+                "setpoint": {
+                    "__value": 17.0
+                },
+                "probe": {
+                    "id": {
+                        "__value": "28-0000"
+                    }
+                }
+            }
+        }
+    }
+}

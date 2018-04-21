@@ -1,18 +1,22 @@
 import json
 import falcon
 import os
+import sys
+from PyConfHoardDatastore import PyConfHoardDataStoreLock
+
 
 class Resource(object):
 
+    DATASTORE = "datastore"
+
     def on_get(self, req, resp, datastore, path):
         req.get_header('TOKEN')
-
 
         valid_datastores = ['operational', 'persist', 'running', 'default']
         if datastore not in valid_datastores:
             raise ValueError('Invalid datastore %s: select from %s' % (valid_datastores))
 
-        base = 'datastore/' + datastore 
+        base = self.DATASTORE + '/' + datastore
         db = base + '/' + path + '.pch'
         if os.path.exists(db):
             o = open(db)
@@ -23,5 +27,18 @@ class Resource(object):
 
         resp.status = falcon.HTTP_200
 
-    def on_put(self, req, response, datastore, path):
-        print (datastore,path)
+    def on_patch(self, req, resp, datastore, path):
+        if 'application/json' not in req.content_type:
+            raise falcon.HTTPUnsupportedMediaType('JSON encoded payload required')
+
+        try:
+            body = req.stream.read()
+            json_obj = json.loads(body)
+        except Exception as err:
+            raise ValueError('Unable to decode JSON body %s' % (str(err)))
+
+        with PyConfHoardDataStoreLock(self.DATASTORE, datastore, path) as lock:
+            print('we have a lock...', lock)
+            update = lock.patch(json_obj)
+
+            resp.body = update

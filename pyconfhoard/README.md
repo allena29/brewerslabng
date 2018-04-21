@@ -195,6 +195,12 @@ To help develop and understand how the data mapping works when jin2json convers 
 ```
 
 
+##### TODO:
+
+1. Need to implement restrictions.
+
+
+
 #### Datastore Storage
 
 Within the datastore directory there are a number of directories, it is assumed that all functions will run either on a single host, or have access (e.g. NFS/CIFS/AFS) to the common datastore directory. 
@@ -262,7 +268,7 @@ if __name__ == '__main__':
     Launch()
 ```
 
-#### TODO:
+##### TODO:
 
 1. Need to protect to make sure we don't run the same thing twice.
 
@@ -280,35 +286,146 @@ The server can be started from the pyconfhord dircetory.
 ./launch --rest
 ```
 
-An example of fetching opdata for the Temperature Provider is shown below.
+An example of fetching config for the Temperature Provider is shown below.
 
 ```
-http localhost:8000/v1/datastore/startup/TemperatureProvider
 HTTP/1.1 200 OK
 Connection: close
-Date: Thu, 12 Apr 2018 00:01:49 GMT
+Date: Sat, 21 Apr 2018 21:53:04 GMT
 Server: gunicorn/19.7.1
-content-length: 196
+content-length: 1045
 content-type: application/json; charset=UTF-8
 
 {
-    "__namespace": "brewerslab",
-    "fermentation": {
-        "highpoint": "0",
-        "lowpoint": "0",
-        "probe": {
-            "id": ""
-        },
-        "setpoint": "17"
+    "brewhouse": {
+        "temperature": {
+            "fermentation": {
+                "highpoint": {
+                    "__value": null
+                },
+                "lowpoint": {
+                    "__value": null
+                },
+                "probe": {
+                    "id": {
+                        "__value": null
+                    }
+                },
+                "setpoint": {
+                    "__value": null
+                }
+            },
+            "hardware": {
+                "probe": {
+                    "id": {
+                        "__value": null
+                    },
+                    "offsets": {
+                        "high": {
+                            "__value": null
+                        },
+                        "low": {
+                            "__value": null
+                        },
+                        "offset": {
+                            "__value": null
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 ```
 
-#### TODO:
+The REST server only supports PATCH, behind the scence operational and config data are stored in the same object, in fact data from other things are stored in the same space. The point of separation is only when saving to disk. 
 
-1. Allow data to be saved on the backend
-- If data is updated we need to trigger things
+An example of patching data, in this case we sent the following json payload, before this request the database did not hav any values.
 
+```json
+{
+    "brewhouse": {
+        "temperature": {
+            "fermentation": {
+                "setpoint": {
+                    "__value": 17.0
+                },
+                "probe": {
+                    "id": {
+                        "__value": "28-0000"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+When a **PATCH** operation is made the following things happen.
+
+1. A transaction lock is obtained 
+2. The data is merged and written to the running file.
+3. The lock is automatically released.
+4. The entire JSON encoded data for that that specific path in the datastore is returned- clients should update any working caches with this response.
+
+```
+git:master 🌜 👆  ~/brewerslabng $ http patch http://127.0.0.1:8000/v1/datastore/running/TemperatureProvider <patch.json
+HTTP/1.1 200 OK
+Connection: close
+Date: Sat, 21 Apr 2018 23:29:50 GMT
+Server: gunicorn/19.7.1
+content-length: 1050
+content-type: application/json; charset=UTF-8
+
+{
+    "brewhouse": {
+        "temperature": {
+            "fermentation": {
+                "highpoint": {
+                    "__value": null
+                },
+                "lowpoint": {
+                    "__value": null
+                },
+                "probe": {
+                    "id": {
+                        "__value": "28-0000"
+                    }
+                },
+                "setpoint": {
+                    "__value": 17.0
+                }
+            },
+            "hardware": {
+                "probe": {
+                    "id": {
+                        "__value": null
+                    },
+                    "offsets": {
+                        "high": {
+                            "__value": null
+                        },
+                        "low": {
+                            "__value": null
+                        },
+                        "offset": {
+                            "__value": null
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+
+##### TODO:
+
+1. ~~Allow data to be saved on the backend~~
+- Implement a commit so data is properly persists
+- If data is updated we need to trigger things.
+- Allow a validate method 
 
 ## CLI
 
@@ -385,7 +502,7 @@ robber@localhost% exit
 robber@localhost> exit
 ```
 
-#### TODO
+##### TODO
 
 1. Cosmetic: filter out nodes which have no contents 
 - Feature: authentication for CLI module.
