@@ -44,7 +44,7 @@ class TestYang(unittest.TestCase):
         self.assertTrue('mixed' in result['level3'])
 
     def test_filtering_of_config_nodes_in_a_list(self):
-        result = self.subject.list('level1 level2 level3')
+        result = self.subject.list('level1 level2 level3', filter_blank_values=False)
         self.assertEqual(result, ['withcfg', 'mixed'])
 
     def test_filtering_of_non_config_nodes_in_a_list(self):
@@ -56,7 +56,7 @@ class TestYang(unittest.TestCase):
             self.subject.list('simplecontainer nonexist')
             self.fail('Listing a non existant node should throw an exception')
         except Exception as err:
-            self.assertEqual(str(err), "Path: simplecontainer/nonexist does not exist - cannot build list")
+            self.assertEqual(str(err), "Path: simplecontainer nonexist does not exist - cannot build list")
     
     def test_get_filtered_configuration_view(self):
         result = self.subject.get_filtered('', config=True)

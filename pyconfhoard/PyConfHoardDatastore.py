@@ -247,14 +247,15 @@ class PyConfHoardDatastore:
             raise ValueError('Path: %s is not a leaf - cannot get a value' % (path))
 
     def list(self, path, config=True, filter_blank_values=True):
+        """
+        This method provides a list of keys within a data object, which can be
+        filtered based upon config nodes, or only including nodes where a value
+        is set.
+        """
         try:
             obj = self.get_object(path)
         except KeyError:
             raise ValueError('Path: %s does not exist - cannot build list' % (path))
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
-        # If we filtered the object get the last key we filtered on
-        if len(path) > 0:
-            return dpath.util.get(filtered, path).keys()
-        else:
-            return dpath.util.get(filtered, path).keys()
+        return dpath.util.get(filtered, path).keys()
