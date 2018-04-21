@@ -6,7 +6,6 @@ import time
 import PyConfHoard
 
 
-
 class HeatingElementProviderSSR(PyConfHoard.Thing):
 
     """
@@ -38,9 +37,9 @@ class HeatingElementProviderSSR(PyConfHoard.Thing):
 
     """
 
-
     def start(self):
         print 'null'
+
 
 class Launch:
 
@@ -51,7 +50,7 @@ class Launch:
                 self.thing.start()
         except KeyboardInterrupt:
             pass
-    
+
+
 if __name__ == '__main__':
     Launch()
-

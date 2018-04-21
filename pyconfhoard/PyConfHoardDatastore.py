@@ -9,10 +9,9 @@ import dpath.util
 
 class PyConfHoardDataFilter:
 
-
     def __init__(self):
         self.root = {}
-    
+
     def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
         if '__value' in _obj and _obj['__value']:
             return True
@@ -36,7 +35,6 @@ class PyConfHoardDataFilter:
         blanks = self._check_if_suitable_blank_values(_obj, filter_blank_values)
         overall = config and blanks
         return config and blanks
-        
 
     def _convert(self, _obj, filter_blank_values=True, config=None):
 
@@ -54,14 +52,14 @@ class PyConfHoardDataFilter:
                             dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
 
                     self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
-                
+
     def convert(self, _obj, config=None, filter_blank_values=True):
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
         return self.root
 
 
 class PyConfHoardDatastore:
-    
+
     def __init__(self):
         self.db = {}
 
@@ -106,7 +104,7 @@ class PyConfHoardDatastore:
         """
         This method provides a human readable rendering of the datastore.
         A new dictionary is returned which removes all the internal metadata
-        
+
         Schema                                  Filtered
         {'key': {                               {'key': 123}
             '__path': '/key',
@@ -139,12 +137,12 @@ class PyConfHoardDatastore:
         else:
             path = self.decode_path_string(path_string, separator)
 
-        # TODO: validation required on set 
+        # TODO: validation required on set
         leaf_metadata = self._get(path, get_value=False, separator=separator)
         if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
             raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
-            raise ValueError('Path: %s is a list key - cannot set keys' %(path))
+            raise ValueError('Path: %s is a list key - cannot set keys' % (path))
 
         path.append('__value')
         dpath.util.set(self.db, path, set_val)
@@ -179,7 +177,7 @@ class PyConfHoardDatastore:
 
         if len(path) == 0:
             return obj
-        
+
         if get_value:
             return self._get_value(path, dpath.util.get(obj, path))
         else:
@@ -202,7 +200,6 @@ class PyConfHoardDatastore:
         if not len(our_keys) == len(required_keys):
             raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
                              (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
-                                 
 
         list_element = self.get_object(path_string)
         if keys in list_element:
@@ -214,12 +211,11 @@ class PyConfHoardDatastore:
                 pass
             else:
                 new_list_element[list_item] = copy.deepcopy(list_element[list_item])
-        
+
         list_element[keys] = new_list_element
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
             list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
-
 
     def _get_value(self, path, obj):
         """
@@ -260,9 +256,9 @@ class PyConfHoardDatastore:
         try:
             obj = self.get_object(path)
         except KeyError:
-            raise ValueError('Path: %s does not exist - cannot build list' % 
+            raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
-        
+
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
         return dpath.util.get(filtered, path).keys()

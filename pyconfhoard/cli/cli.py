@@ -10,8 +10,6 @@ from PyConfHoardDatastore import PyConfHoardDatastore
 from cmd2 import Cmd
 
 
-
-
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
@@ -97,7 +95,7 @@ class PyConfHoardCLI(Cmd):
 
             config = {}
             msg = 'Loading..<CFG:%s>' % (metadata['appname'])
-            PyConfHoardCLI.xterm_message(msg,Fore.YELLOW)
+            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
             try:
                 response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
@@ -109,7 +107,7 @@ class PyConfHoardCLI(Cmd):
 
             if config == {}:
                 msg = 'Loading..<INIT:%s>' % (metadata['appname'])
-                PyConfHoardCLI.xterm_message(msg,Fore.YELLOW)
+                PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
                 try:
                     response = requests.get('%s/v1/datastore/default/%s' % (self.SERVER, metadata['appname'])).text
                     if len(response):
@@ -119,10 +117,9 @@ class PyConfHoardCLI(Cmd):
                 except ImportError as err:
                     PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
-
     def _exit_conf_mode(self):
         self._in_conf_mode = False
-        print('')
+        print ('')
         self.prompt = 'robber@localhost> '
 
         del self.do_set
@@ -136,7 +133,7 @@ class PyConfHoardCLI(Cmd):
     def _enter_conf_mode(self):
         self._in_conf_mode = True
         self.prompt = 'robber@localhost% '
-        print('Entering configuration mode private')
+        print ('Entering configuration mode private')
         self._conf_header()
         self.do_set = self._command_set
         self.complete_set = self._autocomplete_conf_set
@@ -148,8 +145,8 @@ class PyConfHoardCLI(Cmd):
         self.do_create = self._command_create
 
     def _ok(self):
-        print('')
-        print('[ok][%s]' % (time.ctime()))
+        print ('')
+        print ('[ok][%s]' % (time.ctime()))
 
     def _error(self, err=None):
         if err:
@@ -159,7 +156,7 @@ class PyConfHoardCLI(Cmd):
 
     def _conf_header(self):
         self._ok()
-        print('[edit]')
+        print ('[edit]')
 
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
@@ -207,10 +204,9 @@ class PyConfHoardCLI(Cmd):
             pass
         return cmds
 
-
     def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
         try:
-            our_cfg = self.datastore.view(path, config, filter_blank_values=filter_blank_values)
+            our_cfg = self.datastore.view(path, config=config, filter_blank_values=filter_blank_values)
         except KeyError as err:
             raise ValueError('Path: %s does not exist' % (path))
         return json.dumps(our_cfg, indent=4)
@@ -219,21 +215,21 @@ class PyConfHoardCLI(Cmd):
     def _command_oper_show(self, args):
         'Show node in the operational database'
         try:
-            print(self._get_json_cfg_view(args, config=False))
+            print (self._get_json_cfg_view(args, config=False))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _command_conf_show(self, args):
         try:
-            print(self._get_json_cfg_view(args, config=True))
+            print (self._get_json_cfg_view(args, config=True))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _autocomplete_oper_show(self, text, line, begidx, endidx):
         if text == '':
-            text=line.split(' ')[-1]
+            text = line.split(' ')[-1]
         return self._auto_complete(line, text, config=False)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):
@@ -249,7 +245,6 @@ class PyConfHoardCLI(Cmd):
         key = self.datastore.decode_path_string(args, get_index=-1)
         self.datastore.create(path_to_list, key)
 
-
     def _command_delete(self, args):
         print('command elete called', args)
 
@@ -257,11 +252,11 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        print ('set command not implement')
+        print('set command not implement')
 #        PyConfHoardDatastore._set_node(self._db_conf, args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
-        if self._in_conf_mode: 
+        if self._in_conf_mode:
             return self._auto_complete(self._db_conf, line, text, cmd='set ')
 
     def do_eof(self, args):
@@ -284,16 +279,16 @@ class PyConfHoardCLI(Cmd):
     # Ideally we would be able to tab complet confi... config... configure...
     def do_conf(self, args):
         self.do_configure(args)
-   
+
     @staticmethod
     def xterm_message(msg, colour, oldmsg="", newline=False):
         if len(oldmsg):
             sys.stdout.write('\033[%sD' % (len(oldmsg)))
         sys.stdout.write(colour)
         sys.stdout.write(msg)
-        sys.stdout.write(Style.RESET_ALL)    
+        sys.stdout.write(Style.RESET_ALL)
         if len(msg) < len(oldmsg):
-            sys.stdout.write(' ' *(len(oldmsg) - len(msg)))
+            sys.stdout.write(' ' * (len(oldmsg) - len(msg)))
 
         if newline:
             sys.stdout.write('\n')

@@ -3,6 +3,7 @@ import json
 import os
 from PyConfHoardDatastore import PyConfHoardDatastore
 
+
 class Thing:
 
     def __init__(self, appname, yangmodule, yangpath, open_stored_config=True):
@@ -47,17 +48,16 @@ class Thing:
                 json_str = o.read()
                 o.close()
 
-                print ('TODO merge required here')
-                print ('After tha we should overwrite running')
+                print('TODO merge required here')
+                print('After tha we should overwrite running')
 
             elif os.path.exists('%s/startup/%s.pch' % (datastore, self._appname)):
                 self.log.info('Loading startup default data')
                 o = open('%s/startup/%s.pch' % (datastore, self._appname))
                 json_str = o.read()
                 o.close()
-                print ('TODO merge required here')
-                print ('After tha we should overwrite running')
-
+                print('TODO merge required here')
+                print('After tha we should overwrite running')
 
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
@@ -71,13 +71,11 @@ class Thing:
                 cfgdata.write(json.dumps(self.datastore.get_object(''), indent=4))
                 opdata.close()
 
-
         if hasattr(self, 'setup') and callable(self.setup):
             self.log.info('PyConfHoard Setup %s' % (self))
             self.setup()
 
         self.log.info('PyConfHoard Started %s' % (self))
-
 
     def get_config(self, path):
         """
@@ -95,7 +93,7 @@ class Thing:
             'yangpath': self._ourpath,
         }
 
-        o = open ('../../datastore/registered/%s.pch' % (self._appname), 'w')
+        o = open('../../datastore/registered/%s.pch' % (self._appname), 'w')
         o.write(json.dumps(metadata))
         o.close()
 

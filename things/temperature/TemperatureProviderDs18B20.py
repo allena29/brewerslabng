@@ -6,7 +6,6 @@ import time
 import PyConfHoard
 
 
-
 class TemperatureProviderDs18B20(PyConfHoard.Thing):
 
     """
@@ -161,7 +160,7 @@ class Launch:
                 self.thing.start()
         except KeyboardInterrupt:
             pass
-    
+
+
 if __name__ == '__main__':
     Launch()
-

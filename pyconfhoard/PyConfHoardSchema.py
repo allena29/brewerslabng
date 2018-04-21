@@ -11,7 +11,7 @@ class yin_to_json:
 
     def __init__(self, input, quiet=False):
         schema_by_tree = {}
-        path =''
+        path = ''
         tree = ET.parse(input)
         root = tree.getroot()
         self.quiet = quiet
@@ -21,12 +21,10 @@ class yin_to_json:
         self.process(root, path, schema_by_tree)
         self.schema = schema_by_tree
 
-
     def save(self, output):
         o = open(output, 'w')
         o.write(json.dumps(self.schema, indent=4))
         o.close()
-   
 
     def process(self, obj, path, schema_by_tree, keys=[]):
         cpath = '/'
@@ -47,10 +45,10 @@ class yin_to_json:
                     schema_by_tree[child.attrib['name']]['__rootlevel'] = True
                 else:
                     schema_by_tree[child.attrib['name']]['__rootlevel'] = False
-                    
+
                 self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
-            elif child.tag =='{urn:ietf:params:xml:ns:yang:yin:1}list':
+            elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}
                 schema_by_tree[child.attrib['name']]['__list'] = True
                 schema_by_tree[child.attrib['name']]['__elements'] = {}
@@ -69,11 +67,11 @@ class yin_to_json:
 
                 self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
-            elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':                
+            elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
                 schema_by_tree[child.attrib['name']] = {}
-        
+
                 schema_by_tree[child.attrib['name']]['__config'] = True
                 schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
@@ -120,13 +118,12 @@ class yin_to_json:
             raise ValueError('Bad structure - tried to go beyond our root')
         else:
             self.final_pop_done = True
-        
-        
+
     def validate(self, obj):
         for childname in obj:
             child = obj[childname]
             if isinstance(child, dict):
-#                sys.stderr.write('%s\n' %(child))
+                #                sys.stderr.write('%s\n' %(child))
                 if '__path' in child:
 
                     sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, child['__path'], Style.RESET_ALL))
@@ -137,7 +134,7 @@ class yin_to_json:
                         if '__decendentoper' and child['__decendentoper']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
 
-                    elif '__list' in child and child['__list']:                    
+                    elif '__list' in child and child['__list']:
                         sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' list', Style.RESET_ALL))
 
                         if '__decendentconfig' and child['__decendentconfig']:
@@ -145,15 +142,14 @@ class yin_to_json:
                         if '__decendentoper' and child['__decendentoper']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
                     else:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' %(child['__type']), Style.RESET_ALL))
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' % (child['__type']), Style.RESET_ALL))
 
                         if '__config' in child and child['__config']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data', Style.RESET_ALL))
                         else:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data', Style.RESET_ALL))
 
-
-                    newline='\n                 '
+                    newline = '\n                 '
                     if '__default' in child:
                         sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Default ', child['__default'], Style.RESET_ALL))
                     if '__enum_values' in child:
@@ -161,7 +157,7 @@ class yin_to_json:
 
                     sys.stderr.write('\n')
                     self.validate(child)
-                   
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Convert YIN document to JSON")
@@ -175,4 +171,3 @@ if __name__ == '__main__':
         worker.validate(worker.schema)
 
     worker.save(args.output)
-
