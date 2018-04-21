@@ -169,7 +169,7 @@ class PyConfHoardDatastore:
         or get is rquried.
         """
 
-        if not obj:
+        if obj is None:
             obj = self.db
 
         if isinstance(path_string, list):
