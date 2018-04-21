@@ -191,25 +191,20 @@ class PyConfHoardCLI(Cmd):
             try:
                 if line.count(' ') == 1:
                     xcmds = list(self.datastore.db.keys())
-                    print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
                 else:
                     if not text == '':
                         strip_partial_elements = 1
-                    print('line:%s,text:%s,strip_partial_elements:%s,' %(line,text,strip_partial_elements),)
                     path_to_find = self.datastore.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
                     xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=filter_blank_values)
-                print(' xcmds',xcmds)
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
             except Exception as err:
-                print('!!!!! AAA xception in autocomplete %s' % (str(err)))
                 pass
             cmds.sort()
         except Exception as err:
-            print('!!!!! exception in autocomplete %s' % (str(err)))
-        print ('cmds:%s,' %(cmds))
+            pass
         return cmds
 
 
@@ -239,7 +234,6 @@ class PyConfHoardCLI(Cmd):
     def _autocomplete_oper_show(self, text, line, begidx, endidx):
         if text == '':
             text=line.split(' ')[-1]
-#        print ('...text/line  %s/%s' %(text,line))
         return self._auto_complete(line, text, config=False)
 
     def _autocomplete_conf_show(self, text, line, begidx, endidx):

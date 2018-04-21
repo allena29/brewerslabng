@@ -15,34 +15,26 @@ class PyConfHoardDataFilter:
     
     def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
         if '__value' in _obj and _obj['__value']:
-            print (' filter_ban retrun True (we have a vlue', _obj['__path'])
             return True
         elif filter_blank_values is False:
-            print (' filter_ban retrun True (we dont care)', _obj['__path'])
             return True
-        print (' filter_ban retrun False', _obj['__path'])
         return False
 
     def _check_if_suitable_config_non_config(self, _obj, config):
         if '__leaf' in _obj and _obj['__leaf'] is True:
             if config == _obj['__config']:
-                print ('cfgleaf...', _obj['__config'],_obj['__path'], config)
                 return True
         else:
             if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
-                print ('  decend config returning true', _obj['__path'])
                 return True
             elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
-                print ('decend oper returning true', _obj['__path'])
                 return True
-            print ('decend oper false :-(', _obj['__path'])
         return False
 
     def _check_suitability(self, _obj, config, filter_blank_values):
         config = self._check_if_suitable_config_non_config(_obj, config)
         blanks = self._check_if_suitable_blank_values(_obj, filter_blank_values)
         overall = config and blanks
-        print ('OVERAL  %s config %s blanks %s overall %s ' % (_obj['__path'], config, blanks, overall))
         return config and blanks
         
 
@@ -246,16 +238,31 @@ class PyConfHoardDatastore:
         else:
             raise ValueError('Path: %s is not a leaf - cannot get a value' % (path))
 
-    def list(self, path, config=True, filter_blank_values=True):
+    def convert_path_to_slash_string(self, path):
+        if isinstance(path, list):
+            path_string = ''
+            for x in path:
+                path_string = path_string + '/' + x
+            return path_string
+        else:
+            return path_string.replace(' ', '/')
+
+    def list(self, path_string, separator=' ', config=True, filter_blank_values=True):
         """
         This method provides a list of keys within a data object, which can be
         filtered based upon config nodes, or only including nodes where a value
         is set.
         """
+        path = self.decode_path_string(path_string, separator=separator)
+        if len(path) == 0:
+            return self.db.keys()
+
         try:
             obj = self.get_object(path)
         except KeyError:
-            raise ValueError('Path: %s does not exist - cannot build list' % (path))
+            raise ValueError('Path: %s does not exist - cannot build list' % 
+                             (self.convert_path_to_slash_string(path)))
+        
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
         return dpath.util.get(filtered, path).keys()

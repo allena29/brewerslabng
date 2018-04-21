@@ -69,8 +69,6 @@ class TestFilter(unittest.TestCase):
         pretty = PyConfHoardDataFilter()
         pretty.convert(self.subject.db, config=True, filter_blank_values=True)
 
-        print (json.dumps(pretty.root, indent=4))
-
         expected_answer = """{
     "simplestleaf": "abc123",
     "simplecontainer": {
@@ -87,8 +85,6 @@ class TestFilter(unittest.TestCase):
         pretty = PyConfHoardDataFilter()
         pretty.convert(self.subject.db, config=False, filter_blank_values=True)
 
-        print (json.dumps(pretty.root, indent=4))
-
         expected_answer = """{
     "simplecontainer": {
         "leafnonconfig": "foobar1"
@@ -103,8 +99,6 @@ class TestFilter(unittest.TestCase):
 
         pretty = PyConfHoardDataFilter()
         pretty.convert(self.subject.db, config=False, filter_blank_values=False)
-
-        print (json.dumps(pretty.root, indent=4))
 
         expected_answer = """{
     "simplecontainer": {
