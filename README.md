@@ -38,7 +38,7 @@ The temperature itself is shown on the end of the second line, in this case the 
 ./launch --thing things/temperature/TemperatureProviderDs18B20.py
 
 # Launching - with FAKE directories.
-FAKE_DS18B20_RESULT_DIR=/tmp/1wire ./launch --thing things/temperature/TemperatureProviderDs18B20.py
+env FAKE_DS18B20_RESULT_DIR=/tmp/1wire ./launch --thing things/temperature/TemperatureProviderDs18B20.py
 ```
 
 

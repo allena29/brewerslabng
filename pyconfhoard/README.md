@@ -262,6 +262,9 @@ if __name__ == '__main__':
     Launch()
 ```
 
+#### TODO:
+
+1. Need to protect to make sure we don't run the same thing twice.
 
 
 ## REST Server 
@@ -386,6 +389,7 @@ robber@localhost> exit
 
 1. Cosmetic: filter out nodes which have no contents 
 - Feature: authentication for CLI module.
+- Feature: if there is no configuration in the database we should have an option of | include-all
 
 
 
