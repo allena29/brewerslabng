@@ -15,7 +15,6 @@ class Resource(object):
         base = 'datastore/' + datastore 
         db = base + '/' + path + '.pch'
         if os.path.exists(db):
-            object = {'xxx'}
             o = open(db)
             resp.body = o.read()
             o.close()
@@ -24,3 +23,5 @@ class Resource(object):
 
         resp.status = falcon.HTTP_200
 
+    def on_put(self, req, response, datastore, path):
+        print (datastore,path)

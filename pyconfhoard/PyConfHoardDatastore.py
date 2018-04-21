@@ -36,7 +36,7 @@ class PyConfHoardDataFilter:
         overall = config and blanks
         return config and blanks
 
-    def _convert(self, _obj, filter_blank_values=True, config=None):
+    def _convert(self, _obj, filter_blank_values=True, config=None, collapse__value=True):
 
         for key in _obj:
             if isinstance(_obj[key], dict):
@@ -48,13 +48,15 @@ class PyConfHoardDataFilter:
                             dpath.util.new(self.root, _obj[key]['__path'], {})
                         elif '__list' in _obj[key] and _obj[key]['__list']:
                             dpath.util.new(self.root, _obj[key]['__path'], {})
+                        elif collapse__value is False:
+                            dpath.util.new(self.root, _obj[key]['__path'], {'__value': _obj[key]['__value']})
                         else:
                             dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
 
-                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
+                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config, collapse__value=collapse__value)
 
-    def convert(self, _obj, config=None, filter_blank_values=True):
-        self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
+    def convert(self, _obj, config=None, filter_blank_values=True, collapse__value=True):
+        self._convert(_obj, config=config, filter_blank_values=filter_blank_values, collapse__value=collapse__value)
         return self.root
 
 

@@ -4,12 +4,13 @@ import json
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardDatastore import PyConfHoardDataFilter
 
+
 class TestFilter(unittest.TestCase):
 
     def setUp(self):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
-        self.maxDiff=10000
+        self.maxDiff = 10000
 
     def test_convert_to_pretty_config_data_without_filter(self):
         self.subject.set('simplestleaf', 'abc123')
@@ -58,9 +59,8 @@ class TestFilter(unittest.TestCase):
         }
     }
 }"""
-    
-        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
+        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
     def test_convert_to_config_filter_blanks_enabled(self):
         self.subject.set('simplestleaf', 'abc123')
@@ -75,9 +75,8 @@ class TestFilter(unittest.TestCase):
         "leafstring": "foobar"
     }
 }"""
-    
-        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
+        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
     def test_convert_to_operdata_filter_blanks_enabled(self):
         self.subject.set('simplecontainer leafnonconfig', 'foobar1')
@@ -90,9 +89,8 @@ class TestFilter(unittest.TestCase):
         "leafnonconfig": "foobar1"
     }
 }"""
-    
-        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
+        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 
     def test_convert_to_operdata_filter_blanks_disabled(self):
         self.subject.set('simplecontainer leafnonconfig', 'foobar1')
@@ -120,5 +118,20 @@ class TestFilter(unittest.TestCase):
         "subitem": null
     }
 }"""
-    
+
+        self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
+
+    def test_convert_to_operdata_without_collapsing_value(self):
+        self.subject.set('simplecontainer leafnonconfig', 'foobar1')
+
+        pretty = PyConfHoardDataFilter()
+        pretty.convert(self.subject.db, config=False, filter_blank_values=True, collapse__value=False)
+
+        expected_answer = """{
+    "simplecontainer": {
+        "leafnonconfig": {
+            "__value": "foobar1"
+        }
+    }
+}"""
         self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)

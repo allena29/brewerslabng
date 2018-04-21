@@ -2,7 +2,7 @@ import logging
 import json
 import os
 from PyConfHoardDatastore import PyConfHoardDatastore
-
+from PyConfHoardDatastore import PyConfHoardDataFilter
 
 class Thing:
 
@@ -61,14 +61,20 @@ class Thing:
 
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
+                pretty = PyConfHoardDataFilter()
+                filtered = pretty.convert(self.datastore.db, config=False, filter_blank_values=False, collapse__value=False)
+
                 opdata = open('%s/operational/%s.pch' % (datastore, self._appname), 'w')
-                opdata.write(json.dumps(self.datastore.get_object(''), indent=4))
+                opdata.write(json.dumps(filtered, indent=4))
                 opdata.close()
 
             if not os.path.exists('%s/running/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing running.. providing empty schema')
+                pretty = PyConfHoardDataFilter()
+                filtered = pretty.convert(self.datastore.db, config=True, filter_blank_values=False, collapse__value = False)
+
                 cfgdata = open('%s/running/%s.pch' % (datastore, self._appname), 'w')
-                cfgdata.write(json.dumps(self.datastore.get_object(''), indent=4))
+                cfgdata.write(json.dumps(filtered, indent=4))
                 opdata.close()
 
         if hasattr(self, 'setup') and callable(self.setup):
