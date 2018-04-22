@@ -37,33 +37,36 @@ class yin_to_json:
         for child in obj:
             if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}container':
                 schema_by_tree[child.attrib['name']] = {}
-                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
-                schema_by_tree[child.attrib['name']]['__container'] = True
-                schema_by_tree[child.attrib['name']]['__decendentconfig'] = False
-                schema_by_tree[child.attrib['name']]['__decendentoper'] = False
+                schema_by_tree[child.attrib['name']]['__schema'] = {}
+
+                schema_by_tree[child.attrib['name']]['__schema']['__path'] = path + '/' + child.attrib['name']
+                schema_by_tree[child.attrib['name']]['__schema']['__container'] = True
+                schema_by_tree[child.attrib['name']]['__schema']['__decendentconfig'] = False
+                schema_by_tree[child.attrib['name']]['__schema']['__decendentoper'] = False
                 if len(self.chain) == 0:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = True
                 else:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = False
 
                 self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}
-                schema_by_tree[child.attrib['name']]['__list'] = True
-                schema_by_tree[child.attrib['name']]['__elements'] = {}
-                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
+                schema_by_tree[child.attrib['name']]['__schema'] = {}
+                schema_by_tree[child.attrib['name']]['__schema']['__list'] = True
+                schema_by_tree[child.attrib['name']]['__schema']['__elements'] = {}
+                schema_by_tree[child.attrib['name']]['__schema']['__path'] = path + '/' + child.attrib['name']
                 keys = ''
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
-                schema_by_tree[child.attrib['name']]['__keys'] = keys
-                schema_by_tree[child.attrib['name']]['__decendentconfig'] = False
-                schema_by_tree[child.attrib['name']]['__decendentoper'] = False
+                schema_by_tree[child.attrib['name']]['__schema']['__keys'] = keys
+                schema_by_tree[child.attrib['name']]['__schema']['__decendentconfig'] = False
+                schema_by_tree[child.attrib['name']]['__schema']['__decendentoper'] = False
                 if len(self.chain) == 0:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = True
                 else:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = False
 
                 self.chain.append(schema_by_tree[child.attrib['name']])
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
@@ -71,39 +74,40 @@ class yin_to_json:
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
                 schema_by_tree[child.attrib['name']] = {}
-
-                schema_by_tree[child.attrib['name']]['__config'] = True
-                schema_by_tree[child.attrib['name']]['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__value'] = None
-                schema_by_tree[child.attrib['name']]['__path'] = path + '/' + child.attrib['name']
+
+                schema_by_tree[child.attrib['name']]['__schema'] = {}
+                schema_by_tree[child.attrib['name']]['__schema']['__config'] = True
+                schema_by_tree[child.attrib['name']]['__schema']['__leaf'] = True
+                schema_by_tree[child.attrib['name']]['__schema']['__path'] = path + '/' + child.attrib['name']
                 if child.attrib['name'] in keys:
-                    schema_by_tree[child.attrib['name']]['__listkey'] = True
+                    schema_by_tree[child.attrib['name']]['__schema']['__listkey'] = True
                 else:
-                    schema_by_tree[child.attrib['name']]['__listkey'] = False
+                    schema_by_tree[child.attrib['name']]['__schema']['__listkey'] = False
 
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']
-                        schema_by_tree[child.attrib['name']]['__type'] = yang_type
+                        schema_by_tree[child.attrib['name']]['__schema']['__type'] = yang_type
                         if yang_type == 'enumeration':
-                            schema_by_tree[child.attrib['name']]['__enum_values'] = []
+                            schema_by_tree[child.attrib['name']]['__schema']['__enum_values'] = []
                             for tmp2 in tmp:
-                                schema_by_tree[child.attrib['name']]['__enum_values'].append(tmp2.attrib['name'])
+                                schema_by_tree[child.attrib['name']]['__schema']['__enum_values'].append(tmp2.attrib['name'])
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}default':
-                        schema_by_tree[child.attrib['name']]['__default'] = tmp.attrib['value']
+                        schema_by_tree[child.attrib['name']]['__schema']['__default'] = tmp.attrib['value']
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}config':
                         if tmp.attrib['value'] == 'false':
-                            schema_by_tree[child.attrib['name']]['__config'] = False
+                            schema_by_tree[child.attrib['name']]['__schema']['__config'] = False
 
                 for elder in self.chain:
-                    if schema_by_tree[child.attrib['name']]['__config']:
-                        elder['__decendentconfig'] = True
+                    if schema_by_tree[child.attrib['name']]['__schema']['__config']:
+                        elder['__schema']['__decendentconfig'] = True
                     else:
-                        elder['__decendentoper'] = True
+                        elder['__schema']['__decendentoper'] = True
                 if len(self.chain) == 0:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = True
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = True
                 else:
-                    schema_by_tree[child.attrib['name']]['__rootlevel'] = False
+                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = False
 #                        elder[
     #                else:
     #                    print tmp.tag
@@ -122,41 +126,43 @@ class yin_to_json:
     def validate(self, obj):
         for childname in obj:
             child = obj[childname]
-            if isinstance(child, dict):
-                #                sys.stderr.write('%s\n' %(child))
-                if '__path' in child:
+            if isinstance(child, dict) and '__schema' in obj[childname]:
+                schema = obj[childname]['__schema']
+                #                sys.stderr.write('%s\n' %(schema))
+                if '__path' in schema:
 
-                    sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, child['__path'], Style.RESET_ALL))
-                    if '__container' in child and child['__container']:
+                    sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, schema['__path'], Style.RESET_ALL))
+                    if '__container' in schema and schema['__container']:
                         sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' container', Style.RESET_ALL))
-                        if '__decendentconfig' and child['__decendentconfig']:
+                        if '__decendentconfig' and schema['__decendentconfig']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data-decendents', Style.RESET_ALL))
-                        if '__decendentoper' and child['__decendentoper']:
+                        if '__decendentoper' and schema['__decendentoper']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
 
-                    elif '__list' in child and child['__list']:
+                    elif '__list' in schema and schema['__list']:
                         sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' list', Style.RESET_ALL))
 
-                        if '__decendentconfig' and child['__decendentconfig']:
+                        if '__decendentconfig' and schema['__decendentconfig']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data-decendents', Style.RESET_ALL))
-                        if '__decendentoper' and child['__decendentoper']:
+                        if '__decendentoper' and schema['__decendentoper']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
                     else:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' % (child['__type']), Style.RESET_ALL))
+                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' % (schema['__type']), Style.RESET_ALL))
 
-                        if '__config' in child and child['__config']:
+                        if '__config' in schema and schema['__config']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data', Style.RESET_ALL))
                         else:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data', Style.RESET_ALL))
 
                     newline = '\n                 '
-                    if '__default' in child:
-                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Default ', child['__default'], Style.RESET_ALL))
-                    if '__enum_values' in child:
-                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Enum Values:  ', child['__enum_values'], Style.RESET_ALL))
+                    if '__default' in schema:
+                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Default ', schema['__default'], Style.RESET_ALL))
+                    if '__enum_values' in schema:
+                        sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Enum Values:  ', schema['__enum_values'], Style.RESET_ALL))
+
 
                     sys.stderr.write('\n')
-                    self.validate(child)
+                self.validate(child)
 
 
 if __name__ == '__main__':
