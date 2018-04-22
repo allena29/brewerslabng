@@ -169,7 +169,6 @@ class yin_to_json:
                     if '__enum_values' in schema:
                         sys.stderr.write('%s%s%s%s%s%s ' % (newline, Fore.GREEN, Style.DIM, ' Enum Values:  ', schema['__enum_values'], Style.RESET_ALL))
 
-
                     sys.stderr.write('\n')
                 self.validate(child)
 

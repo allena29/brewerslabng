@@ -34,10 +34,10 @@ class PyConfHoardDataFilter:
         "__decendentoper": true,
         "__rootlevel": true,
         "leafstring": {
-		..
+                ..
         },
         "leafnonconfig": {
-		..
+                ..
         }
     },
     "simplelist": {
@@ -58,7 +58,7 @@ class PyConfHoardDataFilter:
             "__rootlevel": false
         },
         "subitem": {
-		..
+                ..
         }
     }
 
@@ -78,6 +78,7 @@ class PyConfHoardDataFilter:
 
     If there are no listitems then simplelist shoudl jsut be {}
     """
+
     def __init__(self):
         self.root = {}
 
@@ -110,30 +111,30 @@ class PyConfHoardDataFilter:
         """
 
         for key in _obj:
-            print ('\n___for key in  convert loop  %s   %s' %(key, _obj[key]))
+            print('\n___for key in  convert loop  %s   %s' % (key, _obj[key]))
             if isinstance(_obj[key], dict) and '__schema' in _obj[key] and key is not '__schema':
-                print ('___ prcoessing for above thing')
+                print('___ prcoessing for above thing')
                 _schema = _obj[key]['__schema']
                 if '__path' in _schema:
                     val = None
 
                     suitable = self._check_suitability(_obj[key], _schema, config, filter_blank_values)
-                    print ('___stuitableity check %s' %(suitable))
+                    print('___stuitableity check %s' % (suitable))
                     if suitable:
                         if '__container' in _schema and _schema['__container']:
-                            print ('about to create %s', _schema['__path'])
+                            print('about to create %s', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], {})
                         elif '__list' in _schema and _schema['__list']:
                             dpath.util.new(self.root, _schema['__path'], {})
                         elif '__leaf' in _schema and _schema['__leaf']:
-                            print ('handing leaf %s %s' %(_schema['__path'], _obj[key]))
+                            print('handing leaf %s %s' % (_schema['__path'], _obj[key]))
                             dpath.util.new(self.root, _schema['__path'], _obj[key]['__value'])
 
                     self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
 
     def convert(self, _obj, config=None, filter_blank_values=True):
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
-        print ('convert returning', self.root)
+        print('convert returning', self.root)
         return self.root
 
 
@@ -222,7 +223,7 @@ class PyConfHoardDatastore:
 
         # TODO: validation required on set
         leaf_metadata = self.get_schema(path, separator=separator)
-        print ('got leaf_metadata.... %s ' %(leaf_metadata))
+        print('got leaf_metadata.... %s ' % (leaf_metadata))
         if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
             raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
@@ -255,7 +256,7 @@ class PyConfHoardDatastore:
         parent children.
         """
         schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
-        print ('getschema returning %s\n\n\n' %(schema.keys()))
+        print('getschema returning %s\n\n\n' % (schema.keys()))
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
         else:
@@ -296,9 +297,8 @@ class PyConfHoardDatastore:
         if len(path) == 0:
             return obj
 
-
         if not return_schema:
-            print ('......>>>>>>', obj.keys())
+            print('......>>>>>>', obj.keys())
             value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
             return value
         elif not return_raw:
@@ -311,11 +311,11 @@ class PyConfHoardDatastore:
     def _separate_value_from_metadata(obj):
         schema = {}
         values = {}
-        print ('obj we are processing has keys %s\n\n' %(obj.keys()))
+        print('obj we are processing has keys %s\n\n' % (obj.keys()))
         if '__schema' in obj:
             schema = obj['__schema']
 
-        print ('%s for %s' %(schema,obj))
+        print('%s for %s' % (schema, obj))
         if '__value' in obj:
             return obj['__value'], schema
         elif '__list' in schema and schema['__list']:
@@ -334,8 +334,7 @@ class PyConfHoardDatastore:
             # empty list
             return (obj, schema)
 
-        raise ValueError('Unhandled case in _separate_value_from_metadata %s' %(obj))
-
+        raise ValueError('Unhandled case in _separate_value_from_metadata %s' % (obj))
 
     def create(self, path_string, keys, separator=' '):
         """Create a list item
@@ -349,7 +348,6 @@ class PyConfHoardDatastore:
             raise ValueError('Path: %s is not a list - cannot create an item' % (path))
         if not ('__keys') in leaf_metadata:
             raise ValueError('List does not have any keys')
-        
 
         our_keys = keys.split(' ')
         required_keys = leaf_metadata['__keys'].split(' ')
@@ -365,8 +363,8 @@ class PyConfHoardDatastore:
         if keys in list_element_template:
             raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
         path.pop()
-        print ('__template', list_element_template.keys())
-        print ('__list', list.keys())
+        print('__template', list_element_template.keys())
+        print('__list', list.keys())
 
         new_list_element = {}
         for list_item in list_element_template:
@@ -374,16 +372,17 @@ class PyConfHoardDatastore:
                 pass
             else:
                 new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
-        print ('__newlisteement', new_list_element)
 
-        print ('_adding with keys', keys)
+        print('__newlisteement', new_list_element)
+
+        print('_adding with keys', keys)
         list[keys] = new_list_element
 
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
             list[keys][this_key_name]['__value'] = our_keys[keyidx]
-
-        
+        # Would rather not put this here, but it s required by separate_schema_from_values
+        list[keys]['__listelement'] = True
 
     def convert_path_to_slash_string(self, path):
         if isinstance(path, list):
@@ -410,10 +409,10 @@ class PyConfHoardDatastore:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
 
-        print ('before convert .... raw %s\n\n\n' %(obj.keys()))
+        print('before convert .... raw %s\n\n\n' % (obj.keys()))
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
-        print ('\n\nafter filter... filtered %s' %(filtered))
+        print('\n\nafter filter... filtered %s' % (filtered))
         return dpath.util.get(filtered, path).keys()
 
 
