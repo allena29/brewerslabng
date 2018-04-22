@@ -5,6 +5,7 @@ import sys
 import json
 import os
 import dpath.util
+import warnings
 import PyConfHoardExceptions
 
 
@@ -80,59 +81,59 @@ class PyConfHoardDataFilter:
     def __init__(self):
         self.root = {}
 
-    def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
-        if '__value' in _obj and _obj['__value']:
+    def _check_if_suitable_blank_values(self, _obj, _schema, filter_blank_values):
+        if '__value' in _schema and _schema['__value']:
             return True
         elif filter_blank_values is False:
             return True
         return False
 
-    def _check_if_suitable_config_non_config(self, _obj, config):
-        if '__leaf' in _obj and _obj['__leaf'] is True:
-            if config == _obj['__config']:
+    def _check_if_suitable_config_non_config(self, _obj, _schema, config):
+        if '__leaf' in _schema and _schema['__leaf'] is True:
+            if config == _schema['__config']:
                 return True
         else:
-            if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
+            if config is True and '__decendentconfig' in _schema and _schema['__decendentconfig']:
                 return True
-            elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
+            elif config is False and '__decendentoper' in _schema and _schema['__decendentoper']:
                 return True
         return False
 
-    def _check_suitability(self, _obj, config, filter_blank_values):
-        config = self._check_if_suitable_config_non_config(_obj, config)
-        blanks = self._check_if_suitable_blank_values(_obj, filter_blank_values)
+    def _check_suitability(self, _obj, _schema, config, filter_blank_values):
+        config = self._check_if_suitable_config_non_config(_obj, _schema, config)
+        blanks = self._check_if_suitable_blank_values(_obj, _schema, filter_blank_values)
         overall = config and blanks
         return config and blanks
 
-    def _convert(self, _obj, filter_blank_values=True, config=None, collapse__value=True,
-                 list_flag=False):
+    def _convert(self, _obj, filter_blank_values=True, config=None):
         """
-            list_flag means our parent was a previous call was a listt
         """
 
         for key in _obj:
-            if isinstance(_obj[key], dict):
-                if '__path' in _obj[key]:
+            print ('\n___for key in  convert loop  %s   %s' %(key, _obj[key]))
+            if isinstance(_obj[key], dict) and '__schema' in _obj[key] and key is not '__schema':
+                print ('___ prcoessing for above thing')
+                _schema = _obj[key]['__schema']
+                if '__path' in _schema:
                     val = None
-                    list_flag = False
-                    suitable = self._check_suitability(_obj[key], config, filter_blank_values)
+
+                    suitable = self._check_suitability(_obj[key], _schema, config, filter_blank_values)
+                    print ('___stuitableity check %s' %(suitable))
                     if suitable:
-                        if '__container' in _obj[key] and _obj[key]['__container']:
-                            dpath.util.new(self.root, _obj[key]['__path'], {})
-                        elif '__list' in _obj[key] and _obj[key]['__list']:
-                            dpath.util.new(self.root, _obj[key]['__path'], {})
-                            list_flag = True
-                        elif collapse__value is False:
-                            dpath.util.new(self.root, _obj[key]['__path'], {'__value': _obj[key]['__value']})
-                        elif list_flag == False:
-                            dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
+                        if '__container' in _schema and _schema['__container']:
+                            print ('about to create %s', _schema['__path'])
+                            dpath.util.new(self.root, _schema['__path'], {})
+                        elif '__list' in _schema and _schema['__list']:
+                            dpath.util.new(self.root, _schema['__path'], {})
+                        elif '__leaf' in _schema and _schema['__leaf']:
+                            print ('handing leaf %s %s' %(_schema['__path'], _obj[key]))
+                            dpath.util.new(self.root, _schema['__path'], _obj[key]['__value'])
 
-                    if list_flag is False:
-                        self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config, collapse__value=collapse__value,
-                                      list_flag=list_flag)
+                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
 
-    def convert(self, _obj, config=None, filter_blank_values=True, collapse__value=True):
-        self._convert(_obj, config=config, filter_blank_values=filter_blank_values, collapse__value=collapse__value)
+    def convert(self, _obj, config=None, filter_blank_values=True):
+        self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
+        print ('convert returning', self.root)
         return self.root
 
 
@@ -243,9 +244,27 @@ class PyConfHoardDatastore:
         """
         This method returns an object of dat
         """
+        warnings.warn('get_object will be deprecated - see get_schema/get_raw/get')
         return self._get(path_string, get_value=False, separator=separator)
 
-    def _get(self, path_string, get_value=True, separator=' ', obj=None):
+    def get_schema(self, path_string, separator=' '):
+        """
+        This method returns both the schema portion of the node in question, this may
+        be lacking some of the structure which gives the data it's context to the 
+        parent children.
+        """
+        schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
+        print ('getschema returning %s\n\n\n' %(schema))
+        return schema
+
+    def get_raw(self, path_string, separator=' '):
+        """
+        This method returns a raw version of the object with schema and values combined.
+        """
+        composite = self._get(path_string, get_value=True, separator=separator, return_raw=True)
+        return composite
+
+    def _get(self, path_string, get_value=True, separator=' ', obj=None, return_schema=False, return_raw=False):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -256,6 +275,10 @@ class PyConfHoardDatastore:
 
         TODO: in future we should intelligently derrive if get_value is required
         or get is rquried.
+
+        Returns:
+            value by default
+            tuple of (value, metadata) if return_schema is set
         """
 
         if obj is None:
@@ -269,10 +292,42 @@ class PyConfHoardDatastore:
         if len(path) == 0:
             return obj
 
-        if get_value:
-            return self._get_value(path, dpath.util.get(obj, path))
-        else:
+
+        if not return_schema:
+            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
+            return value
+        elif not return_raw:
             return dpath.util.get(obj, path)
+        else:
+            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
+            return metadta
+
+    @staticmethod
+    def _separate_value_from_metadata(obj):
+        schema = {}
+        values = {}
+        print ('obj we are processing %s\n\n' %(obj))
+        if '__schema' in obj:
+            schema = obj['__schema']
+
+        print ('%s for %s' %(schema,obj))
+        if '__value' in obj:
+            return obj['__value'], schema
+        elif '__list' in schema and schema['__list']:
+            list = {}
+            for key in obj:
+                if key is not '__schema':
+                    list[key] = obj[key]
+            return list, schema
+        elif '__container' in schema and schema['__container']:
+            container = {}
+            for key in obj:
+                if key is not '__schema':
+                    container[key] = obj[key]
+            return (container, schema)
+    
+        raise ValueError('Unhandled case in _separate_value_from_metadata %s' %(obj))
+
 
     def create(self, path_string, keys, separator=' '):
         """Create a list item
@@ -308,22 +363,6 @@ class PyConfHoardDatastore:
             this_key_name = required_keys[keyidx]
             list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
 
-    def _get_value(self, path, obj):
-        """
-        This method takes an object and return the value or None.
-        If a default is set and there is not __value we will return
-        __default instead.
-        """
-        if '__leaf' in obj and obj['__leaf'] == True:
-            if '__value' in obj and obj['__value']:
-                return obj['__value']
-            elif '__default' in obj:
-                return obj['__default']
-            else:
-                return None
-
-        else:
-            raise ValueError('Path: %s is not a leaf - cannot get a value' % (path))
 
     def convert_path_to_slash_string(self, path):
         if isinstance(path, list):
@@ -343,15 +382,17 @@ class PyConfHoardDatastore:
         path = self.decode_path_string(path_string, separator=separator)
         if len(path) == 0:
             return self.db.keys()
-
+        warnings.warn("List needs to send schema into convert - otherwise it cant-filter- some unit tests are passing without this though")
         try:
-            obj = self.get_object(path)
+            obj = self.get_raw(path)
         except KeyError:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
 
+        print ('before convert .... raw %s\n\n\n' %(obj.keys()))
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
+        print ('\n\nafter filter... filtered %s' %(filtered))
         return dpath.util.get(filtered, path).keys()
 
 
