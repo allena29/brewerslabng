@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import copy
 import json
+import logging
 import sys
 import json
 import os
@@ -81,9 +82,11 @@ class PyConfHoardDataFilter:
 
     def __init__(self):
         self.root = {}
+        self.log = logging.getLogger('DatastoreBackend')
+        self.log.debug('Filter Instance Started %s', self)
 
     def _check_if_suitable_blank_values(self, _obj, _schema, filter_blank_values):
-        if '__value' in _schema and _schema['__value']:
+        if '__value' in _obj and _obj['__value']:
             return True
         elif filter_blank_values is False:
             return True
@@ -104,44 +107,82 @@ class PyConfHoardDataFilter:
         config = self._check_if_suitable_config_non_config(_obj, _schema, config)
         blanks = self._check_if_suitable_blank_values(_obj, _schema, filter_blank_values)
         overall = config and blanks
+        self.log.debug('%s %s: config_suitable: %s blank_suitable: %s', _schema['__path'], overall, config, blanks)
         return config and blanks
 
     def _convert(self, _obj, filter_blank_values=True, config=None):
         """
         """
-
         for key in _obj:
-            print('\n___for key in  convert loop  %s   %s' % (key, _obj[key]))
             if isinstance(_obj[key], dict) and '__schema' in _obj[key] and key is not '__schema':
-                print('___ prcoessing for above thing')
                 _schema = _obj[key]['__schema']
                 if '__path' in _schema:
                     val = None
 
                     suitable = self._check_suitability(_obj[key], _schema, config, filter_blank_values)
-                    print('___stuitableity check %s' % (suitable))
                     if suitable:
                         if '__container' in _schema and _schema['__container']:
-                            print('about to create %s', _schema['__path'])
-                            dpath.util.new(self.root, _schema['__path'], {})
-                        elif '__list' in _schema and _schema['__list']:
+                            self.log.trace('%s is a container', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], {})
                         elif '__leaf' in _schema and _schema['__leaf']:
-                            print('handing leaf %s %s' % (_schema['__path'], _obj[key]))
+                            self.log.trace('%s is a leaf', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], _obj[key]['__value'])
-
+                        else:
+                            self.log.error('%s is unhandled in %s', _obj[key], self._convert)
                     self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
+            elif isinstance(_obj[key], dict) and '__listelement' in _obj[key] and key is not '__listelement':
+                _schema = _obj[key]['__listelement']['__schema']
+                if '__path' in _schema:
+                    val = None
+
+                    suitable = self._check_suitability(_obj[key], _schema, config, filter_blank_values)
+                    if suitable:
+                        if '__list' in _schema and _schema['__list']:
+                            self.log.trace('%s is a list', _schema['__path'])
+                            dpath.util.new(self.root, _schema['__path'], {})
+                        else:
+                            a=5/0
+                            self.log.error('%s is unhandled in %s', _obj[key], self._convert)
+
 
     def convert(self, _obj, config=None, filter_blank_values=True):
+        if '__schema' in _obj:
+            self.log.error('Object: Not valid')
+            self.log.insane('%s', _obj)
+
+        self.log.info('Filtering: blank_values %s config: %s len(obj): %s', filter_blank_values, config, len(_obj.keys()))
+        self.log.trace('%s', _obj.keys())
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
-        print('convert returning', self.root)
+        self.log.info('Filtered: len(obj): %s', len(self.root.keys()))
+        print (self.root)
         return self.root
 
 
 class PyConfHoardDatastore:
 
+    LOG_LEVEL = 3
+
     def __init__(self):
         self.db = {}
+
+
+        logging.TRACE = 7 
+        logging.INSANE = 5 
+        def custom_level_trace(self, message, *args, **kws):
+            if self.isEnabledFor(logging.TRACE):
+                self._log(logging.TRACE, message, args, **kws) 
+        def custom_level_insane(self, message, *args, **kws):
+            if self.isEnabledFor(logging.INSANE):
+                self._log(logging.INSANE, message, args, **kws) 
+        logging.Logger.trace = custom_level_trace
+        logging.Logger.insane = custom_level_insane
+        FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.addLevelName(logging.TRACE, "TRACE")
+        logging.addLevelName(logging.INSANE, "INSANE")
+        logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
+        self.log = logging.getLogger('DatastoreBackend')
+        self.log.debug('Filter Instance Started %s', self)
+
 
     def load_blank_schema(self, json_file):
         schema_file = open(json_file)
@@ -223,7 +264,6 @@ class PyConfHoardDatastore:
 
         # TODO: validation required on set
         leaf_metadata = self.get_schema(path, separator=separator)
-        print('got leaf_metadata.... %s ' % (leaf_metadata))
         if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
             raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
@@ -256,7 +296,6 @@ class PyConfHoardDatastore:
         parent children.
         """
         schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
-        print('getschema returning %s\n\n\n' % (schema.keys()))
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
         else:
@@ -298,7 +337,6 @@ class PyConfHoardDatastore:
             return obj
 
         if not return_schema:
-            print('......>>>>>>', obj.keys())
             value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
             return value
         elif not return_raw:
@@ -311,11 +349,9 @@ class PyConfHoardDatastore:
     def _separate_value_from_metadata(obj):
         schema = {}
         values = {}
-        print('obj we are processing has keys %s\n\n' % (obj.keys()))
         if '__schema' in obj:
             schema = obj['__schema']
 
-        print('%s for %s' % (schema, obj))
         if '__value' in obj:
             return obj['__value'], schema
         elif '__list' in schema and schema['__list']:
@@ -363,8 +399,6 @@ class PyConfHoardDatastore:
         if keys in list_element_template:
             raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
         path.pop()
-        print('__template', list_element_template.keys())
-        print('__list', list.keys())
 
         new_list_element = {}
         for list_item in list_element_template:
@@ -373,9 +407,6 @@ class PyConfHoardDatastore:
             else:
                 new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
 
-        print('__newlisteement', new_list_element)
-
-        print('_adding with keys', keys)
         list[keys] = new_list_element
 
         for keyidx in range(len(required_keys)):
@@ -409,10 +440,8 @@ class PyConfHoardDatastore:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
 
-        print('before convert .... raw %s\n\n\n' % (obj.keys()))
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
-        print('\n\nafter filter... filtered %s' % (filtered))
         return dpath.util.get(filtered, path).keys()
 
 
@@ -443,7 +472,6 @@ class PyConfHoardDataStoreLock:
         if os.path.exists('%s/%s/%s.lock' % (self.base, self.datastore, self.path)):
 
             os.unlink('%s/%s/%s.lock' % (self.base, self.datastore, self.path))
-        print('exit')
 
     def patch(self, obj):
         if not os.path.exists('%s/%s/%s.pch' % (self.base, self.datastore, self.path)):
