@@ -185,7 +185,7 @@ class TestYang(unittest.TestCase):
 }
 """)
 
-        self.subject.merge_node(new_node)
+        self.subject._merge_node(new_node)
 
         after_merge = json.dumps(self.subject.get_object(''), indent=4)
         self.assertEqual(before_merge, after_merge)
@@ -270,7 +270,7 @@ class TestYang(unittest.TestCase):
 }
 """)
 
-        self.subject.merge_node(new_node)
+        self.subject._merge_node(new_node)
 
         after_merge = json.dumps(self.subject.get_object(''), indent=4)
 

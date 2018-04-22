@@ -38,25 +38,14 @@ class TestFilter(unittest.TestCase):
             }
         }
     },
-    "simplelist": {
-        "item": null
-    },
+    "simplelist": {},
     "types": {
         "number": null,
         "biggernumber": null,
         "bignumber": null,
         "hugenumber": null,
-        "secondlist": {
-            "item": null,
-            "thingwithdefault": null,
-            "innerlist": {
-                "item": null
-            }
-        },
-        "compositekeylist": {
-            "keyA": null,
-            "keyB": null
-        }
+        "secondlist": {},
+        "compositekeylist": {}
     }
 }"""
 
@@ -114,9 +103,7 @@ class TestFilter(unittest.TestCase):
             }
         }
     },
-    "simplelist": {
-        "subitem": null
-    }
+    "simplelist": {}
 }"""
 
         self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)

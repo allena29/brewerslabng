@@ -10,6 +10,73 @@ import PyConfHoardExceptions
 
 class PyConfHoardDataFilter:
 
+    """
+    This class is intended to take a schema based representation of the data
+    and instead return the user something that looks more meaningful.
+
+    E.g. our schema looks like this (some of the details has been stripped to 
+    aid readability).
+
+    "simplestleaf": {
+        "__config": true,
+        "__leaf": true,
+        "__value": null,
+        "__path": "/simplestleaf",
+        "__listkey": false,
+        "__type": "string",
+        "__rootlevel": true
+    },
+    "simplecontainer": {
+        "__path": "/simplecontainer",
+        "__container": true,
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__rootlevel": true,
+        "leafstring": {
+		..
+        },
+        "leafnonconfig": {
+		..
+        }
+    },
+    "simplelist": {
+        "__list": true,
+        "__elements": {},
+        "__path": "/simplelist",
+        "__keys": "item",
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__rootlevel": true,
+        "item": {
+            "__config": true,
+            "__leaf": true,
+            "__value": null,
+            "__path": "/simplelist/item",
+            "__listkey": true,
+            "__type": "string",
+            "__rootlevel": false
+        },
+        "subitem": {
+		..
+        }
+    }
+
+    We would like to translate to
+    {
+        "simplestleaf": <value>,
+        "simplecontainer" {
+            "leafstring": <value>,
+            "leafnoncofnig: <value>,
+        "simplelist": {
+            <listkey>: {
+                "item": <listkey>,
+                "subitem": <value>
+            }
+        }
+    }
+
+    If there are no listitems then simplelist shoudl jsut be {}
+    """
     def __init__(self):
         self.root = {}
 
@@ -37,24 +104,32 @@ class PyConfHoardDataFilter:
         overall = config and blanks
         return config and blanks
 
-    def _convert(self, _obj, filter_blank_values=True, config=None, collapse__value=True):
+    def _convert(self, _obj, filter_blank_values=True, config=None, collapse__value=True,
+                 list_flag=False):
+        """
+            list_flag means our parent was a previous call was a listt
+        """
 
         for key in _obj:
             if isinstance(_obj[key], dict):
                 if '__path' in _obj[key]:
                     val = None
+                    list_flag = False
                     suitable = self._check_suitability(_obj[key], config, filter_blank_values)
                     if suitable:
                         if '__container' in _obj[key] and _obj[key]['__container']:
                             dpath.util.new(self.root, _obj[key]['__path'], {})
                         elif '__list' in _obj[key] and _obj[key]['__list']:
                             dpath.util.new(self.root, _obj[key]['__path'], {})
+                            list_flag = True
                         elif collapse__value is False:
                             dpath.util.new(self.root, _obj[key]['__path'], {'__value': _obj[key]['__value']})
-                        else:
+                        elif list_flag == False:
                             dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
 
-                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config, collapse__value=collapse__value)
+                    if list_flag is False:
+                        self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config, collapse__value=collapse__value,
+                                      list_flag=list_flag)
 
     def convert(self, _obj, config=None, filter_blank_values=True, collapse__value=True):
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values, collapse__value=collapse__value)
@@ -124,7 +199,11 @@ class PyConfHoardDatastore:
         navigated = self._get(path_string, obj=filtered, get_value=False)
         return navigated
 
-    def merge_node(self, new_node, separator=' '):
+    def _merge_node(self, new_node, separator=' '):
+        """
+        Applications should use PyConfHoardDataStoreLock.patch instead of this 
+        function directly.
+        """
         node = self.get_object([], separator=separator)
         dpath.util.merge(node, new_node)
 
@@ -152,9 +231,18 @@ class PyConfHoardDatastore:
         node = self._get(path_string, get_value=False, separator=separator)
 
     def get(self, path_string, separator=' '):
+        """
+        This method gets a terminating node of the database.
+
+        In future we probably would rather this method intelligently
+        return data in the way that get_object/get_listitem would
+        """
         return self._get(path_string, get_value=True, separator=separator)
 
     def get_object(self, path_string, separator=' '):
+        """
+        This method returns an object of dat
+        """
         return self._get(path_string, get_value=False, separator=separator)
 
     def _get(self, path_string, get_value=True, separator=' ', obj=None):
