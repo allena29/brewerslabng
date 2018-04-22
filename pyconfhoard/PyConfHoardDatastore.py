@@ -272,6 +272,8 @@ class PyConfHoardDataStoreLock:
     """
     This class allows us to provide locking of datastores and manage
     giving up the lock if the consumer has a problem.
+
+    This class is largely tested by the REST folder.
     """
 
     def __init__(self, base, datastore, path):
@@ -307,5 +309,10 @@ class PyConfHoardDataStoreLock:
         new_pch = open('%s/%s/%s.pch' % (self.base, self.datastore, self.path), 'w')
         new_pch.write(json.dumps(parent_obj, indent=4))
         new_pch.close()
+
+        if self.datastore is 'running':
+            new_pch = open('%s/%s/%s.pch' % (self.base, 'persist', self.path), 'w')
+            new_pch.write(json.dumps(parent_obj, indent=4))
+            new_pch.close()
 
         return json.dumps(parent_obj, indent=4)

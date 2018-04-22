@@ -1,9 +1,12 @@
-.PHONY: unittest cli schema schema-quiet
+.PHONY: unittest cli rest schema schema-quiet
 
 
-wall: cli schema-quiet unittest
+wall: schema-quiet cli rest unittest
 
 cli: 
+	$(MAKE) -C cli
+
+rest:
 	$(MAKE) -C cli
 
 schema:
