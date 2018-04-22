@@ -52,24 +52,26 @@ class yin_to_json:
                 self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']])
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}list':
                 schema_by_tree[child.attrib['name']] = {}
-                schema_by_tree[child.attrib['name']]['__schema'] = {}
-                schema_by_tree[child.attrib['name']]['__schema']['__list'] = True
-                schema_by_tree[child.attrib['name']]['__schema']['__elements'] = {}
-                schema_by_tree[child.attrib['name']]['__schema']['__path'] = path + '/' + child.attrib['name']
+                schema_by_tree[child.attrib['name']]['__listelement'] = {}
+                ourself = schema_by_tree[child.attrib['name']]['__listelement']
+                ourself['__schema'] = {}
+                ourself['__schema']['__list'] = True
+                ourself['__schema']['__elements'] = {}
+                ourself['__schema']['__path'] = path + '/' + child.attrib['name']
                 keys = ''
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
-                schema_by_tree[child.attrib['name']]['__schema']['__keys'] = keys
-                schema_by_tree[child.attrib['name']]['__schema']['__decendentconfig'] = False
-                schema_by_tree[child.attrib['name']]['__schema']['__decendentoper'] = False
+                ourself['__schema']['__keys'] = keys
+                ourself['__schema']['__decendentconfig'] = False
+                ourself['__schema']['__decendentoper'] = False
                 if len(self.chain) == 0:
-                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = True
+                    ourself['__schema']['__rootlevel'] = True
                 else:
-                    schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = False
+                    ourself['__schema']['__rootlevel'] = False
 
-                self.chain.append(schema_by_tree[child.attrib['name']])
-                self.process(child, path + '/' + child.attrib['name'], schema_by_tree[child.attrib['name']], keys=keys)
+                self.chain.append(ourself)
+                self.process(child, path + '/' + child.attrib['name'], ourself,  keys=keys)
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
@@ -81,9 +83,11 @@ class yin_to_json:
                 schema_by_tree[child.attrib['name']]['__schema']['__leaf'] = True
                 schema_by_tree[child.attrib['name']]['__schema']['__path'] = path + '/' + child.attrib['name']
                 if child.attrib['name'] in keys:
+                    schema_by_tree[child.attrib['name']]['__schema']['__listitem'] = True
                     schema_by_tree[child.attrib['name']]['__schema']['__listkey'] = True
                 else:
                     schema_by_tree[child.attrib['name']]['__schema']['__listkey'] = False
+                    schema_by_tree[child.attrib['name']]['__schema']['__listitem'] = True
 
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
@@ -147,7 +151,12 @@ class yin_to_json:
                         if '__decendentoper' and schema['__decendentoper']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'oper-data-decendents', Style.RESET_ALL))
                     else:
-                        sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' % (schema['__type']), Style.RESET_ALL))
+                        if '__listkey' in schema and schema['__listkey']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf-listkey %s' % (schema['__type']), Style.RESET_ALL))
+                        elif '-_listitem' in schema and schema['__listitem']:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf-listitem %s' % (schema['__type']), Style.RESET_ALL))
+                        else:
+                            sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' leaf %s' % (schema['__type']), Style.RESET_ALL))
 
                         if '__config' in schema and schema['__config']:
                             sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, 'conf-data', Style.RESET_ALL))

@@ -48,7 +48,7 @@ class TestYang(unittest.TestCase):
         except Exception as err:
             self.assertEqual(str(err), "Path: /simplecontainer/nonexist does not exist - cannot build list")
 
-    def test_set_simple_leaf(self):
+    def alreadytest_set_simple_leaf(self):
         before_update = self.subject.get('/simplestleaf', separator='/')
         self.assertEqual(before_update, None)
 
@@ -71,11 +71,11 @@ class TestYang(unittest.TestCase):
         except ValueError as err:
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
 
-    def donttest_create_list_item(self):
-        listval = self.subject.get_object('simplelist')
+    def test_create_list_item(self):
+        listval = self.subject.get_raw('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-        listval = self.subject.get_object('simplelist')
-
+        listval = self.subject.get_raw('simplelist')
+        print ('>>>>> post create',self.subject.db['simplelist'].keys())
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')

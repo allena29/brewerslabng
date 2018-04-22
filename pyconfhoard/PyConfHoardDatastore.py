@@ -221,7 +221,8 @@ class PyConfHoardDatastore:
             path = self.decode_path_string(path_string, separator)
 
         # TODO: validation required on set
-        leaf_metadata = self._get(path, get_value=False, separator=separator)
+        leaf_metadata = self.get_schema(path, separator=separator)
+        print ('got leaf_metadata.... %s ' %(leaf_metadata))
         if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
             raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
@@ -255,7 +256,7 @@ class PyConfHoardDatastore:
         """
         schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
         print ('getschema returning %s\n\n\n' %(schema))
-        return schema
+        return schema['__schema']
 
     def get_raw(self, path_string, separator=' '):
         """
@@ -334,7 +335,7 @@ class PyConfHoardDatastore:
         Note: keys is a space separated list of key values
         """
         # TODO: validation required on set of each of the keys
-        leaf_metadata = self._get(path_string, get_value=False, separator=separator)
+        leaf_metadata = self.get_schema(path_string, separator=separator)
         if not ('__list' in leaf_metadata and leaf_metadata['__list']):
             raise ValueError('Path: %s is not a list - cannot create an item' % (self.decode_path_string(path_string)))
         if not ('__keys') in leaf_metadata:
@@ -347,7 +348,7 @@ class PyConfHoardDatastore:
             raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
                              (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
 
-        list_element = self.get_object(path_string)
+        list_element = self.get_raw(path_string)
         if keys in list_element:
             raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
 
@@ -357,12 +358,15 @@ class PyConfHoardDatastore:
                 pass
             else:
                 new_list_element[list_item] = copy.deepcopy(list_element[list_item])
-
+        print ('__newlisteement', new_list_element)
         list_element[keys] = new_list_element
-        for keyidx in range(len(required_keys)):
-            this_key_name = required_keys[keyidx]
-            list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
+        print ('_-after part', list_element.keys())
 
+#        for keyidx in range(len(required_keys)):
+#            this_key_name = required_keys[keyidx]
+#            list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
+
+        
 
     def convert_path_to_slash_string(self, path):
         if isinstance(path, list):
