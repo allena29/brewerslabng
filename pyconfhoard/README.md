@@ -504,9 +504,12 @@ robber@localhost> exit
 
 ##### TODO
 
-1. Cosmetic: filter out nodes which have no contents 
+1. ~~Cosmetic: filter out nodes which have no contents~~
+- Set Node 
+- Create Node  
+- Commit (With LInkage to REST)
 - Feature: authentication for CLI module.
 - Feature: if there is no configuration in the database we should have an option of | include-all
-
+- Cosmetic: it would be btter to only show elements in the database which have lists when running the _auto_complete (we would need to do something like filter_for_lists and record something int he yang schema)
 
 

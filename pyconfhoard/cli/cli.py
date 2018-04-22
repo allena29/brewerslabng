@@ -237,7 +237,7 @@ class PyConfHoardCLI(Cmd):
 
     def _autocomplete_conf_create(self, text, line, begidx, endidx):
         # TODO: in future we shouldn't auto complete things that don't have a list as a decednant
-        return self._auto_complete(line, text, 'create ', config=True, include_blank=True)
+        return self._auto_complete(line, text, 'create ', config=True, filter_blank_values=False)
 
     def _command_create(self, args):
 
@@ -253,11 +253,11 @@ class PyConfHoardCLI(Cmd):
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
         print('set command not implement')
-#        PyConfHoardDatastore._set_node(self._db_conf, args)
+#        PyConfHoardDatastore.set(self._db_conf, args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
-            return self._auto_complete(self._db_conf, line, text, cmd='set ')
+            return self._auto_complete(line, text, 'set ', config=True, filter_blank_values=False)
 
     def do_eof(self, args):
         # Implements CTRL+D
