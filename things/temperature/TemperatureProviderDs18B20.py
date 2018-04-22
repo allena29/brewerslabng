@@ -122,12 +122,12 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
     def getResult(self):
         for probe in self._get_probes_to_monitor():
             # A place to store odd results
-            if not self.odd_readings.has_key(probe):
+            if probe not in self.odd_readings:
                 self.odd_readings[probe] = []
 
             (temperature, ok) = self._read_temperature_from_external_probe(probe)
             if ok:
-                if not self.lastResult.has_key(probe):
+                if probe not in self.lastResult:
                     self.lastResult[probe] = 0
 
                 # Exactly 85 indictes misread
