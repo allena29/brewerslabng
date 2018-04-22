@@ -122,13 +122,14 @@ class PyConfHoardDataFilter:
                     suitable = self._check_suitability(_obj[key], _schema, config, filter_blank_values)
                     if suitable:
                         if '__container' in _schema and _schema['__container']:
-                            self.log.trace('%s is a container', _schema['__path'])
+                            self.log.trace('Creating Tree for %s which is a container', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], {})
                         elif '__leaf' in _schema and _schema['__leaf']:
-                            self.log.trace('%s is a leaf', _schema['__path'])
+                            self.log.trace('Creating Tree for %s which is a leaf', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], _obj[key]['__value'])
                         else:
-                            self.log.error('%s is unhandled in %s', _obj[key], self._convert)
+                            self.log.error('Unable to create tree - %s is unhandled in %s', _obj[key], self._convert)
+
                     self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config)
             elif isinstance(_obj[key], dict) and '__listelement' in _obj[key] and key is not '__listelement':
                 _schema = _obj[key]['__listelement']['__schema']
@@ -143,18 +144,24 @@ class PyConfHoardDataFilter:
                         else:
                             a=5/0
                             self.log.error('%s is unhandled in %s', _obj[key], self._convert)
+                    
+                    
+                    for listitem in _obj[key]:
+                        if not listitem == '__listelement':
+                            self.log.trace('Creating Tree for %s which is a list element', _obj[key]['__listelement']['__schema']['__path'])
+                            dpath.util.new(self.root, _obj[key]['__listelement']['__schema']['__path'], {})
+                            self._convert(_obj[key][listitem], filter_blank_values=filter_blank_values, config=config)
 
 
     def convert(self, _obj, config=None, filter_blank_values=True):
         if '__schema' in _obj:
             self.log.error('Object: Not valid')
-            self.log.insane('%s', _obj)
+            self.log.trace('%s', _obj)
 
         self.log.info('Filtering: blank_values %s config: %s len(obj): %s', filter_blank_values, config, len(_obj.keys()))
         self.log.trace('%s', _obj.keys())
         self._convert(_obj, config=config, filter_blank_values=filter_blank_values)
         self.log.info('Filtered: len(obj): %s', len(self.root.keys()))
-        print (self.root)
         return self.root
 
 
@@ -167,18 +174,12 @@ class PyConfHoardDatastore:
 
 
         logging.TRACE = 7 
-        logging.INSANE = 5 
         def custom_level_trace(self, message, *args, **kws):
             if self.isEnabledFor(logging.TRACE):
                 self._log(logging.TRACE, message, args, **kws) 
-        def custom_level_insane(self, message, *args, **kws):
-            if self.isEnabledFor(logging.INSANE):
-                self._log(logging.INSANE, message, args, **kws) 
         logging.Logger.trace = custom_level_trace
-        logging.Logger.insane = custom_level_insane
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.addLevelName(logging.TRACE, "TRACE")
-        logging.addLevelName(logging.INSANE, "INSANE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('DatastoreBackend')
         self.log.debug('Filter Instance Started %s', self)
@@ -406,12 +407,17 @@ class PyConfHoardDatastore:
                 pass
             else:
                 new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
-
         list[keys] = new_list_element
 
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
-            list[keys][this_key_name]['__value'] = our_keys[keyidx]
+            # t the key values themselves
+            list[keys][this_key_name]['__value'] = our_keys[keyidx]        
+            list_item_path  = list[keys][this_key_name]['__schema']['__path']
+
+            # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
+            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name    
+            list[keys][this_key_name]['__schema']['__path'] = replacement_path_with_our_key
         # Would rather not put this here, but it s required by separate_schema_from_values
         list[keys]['__listelement'] = True
 
