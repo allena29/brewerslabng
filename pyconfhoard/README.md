@@ -525,4 +525,5 @@ robber@localhost> exit
 - Feature: authentication for CLI module.
 - Feature: if there is no configuration in the database we should have an option of | include-all
 - Cosmetic: it would be btter to only show elements in the database which have lists when running the _auto_complete (we would need to do something like filter_for_lists and record something int he yang schema)
-
+- Cosmetic: when doing auto-complete for lists we should *NOT* show the leaves until the key has been set, and then should filter out the keys and only leave non-keys
+- Optimisation: we should track back areas of the database that have changed so we only try to persist things that have actually changed (i.e. a set of dirty flags)

@@ -72,12 +72,19 @@ class PyConfHoardCLI(Cmd):
         self._in_conf_mode = False
 
         self.datastore = PyConfHoardDatastore()
+        self.dirty_flags = {}
+        self.dirty_flag = False
 
         # need some kind of refresh mechanism for opdata/config
         if not no_networking:
             self._load_datastores()
 
+
     def _load_datastores(self):
+        """
+        This internal method loads the basic schema and then will merge in the datastores
+        of each thing that we have.
+        """
 
         discover = None
         msg = 'Connecting...'
@@ -90,10 +97,21 @@ class PyConfHoardCLI(Cmd):
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
 #            raise RuntimeError('Unable to connect to %s' % (self.SERVER))
             sys.exit(0)
+
+        # Basic Database - albeit blank
         self.datastore.db = discover['schema']
+        self.datastores = discover['datastores']
 
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
+
+            # Provide Dirty-flags
+            dflag = self.dirty_flags
+            for yp in metadata['yangpath'].split('/'):
+                if len(yp) > 0:
+                    if yp not in dflag:
+                        dflag[yp] = {}
+                    dflag = dflag[yp]
 
             msg = 'Loading..<OPER:%s>' % (metadata['appname'])
             PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
@@ -143,6 +161,7 @@ class PyConfHoardCLI(Cmd):
         del self.complete_set
         del self.do_create
         del self.complete_create
+        del self.do_commit
 
     def _enter_conf_mode(self):
         self._in_conf_mode = True
@@ -157,6 +176,7 @@ class PyConfHoardCLI(Cmd):
         self.complete_show = self._autocomplete_conf_show
         self.complete_create = self._autocomplete_conf_create
         self.do_create = self._command_create
+        self.do_commit = self._command_commit
 
     def _ok(self):
         print('')
@@ -272,6 +292,13 @@ class PyConfHoardCLI(Cmd):
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
             return self._auto_complete(line, text, 'set ', config=True, filter_blank_values=False)
+
+
+    def _command_commit(self, args):
+        'Save configuration to the database'
+        for this_datastore in self.datastores:
+            data_to_save = self.datastore.get_raw(self.datastores[this_datastore]['yangpath'], separator='/')
+            print ('want to save this data', data_to_save)
 
     def do_eof(self, args):
         # Implements CTRL+D

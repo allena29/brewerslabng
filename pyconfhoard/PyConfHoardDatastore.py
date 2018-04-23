@@ -149,8 +149,10 @@ class PyConfHoardDatastore:
         schema = self._get(path_string, separator=separator, return_schema=True)
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
-        else:
+        elif '__schema' in schema:
             return schema['__schema']
+        else:
+            warning.warn('Encountered a place where we couldnt return a schema... %s' % (schema.keys()))
 
     def get_raw(self, path_string, separator=' '):
         """
@@ -246,6 +248,8 @@ class PyConfHoardDatastore:
         path = self.decode_path_string(path_string, separator)
 
         leaf_metadata = self.get_schema(path_string, separator=separator)
+        self.log.trace('create: %s' % (path_string))
+
         if not ('__list' in leaf_metadata and leaf_metadata['__list']):
             raise ValueError('Path: %s is not a list - cannot create an item' % (path))
         if not ('__keys') in leaf_metadata:
