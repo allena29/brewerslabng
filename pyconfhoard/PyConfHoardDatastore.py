@@ -159,6 +159,28 @@ class PyConfHoardDatastore:
         composite = self._get(path_string, separator=separator, return_raw=True)
         return composite
 
+    def get_list_element(self, path_string, separator=' '):
+        self.log.trace('get_list_element: %s' % (path_string))
+        return self._get(path_string, separator=separator)
+
+    def has_list_item(self, path_string, separator=' '):
+        """
+        This method returns a boolean true/false if the list key is present.
+        Note: in practice this method doesn't actually check for a list item it checks
+        if the provided path exists.
+
+        TODO: add validation here to trap cases where a deeper path is asked for/non-list item.
+        """
+        try:
+            self._get(path_string, separator=separator)
+            self.log.trace('has_list_item: %s - TRUE' % (path_string))
+            return True
+        except KeyError as err:
+            self.log.trace('has_list_item: %s - FALSE' % (path_string))
+            return False
+        
+
+
     def _get(self, path_string, separator=' ', obj=None, return_schema=False, return_raw=False):
         """
         This method returns an explicit object from the database.

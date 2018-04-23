@@ -81,6 +81,15 @@ class TestYang(unittest.TestCase):
 
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
 
+    def test_has_list_item(self):
+        listval = self.subject.get_raw('simplelist')
+        self.subject.create('simplelist', 'valueForFirstKey')
+        listval = self.subject.get_raw('simplelist')
+        self.subject.set('simplelist valueForFirstKey subitem', 'abc')
+
+        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKey', separator='/'), True)
+        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKe', separator='/'), False)
+
     def test_changing_a_list_key(self):
         listval = self.subject.get_object('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
