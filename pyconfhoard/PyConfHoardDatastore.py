@@ -122,7 +122,7 @@ class PyConfHoardDatastore:
 
         path.append('__value')
         dpath.util.set(self.db, path, set_val)
-        node = self._get(path_string, get_value=False, separator=separator)
+        node = self._get(path_string, separator=separator)
 
     def get(self, path_string, separator=' '):
         """
@@ -131,14 +131,14 @@ class PyConfHoardDatastore:
         In future we probably would rather this method intelligently
         return data in the way that get_object/get_listitem would
         """
-        return self._get(path_string, get_value=True, separator=separator)
+        return self._get(path_string, separator=separator)
 
     def get_object(self, path_string, separator=' '):
         """
         This method returns an object of dat
         """
         warnings.warn('get_object will be deprecated - see get_schema/get_raw/get')
-        return self._get(path_string, get_value=False, separator=separator)
+        return self._get(path_string, separator=separator)
 
     def get_schema(self, path_string, separator=' '):
         """
@@ -146,7 +146,7 @@ class PyConfHoardDatastore:
         be lacking some of the structure which gives the data it's context to the 
         parent children.
         """
-        schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
+        schema = self._get(path_string, separator=separator, return_schema=True)
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
         else:
@@ -156,10 +156,10 @@ class PyConfHoardDatastore:
         """
         This method returns a raw version of the object with schema and values combined.
         """
-        composite = self._get(path_string, get_value=True, separator=separator, return_raw=True)
+        composite = self._get(path_string, separator=separator, return_raw=True)
         return composite
 
-    def _get(self, path_string, get_value=True, separator=' ', obj=None, return_schema=False, return_raw=False):
+    def _get(self, path_string, separator=' ', obj=None, return_schema=False, return_raw=False):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -167,13 +167,6 @@ class PyConfHoardDatastore:
 
         By default this operates on the default datastore (self.db) but
         an optional object can be passed in instead.
-
-        TODO: in future we should intelligently derrive if get_value is required
-        or get is rquried.
-
-        Returns:
-            value by default
-            tuple of (value, metadata) if return_schema is set
         """
 
         if obj is None:
