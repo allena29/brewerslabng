@@ -2,7 +2,7 @@ import json
 import falcon
 import os
 import sys
-from PyConfHoardDatastore import PyConfHoardDataStoreLock
+from PyConfHoardLock import PyConfHoardLock
 
 
 class Resource(object):
@@ -37,7 +37,7 @@ class Resource(object):
         except Exception as err:
             raise ValueError('Unable to decode JSON body %s' % (str(err)))
 
-        with PyConfHoardDataStoreLock(self.DATASTORE, datastore, path) as lock:
+        with PyConfHoardLock(self.DATASTORE, datastore, path) as lock:
             print('we have a lock...', lock)
             update = lock.patch(json_obj)
 

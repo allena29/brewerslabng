@@ -24,6 +24,7 @@ class PyConfHoardCLI(Cmd):
         self.debug = True
 
         logging.TRACE = 7
+
         def custom_level_trace(self, message, *args, **kws):
             if self.isEnabledFor(logging.TRACE):
                 self._log(logging.TRACE, message, args, **kws)

@@ -4,6 +4,16 @@
 
 # stretch - 2018-03
 
+## Headless Ethernet
+
+Appending the following line to /boot/cmdline.txt assigns a static IP address
+
+`ip=192.168.1.200::192.168.1.1:255.255.255.0:rpi:eth0:off`
+
+Touching the file /boot/ssh ensures SSH is started to accept connections.
+
+## Non Headless - Wireless
+
 This version of raspbian has been the most frustrating to setup, I found it impossible to setup headless. It was frustrating to find how to get rfkill to persist it's settings once unblocked (already annoyed at having to drag out a monitor and keyboard!)
 
 */etc/wpa_supplicant/wpa_supplicant.conf*
@@ -33,6 +43,10 @@ echo "rfkill unblock all >/tmp/rkill" >>/etc/rc.local
 ```
 
 
+
+# Basic Setup
+
+
 *Update rpasberrypi firmware*
 
 ```bash
@@ -47,7 +61,7 @@ sudo apt-get upgrade
 
 ```bash
 sudo apt-get update
-sudo apt-get install git-core mlocate vim cmake autoconf automake libtool screen
+sudo apt-get install git-core mlocate vim autoconf automake libtool screen
 ```
 
 ## Development Packages
@@ -55,8 +69,7 @@ sudo apt-get install git-core mlocate vim cmake autoconf automake libtool screen
 ```bash
 sudo apt-get install libpcre2-dev flex bison libpcre3 libpcre3-dev libssl-dev
 sudo apt-get install libev-dev libavl-dev python-dev swig libxml2-dev libxslt1-dev
-sudo apt-get install libsodium-dev libffi-dev lua5.1-dev
-sudo apt-get install raspberrypi-kernel-headers libboost-dev python3-dev 
+sudo apt-get install raspberrypi-kernel-headers python3-dev libffi-dev 
 sudo apt-get install ctags vim-python-jedi libsqlite3-dev
 ```
 
@@ -69,7 +82,7 @@ Add a user, throughout this respository this will be referred to as **beerng**.
 ```bash
 mkdir /home/beerng
 useradd beerng -s /bin/bash
-chown beer:beerng /home/beerng
+chown beerng:beerng /home/beerng
 ```
 
 

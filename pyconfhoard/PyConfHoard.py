@@ -4,6 +4,7 @@ import os
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardDatastore import PyConfHoardDataFilter
 
+
 class Thing:
 
     def __init__(self, appname, yangmodule, yangpath, open_stored_config=True):
@@ -71,7 +72,7 @@ class Thing:
             if not os.path.exists('%s/running/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing running.. providing empty schema')
                 pretty = PyConfHoardDataFilter()
-                filtered = pretty.convert(self.datastore.db, config=True, filter_blank_values=False, collapse__value = False)
+                filtered = pretty.convert(self.datastore.db, config=True, filter_blank_values=False, collapse__value=False)
 
                 cfgdata = open('%s/running/%s.pch' % (datastore, self._appname), 'w')
                 cfgdata.write(json.dumps(filtered, indent=4))
