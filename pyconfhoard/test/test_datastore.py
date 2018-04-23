@@ -1,6 +1,8 @@
 import unittest
 import json
-
+import sys
+sys.path.append('test')
+from stub import testresource
 from PyConfHoardDatastore import PyConfHoardDatastore
 
 
@@ -37,7 +39,7 @@ class TestYang(unittest.TestCase):
         self.assertTrue('level1' in result)
 
     def test_get_depper_from_root(self):
-        result = self.subject.get_object('level1 level2')
+        result = self.subject.get('level1 level2')
         self.assertTrue('level3' in result)
         self.assertTrue('mixed' in result['level3'])
 
@@ -72,10 +74,9 @@ class TestYang(unittest.TestCase):
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
 
     def test_create_list_item(self):
-        listval = self.subject.get_object('simplelist')
+        listval = self.subject.get_raw('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-        listval = self.subject.get_object('simplelist')
-
+        listval = self.subject.get_raw('simplelist')
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
@@ -89,7 +90,7 @@ class TestYang(unittest.TestCase):
         except ValueError as err:
             self.assertEqual(str(err), "Path: ['simplelist', 'valueForFirstKey', 'item'] is a list key - cannot set keys")
 
-        listelement = self.subject.get_object('simplelist valueForFirstKey')
+        listelement = self.subject.get('simplelist valueForFirstKey')
 
     def test_create_list_item_with_wrong_number_of_keys(self):
         try:
@@ -105,174 +106,14 @@ class TestYang(unittest.TestCase):
         except ValueError as err:
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
 
-    def test_merge_empty_conf_data_into_existing_schema(self):
-        before_merge = json.dumps(self.subject.get_object(''), indent=4)
-        # print (before_merge)
-        new_node = json.loads("""
-{
-    "level1": {
-        "__path": "/level1",
-        "level2": {
-            "__path": "/level1/level2",
-            "level3": {
-                "__path": "/level1/level2/level3",
-                "withcfg": {
-                    "__path": "/level1/level2/level3/withcfg",
-                    "config": {
-                        "__config": true,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/withcfg/config",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                },
-                "withoutcfg": {
-                    "__path": "/level1/level2/level3/withoutcfg",
-                    "nonconfig": {
-                        "__config": false,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/withoutcfg/nonconfig",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                },
-                "mixed": {
-                    "__path": "/level1/level2/level3/mixed",
-                    "config": {
-                        "__config": true,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/mixed/config",
-                        "__listkey": false,
-                        "__type": "string"
-                    },
-                    "nonconfig": {
-                        "__config": false,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/mixed/nonconfig",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                }
-            }
-        }
-    },
-    "simplelist": {
-        "__list": true,
-        "__elements": {},
-        "__path": "/simplelist",
-        "__keys": "item",
-        "item": {
-            "__config": true,
-            "__leaf": true,
-            "__value": null,
-            "__path": "/simplelist/item",
-            "__listkey": true,
-            "__type": "string"
-        },
-        "subitem": {
-            "__config": false,
-            "__leaf": true,
-            "__value": null,
-            "__path": "/simplelist/subitem",
-            "__listkey": false,
-            "__type": "string"
-        }
-    }
-}
-""")
-
-        self.subject.merge_node(new_node)
-
-        after_merge = json.dumps(self.subject.get_object(''), indent=4)
-        self.assertEqual(before_merge, after_merge)
-
     def test_merge_new_conf_data_into_existing_schema(self):
         before_merge = json.dumps(self.subject.get_object(''), indent=4)
-        # print (before_merge)
-        new_node = json.loads("""
-{
-    "level1": {
-        "__path": "/level1",
-        "level2": {
-            "__path": "/level1/level2",
-            "level3": {
-                "__path": "/level1/level2/level3",
-                "withcfg": {
-                    "__path": "/level1/level2/level3/withcfg",
-                    "config": {
-                        "__config": true,
-                        "__leaf": true,
-                        "__value": "this-has-been-set-in-merge",
-                        "__path": "/level1/level2/level3/withcfg/config",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                },
-                "withoutcfg": {
-                    "__path": "/level1/level2/level3/withoutcfg",
-                    "nonconfig": {
-                        "__config": false,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/withoutcfg/nonconfig",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                },
-                "mixed": {
-                    "__path": "/level1/level2/level3/mixed",
-                    "config": {
-                        "__config": true,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/mixed/config",
-                        "__listkey": false,
-                        "__type": "string"
-                    },
-                    "nonconfig": {
-                        "__config": false,
-                        "__leaf": true,
-                        "__value": null,
-                        "__path": "/level1/level2/level3/mixed/nonconfig",
-                        "__listkey": false,
-                        "__type": "string"
-                    }
-                }
-            }
-        }
-    },
-    "simplelist": {
-        "__list": true,
-        "__elements": {},
-        "__path": "/simplelist",
-        "__keys": "item",
-        "item": {
-            "__config": true,
-            "__leaf": true,
-            "__value": null,
-            "__path": "/simplelist/item",
-            "__listkey": true,
-            "__type": "string"
-        },
-        "subitem": {
-            "__config": false,
-            "__leaf": true,
-            "__value": null,
-            "__path": "/simplelist/subitem",
-            "__listkey": false,
-            "__type": "string"
-        }
-    }
-}
-""")
+        new_node = testresource.new_node_object()
+        new_node['level1']['level2']['level3']['withcfg']['config']['__value'] = 'this-has-been-set-in-merge!'
 
-        self.subject.merge_node(new_node)
+        self.subject._merge_node(new_node)
 
         after_merge = json.dumps(self.subject.get_object(''), indent=4)
 
         updated_node_val = self.subject.get('/level1/level2/level3/withcfg/config', separator='/')
-        self.assertEqual(updated_node_val, 'this-has-been-set-in-merge')
+        self.assertEqual(updated_node_val, 'this-has-been-set-in-merge!')

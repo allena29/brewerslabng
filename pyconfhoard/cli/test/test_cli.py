@@ -4,6 +4,7 @@ import json
 from mock import Mock
 from cli import PyConfHoardCLI
 
+
 class TestPyConfHoardCLI(unittest.TestCase):
 
     def setUp(self):
@@ -12,13 +13,14 @@ class TestPyConfHoardCLI(unittest.TestCase):
         self.subject.datastore.db = json.loads(open('test/schema.json').read())
         self.object = self.subject.datastore.db
         self.maxDiff = 10000
+
     def test_show_of_non_existing_path(self):
         try:
             result = self.subject._get_json_cfg_view('show thisdoesnotexist')
             self.fail('Expected to fail because we asked for a non-existing path')
         except ValueError as err:
             self.assertEqual(str(err), 'Path: show thisdoesnotexist does not exist')
-            
+
     def test_show_top_level(self):
         self.subject.datastore.set('simplestleaf', 243)
         result = self.subject._get_json_cfg_view('')
@@ -111,4 +113,3 @@ class TestPyConfHoardCLI(unittest.TestCase):
 
         list_item_key = self.subject.datastore.get('types secondlist KEY item')
         self.assertEqual(list_item_key, 'KEY')
-

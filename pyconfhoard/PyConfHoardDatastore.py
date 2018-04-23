@@ -1,70 +1,34 @@
 #!/usr/bin/env python3
 import copy
 import json
+import logging
 import sys
 import json
 import os
 import dpath.util
+import warnings
 import PyConfHoardExceptions
-
-
-class PyConfHoardDataFilter:
-
-    def __init__(self):
-        self.root = {}
-
-    def _check_if_suitable_blank_values(self, _obj, filter_blank_values):
-        if '__value' in _obj and _obj['__value']:
-            return True
-        elif filter_blank_values is False:
-            return True
-        return False
-
-    def _check_if_suitable_config_non_config(self, _obj, config):
-        if '__leaf' in _obj and _obj['__leaf'] is True:
-            if config == _obj['__config']:
-                return True
-        else:
-            if config is True and '__decendentconfig' in _obj and _obj['__decendentconfig']:
-                return True
-            elif config is False and '__decendentoper' in _obj and _obj['__decendentoper']:
-                return True
-        return False
-
-    def _check_suitability(self, _obj, config, filter_blank_values):
-        config = self._check_if_suitable_config_non_config(_obj, config)
-        blanks = self._check_if_suitable_blank_values(_obj, filter_blank_values)
-        overall = config and blanks
-        return config and blanks
-
-    def _convert(self, _obj, filter_blank_values=True, config=None, collapse__value=True):
-
-        for key in _obj:
-            if isinstance(_obj[key], dict):
-                if '__path' in _obj[key]:
-                    val = None
-                    suitable = self._check_suitability(_obj[key], config, filter_blank_values)
-                    if suitable:
-                        if '__container' in _obj[key] and _obj[key]['__container']:
-                            dpath.util.new(self.root, _obj[key]['__path'], {})
-                        elif '__list' in _obj[key] and _obj[key]['__list']:
-                            dpath.util.new(self.root, _obj[key]['__path'], {})
-                        elif collapse__value is False:
-                            dpath.util.new(self.root, _obj[key]['__path'], {'__value': _obj[key]['__value']})
-                        else:
-                            dpath.util.new(self.root, _obj[key]['__path'], _obj[key]['__value'])
-
-                    self._convert(_obj[key], filter_blank_values=filter_blank_values, config=config, collapse__value=collapse__value)
-
-    def convert(self, _obj, config=None, filter_blank_values=True, collapse__value=True):
-        self._convert(_obj, config=config, filter_blank_values=filter_blank_values, collapse__value=collapse__value)
-        return self.root
+from PyConfHoardFilter import PyConfHoardFilter
 
 
 class PyConfHoardDatastore:
 
+    LOG_LEVEL = 3
+
     def __init__(self):
         self.db = {}
+
+        logging.TRACE = 7
+
+        def custom_level_trace(self, message, *args, **kws):
+            if self.isEnabledFor(logging.TRACE):
+                self._log(logging.TRACE, message, args, **kws)
+        logging.Logger.trace = custom_level_trace
+        FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.addLevelName(logging.TRACE, "TRACE")
+        logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
+        self.log = logging.getLogger('DatastoreBackend')
+        self.log.debug('Filter Instance Started %s', self)
 
     def load_blank_schema(self, json_file):
         schema_file = open(json_file)
@@ -103,7 +67,7 @@ class PyConfHoardDatastore:
 
         return separated
 
-    def view(self, path_string, config, filter_blank_values=True):
+    def view(self, path_string, config, filter_blank_values=True, separator=' '):
         """
         This method provides a human readable rendering of the datastore.
         A new dictionary is returned which removes all the internal metadata
@@ -117,14 +81,23 @@ class PyConfHoardDatastore:
         }
 
         """
-
-        pretty = PyConfHoardDataFilter()
-        raw_object = self.get_object(path_string)
+        path = self.decode_path_string(path_string, separator)
+        pretty = PyConfHoardFilter()
+        raw_object = self.get_raw(path_string)
         filtered = pretty.convert(raw_object, config=config, filter_blank_values=filter_blank_values)
-        navigated = self._get(path_string, obj=filtered, get_value=False)
-        return navigated
+        if len(filtered.keys()) == 0:
+            return {'configuration is blank': True}
+        elif len(path) == 0:
+            return filtered
+        else:
+            navigated = dpath.util.get(filtered, path_string, separator=separator)
+            return navigated
 
-    def merge_node(self, new_node, separator=' '):
+    def _merge_node(self, new_node, separator=' '):
+        """
+        Applications should use PyConfHoardDataStoreLock.patch instead of this 
+        function directly.
+        """
         node = self.get_object([], separator=separator)
         dpath.util.merge(node, new_node)
 
@@ -141,7 +114,7 @@ class PyConfHoardDatastore:
             path = self.decode_path_string(path_string, separator)
 
         # TODO: validation required on set
-        leaf_metadata = self._get(path, get_value=False, separator=separator)
+        leaf_metadata = self.get_schema(path, separator=separator)
         if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
             raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
@@ -152,12 +125,41 @@ class PyConfHoardDatastore:
         node = self._get(path_string, get_value=False, separator=separator)
 
     def get(self, path_string, separator=' '):
+        """
+        This method gets a terminating node of the database.
+
+        In future we probably would rather this method intelligently
+        return data in the way that get_object/get_listitem would
+        """
         return self._get(path_string, get_value=True, separator=separator)
 
     def get_object(self, path_string, separator=' '):
+        """
+        This method returns an object of dat
+        """
+        warnings.warn('get_object will be deprecated - see get_schema/get_raw/get')
         return self._get(path_string, get_value=False, separator=separator)
 
-    def _get(self, path_string, get_value=True, separator=' ', obj=None):
+    def get_schema(self, path_string, separator=' '):
+        """
+        This method returns both the schema portion of the node in question, this may
+        be lacking some of the structure which gives the data it's context to the 
+        parent children.
+        """
+        schema = self._get(path_string, get_value=True, separator=separator, return_schema=True)
+        if '__listelement' in schema:
+            return schema['__listelement']['__schema']
+        else:
+            return schema['__schema']
+
+    def get_raw(self, path_string, separator=' '):
+        """
+        This method returns a raw version of the object with schema and values combined.
+        """
+        composite = self._get(path_string, get_value=True, separator=separator, return_raw=True)
+        return composite
+
+    def _get(self, path_string, get_value=True, separator=' ', obj=None, return_schema=False, return_raw=False):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -168,6 +170,10 @@ class PyConfHoardDatastore:
 
         TODO: in future we should intelligently derrive if get_value is required
         or get is rquried.
+
+        Returns:
+            value by default
+            tuple of (value, metadata) if return_schema is set
         """
 
         if obj is None:
@@ -181,19 +187,52 @@ class PyConfHoardDatastore:
         if len(path) == 0:
             return obj
 
-        if get_value:
-            return self._get_value(path, dpath.util.get(obj, path))
-        else:
+        if not return_schema:
+            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
+            return value
+        elif not return_raw:
             return dpath.util.get(obj, path)
+        else:
+            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
+            return metadta
+
+    @staticmethod
+    def _separate_value_from_metadata(obj):
+        schema = {}
+        values = {}
+        if '__schema' in obj:
+            schema = obj['__schema']
+
+        if '__value' in obj:
+            return obj['__value'], schema
+        elif '__list' in schema and schema['__list']:
+            list = {}
+            for key in obj:
+                if key is not '__schema':
+                    list[key] = obj[key]
+            return list, schema
+        elif '__container' in schema and schema['__container']:
+            container = {}
+            for key in obj:
+                if key is not '__schema':
+                    container[key] = obj[key]
+            return (container, schema)
+        elif '__listelement' in obj:
+            # empty list
+            return (obj, schema)
+
+        raise ValueError('Unhandled case in _separate_value_from_metadata %s' % (obj))
 
     def create(self, path_string, keys, separator=' '):
         """Create a list item
         Note: keys is a space separated list of key values
         """
         # TODO: validation required on set of each of the keys
-        leaf_metadata = self._get(path_string, get_value=False, separator=separator)
+        path = self.decode_path_string(path_string, separator)
+
+        leaf_metadata = self.get_schema(path_string, separator=separator)
         if not ('__list' in leaf_metadata and leaf_metadata['__list']):
-            raise ValueError('Path: %s is not a list - cannot create an item' % (self.decode_path_string(path_string)))
+            raise ValueError('Path: %s is not a list - cannot create an item' % (path))
         if not ('__keys') in leaf_metadata:
             raise ValueError('List does not have any keys')
 
@@ -204,38 +243,33 @@ class PyConfHoardDatastore:
             raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
                              (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
 
-        list_element = self.get_object(path_string)
-        if keys in list_element:
+        list = self.get_raw(path)
+        # Copy the templated list element
+        path.append('__listelement')
+        list_element_template = self.get_raw(path)
+        if keys in list_element_template:
             raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
+        path.pop()
 
         new_list_element = {}
-        for list_item in list_element:
+        for list_item in list_element_template:
             if list_item[0:2] == '__':
                 pass
             else:
-                new_list_element[list_item] = copy.deepcopy(list_element[list_item])
+                new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
+        list[keys] = new_list_element
 
-        list_element[keys] = new_list_element
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
-            list_element[keys][this_key_name]['__value'] = our_keys[keyidx]
+            # t the key values themselves
+            list[keys][this_key_name]['__value'] = our_keys[keyidx]
+            list_item_path = list[keys][this_key_name]['__schema']['__path']
 
-    def _get_value(self, path, obj):
-        """
-        This method takes an object and return the value or None.
-        If a default is set and there is not __value we will return
-        __default instead.
-        """
-        if '__leaf' in obj and obj['__leaf'] == True:
-            if '__value' in obj and obj['__value']:
-                return obj['__value']
-            elif '__default' in obj:
-                return obj['__default']
-            else:
-                return None
-
-        else:
-            raise ValueError('Path: %s is not a leaf - cannot get a value' % (path))
+            # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
+            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
+            list[keys][this_key_name]['__schema']['__path'] = replacement_path_with_our_key
+        # Would rather not put this here, but it s required by separate_schema_from_values
+        list[keys]['__listelement'] = True
 
     def convert_path_to_slash_string(self, path):
         if isinstance(path, list):
@@ -255,64 +289,19 @@ class PyConfHoardDatastore:
         path = self.decode_path_string(path_string, separator=separator)
         if len(path) == 0:
             return self.db.keys()
-
+        warnings.warn("List needs to send schema into convert - otherwise it cant-filter- some unit tests are passing without this though")
         try:
-            obj = self.get_object(path)
+            obj = self.get_raw(path)
         except KeyError:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
 
-        filter = PyConfHoardDataFilter()
+        filter = PyConfHoardFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
         return dpath.util.get(filtered, path).keys()
 
-
-class PyConfHoardDataStoreLock:
-
-    """
-    This class allows us to provide locking of datastores and manage
-    giving up the lock if the consumer has a problem.
-
-    This class is largely tested by the REST folder.
-    """
-
-    def __init__(self, base, datastore, path):
-        self.base = base
-        self.datastore = datastore
-        self.path = path
-
-    def __enter__(self):
-        if os.path.exists('%s/%s/%s.lock' % (self.base, self.datastore, self.path)):
-            raise PyConfHoardExceptions.DataStoreLock(message='Failed to obtain lock - datastore %s/%s is already locked' %
-                                                      (self.datastore, self.path), errors=None)
-
-        o = open('%s/%s/%s.lock' % (self.base, self.datastore, self.path), 'w')
-        o.close()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if os.path.exists('%s/%s/%s.lock' % (self.base, self.datastore, self.path)):
-
-            os.unlink('%s/%s/%s.lock' % (self.base, self.datastore, self.path))
-        print('exit')
-
-    def patch(self, obj):
-        if not os.path.exists('%s/%s/%s.pch' % (self.base, self.datastore, self.path)):
-            parent_obj = {}
-        else:
-            pch = open('%s/%s/%s.pch' % (self.base, self.datastore, self.path))
-            parent_obj = json.loads(pch.read())
-            pch.close()
-
-        dpath.util.merge(parent_obj, obj)
-
-        new_pch = open('%s/%s/%s.pch' % (self.base, self.datastore, self.path), 'w')
-        new_pch.write(json.dumps(parent_obj, indent=4))
-        new_pch.close()
-
-        if self.datastore is 'running':
-            new_pch = open('%s/%s/%s.pch' % (self.base, 'persist', self.path), 'w')
-            new_pch.write(json.dumps(parent_obj, indent=4))
-            new_pch.close()
-
-        return json.dumps(parent_obj, indent=4)
+    def _merge_direct_to_root(self, new_node):
+        """
+        WARNING: this method has no safety checks
+        """
+        dpath.util.merge(self.db, new_node)

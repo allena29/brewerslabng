@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 import traceback
 import time
+import logging
 import sys
 import json
 import requests
@@ -14,12 +15,25 @@ class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
     SERVER = 'http://127.0.0.1:8000'
+    LOG_LEVEL = logging.CRITICAL
 
     def __init__(self, no_networking=False):
         Cmd.__init__(self)
 
         self.allow_redirection = False
         self.debug = True
+
+        logging.TRACE = 7
+
+        def custom_level_trace(self, message, *args, **kws):
+            if self.isEnabledFor(logging.TRACE):
+                self._log(logging.TRACE, message, args, **kws)
+        logging.Logger.trace = custom_level_trace
+        FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.addLevelName(logging.TRACE, "TRACE")
+        logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
+        self.log = logging.getLogger('CLI')
+        self.log.debug('Filter Instance Started %s', self)
 
         # To remove built-in commands entirely, delete their "do_*" function from the
         # cmd2.Cmd class
@@ -87,7 +101,7 @@ class PyConfHoardCLI(Cmd):
                 response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     operdata = json.loads(response)
-                    self.datastore.merge_node(operdata)
+                    self.datastore._merge_direct_to_root(operdata)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
@@ -100,7 +114,7 @@ class PyConfHoardCLI(Cmd):
                 response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     config = json.loads(response)
-                    self.datastore.merge_node(config)
+                    self.datastore._merge_direct_to_root(config)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
@@ -112,14 +126,14 @@ class PyConfHoardCLI(Cmd):
                     response = requests.get('%s/v1/datastore/default/%s' % (self.SERVER, metadata['appname'])).text
                     if len(response):
                         config = json.loads(response)
-                        self.datastore.merge_node(config)
+                        self.datastore._merge_direct_to_root(config)
                     PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
                 except ImportError as err:
                     PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
-        print ('')
+        print('')
         self.prompt = 'robber@localhost> '
 
         del self.do_set
@@ -133,7 +147,7 @@ class PyConfHoardCLI(Cmd):
     def _enter_conf_mode(self):
         self._in_conf_mode = True
         self.prompt = 'robber@localhost% '
-        print ('Entering configuration mode private')
+        print('Entering configuration mode private')
         self._conf_header()
         self.do_set = self._command_set
         self.complete_set = self._autocomplete_conf_set
@@ -145,18 +159,18 @@ class PyConfHoardCLI(Cmd):
         self.do_create = self._command_create
 
     def _ok(self):
-        print ('')
-        print ('[ok][%s]' % (time.ctime()))
+        print('')
+        print('[ok][%s]' % (time.ctime()))
 
     def _error(self, err=None):
         if err:
-            print (str(err))
-        print ('')
-        print ('[error][%s]' % (time.ctime()))
+            print(str(err))
+        print('')
+        print('[error][%s]' % (time.ctime()))
 
     def _conf_header(self):
         self._ok()
-        print ('[edit]')
+        print('[edit]')
 
     # We use _command_xxxx prefix to show commands which will be dynamically removed
     # or added based on mode.
@@ -215,14 +229,14 @@ class PyConfHoardCLI(Cmd):
     def _command_oper_show(self, args):
         'Show node in the operational database'
         try:
-            print (self._get_json_cfg_view(args, config=False))
+            print(self._get_json_cfg_view(args, config=False))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _command_conf_show(self, args):
         try:
-            print (self._get_json_cfg_view(args, config=True))
+            print(self._get_json_cfg_view(args, config=True))
             self._ok()
         except Exception as err:
             self._error(err)

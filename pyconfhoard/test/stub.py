@@ -1,4 +1,11 @@
-{
+import json
+
+
+class testresource:
+
+    @staticmethod
+    def new_node_object():
+        return json.loads("""{
     "simplestleaf": {
         "__value": null,
         "__schema": {
@@ -344,4 +351,4 @@
             }
         }
     }
-}
+}""")
