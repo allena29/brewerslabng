@@ -142,16 +142,14 @@ class PyConfHoardDataFilter:
                             self.log.trace('%s is a list', _schema['__path'])
                             dpath.util.new(self.root, _schema['__path'], {})
                         else:
-                            a=5/0
+                            a = 5/0
                             self.log.error('%s is unhandled in %s', _obj[key], self._convert)
-                    
-                    
+
                     for listitem in _obj[key]:
                         if not listitem == '__listelement':
                             self.log.trace('Creating Tree for %s which is a list element', _obj[key]['__listelement']['__schema']['__path'])
                             dpath.util.new(self.root, _obj[key]['__listelement']['__schema']['__path'], {})
                             self._convert(_obj[key][listitem], filter_blank_values=filter_blank_values, config=config)
-
 
     def convert(self, _obj, config=None, filter_blank_values=True):
         if '__schema' in _obj:
@@ -172,18 +170,17 @@ class PyConfHoardDatastore:
     def __init__(self):
         self.db = {}
 
+        logging.TRACE = 7
 
-        logging.TRACE = 7 
         def custom_level_trace(self, message, *args, **kws):
             if self.isEnabledFor(logging.TRACE):
-                self._log(logging.TRACE, message, args, **kws) 
+                self._log(logging.TRACE, message, args, **kws)
         logging.Logger.trace = custom_level_trace
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.addLevelName(logging.TRACE, "TRACE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('DatastoreBackend')
         self.log.debug('Filter Instance Started %s', self)
-
 
     def load_blank_schema(self, json_file):
         schema_file = open(json_file)
@@ -222,7 +219,7 @@ class PyConfHoardDatastore:
 
         return separated
 
-    def view(self, path_string, config, filter_blank_values=True):
+    def view(self, path_string, config, filter_blank_values=True, separator=' '):
         """
         This method provides a human readable rendering of the datastore.
         A new dictionary is returned which removes all the internal metadata
@@ -236,12 +233,17 @@ class PyConfHoardDatastore:
         }
 
         """
-
+        path = self.decode_path_string(path_string, separator)
         pretty = PyConfHoardDataFilter()
-        raw_object = self.get_object(path_string)
+        raw_object = self.get_raw(path_string)
         filtered = pretty.convert(raw_object, config=config, filter_blank_values=filter_blank_values)
-        navigated = self._get(path_string, obj=filtered, get_value=False)
-        return navigated
+        if len(filtered.keys()) == 0:
+            return {'configuration is blank': True}
+        elif len(path) == 0:
+            return filtered
+        else:
+            navigated = dpath.util.get(filtered, path_string, separator=separator)
+            return navigated
 
     def _merge_node(self, new_node, separator=' '):
         """
@@ -412,11 +414,11 @@ class PyConfHoardDatastore:
         for keyidx in range(len(required_keys)):
             this_key_name = required_keys[keyidx]
             # t the key values themselves
-            list[keys][this_key_name]['__value'] = our_keys[keyidx]        
-            list_item_path  = list[keys][this_key_name]['__schema']['__path']
+            list[keys][this_key_name]['__value'] = our_keys[keyidx]
+            list_item_path = list[keys][this_key_name]['__schema']['__path']
 
             # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
-            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name    
+            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
             list[keys][this_key_name]['__schema']['__path'] = replacement_path_with_our_key
         # Would rather not put this here, but it s required by separate_schema_from_values
         list[keys]['__listelement'] = True
@@ -449,6 +451,12 @@ class PyConfHoardDatastore:
         filter = PyConfHoardDataFilter()
         filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
         return dpath.util.get(filtered, path).keys()
+
+    def _merge_direct_to_root(self, new_node):
+        """
+        WARNING: this method has no safety checks
+        """
+        dpath.util.merge(self.db, new_node)
 
 
 class PyConfHoardDataStoreLock:
