@@ -60,7 +60,10 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
 
     def _accept_adjust_and_add_a_reading(self, probe, temperature):
         adjust = 0
-        probe_offsets = self.get_config("/hardware/probe[id='%s']/offsets" % (probe))
+        if not self.datastore.has_list_item("/hardware/probe/%s" % (probe)):
+            return False
+
+        probe_offsets = self.datastore.get_list_element("/hardware/probe/%s/offsets" % (probe))
 
         for offset in probe_offsets:
             offset_min = float(offset.low)
