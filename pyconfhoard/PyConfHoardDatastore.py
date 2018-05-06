@@ -17,6 +17,7 @@ class PyConfHoardDatastore:
 
     def __init__(self):
         self.db = {}
+        self.db_values = {}
 
         logging.TRACE = 7
 
@@ -31,6 +32,7 @@ class PyConfHoardDatastore:
         self.log.debug('Filter Instance Started %s', self)
 
     def load_blank_schema(self, json_file):
+        print(os.getcwd())
         schema_file = open(json_file)
         self.db = json.loads(schema_file.read())
         schema_file.close()
@@ -120,9 +122,7 @@ class PyConfHoardDatastore:
         if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
             raise ValueError('Path: %s is a list key - cannot set keys' % (path))
 
-        path.append('__value')
-        dpath.util.set(self.db, path, set_val)
-        node = self._get(path_string, separator=separator)
+        dpath.util.new(self.db_values, path, set_val)
 
     def get(self, path_string, separator=' '):
         """
@@ -183,7 +183,7 @@ class PyConfHoardDatastore:
         
 
 
-    def _get(self, path_string, separator=' ', obj=None, return_schema=False, return_raw=False):
+    def _get(self, path_string, separator=' ', obj=(None, None), return_schema=False):
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
@@ -192,53 +192,24 @@ class PyConfHoardDatastore:
         By default this operates on the default datastore (self.db) but
         an optional object can be passed in instead.
         """
-
-        if obj is None:
+        (schema_obj, values_obj) = obj
+        if schema_obj is None:
             obj = self.db
+        if values_obj is None:
+            values_obj = self.db_values
 
         if isinstance(path_string, list):
             path = path_string
         else:
             path = self.decode_path_string(path_string, separator)
 
-        if len(path) == 0:
-            return obj
+        if return_schema is False:
+            try:
+                return dpath.util.get(values_obj, path)
+            except KeyError:
+                return None
 
-        if not return_schema:
-            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
-            return value
-        elif not return_raw:
-            return dpath.util.get(obj, path)
-        else:
-            value, metadata = self._separate_value_from_metadata(dpath.util.get(obj, path))
-            return metadta
-
-    @staticmethod
-    def _separate_value_from_metadata(obj):
-        schema = {}
-        values = {}
-        if '__schema' in obj:
-            schema = obj['__schema']
-
-        if '__value' in obj:
-            return obj['__value'], schema
-        elif '__list' in schema and schema['__list']:
-            list = {}
-            for key in obj:
-                if key is not '__schema':
-                    list[key] = obj[key]
-            return list, schema
-        elif '__container' in schema and schema['__container']:
-            container = {}
-            for key in obj:
-                if key is not '__schema':
-                    container[key] = obj[key]
-            return (container, schema)
-        elif '__listelement' in obj:
-            # empty list
-            return (obj, schema)
-
-        raise ValueError('Unhandled case in _separate_value_from_metadata %s' % (obj))
+        return dpath.util.get(obj, path)
 
     def create(self, path_string, keys, separator=' '):
         """Create a list item
