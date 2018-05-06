@@ -27,7 +27,7 @@ class TestYang(unittest.TestCase):
 
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
-        self.assertEqual(list(result), ['simplestleaf', 'simplecontainer', 'level1', 'simplelist', 'types'])
+        self.assertEqual(list(result.sort()), [u'simplestleaf', u'simplecontainer', u'level1', u'simplelist', u'types'])
 
     def test_list_config_nodes_from_child(self):
         result = self.subject.list('simplecontainer', filter_blank_values=False)
@@ -38,8 +38,16 @@ class TestYang(unittest.TestCase):
         self.assertTrue('simplecontainer' in result)
         self.assertTrue('level1' in result)
 
-    def test_get_depper_from_root(self):
-        result = self.subject.get('level1 level2')
+    def test_get_value_deeper_from_root(self):
+        self.subject.set('level1 level2 level3 mixed config', 'abc')
+        result = self.subject._get('level1 level2', return_schema=True)
+
+        self.assertTrue('level3' in result)
+        self.assertTrue('mixed' in result['level3'])
+
+    def test_get_schema_deeper_from_root(self):
+        result = self.subject._get('level1 level2', return_schema=True)
+
         self.assertTrue('level3' in result)
         self.assertTrue('mixed' in result['level3'])
 
@@ -74,9 +82,7 @@ class TestYang(unittest.TestCase):
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
 
     def test_create_list_item(self):
-        listval = self.subject.get_raw('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-        listval = self.subject.get_raw('simplelist')
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
@@ -106,7 +112,7 @@ class TestYang(unittest.TestCase):
             self.subject.create('simplelist', 'firstkeyVal secondkeyVal')
             self.fail('Set on a list with the wrong number of keys must fail')
         except ValueError as err:
-            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys ['item'] - 2 keys provided")
+            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys [u'item'] - 2 keys provided")
 
     def test_create_list_item_on_a_non_list(self):
         try:

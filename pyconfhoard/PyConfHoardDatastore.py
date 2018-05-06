@@ -32,7 +32,6 @@ class PyConfHoardDatastore:
         self.log.debug('Filter Instance Started %s', self)
 
     def load_blank_schema(self, json_file):
-        print(os.getcwd())
         schema_file = open(json_file)
         self.db = json.loads(schema_file.read())
         schema_file.close()
@@ -154,13 +153,6 @@ class PyConfHoardDatastore:
         else:
             warning.warn('Encountered a place where we couldnt return a schema... %s' % (schema.keys()))
 
-    def get_raw(self, path_string, separator=' '):
-        """
-        This method returns a raw version of the object with schema and values combined.
-        """
-        composite = self._get(path_string, separator=separator, return_raw=True)
-        return composite
-
     def get_list_element(self, path_string, separator=' '):
         self.log.trace('get_list_element: %s' % (path_string))
         return self._get(path_string, separator=separator)
@@ -233,33 +225,17 @@ class PyConfHoardDatastore:
             raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
                              (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
 
-        list = self.get_raw(path)
+        # TODO::::: we need to validat eif a key already exists
+
         # Copy the templated list element
         path.append('__listelement')
-        list_element_template = self.get_raw(path)
-        if keys in list_element_template:
-            raise ValueError("Path: %s key already exists (or key has same name as a yang attribute in this list" % (self.decode_path_string))
+        list_element_template = dpath.util.get(self.db, path)
         path.pop()
 
-        new_list_element = {}
-        for list_item in list_element_template:
-            if list_item[0:2] == '__':
-                pass
-            else:
-                new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
-        list[keys] = new_list_element
+        path.append(keys)
+        dpath.util.new(self.db, path, list_element_template)
+        dpath.util.new(self.db_values, path, {})
 
-        for keyidx in range(len(required_keys)):
-            this_key_name = required_keys[keyidx]
-            # t the key values themselves
-            list[keys][this_key_name]['__value'] = our_keys[keyidx]
-            list_item_path = list[keys][this_key_name]['__schema']['__path']
-
-            # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
-            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
-            list[keys][this_key_name]['__schema']['__path'] = replacement_path_with_our_key
-        # Would rather not put this here, but it s required by separate_schema_from_values
-        list[keys]['__listelement'] = True
 
     def convert_path_to_slash_string(self, path):
         if isinstance(path, list):
