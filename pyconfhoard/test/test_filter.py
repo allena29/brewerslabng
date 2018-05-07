@@ -16,36 +16,36 @@ class TestFilter(unittest.TestCase):
         self.subject.set('simplestleaf', 'abc123')
         self.subject.set('simplecontainer leafstring', 'foobar')
 
-        pretty = PyConfHoardFilter()
-        pretty.convert(self.subject.db, config=True, filter_blank_values=False)
+        pretty = PyConfHoardFilter(self.subject.db, self.subject.db_values)
+        pretty.convert(config=True, filter_blank_values=False)
 
-        # print (json.dumps(pretty.root, indent=4))
+        print (json.dumps(pretty.root, indent=4))
 
         expected_answer = """{
-    "simplestleaf": "abc123",
-    "simplecontainer": {
-        "leafstring": "foobar"
-    },
+    "simplelist": {}, 
     "level1": {
         "level2": {
             "level3": {
-                "withcfg": {
-                    "config": null
-                },
                 "mixed": {
+                    "config": null
+                }, 
+                "withcfg": {
                     "config": null
                 }
             }
         }
-    },
-    "simplelist": {},
+    }, 
+    "simplestleaf": "abc123", 
+    "simplecontainer": {
+        "leafstring": "foobar"
+    }, 
     "types": {
-        "number": null,
-        "biggernumber": null,
-        "bignumber": null,
-        "hugenumber": null,
-        "secondlist": {},
-        "compositekeylist": {}
+        "bignumber": null, 
+        "hugenumber": null, 
+        "compositekeylist": {}, 
+        "number": null, 
+        "biggernumber": null, 
+        "secondlist": {}
     }
 }"""
 
@@ -58,38 +58,41 @@ class TestFilter(unittest.TestCase):
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
 #        print (json.dumps(self.subject.db, indent=4))
-        pretty = PyConfHoardFilter()
-        pretty.convert(self.subject.db, config=True, filter_blank_values=False)
+        pretty = PyConfHoardFilter(self.subject.db, self.subject.db_values)
+        pretty.convert(config=True, filter_blank_values=False)
 
-#        print (json.dumps(pretty.root, indent=4))
+        # this method doesn't work - we don't get back list elements back
+        # We need simplelist/valueForFirstKey
+
+        print (json.dumps(pretty.root, indent=4))
         expected_answer = """{
-    "simplestleaf": "abc123",
+    "simplestleaf": "abc123", 
     "simplecontainer": {
         "leafstring": "foobar"
-    },
+    }, 
     "level1": {
         "level2": {
             "level3": {
                 "withcfg": {
                     "config": null
-                },
+                }, 
                 "mixed": {
                     "config": null
                 }
             }
         }
-    },
+    }, 
     "simplelist": {
         "valueForFirstKey": {
             "item": "valueForFirstKey"
         }
-    },
+    }, 
     "types": {
-        "number": null,
-        "biggernumber": null,
-        "bignumber": null,
-        "hugenumber": null,
-        "secondlist": {},
+        "number": null, 
+        "biggernumber": null, 
+        "bignumber": null, 
+        "hugenumber": null, 
+        "secondlist": {}, 
         "compositekeylist": {}
     }
 }"""
@@ -100,11 +103,11 @@ class TestFilter(unittest.TestCase):
         self.subject.set('simplestleaf', 'abc123')
         self.subject.set('simplecontainer leafstring', 'foobar')
 
-        pretty = PyConfHoardFilter()
-        pretty.convert(self.subject.db, config=True, filter_blank_values=True)
+        pretty = PyConfHoardFilter(self.subject.db, self.subject.db_values)
+        pretty.convert(config=True, filter_blank_values=True)
 
         expected_answer = """{
-    "simplestleaf": "abc123",
+    "simplestleaf": "abc123", 
     "simplecontainer": {
         "leafstring": "foobar"
     }
@@ -115,8 +118,8 @@ class TestFilter(unittest.TestCase):
     def test_convert_to_operdata_filter_blanks_enabled(self):
         self.subject.set('simplecontainer leafnonconfig', 'foobar1')
 
-        pretty = PyConfHoardFilter()
-        pretty.convert(self.subject.db, config=False, filter_blank_values=True)
+        pretty = PyConfHoardFilter(self.subject.db, self.subject.db_values)
+        pretty.convert(config=False, filter_blank_values=True)
 
         expected_answer = """{
     "simplecontainer": {
@@ -129,26 +132,27 @@ class TestFilter(unittest.TestCase):
     def test_convert_to_operdata_filter_blanks_disabled(self):
         self.subject.set('simplecontainer leafnonconfig', 'foobar1')
 
-        pretty = PyConfHoardFilter()
-        pretty.convert(self.subject.db, config=False, filter_blank_values=False)
+        pretty = PyConfHoardFilter(self.subject.db, self.subject.db_values)
+        pretty.convert(config=False, filter_blank_values=False)
 
+        # Note: after each , there is a space
         expected_answer = """{
-    "simplecontainer": {
-        "leafnonconfig": "foobar1"
-    },
+    "simplelist": {}, 
     "level1": {
         "level2": {
             "level3": {
-                "withoutcfg": {
-                    "nonconfig": null
-                },
                 "mixed": {
+                    "nonconfig": null
+                }, 
+                "withoutcfg": {
                     "nonconfig": null
                 }
             }
         }
-    },
-    "simplelist": {}
+    }, 
+    "simplecontainer": {
+        "leafnonconfig": "foobar1"
+    }
 }"""
 
         self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
