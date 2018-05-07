@@ -1,8 +1,8 @@
 import unittest
 import json
 import sys
+import dpath.util
 sys.path.append('test')
-from stub import testresource
 from PyConfHoardDatastore import PyConfHoardDatastore
 
 
@@ -11,6 +11,7 @@ class TestYang(unittest.TestCase):
     def setUp(self):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
+        self.subject.set('simplecontainer leafstring', 'fred')
         self.maxDiff = 10000
 
     def test_decode_path_string(self):
@@ -127,13 +128,11 @@ class TestYang(unittest.TestCase):
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
 
     def test_merge_new_conf_data_into_existing_schema(self):
-        before_merge = json.dumps(self.subject.get_object(''), indent=4)
-        new_node = testresource.new_node_object()
-        new_node['level1']['level2']['level3']['withcfg']['config']['__value'] = 'this-has-been-set-in-merge!'
-
+        new_node = {}
+        dpath.util.new(new_node, '/level1/level2/level3/withcfg/config', "this-has-been-set-in-merge!")
         self.subject._merge_node(new_node)
 
-        after_merge = json.dumps(self.subject.get_object(''), indent=4)
-
+        old_node_val = self.subject.get('/simplecontainer/leafstring', separator='/')
+        self.assertEqual(old_node_val, 'fred')
         updated_node_val = self.subject.get('/level1/level2/level3/withcfg/config', separator='/')
         self.assertEqual(updated_node_val, 'this-has-been-set-in-merge!')

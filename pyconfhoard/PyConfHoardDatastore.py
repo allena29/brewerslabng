@@ -99,8 +99,7 @@ class PyConfHoardDatastore:
         Applications should use PyConfHoardDataStoreLock.patch instead of this 
         function directly.
         """
-        node = self.get_object([], separator=separator)
-        dpath.util.merge(node, new_node)
+        dpath.util.merge(self.db_values, new_node)
 
     def set(self, path_string, set_val, separator=' '):
         """
