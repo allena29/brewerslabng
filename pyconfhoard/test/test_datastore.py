@@ -38,7 +38,9 @@ class TestYang(unittest.TestCase):
         result = self.subject.list('simplecontainer', filter_blank_values=True)
         self.assertEqual(list(result), ['leafstring'])
 
-    def test_get_config_nodes_from_root(self):
+    def deprecated_test_get_config_nodes_from_root(self):
+        # Getting config from root is not supported... we should say we 
+        # only support getting depper down
         result = self.subject.get('')
         self.assertTrue('simplecontainer' in result)
         self.assertTrue('level1' in result)
@@ -93,9 +95,7 @@ class TestYang(unittest.TestCase):
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
 
     def test_has_list_item(self):
-        listval = self.subject.get_raw('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-        listval = self.subject.get_raw('simplelist')
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
         self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKey', separator='/'), True)

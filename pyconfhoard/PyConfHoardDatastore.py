@@ -130,7 +130,10 @@ class PyConfHoardDatastore:
         In future we probably would rather this method intelligently
         return data in the way that get_object/get_listitem would
         """
-        return self._get(path_string, separator=separator)
+        try:
+            return self._get(path_string, separator=separator)
+        except KeyError:
+            raise ValueError('Path: %s does not exist' % (self.convert_path_to_slash_string(path_string)))
 
     def get_object(self, path_string, separator=' '):
         """
@@ -166,9 +169,10 @@ class PyConfHoardDatastore:
         TODO: add validation here to trap cases where a deeper path is asked for/non-list item.
         """
         try:
-            self._get(path_string, separator=separator)
-            self.log.trace('has_list_item: %s - TRUE' % (path_string))
-            return True
+            if self._get(path_string, separator=separator):
+                self.log.trace('has_list_item: %s - TRUE' % (path_string))
+                return True
+            return False
         except KeyError as err:
             self.log.trace('has_list_item: %s - FALSE' % (path_string))
             return False
@@ -179,7 +183,9 @@ class PyConfHoardDatastore:
         """
         This method returns an explicit object from the database.
         The input can be a path_string and will be decoded, if we are passed a list
-        we will decode it further.
+        we will not be decode it further.
+
+        Retreiving the root of the database with the get method is not supported.
 
         By default this operates on the default datastore (self.db) but
         an optional object can be passed in instead.
