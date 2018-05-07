@@ -254,10 +254,10 @@ class PyConfHoardDatastore:
         """
         path = self.decode_path_string(path_string, separator=separator)
         if len(path) == 0:
-            return self.db.keys()
-        warnings.warn("List needs to send schema into convert - otherwise it cant-filter- some unit tests are passing without this though")
+            return sorted(self.db.keys())
+
         try:
-            obj = self.get_raw(path)
+            obj = dpath.util.get(self.db, path)
         except KeyError:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))

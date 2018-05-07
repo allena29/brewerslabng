@@ -27,7 +27,7 @@ class TestYang(unittest.TestCase):
 
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
-        self.assertEqual(list(result.sort()), [u'simplestleaf', u'simplecontainer', u'level1', u'simplelist', u'types'])
+        self.assertEqual(result, [u'level1', u'simplecontainer', u'simplelist',  u'simplestleaf', u'types'])
 
     def test_list_config_nodes_from_child(self):
         result = self.subject.list('simplecontainer', filter_blank_values=False)
