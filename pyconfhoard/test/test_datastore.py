@@ -33,6 +33,11 @@ class TestYang(unittest.TestCase):
         result = self.subject.list('simplecontainer', filter_blank_values=False)
         self.assertEqual(list(result), ['leafstring'])
 
+    def test_list_config_nodes_from_child_filtering_blank_values(self):
+        self.subject.set('simplecontainer leafstring', 'fred')
+        result = self.subject.list('simplecontainer', filter_blank_values=True)
+        self.assertEqual(list(result), ['leafstring'])
+
     def test_get_config_nodes_from_root(self):
         result = self.subject.get('')
         self.assertTrue('simplecontainer' in result)

@@ -261,9 +261,17 @@ class PyConfHoardDatastore:
         except KeyError:
             raise ValueError('Path: %s does not exist - cannot build list' %
                              (self.convert_path_to_slash_string(path)))
+        
+        try:
+            obj_values = dpath.util.get(self.db_values, path)
+        except KeyError:
+            obj_values = {}
 
-        filter = PyConfHoardFilter()
-        filtered = filter.convert(obj, config=config, filter_blank_values=filter_blank_values)
+        #filter = PyConfHoardFilter(obj, obj_values)
+        filter = PyConfHoardFilter(self.db, self.db_values)
+        filter.convert(config=config, filter_blank_values=filter_blank_values)
+        filtered = filter.root
+
         return dpath.util.get(filtered, path).keys()
 
     def _merge_direct_to_root(self, new_node):
