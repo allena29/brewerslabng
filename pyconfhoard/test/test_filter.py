@@ -66,36 +66,42 @@ class TestFilter(unittest.TestCase):
 
         print (json.dumps(pretty.root, indent=4))
         expected_answer = """{
-    "simplestleaf": "abc123", 
-    "simplecontainer": {
-        "leafstring": "foobar"
-    }, 
-    "level1": {
-        "level2": {
-            "level3": {
-                "withcfg": {
-                    "config": null
-                }, 
-                "mixed": {
-                    "config": null
-                }
-            }
-        }
-    }, 
     "simplelist": {
         "valueForFirstKey": {
             "item": "valueForFirstKey"
         }
     }, 
+    "level1": {
+        "level2": {
+            "level3": {
+                "mixed": {
+                    "config": null
+                }, 
+                "withcfg": {
+                    "config": null
+                }
+            }
+        }
+    }, 
+    "simplestleaf": "abc123", 
+    "simplecontainer": {
+        "leafstring": "foobar"
+    }, 
     "types": {
-        "number": null, 
-        "biggernumber": null, 
         "bignumber": null, 
         "hugenumber": null, 
-        "secondlist": {}, 
-        "compositekeylist": {}
+        "compositekeylist": {}, 
+        "number": null, 
+        "biggernumber": null, 
+        "secondlist": {}
     }
 }"""
+        o=open('a','w')
+        o.write(json.dumps(pretty.root, indent=4))
+        o.close()
+        o=open('b','w')
+        o.write(json.dumps(json.loads(expected_answer), indent=4))
+        o.close()
 
         self.assertEqual(json.dumps(pretty.root, indent=4), expected_answer)
 

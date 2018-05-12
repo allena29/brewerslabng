@@ -238,8 +238,39 @@ class PyConfHoardDatastore:
         path.pop()
 
         path.append(keys)
+
+
+        new_list_element = {}
+        for list_item in list_element_template:
+            if list_item[0:2] == '__':
+                pass
+            else:
+                new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
+        #list[keys] = new_list_element
         dpath.util.new(self.db, path, list_element_template)
         dpath.util.new(self.db_values, path, {})
+
+        schema = dpath.util.get(self.db, path)
+        values = dpath.util.get(self.db_values, path)
+
+        print('SCHEMA: %s' %(schema))
+        print('VALUES: %s' %(values))
+    
+        # TODO: this probably needs updating if we have more than a single level
+        # of items within our keys... It *MAY* be ok
+
+        for keyidx in range(len(required_keys)):
+            this_key_name = required_keys[keyidx]
+            # t the key values themselves
+            path.append(this_key_name)
+            dpath.util.new(self.db_values, path, our_keys[keyidx])
+            list_item_path = schema[this_key_name]['__schema']['__path']
+            print(list_item_path)
+            # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
+            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
+            print(replacement_path_with_our_key)
+            schema[this_key_name]['__schema']['__path'] = replacement_path_with_our_key
+
 
 
     def convert_path_to_slash_string(self, path):
