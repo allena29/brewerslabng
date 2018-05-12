@@ -83,9 +83,9 @@ class PyConfHoardDatastore:
 
         """
         path = self.decode_path_string(path_string, separator)
-        pretty = PyConfHoardFilter()
-        raw_object = self.get_raw(path_string)
-        filtered = pretty.convert(raw_object, config=config, filter_blank_values=filter_blank_values)
+        pretty = PyConfHoardFilter(self.db, self.db_values)
+        pretty.convert(config=config, filter_blank_values=filter_blank_values)
+        filtered = pretty.root
         if len(filtered.keys()) == 0:
             return {'configuration is blank': True}
         elif len(path) == 0:
@@ -253,8 +253,8 @@ class PyConfHoardDatastore:
         schema = dpath.util.get(self.db, path)
         values = dpath.util.get(self.db_values, path)
 
-        print('SCHEMA: %s' %(schema))
-        print('VALUES: %s' %(values))
+        #print('SCHEMA: %s' %(schema))
+        #print('VALUES: %s' %(values))
     
         # TODO: this probably needs updating if we have more than a single level
         # of items within our keys... It *MAY* be ok
@@ -265,10 +265,8 @@ class PyConfHoardDatastore:
             path.append(this_key_name)
             dpath.util.new(self.db_values, path, our_keys[keyidx])
             list_item_path = schema[this_key_name]['__schema']['__path']
-            print(list_item_path)
             # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
             replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
-            print(replacement_path_with_our_key)
             schema[this_key_name]['__schema']['__path'] = replacement_path_with_our_key
 
 

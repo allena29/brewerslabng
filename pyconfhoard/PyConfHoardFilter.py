@@ -76,7 +76,6 @@ class PyConfHoardFilter:
 
     def __init__(self, obj, obj_values):
         self.root = {}
-        self.root_values = {}
         self.log = logging.getLogger('DatastoreBackend')
         self.log.debug('Filter Instance Started %s', self)
         self.obj = obj
@@ -173,4 +172,3 @@ class PyConfHoardFilter:
 
         self._convert(_obj, _objvalues, config=config, filter_blank_values=filter_blank_values)
         self.log.info('Filtered: len(obj): %s', len(self.root.keys()))
-        self.log.info('Filtered: len(obj_values): %s', len(self.root_values.keys()))
