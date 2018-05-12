@@ -118,7 +118,7 @@ class TestYang(unittest.TestCase):
             self.subject.create('simplelist', 'firstkeyVal secondkeyVal')
             self.fail('Set on a list with the wrong number of keys must fail')
         except ValueError as err:
-            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys [u'item'] - 2 keys provided")
+            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys ['item'] - 2 keys provided")
 
     def test_create_list_item_on_a_non_list(self):
         try:
