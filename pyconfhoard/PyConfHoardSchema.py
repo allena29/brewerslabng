@@ -76,7 +76,6 @@ class yin_to_json:
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
                 schema_by_tree[child.attrib['name']] = {}
-                schema_by_tree[child.attrib['name']]['__value'] = None
 
                 schema_by_tree[child.attrib['name']]['__schema'] = {}
                 schema_by_tree[child.attrib['name']]['__schema']['__config'] = True

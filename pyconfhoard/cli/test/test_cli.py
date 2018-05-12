@@ -15,11 +15,9 @@ class TestPyConfHoardCLI(unittest.TestCase):
         self.maxDiff = 10000
 
     def test_show_of_non_existing_path(self):
-        try:
-            result = self.subject._get_json_cfg_view('show thisdoesnotexist')
-            self.fail('Expected to fail because we asked for a non-existing path')
-        except ValueError as err:
-            self.assertEqual(str(err), 'Path: show thisdoesnotexist does not exist')
+        result = self.subject._get_json_cfg_view('show thisdoesnotexist')
+        expected_result = """{\n    "configuration is blank": true\n}"""
+        self.assertEqual(result, expected_result)
 
     def test_show_top_level(self):
         self.subject.datastore.set('simplestleaf', 243)

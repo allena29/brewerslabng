@@ -13,6 +13,60 @@ Therefore this cobbles something together based around exporting the YIN definit
 This project in it's current form will never scale to 100,000's requests per second - but the simple act of seriously re-considering code that is >3 years old, putting the structure of a database-moel and discipline of testing will make this project easier to transition to a more industrial solution if needed.
 
 
+
+# Revised idea
+
+The idea with this branch is to go back on the __listelement idea, there's a lot of complexity there - and instead avoid storing values in the PyConfHoardSchema generated file.
+The schema file seems to work quite well for auto completion on the CLI etc.
+
+Then provide an independent key/value store for the actual data - it needs to be something that can be search
+
+This would still be heavily based around what we have now but would make usage much more striaightforward. Upgrading a document which has combined schema/data seems overly complex. We could potentially then hook thie keypaths into proper databases [Arangodb looks interesting - https://www.arangodb.com/documentation/](https://www.arangodb.com/documentation/) For now we should prototype with just python
+ 
+```python
+In [16]: import dpath.util
+    ...: import json
+    ...:
+    ...: root={}
+    ...:
+    ...: path = '/this/is/a/path/down/to/a/list{listkey1}/item'
+    ...: value = '123'
+    ...: path2 = '/this/is/a/path/down/to/a/list{listkey2}/item'
+    ...: value2= 'abc'
+    ...: dpath.util.new(root, path, value)
+    ...: dpath.util.new(root, path2, value2)
+    ...: print (json.dumps(root, indent=4))
+    ...:
+    ...:
+    ...:
+    ...:
+    ...:
+{
+    "this": {
+        "is": {
+            "a": {
+                "path": {
+                    "down": {
+                        "to": {
+                            "a": {
+                                "list{listkey1}": {
+                                    "item": "123"
+                                },
+                                "list{listkey2}": {
+                                    "item": "abc"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+```
+
+
 ## Setup
 
 1. [Raspberry PI Basic Setup](Documentation/RaspberryPi.md)
@@ -525,4 +579,5 @@ robber@localhost> exit
 - Feature: authentication for CLI module.
 - Feature: if there is no configuration in the database we should have an option of | include-all
 - Cosmetic: it would be btter to only show elements in the database which have lists when running the _auto_complete (we would need to do something like filter_for_lists and record something int he yang schema)
-
+- Cosmetic: when doing auto-complete for lists we should *NOT* show the leaves until the key has been set, and then should filter out the keys and only leave non-keys
+- Optimisation: we should track back areas of the database that have changed so we only try to persist things that have actually changed (i.e. a set of dirty flags)

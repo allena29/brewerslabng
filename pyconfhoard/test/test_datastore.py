@@ -1,8 +1,8 @@
 import unittest
 import json
 import sys
+import dpath.util
 sys.path.append('test')
-from stub import testresource
 from PyConfHoardDatastore import PyConfHoardDatastore
 
 
@@ -11,6 +11,7 @@ class TestYang(unittest.TestCase):
     def setUp(self):
         self.subject = PyConfHoardDatastore()
         self.subject.load_blank_schema('test/schema.json')
+        self.subject.set('simplecontainer leafstring', 'fred')
         self.maxDiff = 10000
 
     def test_decode_path_string(self):
@@ -27,19 +28,34 @@ class TestYang(unittest.TestCase):
 
     def test_list_config_nodes_from_root(self):
         result = self.subject.list('')
-        self.assertEqual(list(result), ['simplestleaf', 'simplecontainer', 'level1', 'simplelist', 'types'])
+        self.assertEqual(result, [u'level1', u'simplecontainer', u'simplelist',  u'simplestleaf', u'types'])
 
     def test_list_config_nodes_from_child(self):
         result = self.subject.list('simplecontainer', filter_blank_values=False)
         self.assertEqual(list(result), ['leafstring'])
 
-    def test_get_config_nodes_from_root(self):
+    def test_list_config_nodes_from_child_filtering_blank_values(self):
+        self.subject.set('simplecontainer leafstring', 'fred')
+        result = self.subject.list('simplecontainer', filter_blank_values=True)
+        self.assertEqual(list(result), ['leafstring'])
+
+    def deprecated_test_get_config_nodes_from_root(self):
+        # Getting config from root is not supported... we should say we 
+        # only support getting depper down
         result = self.subject.get('')
         self.assertTrue('simplecontainer' in result)
         self.assertTrue('level1' in result)
 
-    def test_get_depper_from_root(self):
-        result = self.subject.get('level1 level2')
+    def test_get_value_deeper_from_root(self):
+        self.subject.set('level1 level2 level3 mixed config', 'abc')
+        result = self.subject._get('level1 level2', return_schema=True)
+
+        self.assertTrue('level3' in result)
+        self.assertTrue('mixed' in result['level3'])
+
+    def test_get_schema_deeper_from_root(self):
+        result = self.subject._get('level1 level2', return_schema=True)
+
         self.assertTrue('level3' in result)
         self.assertTrue('mixed' in result['level3'])
 
@@ -74,12 +90,17 @@ class TestYang(unittest.TestCase):
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
 
     def test_create_list_item(self):
-        listval = self.subject.get_raw('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-        listval = self.subject.get_raw('simplelist')
         self.subject.set('simplelist valueForFirstKey subitem', 'abc')
 
         self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
+
+    def test_has_list_item(self):
+        self.subject.create('simplelist', 'valueForFirstKey')
+        self.subject.set('simplelist valueForFirstKey subitem', 'abc')
+
+        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKey', separator='/'), True)
+        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKe', separator='/'), False)
 
     def test_changing_a_list_key(self):
         listval = self.subject.get_object('simplelist')
@@ -107,13 +128,11 @@ class TestYang(unittest.TestCase):
             self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
 
     def test_merge_new_conf_data_into_existing_schema(self):
-        before_merge = json.dumps(self.subject.get_object(''), indent=4)
-        new_node = testresource.new_node_object()
-        new_node['level1']['level2']['level3']['withcfg']['config']['__value'] = 'this-has-been-set-in-merge!'
-
+        new_node = {}
+        dpath.util.new(new_node, '/level1/level2/level3/withcfg/config', "this-has-been-set-in-merge!")
         self.subject._merge_node(new_node)
 
-        after_merge = json.dumps(self.subject.get_object(''), indent=4)
-
+        old_node_val = self.subject.get('/simplecontainer/leafstring', separator='/')
+        self.assertEqual(old_node_val, 'fred')
         updated_node_val = self.subject.get('/level1/level2/level3/withcfg/config', separator='/')
         self.assertEqual(updated_node_val, 'this-has-been-set-in-merge!')

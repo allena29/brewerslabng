@@ -36,8 +36,8 @@ class Thing:
 
         self.datastore = PyConfHoardDatastore()
         self.datastore.load_blank_schema('../../yang/schema.json')
+
         self.log.info('PyConfHoard Load Default Schema: OK')
-        self.datastore.db = self.datastore.get_object(self._ourpath, separator='/')
         self.log.info('PyConfHoard Filtered Datastore: %s', self._ourpath)
 
         if open_stored_config:
@@ -62,8 +62,9 @@ class Thing:
 
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing opdata... providing empty schema')
-                pretty = PyConfHoardFilter()
-                filtered = pretty.convert(self.datastore.db, config=False, filter_blank_values=False)
+                pretty = PyConfHoardFilter(self.datastore.db, self.datastore.db_values)
+                pretty.convert(config=False, filter_blank_values=False)
+                filtered = pretty.root
 
                 opdata = open('%s/operational/%s.pch' % (datastore, self._appname), 'w')
                 opdata.write(json.dumps(filtered, indent=4))
@@ -71,8 +72,9 @@ class Thing:
 
             if not os.path.exists('%s/running/%s.pch' % (datastore, self._appname)):
                 self.log.info('No existing running.. providing empty schema')
-                pretty = PyConfHoardFilter()
-                filtered = pretty.convert(self.datastore.db, config=True, filter_blank_values=False)
+                pretty = PyConfHoardFilter(self.datastore.db, self.datastore.db_values)
+                pretty.convert(config=True, filter_blank_values=False)
+                filtered = pretty.root
 
                 cfgdata = open('%s/running/%s.pch' % (datastore, self._appname), 'w')
                 cfgdata.write(json.dumps(filtered, indent=4))

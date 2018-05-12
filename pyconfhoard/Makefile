@@ -24,5 +24,5 @@ schema-quiet:
 unittest: 
 	# nose2 -s test -t python3 -v --with-coverage --coverage-report html
 	PYTHONPATH=../:$(PYTHONPATH) python -m unittest discover test
-	coverage html -i
+#	coverage html -i
 
