@@ -9,6 +9,8 @@ from colorama import Fore
 from colorama import Style
 from PyConfHoardDatastore import PyConfHoardDatastore
 from cmd2 import Cmd
+from requests.auth import HTTPBasicAuth
+
 
 
 class PyConfHoardCLI(Cmd):
@@ -296,9 +298,19 @@ class PyConfHoardCLI(Cmd):
 
     def _command_commit(self, args):
         'Save configuration to the database'
+        # TODO: we have to think about authentication one day
+        auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
+        headers = {"Content-Type": "application/json"}
+        # http patch http://127.0.0.1:8000/v1/datastore/running/TemperatureProvider <patch.json
+        print (headers,auth)
+        print (self.datastores)
         for this_datastore in self.datastores:
-            data_to_save = self.datastore.get_raw(self.datastores[this_datastore]['yangpath'], separator='/')
-            print ('want to save this data', data_to_save)
+            url = self.SERVER + "/v1/datastore/running/" + this_datastore
+            data = self.datastore.get_fragment(self.datastores[this_datastore]['yangpath'], separator='/')
+            print ('want to save this data', data)
+            print ('want to save to url', url)
+            r = requests.patch(url=url, data=json.dumps(data, indent=4), auth=auth, headers=headers)
+            print ('status from the http call ' , r.status_code)
 
     def do_eof(self, args):
         # Implements CTRL+D

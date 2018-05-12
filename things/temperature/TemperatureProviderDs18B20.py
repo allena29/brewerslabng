@@ -8,6 +8,9 @@ import PyConfHoard
 
 class TemperatureProviderDs18B20(PyConfHoard.Thing):
 
+    APPNAME = "TemperatureProvider"
+    PATHPREFIX = "/brewhouse/temperature"
+
     """
     This is an example of a basic temperature provider with basic logic
     included to filter out known bad results.
@@ -60,6 +63,8 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
 
     def _accept_adjust_and_add_a_reading(self, probe, temperature):
         adjust = 0
+        print (self.datastore.has_list_item("/hardware/probe/%s" % (probe)), '<<<< has list item %s ' %(probe))
+
         if not self.datastore.has_list_item("/hardware/probe/%s" % (probe)):
             return False
 
@@ -103,7 +108,6 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
         probes = []
         for probe in os.listdir(self.one_wire_temp_result_directory):
             if probe[0:2] == "28":
-                self.log.debug('Checking if we should monitor %s' % (probe))
                 probes.append(probe)
         return probes
 
@@ -158,7 +162,7 @@ class Launch:
 
     def __init__(self, start=False):
         try:
-            self.thing = TemperatureProviderDs18B20('TemperatureProvider', 'brewerslab', '/brewhouse/temperature')
+            self.thing = TemperatureProviderDs18B20()
             if start:
                 self.thing.start()
         except KeyboardInterrupt:

@@ -134,12 +134,23 @@ class PyConfHoardDatastore:
         except KeyError:
             raise ValueError('Path: %s does not exist' % (self.convert_path_to_slash_string(path_string)))
 
-    def get_object(self, path_string, separator=' '):
+    def get_fragment(self, path_string, separator=' '):
         """
-        This method returns an object of dat
+        get_fragment returns a particular fragment of the datastore
+        without any other data.
+
+        This means that we different processes can manage different 
+        parts of the database.
         """
-        warnings.warn('get_object will be deprecated - see get_schema/get_raw/get')
-        return self._get(path_string, separator=separator)
+
+        path = self.decode_path_string(path_string, separator)
+        data = {}
+
+        data_fragment_they_want =  dpath.util.get(self.db_values, path)
+        print (data_fragment_they_want)
+        dpath.util.new(data, path, data_fragment_they_want)
+        print ('here')
+        return data
 
     def get_schema(self, path_string, separator=' '):
         """
@@ -153,7 +164,7 @@ class PyConfHoardDatastore:
         elif '__schema' in schema:
             return schema['__schema']
         else:
-            warning.warn('Encountered a place where we couldnt return a schema... %s' % (schema.keys()))
+            warnings.warn('Encountered a place where we couldnt return a schema... %s' % (schema.keys()))
 
     def get_list_element(self, path_string, separator=' '):
         self.log.trace('get_list_element: %s' % (path_string))
@@ -167,6 +178,8 @@ class PyConfHoardDatastore:
 
         TODO: add validation here to trap cases where a deeper path is asked for/non-list item.
         """
+        path = self.decode_path_string(path_string, separator)
+        self.log.trace('has_list_item: %s' % (self.convert_path_to_slash_string(path)))
         try:
             if self._get(path_string, separator=separator):
                 self.log.trace('has_list_item: %s - TRUE' % (path_string))
