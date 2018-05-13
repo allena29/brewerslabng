@@ -36,6 +36,15 @@ class PyConfHoardDatastore:
         self.db = json.loads(schema_file.read())
         schema_file.close()
 
+    def set_from_string(self, full_string, command=''):
+        """
+        A convenience function to split apart the path, command and value
+        and then call the set function.
+        """
+        path = self.decode_path_string(full_string[len(command):], ignore_last_n=1)
+        value = self.decode_path_string(full_string[len(command):], get_index=-1)
+        self.set(path, value)
+
     def decode_path_string(self, path, separator=' ', ignore_last_n=0, get_index=None):
         """
         This method should always be used to provide safe paths for dpath to work with.
