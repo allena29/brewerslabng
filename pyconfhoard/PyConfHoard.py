@@ -32,16 +32,23 @@ class Thing:
         self.log.info('PyConfHoard Filtered Datastore: %s', self.PATHPREFIX)
 
         if open_stored_config:
+            print (
+                   "Overwrite")
             working_directory = os.getcwd()
             datastore = '../../datastore'
             if os.path.exists('%s/persist/%s.pch' % (datastore, self.APPNAME)):
                 self.log.info('Loading previous persisted data')
+
+                # Note: we trust when changes are written they are written directly
+                # to persist.... so we always just write to running for clients such
+                # as the CLI to read frmo
                 o = open('%s/persist/%s.pch' % (datastore, self.APPNAME))
                 json_str = o.read()
                 o.close()
-
-                print('TODO merge required here')
-                print('After tha we should overwrite running')
+                self.datastore._merge_direct_to_root(json.loads(json_str))
+                o = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
+                o.write(json.dumps(self.datastore.db_values, indent=4))
+                o.close()
 
             elif os.path.exists('%s/startup/%s.pch' % (datastore, self.APPNAME)):
                 self.log.info('Loading startup default data')

@@ -325,4 +325,4 @@ class PyConfHoardDatastore:
         """
         WARNING: this method has no safety checks
         """
-        dpath.util.merge(self.db, new_node)
+        dpath.util.merge(self.db_values, new_node)
