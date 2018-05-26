@@ -103,9 +103,7 @@ class TestYang(unittest.TestCase):
         self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKe', separator='/'), False)
 
     def test_changing_a_list_key(self):
-        listval = self.subject.get_object('simplelist')
         self.subject.create('simplelist', 'valueForFirstKey')
-
         try:
             self.subject.set('simplelist valueForFirstKey item', 'abc')
         except ValueError as err:
