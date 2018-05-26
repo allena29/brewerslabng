@@ -194,13 +194,27 @@ Lists are more challenging - the first pass of the datastore embedded the list e
 ```
 
 
+##### Lifecycle of the datastores
+
+1. When a **thing** launches for the first time it will create entries in `running` and `operational`. These are expected to be stored on non-volatile storage and at this stage are likely to have BLANK data.
+2. When committing (**REST server handles, CLI makes use of this**) then we will write to the `running` and `persist` directories - behind the scene this is done via PyConfHoardLock.
+
+
+
 ##### TODO:
 
+- there is some kind of filtering on which is supresseding lists.
 - think about lists of lists - do they work or fundamnetally a problem
+- We have changed the behaviour - in the past null values were supressed, however since the datastore separation we now see the full structure including null values. It is more important to have simplicity in the back-end than cosmetic perfection!
 
+``
+http  get http://127.0.0.1:8000/v1/datastore/running/TemperatureProvider
+
+If we run this we see that we have the list item - but so far we don't actually have any data 
+within the list - this could be why the stuff is supressed.
+```
 
 #### Datastore Operations
-
 
 - `get(path)` - returns the __value associated with the node
 - `list(path)` - lists the children (keys) associated with the node

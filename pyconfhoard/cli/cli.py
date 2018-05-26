@@ -288,8 +288,7 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        print('set command not implement')
-#        PyConfHoardDatastore.set(self._db_conf, args)
+        self.datastore.set_from_string(args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:

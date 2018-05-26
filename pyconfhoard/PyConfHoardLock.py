@@ -41,12 +41,14 @@ class PyConfHoardLock:
             pch.close()
 
         dpath.util.merge(parent_obj, obj)
+        print('copying to requested datatsore whcih was %s' %(self.datastore))
 
         new_pch = open('%s/%s/%s.pch' % (self.base, self.datastore, self.path), 'w')
         new_pch.write(json.dumps(parent_obj, indent=4))
         new_pch.close()
 
-        if self.datastore is 'running':
+        if self.datastore == 'running':
+            print('copying over to persit')
             new_pch = open('%s/%s/%s.pch' % (self.base, 'persist', self.path), 'w')
             new_pch.write(json.dumps(parent_obj, indent=4))
             new_pch.close()
