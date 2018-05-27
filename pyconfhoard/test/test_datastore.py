@@ -4,7 +4,7 @@ import sys
 import dpath.util
 sys.path.append('test')
 from PyConfHoardDatastore import PyConfHoardDatastore
-from PyConfHoardError import PyConfHoardAccessNonLeaf
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
 
 
 class TestYang(unittest.TestCase):
@@ -39,3 +39,14 @@ class TestYang(unittest.TestCase):
         result = self.subject.get('/simplestleaf', separator='/')
         self.assertEqual(result, None)
 
+    def test_set_val(self):
+        set_val = 'sleep'
+        self.subject.set('/simplestleaf', set_val, separator='/')
+        result = self.subject.get('/simplestleaf', separator='/')
+        self.assertEqual(result, set_val)
+        
+        try:
+            self.subject.set('/simplelist', set_val, separator='/')
+            self.fail('Settings /simplelist as a non-config node should throw PyConfHoardNonConfigLeaf exception')
+        except PyConfHoardNonConfigLeaf:
+            pass

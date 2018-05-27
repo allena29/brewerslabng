@@ -5,11 +5,11 @@ import logging
 import sys
 import json
 import os
-import dpath.util
 import warnings
+import dpath.util
 import PyConfHoardExceptions
 from PyConfHoardFilter import PyConfHoardFilter
-from PyConfHoardError import PyConfHoardAccessNonLeaf
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
 
 
 class PyConfHoardDatastore:
@@ -17,8 +17,8 @@ class PyConfHoardDatastore:
     LOG_LEVEL = 3
 
     def __init__(self):
-        self.db = {}
-        self.db_values = {}
+        self.db_config = {}
+        self.db_oper = {}
         self.schema = {}
 
         logging.TRACE = 7
@@ -103,17 +103,37 @@ class PyConfHoardDatastore:
             raise PyConfHoardAccessNonLeaf(path)
 
     def get(self, path_string, separator=' '):
-        type = self.get_type(path_string, separator)
+        """
+        Get the value of a node from either the config or oper 
+        datastores.
+        """
+        node_type = self.get_type(path_string, separator)
         path = self.decode_path_string(path_string, separator)
         try:
-            if type['__config']:
-                return dpath.util.get(self.db_values, path)
-            else:
-                return dpath.util.get(self.db_oper, path)
+            if node_type['__config']:
+                return dpath.util.get(self.db_config, path)
+            return dpath.util.get(self.db_oper, path)
         except KeyError:
             pass
 
         return None
+
+    def set(self, path_string, set_val, separator=' ', force=False):
+        """
+        Set the value of a leaf node, this method will allow operational
+        data to be set if the force flag is provided.
+        """
+        node_type = self.get_type(path_string, separator)
+        print(node_type)
+        path = self.decode_path_string(path_string, separator)
+
+        if '__config' in node_type and node_type['__config'] and node_type['__leaf']:
+            dpath.util.new(self.db_config, path, set_val)
+            return True
+        elif force and node_type['__leaf']:
+            dpath.util.new(self.db_oper, path, set_val)
+            return True
+        raise PyConfHoardNonConfigLeaf(path)
 
     @staticmethod
     def _fetch_keys_from_path(obj, path):
@@ -135,5 +155,4 @@ class PyConfHoardDatastore:
             for x in path:
                 path_string = path_string + '/' + x
             return path_string
-        else:
-            return path_string.replace(' ', '/')
+        return path_string.replace(' ', '/')

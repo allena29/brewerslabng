@@ -20,3 +20,12 @@ class PyConfHoardAccessNonLeaf(Error):
 
     def __init__(self, path):
         self.message = 'Path %s is not a leaf.' % (convert_path_to_slash_string(path))
+
+
+class PyConfHoardNonConfigLeaf(Error):
+    """
+    Raised when an attempt is made to write to a non-config node
+    """
+
+    def __init__(self, path):
+        self.message = 'Path %s is not a configuration leaf.' % (convert_path_to_slash_string(path))
