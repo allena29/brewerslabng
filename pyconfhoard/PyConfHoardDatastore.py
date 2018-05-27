@@ -183,6 +183,12 @@ class PyConfHoardDatastore:
             lk = lk + 1
         print (list_element)
 
+    def dump(self, db='config'):
+        if db == 'config':
+            return json.dumps(self.db_config, indent=4, sort_keys=True)
+        else:
+            return json.dumps(self.db_oper, indent=4, sort_keys=True)
+
     @staticmethod
     def _fetch_keys_from_path(obj, path):
         result = []

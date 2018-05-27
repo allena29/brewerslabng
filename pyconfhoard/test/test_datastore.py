@@ -16,12 +16,12 @@ class TestYang(unittest.TestCase):
 
     def test_list_completion(self):
         result = self.subject.list('/', separator='/')
-        expected_result = ['simplelist', 'simplestleaf']
+        expected_result = ['simplelist', 'simpleoper', 'simplestleaf', 'tupperware']
         self.assertEqual(result, expected_result)
 
     def test_list_completion_leaf(self):
         result = self.subject.list('/simplelist', separator='/')
-        expected_result = ['id', 'val']
+        expected_result = ['id', 'operval', 'val']
         self.assertEqual(result, expected_result)
 
     def test_get_type(self):
@@ -33,7 +33,6 @@ class TestYang(unittest.TestCase):
             self.fail('Accessing / should have thrown AccessNonLeaf exception')
         except PyConfHoardAccessNonLeaf:
             pass
-        
         
         result = self.subject.get_type('/simplelist{sdfsdfsdf}', separator='/')
         self.assertEqual(result['__path'], '/root/simplelist')
@@ -59,9 +58,22 @@ class TestYang(unittest.TestCase):
         list_key_values = ['glow']
         self.subject.create('/simplelist', list_key_values, separator='/')
 
-        print(json.dumps(self.subject.schema, indent=4))
-        print(json.dumps(self.subject.db_config, indent=4))
         self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
 
         print(json.dumps(self.subject.db_config, indent=4))
-         
+    
+    def test_dump(self):
+        self.test_set_list_element()
+        result = self.subject.dump()
+        expected_result = """{
+    "root": {
+        "simplelist": {
+            "{glow}": {
+                "id": "glow",
+                "val": "in the dark"
+            }
+        }
+    }
+}"""
+
+        self.assertEqual(result, expected_result)

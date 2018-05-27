@@ -1,6 +1,8 @@
 *.pyc
 *.yin
 schema.json
+schema-oper.json
+schema-config.json
 htmlcov/
 .coverage
 __pycache__

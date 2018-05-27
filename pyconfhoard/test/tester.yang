@@ -5,6 +5,23 @@ module tester {
   leaf simplestleaf {
     type string;
   }
+  
+  leaf simpleoper {
+    type string;
+    config false;
+  }
+
+  container tupperware {
+
+    leaf oper {
+      type string;
+      config false;
+    }
+
+    leaf config {
+      type string;
+    }
+  }
 
   list simplelist {
     key id;
@@ -15,6 +32,11 @@ module tester {
 
     leaf val {
       type string;
+    }
+
+    leaf operval {
+      type string;
+      config false;
     }
   }
 

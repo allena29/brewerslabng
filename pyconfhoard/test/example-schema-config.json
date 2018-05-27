@@ -1,0 +1,72 @@
+{
+    "root": {
+        "simplelist": {
+            "__listelement": {
+                "__schema": {
+                    "__decendentconfig": true,
+                    "__decendentoper": true,
+                    "__elements": {},
+                    "__keys": [
+                        "id"
+                    ],
+                    "__list": true,
+                    "__path": "/root/simplelist",
+                    "__rootlevel": true
+                },
+                "id": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": true,
+                        "__path": "/root/simplelist/__listelement/id",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                },
+                "val": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": false,
+                        "__path": "/root/simplelist/__listelement/val",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                }
+            }
+        },
+        "simplestleaf": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": false,
+                "__path": "/root/simplestleaf",
+                "__rootlevel": true,
+                "__type": "string"
+            }
+        },
+        "tupperware": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": true,
+                "__path": "/root/tupperware",
+                "__rootlevel": true
+            },
+            "config": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/tupperware/config",
+                    "__rootlevel": false,
+                    "__type": "string"
+                }
+            }
+        }
+    }
+}

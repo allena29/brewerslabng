@@ -11,6 +11,48 @@
                 "__rootlevel": true
             }
         },
+        "simpleoper": {
+            "__schema": {
+                "__config": false,
+                "__leaf": true,
+                "__path": "/root/simpleoper",
+                "__listkey": false,
+                "__listitem": true,
+                "__type": "string",
+                "__rootlevel": true
+            }
+        },
+        "tupperware": {
+            "__schema": {
+                "__path": "/root/tupperware",
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": true,
+                "__rootlevel": true
+            },
+            "oper": {
+                "__schema": {
+                    "__config": false,
+                    "__leaf": true,
+                    "__path": "/root/tupperware/oper",
+                    "__listkey": false,
+                    "__listitem": true,
+                    "__type": "string",
+                    "__rootlevel": false
+                }
+            },
+            "config": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__path": "/root/tupperware/config",
+                    "__listkey": false,
+                    "__listitem": true,
+                    "__type": "string",
+                    "__rootlevel": false
+                }
+            }
+        },
         "simplelist": {
             "__listelement": {
                 "__schema": {
@@ -21,14 +63,14 @@
                         "id"
                     ],
                     "__decendentconfig": true,
-                    "__decendentoper": false,
+                    "__decendentoper": true,
                     "__rootlevel": true
                 },
                 "id": {
                     "__schema": {
                         "__config": true,
                         "__leaf": true,
-                        "__path": "/root/simplelist/id",
+                        "__path": "/root/simplelist/__listelement/id",
                         "__listitem": true,
                         "__listkey": true,
                         "__type": "string",
@@ -39,7 +81,18 @@
                     "__schema": {
                         "__config": true,
                         "__leaf": true,
-                        "__path": "/root/simplelist/val",
+                        "__path": "/root/simplelist/__listelement/val",
+                        "__listkey": false,
+                        "__listitem": true,
+                        "__type": "string",
+                        "__rootlevel": false
+                    }
+                },
+                "operval": {
+                    "__schema": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__path": "/root/simplelist/__listelement/operval",
                         "__listkey": false,
                         "__listitem": true,
                         "__type": "string",

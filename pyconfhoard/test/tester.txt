@@ -1,5 +1,10 @@
 module: tester
   +--rw simplestleaf?   string
+  +--ro simpleoper?     string
+  +--rw tupperware
+  |  +--ro oper?     string
+  |  +--rw config?   string
   +--rw simplelist* [id]
-     +--rw id     string
-     +--rw val?   string
+     +--rw id         string
+     +--rw val?       string
+     +--ro operval?   string
