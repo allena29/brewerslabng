@@ -10,15 +10,15 @@ from colorama import Style
 class yin_to_json:
 
     def __init__(self, input, quiet=False):
-        schema_by_tree = {}
-        path = ''
+        schema_by_tree = {'root': {}}
+        path = '/root'
         tree = ET.parse(input)
         root = tree.getroot()
         self.quiet = quiet
         self.chain = []
         self.final_pop_done = False
 
-        self.process(root, path, schema_by_tree)
+        self.process(root, path, schema_by_tree['root'])
         self.schema = schema_by_tree
 
     def save(self, output):
