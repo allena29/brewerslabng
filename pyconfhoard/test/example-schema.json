@@ -17,7 +17,9 @@
                     "__list": true,
                     "__elements": {},
                     "__path": "/root/simplelist",
-                    "__keys": "id",
+                    "__keys": [
+                        "id"
+                    ],
                     "__decendentconfig": true,
                     "__decendentoper": false,
                     "__rootlevel": true
@@ -29,6 +31,17 @@
                         "__path": "/root/simplelist/id",
                         "__listitem": true,
                         "__listkey": true,
+                        "__type": "string",
+                        "__rootlevel": false
+                    }
+                },
+                "val": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__path": "/root/simplelist/val",
+                        "__listkey": false,
+                        "__listitem": true,
                         "__type": "string",
                         "__rootlevel": false
                     }

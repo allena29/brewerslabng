@@ -2,7 +2,7 @@ def convert_path_to_slash_string(path):
     if isinstance(path, list):
         path_string = ''
         for x in path:
-            path_string = path_string + '/' + x
+            path_string = '%s/%s' % (path_string, x)
         return path_string
     else:
         return path_string.replace(' ', '/')
@@ -29,3 +29,27 @@ class PyConfHoardNonConfigLeaf(Error):
 
     def __init__(self, path):
         self.message = 'Path %s is not a configuration leaf.' % (convert_path_to_slash_string(path))
+
+class PyConfHoardNonConfigList(Error):
+    """
+    Raised when an attempt is made to create to a non-config node
+    """
+
+    def __init__(self, path):
+        self.message = 'Path %s is not a configuration list: ' % (convert_path_to_slash_string(path))
+
+class PyConfHoardNotAList(Error):
+    """
+    Raised when an attempt is made to create on a non-list
+    """
+
+    def __init__(self, path):
+        self.message = 'Path %s is not a list: ' % (convert_path_to_slash_string(path))
+
+class PyConfHoardWrongKeys(Error):
+    """
+    Raised when an attempt is made to create a list item with wrong keyst
+    """
+
+    def __init__(self, path, keys):
+        self.message = 'Path %s is a list with the following keys required %s' % (convert_path_to_slash_string(path), keys)

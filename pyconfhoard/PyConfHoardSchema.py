@@ -62,7 +62,7 @@ class yin_to_json:
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
-                ourself['__schema']['__keys'] = keys
+                ourself['__schema']['__keys'] = keys.split(' ')
                 ourself['__schema']['__decendentconfig'] = False
                 ourself['__schema']['__decendentoper'] = False
                 if len(self.chain) == 0:

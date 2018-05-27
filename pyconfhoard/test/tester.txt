@@ -1,4 +1,5 @@
 module: tester
   +--rw simplestleaf?   string
   +--rw simplelist* [id]
-     +--rw id    string
+     +--rw id     string
+     +--rw val?   string

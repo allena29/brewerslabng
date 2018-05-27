@@ -5,11 +5,12 @@ import logging
 import sys
 import json
 import os
+import re
 import warnings
 import dpath.util
 import PyConfHoardExceptions
-from PyConfHoardFilter import PyConfHoardFilter
-from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
+# from PyConfHoardFilter import PyConfHoardFilter
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys
 
 
 class PyConfHoardDatastore:
@@ -31,7 +32,7 @@ class PyConfHoardDatastore:
         logging.addLevelName(logging.TRACE, "TRACE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('DatastoreBackend')
-        self.log.debug('Filter Instance Started %s', self)
+#        self.log.debug('Filter Instance Started %s', self)
 
     def load_blank_schema(self, json_file):
         schema_file = open(json_file)
@@ -93,8 +94,13 @@ class PyConfHoardDatastore:
         """
         Return the type of a particular leaf from the model.
         """
+        self.log.trace('%s ?type', path_string)
+        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+        path_string = regex.sub('/__listelement/', path_string)
+        self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
         schema = dpath.util.get(self.schema, path)
+
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
         elif '__schema' in schema:
@@ -123,8 +129,10 @@ class PyConfHoardDatastore:
         Set the value of a leaf node, this method will allow operational
         data to be set if the force flag is provided.
         """
+        self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
-        print(node_type)
+        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+        path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
         if '__config' in node_type and node_type['__config'] and node_type['__leaf']:
@@ -133,7 +141,47 @@ class PyConfHoardDatastore:
         elif force and node_type['__leaf']:
             dpath.util.new(self.db_oper, path, set_val)
             return True
+#        elif '__listelement' in node_type:
+#            raise ValueError('List handling')
         raise PyConfHoardNonConfigLeaf(path)
+
+    def create(self, path_string, list_key, separator=' ', force=False):
+        """
+        Create a list-item
+        list keys should be a list of separated keys
+        """
+        node_type = self.get_type(path_string, separator)
+        path = self.decode_path_string(path_string, separator)
+
+        if '__list' not in node_type or node_type['__list'] is False:
+            raise PyConfHoardNotAList(path)
+        if node_type['__decendentconfig']:
+            self._add_to_list(self.db_config, node_type, path, list_key)
+            return True
+        elif node_type['__decendentoper'] and force:
+            raise ValueError('add list to oper because we have force')
+        raise PyConfHoardNonConfigList(path)
+
+    def _add_to_list(self, db, node_type, path, list_keys):
+        list_element = dpath.util.get(self.schema, path)
+        if not len(list_keys) == len(list_element['__listelement']['__schema']['__keys']):
+            raise PyConfHoardWrongKeys(path, list_element['__listelement']['__schema']['__keys'])
+        
+        string_composite_key = '{'
+        lk = 0
+        for list_key in list_element['__listelement']['__schema']['__keys']:
+            string_composite_key = string_composite_key + list_keys[lk] + ' '
+            lk = lk + 1
+        string_composite_key = string_composite_key[:-1] + '}'
+
+        path.append(string_composite_key)
+        lk = 0
+        for list_key in list_element['__listelement']['__schema']['__keys']:
+            path.append(list_key)
+            dpath.util.new(db, path, list_keys[lk])
+            path.pop()
+            lk = lk + 1
+        print (list_element)
 
     @staticmethod
     def _fetch_keys_from_path(obj, path):

@@ -12,5 +12,10 @@ module tester {
     leaf id {
       type string;
     }
+
+    leaf val {
+      type string;
+    }
   }
+
 }
