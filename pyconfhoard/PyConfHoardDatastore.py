@@ -15,11 +15,11 @@ from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf,
 
 class PyConfHoardDatastore:
 
+
     LOG_LEVEL = 3
 
     def __init__(self):
-        self.db_config = {}
-        self.db_oper = {}
+        self.db = {}
         self.schema = {}
 
         logging.TRACE = 7
@@ -96,6 +96,8 @@ class PyConfHoardDatastore:
         """
         self.log.trace('%s ?type', path_string)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+
+        print('>>>>>%s<<<<' %(path_string))
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
@@ -116,36 +118,23 @@ class PyConfHoardDatastore:
         node_type = self.get_type(path_string, separator)
         path = self.decode_path_string(path_string, separator)
         try:
-            if node_type['__config']:
-                return dpath.util.get(self.db_config, path)
-            return dpath.util.get(self.db_oper, path)
+            return dpath.util.get(self.db, path)
         except KeyError:
             pass
 
         return None
 
-    def set(self, path_string, set_val, separator=' ', force=False):
-        """
-        Set the value of a leaf node, this method will allow operational
-        data to be set if the force flag is provided.
-        """
+    def set(self, path_string, set_val, separator=' '):
+        """Set the value of a leaf node"""
         self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
-        if '__config' in node_type and node_type['__config'] and node_type['__leaf']:
-            dpath.util.new(self.db_config, path, set_val)
-            return True
-        elif force and node_type['__leaf']:
-            dpath.util.new(self.db_oper, path, set_val)
-            return True
-#        elif '__listelement' in node_type:
-#            raise ValueError('List handling')
-        raise PyConfHoardNonConfigLeaf(path)
+        dpath.util.new(self.db, path, set_val)
 
-    def create(self, path_string, list_key, separator=' ', force=False):
+    def create(self, path_string, list_key, separator=' '):
         """
         Create a list-item
         list keys should be a list of separated keys
@@ -155,12 +144,7 @@ class PyConfHoardDatastore:
 
         if '__list' not in node_type or node_type['__list'] is False:
             raise PyConfHoardNotAList(path)
-        if node_type['__decendentconfig']:
-            self._add_to_list(self.db_config, node_type, path, list_key)
-            return True
-        elif node_type['__decendentoper'] and force:
-            raise ValueError('add list to oper because we have force')
-        raise PyConfHoardNonConfigList(path)
+        self._add_to_list(self.db, node_type, path, list_key)
 
     def _add_to_list(self, db, node_type, path, list_keys):
         list_element = dpath.util.get(self.schema, path)
@@ -183,11 +167,8 @@ class PyConfHoardDatastore:
             lk = lk + 1
         print (list_element)
 
-    def dump(self, db='config'):
-        if db == 'config':
-            return json.dumps(self.db_config, indent=4, sort_keys=True)
-        else:
-            return json.dumps(self.db_oper, indent=4, sort_keys=True)
+    def dump(self):
+        return json.dumps(self.db, indent=4, sort_keys=True)
 
     @staticmethod
     def _fetch_keys_from_path(obj, path):

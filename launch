@@ -8,7 +8,6 @@ import importlib
 sys.path.insert(0, os.getcwd() + '/pyconfhoard')
 sys.path.insert(0, 'pyconfhoard/cli')
 from PyConfHoardDatastore import PyConfHoardDatastore
-from PyConfHoardFilter import PyConfHoardFilter
 from cli import PyConfHoardCLI
 import dpath.util
 
@@ -34,8 +33,6 @@ elif args.cli:
     os.system('PYTHONPATH=$PYTHONPATH:../ python cli.py')
 elif args.debug:
     import IPython
-    f = PyConfHoardFilter
-    F = PyConfHoardFilter
     d = PyConfHoardDatastore()
     D = PyConfHoardDatastore()
     c = PyConfHoardCLI(no_networking=True)
@@ -48,12 +45,10 @@ elif args.debug:
     print('Running from %s' % (os.getcwd()))
     print('dp = dpath.util')
     print('yang/schema.json')
-    print(' f = PyConfHoardFilter')
     print(' d = PyConfHoardDataStore()')
     print(' d.db = database')
     print(' c = PyConfHoardCLI()')
     print('pyconfhoard/test/schema.json')
-    print(' R = PyConfHoardFilter')
     print(' D = PyConfHoardDataStore()')
     print(' D.db = database')
     print(' C = PyConfHoardCLI()')

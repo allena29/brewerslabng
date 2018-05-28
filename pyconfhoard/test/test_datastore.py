@@ -11,17 +11,19 @@ class TestYang(unittest.TestCase):
 
     def setUp(self):
         self.subject = PyConfHoardDatastore()
-        self.subject.load_blank_schema('test/schema.json')
+        self.subject_oper = PyConfHoardDatastore()
+        self.subject.load_blank_schema('test/schema-config.json')
+        self.subject_oper.load_blank_schema('test/schema-oper.json')
         self.maxDiff = 10000
 
     def test_list_completion(self):
         result = self.subject.list('/', separator='/')
-        expected_result = ['simplelist', 'simpleoper', 'simplestleaf', 'tupperware']
+        expected_result = ['simplelist', 'simplestleaf', 'tupperware']
         self.assertEqual(result, expected_result)
 
     def test_list_completion_leaf(self):
         result = self.subject.list('/simplelist', separator='/')
-        expected_result = ['id', 'operval', 'val']
+        expected_result = ['id', 'val']
         self.assertEqual(result, expected_result)
 
     def test_get_type(self):
@@ -48,11 +50,6 @@ class TestYang(unittest.TestCase):
         result = self.subject.get('/simplestleaf', separator='/')
         self.assertEqual(result, set_val)
 
-        try:
-            self.subject.set('/simplelist', set_val, separator='/')
-            self.fail('Settings /simplelist as a non-config node should throw PyConfHoardNonConfigLeaf exception')
-        except PyConfHoardNonConfigLeaf:
-            pass
 
     def test_set_list_element(self):
         list_key_values = ['glow']
@@ -60,7 +57,6 @@ class TestYang(unittest.TestCase):
 
         self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
 
-        print(json.dumps(self.subject.db_config, indent=4))
     
     def test_dump(self):
         self.test_set_list_element()
