@@ -99,7 +99,6 @@ class PyConfHoardDatastore:
         self.log.trace('%s ?type', path_string)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
 
-        print('>>>>>%s<<<<' %(path_string))
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
@@ -167,9 +166,13 @@ class PyConfHoardDatastore:
             dpath.util.new(db, path, list_keys[lk])
             path.pop()
             lk = lk + 1
-        print (list_element)
 
-    def dump(self):
+    def dump(self, remove_root=False):
+        if remove_root:
+            if 'root' in self.db:
+                return json.dumps(self.db['root'], indent=4, sort_keys=True)
+            else:
+                return '{}'
         return json.dumps(self.db, indent=4, sort_keys=True)
 
     @staticmethod

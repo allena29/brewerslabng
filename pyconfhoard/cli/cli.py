@@ -218,15 +218,11 @@ class PyConfHoardCLI(Cmd):
 
         """
 
-        if cmd == 'show ' and config is True:
-            db = self.config
-        elif cmd == 'show ' and config is False:
-            db = self.oper
-        elif config is True:
+        if config is True:
             db = self.config
         else:
             db = self.oper
-        print ('past db select')
+
         try:
             strip_partial_elements = 0
             # Attempt to get the path which might not exist
@@ -234,9 +230,7 @@ class PyConfHoardCLI(Cmd):
             try:
                 if not text == '':
                     strip_partial_elements = 1
-                    print('hete, line,text')
                 path_to_find = db.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                print (path_to_find,'<<<<<<<<<<<<')
                 xcmds = db.list(path_to_find)
                 cmds = []
                 for key in xcmds:
@@ -246,15 +240,19 @@ class PyConfHoardCLI(Cmd):
                 pass
             cmds.sort()
         except Exception as err:
-            print (str(err))
+            #print (str(err))
             pass
         return cmds
 
     def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
         # todo: this no longer takes a path
         if config:
-            return self.datastore.dump(db='config')
-        return self.datastore.dump(db='oper')
+            answer = self.config.dump(remove_root=True)
+        else:
+            answer = self.oper.dump(remove_root=True)
+        if answer == '{}':
+            return 'Database is blank'
+        return(answer)
 
     # Show Command
     def _command_oper_show(self, args):
