@@ -60,10 +60,12 @@ class PyConfHoardDatastore:
         value = 'this is a value'
         """
         if not isinstance(path, list):
-            path = separator + 'root' + separator + path
+            if not path[0:5] == separator + 'root':
+                path = separator + 'root' + separator + path
             separated = path.split(separator)
         else:
-            path.insert(0, 'root')
+            if not path[0] == 'root':
+                path.insert(0, 'root')
             separated = path
 
         seplen = len(separated)

@@ -35,7 +35,6 @@ class PyConfHoardCLI(Cmd):
         logging.addLevelName(logging.TRACE, "TRACE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('CLI')
-        self.log.debug('Filter Instance Started %s', self)
 
         # To remove built-in commands entirely, delete their "do_*" function from the
         # cmd2.Cmd class
@@ -73,7 +72,9 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
-        self.datastore = PyConfHoardDatastore()
+        self.oper  = PyConfHoardDatastore()
+        self.config = PyConfHoardDatastore()
+
         self.dirty_flags = {}
         self.dirty_flag = False
 
@@ -97,11 +98,11 @@ class PyConfHoardCLI(Cmd):
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
-#            raise RuntimeError('Unable to connect to %s' % (self.SERVER))
             sys.exit(0)
 
         # Basic Database - albeit blank
-        self.datastore.db = discover['schema']
+        self.config.schema = discover['schema-config']
+        self.oper.schema = discover['schema-oper']
         self.datastores = discover['datastores']
 
         for datastore in discover['datastores']:
@@ -217,35 +218,43 @@ class PyConfHoardCLI(Cmd):
 
         """
 
+        if cmd == 'show ' and config is True:
+            db = self.config
+        elif cmd == 'show ' and config is False:
+            db = self.oper
+        elif config is True:
+            db = self.config
+        else:
+            db = self.oper
+        print ('past db select')
         try:
             strip_partial_elements = 0
             # Attempt to get the path which might not exist
             cmds = []
             try:
-                if line.count(' ') == 1:
-                    xcmds = list(self.datastore.db.keys())
-                else:
-                    if not text == '':
-                        strip_partial_elements = 1
-                    path_to_find = self.datastore.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                    xcmds = self.datastore.list(path_to_find, config=config, filter_blank_values=filter_blank_values)
+                if not text == '':
+                    strip_partial_elements = 1
+                    print('hete, line,text')
+                path_to_find = db.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
+                print (path_to_find,'<<<<<<<<<<<<')
+                xcmds = db.list(path_to_find)
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except Exception as err:
+            except ImportError as err:
                 pass
             cmds.sort()
         except Exception as err:
+            print (str(err))
             pass
         return cmds
 
     def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
-        try:
-            our_cfg = self.datastore.view(path, config=config, filter_blank_values=filter_blank_values)
-        except KeyError as err:
-            raise ValueError('Path: %s does not exist' % (path))
-        return json.dumps(our_cfg, indent=4)
+        # todo: this no longer takes a path
+        if config:
+            return self.datastore.dump(db='config')
+        return self.datastore.dump(db='oper')
 
     # Show Command
     def _command_oper_show(self, args):

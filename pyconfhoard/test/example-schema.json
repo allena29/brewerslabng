@@ -51,6 +51,44 @@
                     "__type": "string",
                     "__rootlevel": false
                 }
+            },
+            "outhere": {
+                "__schema": {
+                    "__path": "/root/tupperware/outhere",
+                    "__container": true,
+                    "__decendentconfig": false,
+                    "__decendentoper": false,
+                    "__rootlevel": false
+                }
+            },
+            "outer": {
+                "__schema": {
+                    "__path": "/root/tupperware/outer",
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": false,
+                    "__rootlevel": false
+                },
+                "inner": {
+                    "__schema": {
+                        "__path": "/root/tupperware/outer/inner",
+                        "__container": true,
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__rootlevel": false
+                    },
+                    "number": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__path": "/root/tupperware/outer/inner/number",
+                            "__listkey": false,
+                            "__listitem": true,
+                            "__type": "uint32",
+                            "__rootlevel": false
+                        }
+                    }
+                }
             }
         },
         "simplelist": {

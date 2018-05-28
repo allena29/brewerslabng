@@ -21,6 +21,17 @@ module tester {
     leaf config {
       type string;
     }
+
+    container outhere {
+        
+    }
+    container outer {
+      container inner {
+        leaf number {
+          type uint32;
+        }
+      }
+    }
   }
 
   list simplelist {

@@ -54,7 +54,6 @@ class TestYang(unittest.TestCase):
     def test_set_list_element(self):
         list_key_values = ['glow']
         self.subject.create('/simplelist', list_key_values, separator='/')
-
         self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
 
     

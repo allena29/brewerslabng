@@ -2,8 +2,12 @@ module: tester
   +--rw simplestleaf?   string
   +--ro simpleoper?     string
   +--rw tupperware
-  |  +--ro oper?     string
-  |  +--rw config?   string
+  |  +--ro oper?      string
+  |  +--rw config?    string
+  |  +--rw outhere
+  |  +--rw outer
+  |     +--rw inner
+  |        +--rw number?   uint32
   +--rw simplelist* [id]
      +--rw id         string
      +--rw val?       string
