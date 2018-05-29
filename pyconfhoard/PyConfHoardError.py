@@ -53,3 +53,21 @@ class PyConfHoardWrongKeys(Error):
 
     def __init__(self, path, keys):
         self.message = 'Path %s is a list with the following keys required %s' % (convert_path_to_slash_string(path), keys)
+
+class PyConfHoardDataNoLongerRequired(Error):
+    """
+    Raised when we attempt to load in data which is no longer part of the schema
+    """
+    
+    def __init__(self, path):
+        self.message = 'Path %s is no longer part of the schema - data loss would occur' % (path)
+
+class PyConfHoardInvalidUse(Error):
+
+    def __init__(self, msg):
+        self.message = msg
+
+class PyConfHoardUnhandledUse(Error):
+
+    def __init__(self, msg):
+        self.message = msg

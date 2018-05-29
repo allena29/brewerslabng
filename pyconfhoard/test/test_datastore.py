@@ -50,12 +50,10 @@ class TestYang(unittest.TestCase):
         result = self.subject.get('/simplestleaf', separator='/')
         self.assertEqual(result, set_val)
 
-
     def test_set_list_element(self):
         list_key_values = ['glow']
         self.subject.create('/simplelist', list_key_values, separator='/')
         self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
-
     
     def test_dump(self):
         self.test_set_list_element()
@@ -72,3 +70,20 @@ class TestYang(unittest.TestCase):
 }"""
 
         self.assertEqual(result, expected_result)
+
+    def test_merge_in_keyval(self):
+        self.subject._merge_keyval('/simplestleaf', 'flowers')
+
+    def test_validate_against_schema_string(self):
+        schema = {'__schema': {
+            '__type': 'string'
+            }
+        }
+        self.subject.validate_against_schema(schema, "0")
+
+    def test_validate_against_schema_int(self):
+        schema = {'__schema': {
+            '__type': 'integer'
+            }
+        }
+        self.subject.validate_against_schema(schema, "OH")

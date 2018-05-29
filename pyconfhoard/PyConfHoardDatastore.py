@@ -8,20 +8,32 @@ import os
 import re
 import warnings
 import dpath.util
-import PyConfHoardExceptions
-# from PyConfHoardFilter import PyConfHoardFilter
-from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys
-
-
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse
+ 
 class PyConfHoardDatastore:
 
+    """
+    The Datastore provides the ability to manipulate data (either config or operational) according to a defined schema.
+    
+    A template scehma is loaded into the schema however this can be augmented as list items are added.
+    When persisting the data we save in a flat keyval store, when we restore data we go through a process of augmenting
+    the data.
+    When data is shared to consumers who are only interested in a read-only view it may be shared in a json/tree
+    based structure.
+
+    - keyval = keyvalue pairs of data which we will persist
+    - db     = livedata - needs to be rebuilt everytime a datastore comes to life.
+    - schema = the schema - augmented when list elements are created.
+    """
 
     LOG_LEVEL = 3
 
     def __init__(self):
         self.db = {}
+        self.keyval = {}
         self.schema = {}
 
+        self.schema_by_path = {}
         logging.TRACE = 7
 
         def custom_level_trace(self, message, *args, **kws):
@@ -38,6 +50,58 @@ class PyConfHoardDatastore:
         schema_file = open(json_file)
         self.schema = json.loads(schema_file.read())
         schema_file.close()
+
+    def load_from_keyvals(self, keyval_file):
+        """
+        Given a file containing key/value data we will load this in and validate
+        it against the schema as we progress through building the db
+        """
+        keyval_file = open(keyval_file)
+        keyvals = json.loads(keyval_file.read())
+        keyval_file.close()
+
+        for keyval in keyvals:
+            self._merge_keyval(keyval, keyvals[keyval])
+
+    def _merge_keyval(self, key, val):
+        self.log.trace('%s <- %s', key, val)
+   
+        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+        updated_key = regex.sub('/__listelement', key)
+        if not updated_key[0:5] == '/root':
+            updated_key = '/root' + updated_key
+
+        if updated_key not in self.schema_by_path:
+            try:
+                schema = dpath.util.get(self.schema, updated_key)
+                self.schema_by_path[updated_key] = self.schema
+            except KeyError:
+                raise PyConfHoardDataNoLongerRequired(updated_key)
+        else:
+            schema = self.schema_by_path[updated_key]
+
+        self.validate_against_schema(schema, val)
+
+        ### TODO: if we pass the schema we have to add into self.db
+        ### First cover off the simple case without lists, although 
+        ### what we have done so far won't have made it harder.
+        raise ValueError('sdfsdf'+updated_key)
+
+    def validate_against_schema(self, schema, val):
+        """
+        This method takes in the specific part of the schema as a
+        dictionary and a value and will validate and provide a boolean
+        response back.
+        """
+        if '__schema' not in schema:
+            raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
+        if '__type' not in schema['__schema']:
+            raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
+        
+        if schema['__schema']['__type'] == 'string':
+            return True
+
+        raise PyConfHoardUnhandledUse("validate only implemented for strings")
 
     def set_from_string(self, full_string, command=''):
         """
@@ -142,10 +206,10 @@ class PyConfHoardDatastore:
         self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
-        print ('>>>>>set', path_string)
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
+        self.keyval[path_string] = set_val
         dpath.util.new(self.db, path, set_val)
 
     def create(self, path_string, list_key, separator=' '):
@@ -154,13 +218,12 @@ class PyConfHoardDatastore:
         list keys should be a list of separated keys
         """
         node_type = self.get_type(path_string, separator)
-        path = self.decode_path_string(path_string, separator)
-
         if '__list' not in node_type or node_type['__list'] is False:
             raise PyConfHoardNotAList(path)
-        self._add_to_list(self.db, node_type, path, list_key)
+        self._add_to_list(self.db, node_type, path_string, list_key, separator)
 
-    def _add_to_list(self, db, node_type, path, list_keys):
+    def _add_to_list(self, db, node_type, path_string, list_keys, separator=' '):
+        path = self.decode_path_string(path_string, separator)
         list_element = dpath.util.get(self.schema, path)
         if not len(list_keys) == len(list_element['__listelement']['__schema']['__keys']):
             raise PyConfHoardWrongKeys(path, list_element['__listelement']['__schema']['__keys'])
@@ -176,6 +239,7 @@ class PyConfHoardDatastore:
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             path.append(list_key)
+            self.keyval[path_string + '/'+ list_key] = list_keys[lk]
             dpath.util.new(db, path, list_keys[lk])
             path.pop()
             lk = lk + 1
@@ -199,7 +263,7 @@ class PyConfHoardDatastore:
         result = []
         for key in dpath.util.get(obj, path).keys():
             if key == '__listelement':
-                #path.append('__listelement')
+                path.append('__listelement')
                 return PyConfHoardDatastore._fetch_keys_from_path(obj, path)
             elif key == '__schema':
                 pass

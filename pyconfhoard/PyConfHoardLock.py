@@ -33,6 +33,7 @@ class PyConfHoardLock:
             os.unlink('%s/%s/%s.lock' % (self.base, self.datastore, self.path))
 
     def patch(self, obj):
+        print ('lock.patch.%s/%s/%s' %(self.base, self.datastore, self.path))
         if not os.path.exists('%s/%s/%s.pch' % (self.base, self.datastore, self.path)):
             parent_obj = {}
         else:
@@ -41,6 +42,8 @@ class PyConfHoardLock:
             pch.close()
 
         dpath.util.merge(parent_obj, obj)
+        print('inside of lock we have parent: %s' % (parent_obj))
+        print('inside of lock we have obj: %s' %(obj))
         print('copying to requested datatsore whcih was %s' %(self.datastore))
 
         new_pch = open('%s/%s/%s.pch' % (self.base, self.datastore, self.path), 'w')
@@ -53,4 +56,4 @@ class PyConfHoardLock:
             new_pch.write(json.dumps(parent_obj, indent=4))
             new_pch.close()
 
-        return json.dumps(parent_obj, indent=4)
+        return json.dumps(parent_obj, indent=4, sort_keys=True)
