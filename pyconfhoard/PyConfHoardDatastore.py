@@ -44,9 +44,21 @@ class PyConfHoardDatastore:
         A convenience function to split apart the path, command and value
         and then call the set function.
         """
-        path = self.decode_path_string(full_string[len(command):], ignore_last_n=1)
+        # path = self.decode_path_string(full_string[len(command):], ignore_last_n=1)
         value = self.decode_path_string(full_string[len(command):], get_index=-1)
+        path = full_string[:-len(value)-1]
         self.set(path, value)
+
+    def _merge_direct_to_root(self, payload):
+        """
+        Merge a payload direct to the root of the database.
+
+        I think this will be extended to update the schema to deal with auto-complete
+        of list nodes. When the CLI/things merge in existing data they call this method.
+        """
+
+        dpath.util.merge(self.db, payload)
+        
 
     def decode_path_string(self, path, separator=' ', ignore_last_n=0, get_index=None):
         """
@@ -98,7 +110,7 @@ class PyConfHoardDatastore:
         """
         self.log.trace('%s ?type', path_string)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
-
+        print ('>>>>>', path_string)
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
@@ -130,6 +142,7 @@ class PyConfHoardDatastore:
         self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
         regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+        print ('>>>>>set', path_string)
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
@@ -175,12 +188,18 @@ class PyConfHoardDatastore:
                 return '{}'
         return json.dumps(self.db, indent=4, sort_keys=True)
 
+    def get_fragment(self, path_string, separator=' '):
+        db = self.db
+        path = self.decode_path_string(path_string, separator)
+        fragment = dpath.util.get(db, path)
+        return json.dumps(fragment, indent=4, sort_keys=True)
+
     @staticmethod
     def _fetch_keys_from_path(obj, path):
         result = []
         for key in dpath.util.get(obj, path).keys():
             if key == '__listelement':
-                path.append('__listelement')
+                #path.append('__listelement')
                 return PyConfHoardDatastore._fetch_keys_from_path(obj, path)
             elif key == '__schema':
                 pass

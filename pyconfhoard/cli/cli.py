@@ -122,7 +122,7 @@ class PyConfHoardCLI(Cmd):
                 response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     operdata = json.loads(response)
-                    self.datastore._merge_direct_to_root(operdata)
+                    self.oper._merge_direct_to_root(operdata)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
@@ -135,22 +135,11 @@ class PyConfHoardCLI(Cmd):
                 response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
                 if len(response):
                     config = json.loads(response)
-                    self.datastore._merge_direct_to_root(config)
+                    self.config._merge_direct_to_root(config)
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
-            if config == {}:
-                msg = 'Loading..<INIT:%s>' % (metadata['appname'])
-                PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
-                try:
-                    response = requests.get('%s/v1/datastore/default/%s' % (self.SERVER, metadata['appname'])).text
-                    if len(response):
-                        config = json.loads(response)
-                        self.datastore._merge_direct_to_root(config)
-                    PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-                except ImportError as err:
-                    PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
@@ -283,10 +272,9 @@ class PyConfHoardCLI(Cmd):
         return self._auto_complete(line, text, 'create ', config=True, filter_blank_values=False)
 
     def _command_create(self, args):
-
-        path_to_list = self.datastore.decode_path_string(args, ignore_last_n=1)
-        key = self.datastore.decode_path_string(args, get_index=-1)
-        self.datastore.create(path_to_list, key)
+        path_to_list = self.config.decode_path_string(args, ignore_last_n=1)
+        key = self.config.decode_path_string(args, get_index=-1)
+        self.config.create(path_to_list, key)
 
     def _command_delete(self, args):
         print('command elete called', args)
@@ -295,7 +283,7 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        self.datastore.set_from_string(args)
+        self.config.set_from_string(args)
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
@@ -312,7 +300,7 @@ class PyConfHoardCLI(Cmd):
         print (self.datastores)
         for this_datastore in self.datastores:
             url = self.SERVER + "/v1/datastore/running/" + this_datastore
-            data = self.datastore.get_fragment(self.datastores[this_datastore]['yangpath'], separator='/')
+            data = self.config.get_fragment(self.datastores[this_datastore]['yangpath'], separator='/')
             print ('want to save this data', data)
             print ('want to save to url', url)
             r = requests.patch(url=url, data=json.dumps(data, indent=4), auth=auth, headers=headers)

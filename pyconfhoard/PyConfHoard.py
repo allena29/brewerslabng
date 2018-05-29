@@ -2,7 +2,6 @@ import logging
 import json
 import os
 from PyConfHoardDatastore import PyConfHoardDatastore
-from PyConfHoardFilter import PyConfHoardFilter
 
 
 class Thing:
@@ -25,15 +24,14 @@ class Thing:
         self.log.info('PyConfHoard Init: %s' % (self))
 
         # Load schema file - must have been generate by yin2json
-        self.datastore = PyConfHoardDatastore()
-        self.datastore.load_blank_schema('../../yang/schema.json')
+        self.config = PyConfHoardDatastore()
+        self.config.load_blank_schema('../../yang/schema-config.json')
+        self.oper = PyConfHoardDatastore()
+        self.oper.load_blank_schema('../../yang/schema-oper.json')
 
         self.log.info('PyConfHoard Load Default Schema: OK')
-        self.log.info('PyConfHoard Filtered Datastore: %s', self.PATHPREFIX)
 
         if open_stored_config:
-            print (
-                   "Overwrite")
             working_directory = os.getcwd()
             datastore = '../../datastore'
             if os.path.exists('%s/persist/%s.pch' % (datastore, self.APPNAME)):
@@ -45,9 +43,11 @@ class Thing:
                 o = open('%s/persist/%s.pch' % (datastore, self.APPNAME))
                 json_str = o.read()
                 o.close()
-                self.datastore._merge_direct_to_root(json.loads(json_str))
+
+                self.config._merge_direct_to_root(json.loads(json_str))
+
                 o = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
-                o.write(json.dumps(self.datastore.db_values, indent=4))
+                o.write(self.config.dump())
                 o.close()
 
             elif os.path.exists('%s/startup/%s.pch' % (datastore, self.APPNAME)):
@@ -60,23 +60,15 @@ class Thing:
 
             if not os.path.exists('%s/operational/%s.pch' % (datastore, self.APPNAME)):
                 self.log.info('No existing opdata... providing empty schema')
-                pretty = PyConfHoardFilter(self.datastore.db, self.datastore.db_values)
-                pretty.convert(config=False, filter_blank_values=False)
-                filtered = pretty.root
-
                 opdata = open('%s/operational/%s.pch' % (datastore, self.APPNAME), 'w')
-                opdata.write(json.dumps(filtered, indent=4))
+                opdata.write(self.oper.dump())
                 opdata.close()
 
             if not os.path.exists('%s/running/%s.pch' % (datastore, self.APPNAME)):
                 self.log.info('No existing running.. providing empty schema')
-                pretty = PyConfHoardFilter(self.datastore.db, self.datastore.db_values)
-                pretty.convert(config=True, filter_blank_values=False)
-                filtered = pretty.root
-
                 cfgdata = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
-                cfgdata.write(json.dumps(filtered, indent=4))
-                opdata.close()
+                cfgdata.write(self.config.dump())
+                cfgdata.close()
 
         if hasattr(self, 'setup') and callable(self.setup):
             self.log.info('PyConfHoard Setup %s' % (self))
