@@ -85,7 +85,8 @@ class PyConfHoardDatastore:
         ### TODO: if we pass the schema we have to add into self.db
         ### First cover off the simple case without lists, although 
         ### what we have done so far won't have made it harder.
-        raise ValueError('sdfsdf'+updated_key)
+        dpath.util.new(self.db, updated_key, val)
+        self.keyval[key] = val
 
     def validate_against_schema(self, schema, val):
         """
@@ -122,7 +123,6 @@ class PyConfHoardDatastore:
         """
 
         dpath.util.merge(self.db, payload)
-        
 
     def decode_path_string(self, path, separator=' ', ignore_last_n=0, get_index=None):
         """
@@ -245,12 +245,22 @@ class PyConfHoardDatastore:
             lk = lk + 1
 
     def dump(self, remove_root=False):
+        """
+        Dump will take the data from the datastore and provide a json
+        representation.
+
+        This will never be re-imported from this format, but instead 
+        the key-value data will be used to restructure this.
+        """
         if remove_root:
             if 'root' in self.db:
                 return json.dumps(self.db['root'], indent=4, sort_keys=True)
             else:
                 return '{}'
         return json.dumps(self.db, indent=4, sort_keys=True)
+
+    def persist(self):
+        return self.keyval
 
     def get_fragment(self, path_string, separator=' '):
         db = self.db

@@ -72,18 +72,39 @@ class TestYang(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_merge_in_keyval(self):
+        # Act
         self.subject._merge_keyval('/simplestleaf', 'flowers')
 
+        # Assert
+        expected_result = {'root': {'simplestleaf': 'flowers'}}
+        self.assertEqual(self.subject.db, expected_result)
+
     def test_validate_against_schema_string(self):
+        # Build
         schema = {'__schema': {
             '__type': 'string'
             }
         }
+
+        # Act
         self.subject.validate_against_schema(schema, "0")
 
     def test_validate_against_schema_int(self):
+        # Build
         schema = {'__schema': {
             '__type': 'integer'
             }
         }
-        self.subject.validate_against_schema(schema, "OH")
+
+        # Act
+        #self.subject.validate_against_schema(schema, "OH")
+
+    def test_persist(self):
+        self.test_merge_in_keyval()
+
+        # Act
+        result = self.subject.persist()
+
+        # Assert
+        expected_result = {'/simplestleaf': 'flowers'}
+        self.assertEqual(result, expected_result)
