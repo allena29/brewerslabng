@@ -93,17 +93,19 @@ class PyConfHoardDatastore:
         index = 0
         if '__listelement' in updated_key:
             keys_in_path = regex.findall(key)
-
+            path_to_work_on = updated_key
             for key_in_path in keys_in_path:
                 # strip everything to the right of this key
-                found_index = updated_key.find('__listelement', index + 1)
-                left_part_of_key = updated_key[0:found_index]
-                right_part_of_key = updated_key[found_index + len('__listelement'):]
+                found_index = path_to_work_on.find('__listelement')
+                left_part_of_key = path_to_work_on[0:found_index]
+                right_part_of_key = path_to_work_on[found_index + len('__listelement'):]
                 
                 path = self.decode_path_string(left_part_of_key, separator='/')
                 path.append(key_in_path)
                 print ('crass', updated_key, key, left_part_of_key, right_part_of_key, path, key_in_path) 
                 self._create_new_list_element_in_schema(path, key_in_path)
+
+                path_to_work_on = left_part_of_key + key_in_path + '/' + right_part_of_key
 
     def validate_against_schema(self, schema, val):
         """

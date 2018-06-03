@@ -157,7 +157,6 @@ class TestYang(unittest.TestCase):
     }
 }"""
         self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
-        print (self.subject.keyval)
 
     def test_importing_list_values(self):
         key = '/simplelist{castle}/id'
@@ -203,5 +202,74 @@ class TestYang(unittest.TestCase):
     }
 }"""
         self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
-        print (self.subject.keyval)
 
+    def test_stacked_lsits(self):
+        key = '/stackedlists/lista{aaaa}/keya'
+        val = 'AAA'
+        key2 = '/stackedlists/lista{aaaa}/listb{bbbb}/keyb'
+        val2 = 'BBB'
+        # Act
+        self.subject._merge_keyval(key, val)
+        self.subject._merge_keyval(key2, val2)
+
+        # Assert
+        expected_result = """{
+    "__listelement": {
+        "__schema": {
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__elements": {},
+            "__keys": [
+                "keyb"
+            ],
+            "__list": true,
+            "__path": "/root/stackedlists/lista/__listelement/listb",
+            "__rootlevel": false
+        },
+        "keyb": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": true,
+                "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                "__rootlevel": false,
+                "__type": "string"
+            }
+        }
+    },
+    "bbbb": {
+        "__schema": {
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__elements": {},
+            "__keys": [
+                "keyb"
+            ],
+            "__list": true,
+            "__path": "/root/stackedlists/lista/__listelement/listb",
+            "__rootlevel": false
+        },
+        "keyb": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": true,
+                "__path": "/root/stackedlists/lista/bbbb/listb/__listelement/keyb",
+                "__rootlevel": false,
+                "__type": "string"
+            }
+        }
+    }
+}"""
+        actual_result = json.dumps(self.subject.schema['root']['stackedlists']['lista']['aaaa']['listb'], indent=4, sort_keys=True)
+
+        # print (actual_result)
+        self.assertEqual(actual_result, expected_result)
+        
+        expected_result = {'/stackedlists/lista{aaaa}/keya': 'AAA', '/stackedlists/lista{aaaa}/listb{bbbb}/keyb': 'BBB'}
+        actual_result = self.subject.keyval
+
+        self.assertEqual(actual_result, expected_result)
+        
