@@ -4,135 +4,272 @@ import sys
 import dpath.util
 sys.path.append('test')
 from PyConfHoardDatastore import PyConfHoardDatastore
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
 
 
 class TestYang(unittest.TestCase):
 
     def setUp(self):
         self.subject = PyConfHoardDatastore()
-        self.subject.load_blank_schema('test/schema.json')
-        self.subject.set('simplecontainer leafstring', 'fred')
+        self.subject_oper = PyConfHoardDatastore()
+        self.subject.load_blank_schema('test/schema-config.json')
+        self.subject_oper.load_blank_schema('test/schema-oper.json')
         self.maxDiff = 10000
 
-    def test_decode_path_string(self):
-        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/')
-        self.assertEqual(result, ['abc', '1234', 'ef', 'g'])
+    def test_list_completion(self):
+        result = self.subject.list('/', separator='/')
+        expected_result = ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
+        self.assertEqual(result, expected_result)
 
-    def test_decode_path_string_remove_n_2(self):
-        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/', ignore_last_n=2)
-        self.assertEqual(result, ['abc', '1234'])
+    def test_list_completion_leaf(self):
+        result = self.subject.list('/simplelist', separator='/')
+        expected_result = ['id', 'val']
+        self.assertEqual(result, expected_result)
 
-    def test_decode_path_string_get_index(self):
-        result = self.subject.decode_path_string('////abc/1234///ef/g', separator='/', get_index=-1)
-        self.assertEqual(result, 'g')
-
-    def test_list_config_nodes_from_root(self):
-        result = self.subject.list('')
-        self.assertEqual(result, [u'level1', u'simplecontainer', u'simplelist',  u'simplestleaf', u'types'])
-
-    def test_list_config_nodes_from_child(self):
-        result = self.subject.list('simplecontainer', filter_blank_values=False)
-        self.assertEqual(list(result), ['leafstring'])
-
-    def test_list_config_nodes_from_child_filtering_blank_values(self):
-        self.subject.set('simplecontainer leafstring', 'fred')
-        result = self.subject.list('simplecontainer', filter_blank_values=True)
-        self.assertEqual(list(result), ['leafstring'])
-
-    def deprecated_test_get_config_nodes_from_root(self):
-        # Getting config from root is not supported... we should say we 
-        # only support getting depper down
-        result = self.subject.get('')
-        self.assertTrue('simplecontainer' in result)
-        self.assertTrue('level1' in result)
-
-    def test_get_value_deeper_from_root(self):
-        self.subject.set('level1 level2 level3 mixed config', 'abc')
-        result = self.subject._get('level1 level2', return_schema=True)
-
-        self.assertTrue('level3' in result)
-        self.assertTrue('mixed' in result['level3'])
-
-    def test_get_schema_deeper_from_root(self):
-        result = self.subject._get('level1 level2', return_schema=True)
-
-        self.assertTrue('level3' in result)
-        self.assertTrue('mixed' in result['level3'])
-
-    def test_listing_non_existant_path(self):
-        try:
-            self.subject.list('simplecontainer nonexist')
-            self.fail('Listing a non existant node should throw an exception')
-        except Exception as err:
-            self.assertEqual(str(err), "Path: /simplecontainer/nonexist does not exist - cannot build list")
-
-    def test_set_simple_leaf(self):
-        before_update = self.subject.get('/simplestleaf', separator='/')
-        self.assertEqual(before_update, None)
-
-        self.subject.set('/simplestleaf', 'this can be any string', separator='/')
-
-        after_update = self.subject.get('/simplestleaf', separator='/')
-        self.assertEqual(after_update, 'this can be any string')
-
-    def test_set_simple_deep_leaf(self):
-        val = """This a multiline\nstring"""
-        self.subject.set('/level1/level2/level3/mixed/config', val, separator='/')
-
-        after_update = self.subject.get('/level1/level2/level3/mixed/config', separator='/')
-        self.assertEqual(after_update, val)
-
-    def test_attempt_to_set_a_non_leaf(self):
-        try:
-            self.subject.set('level1 level2 level3', 'val')
-            self.fail('Set on a non-leaf must fail')
-        except ValueError as err:
-            self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a leaf - cannot set a value")
-
-    def test_create_list_item(self):
-        self.subject.create('simplelist', 'valueForFirstKey')
-        self.subject.set('simplelist valueForFirstKey subitem', 'abc')
-
-        self.assertEqual(self.subject.get('/simplelist/valueForFirstKey/subitem', separator='/'), 'abc')
-
-    def test_has_list_item(self):
-        self.subject.create('simplelist', 'valueForFirstKey')
-        self.subject.set('simplelist valueForFirstKey subitem', 'abc')
-
-        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKey', separator='/'), True)
-        self.assertEqual(self.subject.has_list_item('/simplelist/valueForFirstKe', separator='/'), False)
-
-    def test_changing_a_list_key(self):
-        listval = self.subject.get_object('simplelist')
-        self.subject.create('simplelist', 'valueForFirstKey')
+    def test_get_type(self):
+        result = self.subject.get_type('/simplelist', separator='/')
+        self.assertEqual(result['__list'], True)
 
         try:
-            self.subject.set('simplelist valueForFirstKey item', 'abc')
-        except ValueError as err:
-            self.assertEqual(str(err), "Path: ['simplelist', 'valueForFirstKey', 'item'] is a list key - cannot set keys")
+            result = self.subject.get_type('/', separator='/')
+            self.fail('Accessing / should have thrown AccessNonLeaf exception')
+        except PyConfHoardAccessNonLeaf:
+            pass
+        
+        result = self.subject.get_type('/simplelist{sdfsdfsdf}', separator='/')
+        self.assertEqual(result['__path'], '/root/simplelist')
 
-        listelement = self.subject.get('simplelist valueForFirstKey')
+    def test_get_val(self):
+        # Retreive a value not yet set should return None
+        result = self.subject.get('/simplestleaf', separator='/')
+        self.assertEqual(result, None)
 
-    def test_create_list_item_with_wrong_number_of_keys(self):
-        try:
-            self.subject.create('simplelist', 'firstkeyVal secondkeyVal')
-            self.fail('Set on a list with the wrong number of keys must fail')
-        except ValueError as err:
-            self.assertEqual(str(err), "Path: ['simplelist'] requires the following 1 keys ['item'] - 2 keys provided")
+    def test_set_val(self):
+        set_val = 'sleep'
+        self.subject.set('/simplestleaf', set_val, separator='/')
+        result = self.subject.get('/simplestleaf', separator='/')
+        self.assertEqual(result, set_val)
 
-    def test_create_list_item_on_a_non_list(self):
-        try:
-            self.subject.create('level1 level2 level3', 'val')
-            self.fail('Set on a non-leaf must fail')
-        except ValueError as err:
-            self.assertEqual(str(err), "Path: ['level1', 'level2', 'level3'] is not a list - cannot create an item")
+    def test_set_list_element(self):
+        list_key_values = ['glow']
+        self.subject.create('/simplelist', list_key_values, separator='/')
+        self.subject.set('/simplelist/glow/val', 'in the dark', separator='/')
+    
+    def test_dump(self):
+        self.test_set_list_element()
+        result = self.subject.dump()
+        expected_result = """{
+    "root": {
+        "simplelist": {
+            "glow": {
+                "id": "glow",
+                "val": "in the dark"
+            }
+        }
+    }
+}"""
 
-    def test_merge_new_conf_data_into_existing_schema(self):
-        new_node = {}
-        dpath.util.new(new_node, '/level1/level2/level3/withcfg/config', "this-has-been-set-in-merge!")
-        self.subject._merge_node(new_node)
+        self.assertEqual(result, expected_result)
 
-        old_node_val = self.subject.get('/simplecontainer/leafstring', separator='/')
-        self.assertEqual(old_node_val, 'fred')
-        updated_node_val = self.subject.get('/level1/level2/level3/withcfg/config', separator='/')
-        self.assertEqual(updated_node_val, 'this-has-been-set-in-merge!')
+    def test_merge_in_keyval(self):
+        # Act
+        self.subject._merge_keyval('/simplestleaf', 'flowers')
+
+        # Assert
+        expected_result = {'root': {'simplestleaf': 'flowers'}}
+        self.assertEqual(self.subject.db, expected_result)
+
+    def test_validate_against_schema_string(self):
+        # Build
+        schema = {'__schema': {
+            '__type': 'string'
+            }
+        }
+
+        # Act
+        self.subject.validate_against_schema(schema, "0")
+
+    def test_validate_against_schema_int(self):
+        # Build
+        schema = {'__schema': {
+            '__type': 'integer'
+            }
+        }
+
+        # Act
+        #self.subject.validate_against_schema(schema, "OH")
+
+    def test_persist(self):
+        self.test_merge_in_keyval()
+
+        # Act
+        result = self.subject.persist()
+
+        # Assert
+        expected_result = {'/simplestleaf': 'flowers'}
+        self.assertEqual(result, expected_result)
+
+    def test_persist_list(self):
+
+        self.subject.create('simplelist', ['castle'])
+        
+        result = self.subject.persist()
+        
+        expected_result = {'simplelist{castle}/id': 'castle'}
+        self.assertEqual(result, expected_result)
+
+        expected_result = {'root': {'simplelist': {'castle': {'id': 'castle'}}}}
+        self.assertEqual(self.subject.db, expected_result)
+
+        expected_result = """{
+    "__schema": {
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__elements": {},
+        "__keys": [
+            "id"
+        ],
+        "__list": true,
+        "__path": "/root/simplelist",
+        "__rootlevel": true
+    },
+    "id": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": true,
+            "__path": "/root/simplelist/castle/id",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    },
+    "val": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": false,
+            "__path": "/root/simplelist/castle/val",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    }
+}"""
+        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
+
+    def test_importing_list_values(self):
+        key = '/simplelist{castle}/id'
+        val = 'castle'
+
+        # Act
+        self.subject._merge_keyval(key, val)
+
+        # Assert
+        expected_result = """{
+    "__schema": {
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__elements": {},
+        "__keys": [
+            "id"
+        ],
+        "__list": true,
+        "__path": "/root/simplelist",
+        "__rootlevel": true
+    },
+    "id": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": true,
+            "__path": "/root/simplelist/castle/id",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    },
+    "val": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": false,
+            "__path": "/root/simplelist/castle/val",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    }
+}"""
+        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
+
+    def test_stacked_lsits(self):
+        key = '/stackedlists/lista{aaaa}/keya'
+        val = 'AAA'
+        key2 = '/stackedlists/lista{aaaa}/listb{bbbb}/keyb'
+        val2 = 'BBB'
+        # Act
+        self.subject._merge_keyval(key, val)
+        self.subject._merge_keyval(key2, val2)
+
+        # Assert
+        expected_result = """{
+    "__listelement": {
+        "__schema": {
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__elements": {},
+            "__keys": [
+                "keyb"
+            ],
+            "__list": true,
+            "__path": "/root/stackedlists/lista/__listelement/listb",
+            "__rootlevel": false
+        },
+        "keyb": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": true,
+                "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                "__rootlevel": false,
+                "__type": "string"
+            }
+        }
+    },
+    "bbbb": {
+        "__schema": {
+            "__decendentconfig": true,
+            "__decendentoper": false,
+            "__elements": {},
+            "__keys": [
+                "keyb"
+            ],
+            "__list": true,
+            "__path": "/root/stackedlists/lista/__listelement/listb",
+            "__rootlevel": false
+        },
+        "keyb": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": true,
+                "__path": "/root/stackedlists/lista/bbbb/listb/__listelement/keyb",
+                "__rootlevel": false,
+                "__type": "string"
+            }
+        }
+    }
+}"""
+        actual_result = json.dumps(self.subject.schema['root']['stackedlists']['lista']['aaaa']['listb'], indent=4, sort_keys=True)
+
+        # print (actual_result)
+        self.assertEqual(actual_result, expected_result)
+        
+        expected_result = {'/stackedlists/lista{aaaa}/keya': 'AAA', '/stackedlists/lista{aaaa}/listb{bbbb}/keyb': 'BBB'}
+        actual_result = self.subject.keyval
+
+        self.assertEqual(actual_result, expected_result)
+        

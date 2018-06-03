@@ -5,20 +5,36 @@ import logging
 import sys
 import json
 import os
-import dpath.util
+import re
 import warnings
-import PyConfHoardExceptions
-from PyConfHoardFilter import PyConfHoardFilter
+import dpath.util
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse
 
 
 class PyConfHoardDatastore:
+
+    """
+    The Datastore provides the ability to manipulate data (either config or operational) according to a defined schema.
+
+    A template scehma is loaded into the schema however this can be augmented as list items are added.
+    When persisting the data we save in a flat keyval store, when we restore data we go through a process of augmenting
+    the data.
+    When data is shared to consumers who are only interested in a read-only view it may be shared in a json/tree
+    based structure.
+
+    - keyval = keyvalue pairs of data which we will persist
+    - db     = livedata - needs to be rebuilt everytime a datastore comes to life.
+    - schema = the schema - augmented when list elements are created.
+    """
 
     LOG_LEVEL = 3
 
     def __init__(self):
         self.db = {}
-        self.db_values = {}
+        self.keyval = {}
+        self.schema = {}
 
+        self.schema_by_path = {}
         logging.TRACE = 7
 
         def custom_level_trace(self, message, *args, **kws):
@@ -29,12 +45,102 @@ class PyConfHoardDatastore:
         logging.addLevelName(logging.TRACE, "TRACE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('DatastoreBackend')
-        self.log.debug('Filter Instance Started %s', self)
+#        self.log.debug('Filter Instance Started %s', self)
 
     def load_blank_schema(self, json_file):
         schema_file = open(json_file)
-        self.db = json.loads(schema_file.read())
+        self.schema = json.loads(schema_file.read())
         schema_file.close()
+
+    def load_from_keyvals(self, keyval_file):
+        """
+        Given a file containing key/value data we will load this in and validate
+        it against the schema as we progress through building the db
+        """
+        keyval_file = open(keyval_file)
+        keyvals = json.loads(keyval_file.read())
+        keyval_file.close()
+
+        for keyval in keyvals:
+            self._merge_keyval(keyval, keyvals[keyval])
+
+    def _merge_keyval(self, key, val):
+        self.log.trace('%s <- %s', key, val)
+
+        # Get the schema.
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
+        updated_key = regex.sub('/__listelement/', key)
+        if not updated_key[0:5] == '/root':
+            updated_key = '/root' + updated_key
+
+        if updated_key not in self.schema_by_path:
+            try:
+                schema = dpath.util.get(self.schema, updated_key)
+                self.schema_by_path[updated_key] = self.schema
+            except KeyError:
+                raise PyConfHoardDataNoLongerRequired(updated_key)
+        else:
+            schema = self.schema_by_path[updated_key]
+
+        self.validate_against_schema(schema, val)
+
+        dpath.util.new(self.db, updated_key, val)
+        self.keyval[key] = val
+
+        # TODO: if we pass the schema we have to add into self.db
+        # First cover off the simple case without lists, although
+        # what we have done so far won't have made it harder.
+        index = 0
+        if '__listelement' in updated_key:
+            keys_in_path = regex.findall(key)
+            path_to_work_on = updated_key
+            for key_in_path in keys_in_path:
+                # strip everything to the right of this key
+                found_index = path_to_work_on.find('__listelement')
+                left_part_of_key = path_to_work_on[0:found_index]
+                right_part_of_key = path_to_work_on[found_index + len('__listelement'):]
+
+                path = self.decode_path_string(left_part_of_key, separator='/')
+                path.append(key_in_path)
+                self._create_new_list_element_in_schema(path, key_in_path)
+
+                path_to_work_on = left_part_of_key + key_in_path + '/' + right_part_of_key
+
+    def validate_against_schema(self, schema, val):
+        """
+        This method takes in the specific part of the schema as a
+        dictionary and a value and will validate and provide a boolean
+        response back.
+        """
+        if '__schema' not in schema:
+            raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
+        if '__type' not in schema['__schema']:
+            raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
+
+        if schema['__schema']['__type'] == 'string':
+            return True
+
+        raise PyConfHoardUnhandledUse("validate only implemented for strings")
+
+    def set_from_string(self, full_string, command=''):
+        """
+        A convenience function to split apart the path, command and value
+        and then call the set function.
+        """
+        # path = self.decode_path_string(full_string[len(command):], ignore_last_n=1)
+        value = self.decode_path_string(full_string[len(command):], get_index=-1)
+        path = full_string[:-len(value)-1]
+        self.set(path, value)
+
+    def _merge_direct_to_root(self, payload):
+        """
+        Merge a payload direct to the root of the database.
+
+        I think this will be extended to update the schema to deal with auto-complete
+        of list nodes. When the CLI/things merge in existing data they call this method.
+        """
+
+        dpath.util.merge(self.db, payload)
 
     def decode_path_string(self, path, separator=' ', ignore_last_n=0, get_index=None):
         """
@@ -48,9 +154,14 @@ class PyConfHoardDatastore:
         value = 'this is a value'
         """
         if not isinstance(path, list):
+            if not path[0:5] == separator + 'root':
+                path = separator + 'root' + separator + path
             separated = path.split(separator)
         else:
+            if not path[0] == 'root':
+                path.insert(0, 'root')
             separated = path
+
         seplen = len(separated)
         # Remove anything which is a null string
         for i in range(seplen):
@@ -68,248 +179,160 @@ class PyConfHoardDatastore:
 
         return separated
 
-    def view(self, path_string, config, filter_blank_values=True, separator=' '):
+    def list(self, path_string, separator=' '):
         """
-        This method provides a human readable rendering of the datastore.
-        A new dictionary is returned which removes all the internal metadata
-
-        Schema                                  Filtered
-        {'key': {                               {'key': 123}
-            '__path': '/key',
-            '__value': None,
-            '__default': 123
-            }
-        }
-
+        Shows structure of the databas
         """
         path = self.decode_path_string(path_string, separator)
-        pretty = PyConfHoardFilter(self.db, self.db_values)
-        pretty.convert(config=config, filter_blank_values=filter_blank_values)
-        filtered = pretty.root
-        if len(filtered.keys()) == 0:
-            return {'configuration is blank': True}
-        elif len(path) == 0:
-            return filtered
-        else:
-            navigated = dpath.util.get(filtered, path_string, separator=separator)
-            return navigated
+        return PyConfHoardDatastore._fetch_keys_from_path(self.schema, path)
 
-    def _merge_node(self, new_node, separator=' '):
+    def get_type(self, path_string, separator=' '):
         """
-        Applications should use PyConfHoardDataStoreLock.patch instead of this 
-        function directly.
+        Return the type of a particular leaf from the model.
         """
-        dpath.util.merge(self.db_values, new_node)
+        self.log.trace('%s ?type', path_string)
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
+        path_string = regex.sub('/__listelement/', path_string)
+        self.log.trace('%s', path_string)
+        path = self.decode_path_string(path_string, separator)
+        schema = dpath.util.get(self.schema, path)
 
-    def set(self, path_string, set_val, separator=' '):
-        """
-        This methods sets a value in the datastore at the pat provided.
-
-        Initial implementation will not allow this to be used for creating
-        list items.
-        """
-        if isinstance(path_string, list):
-            path = path_string
-        else:
-            path = self.decode_path_string(path_string, separator)
-
-        # TODO: validation required on set
-        leaf_metadata = self.get_schema(path, separator=separator)
-        if not ('__leaf' in leaf_metadata and leaf_metadata['__leaf']):
-            raise ValueError('Path: %s is not a leaf - cannot set a value' % (path))
-        if '__listkey' in leaf_metadata and leaf_metadata['__listkey']:
-            raise ValueError('Path: %s is a list key - cannot set keys' % (path))
-
-        dpath.util.new(self.db_values, path, set_val)
-
-    def get(self, path_string, separator=' '):
-        """
-        This method gets a terminating node of the database.
-
-        In future we probably would rather this method intelligently
-        return data in the way that get_object/get_listitem would
-        """
-        try:
-            return self._get(path_string, separator=separator)
-        except KeyError:
-            raise ValueError('Path: %s does not exist' % (self.convert_path_to_slash_string(path_string)))
-
-    def get_object(self, path_string, separator=' '):
-        """
-        This method returns an object of dat
-        """
-        warnings.warn('get_object will be deprecated - see get_schema/get_raw/get')
-        return self._get(path_string, separator=separator)
-
-    def get_schema(self, path_string, separator=' '):
-        """
-        This method returns both the schema portion of the node in question, this may
-        be lacking some of the structure which gives the data it's context to the 
-        parent children.
-        """
-        schema = self._get(path_string, separator=separator, return_schema=True)
         if '__listelement' in schema:
             return schema['__listelement']['__schema']
         elif '__schema' in schema:
             return schema['__schema']
         else:
-            warning.warn('Encountered a place where we couldnt return a schema... %s' % (schema.keys()))
+            raise PyConfHoardAccessNonLeaf(path)
 
-    def get_list_element(self, path_string, separator=' '):
-        self.log.trace('get_list_element: %s' % (path_string))
-        return self._get(path_string, separator=separator)
-
-    def has_list_item(self, path_string, separator=' '):
+    def get(self, path_string, separator=' '):
         """
-        This method returns a boolean true/false if the list key is present.
-        Note: in practice this method doesn't actually check for a list item it checks
-        if the provided path exists.
-
-        TODO: add validation here to trap cases where a deeper path is asked for/non-list item.
+        Get the value of a node from either the config or oper 
+        datastores.
         """
+        node_type = self.get_type(path_string, separator)
+        path = self.decode_path_string(path_string, separator)
         try:
-            if self._get(path_string, separator=separator):
-                self.log.trace('has_list_item: %s - TRUE' % (path_string))
-                return True
-            return False
-        except KeyError as err:
-            self.log.trace('has_list_item: %s - FALSE' % (path_string))
-            return False
-        
+            return dpath.util.get(self.db, path)
+        except KeyError:
+            pass
 
+        return None
 
-    def _get(self, path_string, separator=' ', obj=(None, None), return_schema=False):
-        """
-        This method returns an explicit object from the database.
-        The input can be a path_string and will be decoded, if we are passed a list
-        we will not be decode it further.
-
-        Retreiving the root of the database with the get method is not supported.
-
-        By default this operates on the default datastore (self.db) but
-        an optional object can be passed in instead.
-        """
-        (schema_obj, values_obj) = obj
-        if schema_obj is None:
-            obj = self.db
-        if values_obj is None:
-            values_obj = self.db_values
-
-        if isinstance(path_string, list):
-            path = path_string
-        else:
-            path = self.decode_path_string(path_string, separator)
-
-        if return_schema is False:
-            try:
-                return dpath.util.get(values_obj, path)
-            except KeyError:
-                return None
-
-        return dpath.util.get(obj, path)
-
-    def create(self, path_string, keys, separator=' '):
-        """Create a list item
-        Note: keys is a space separated list of key values
-        """
-        # TODO: validation required on set of each of the keys
+    def set(self, path_string, set_val, separator=' '):
+        """Set the value of a leaf node"""
+        self.log.trace('%s -> %s', path_string, set_val)
+        node_type = self.get_type(path_string, separator)
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
+        path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
-        leaf_metadata = self.get_schema(path_string, separator=separator)
-        self.log.trace('create: %s' % (path_string))
+        self.keyval[path_string] = set_val
+        dpath.util.new(self.db, path, set_val)
 
-        if not ('__list' in leaf_metadata and leaf_metadata['__list']):
-            raise ValueError('Path: %s is not a list - cannot create an item' % (path))
-        if not ('__keys') in leaf_metadata:
-            raise ValueError('List does not have any keys')
+    def create(self, path_string, list_key, separator=' '):
+        """
+        Create a list-item
+        list keys should be a list of separated keys
+        """
+        node_type = self.get_type(path_string, separator)
+        if '__list' not in node_type or node_type['__list'] is False:
+            raise PyConfHoardNotAList(path_string)
+        self._add_to_list(self.db, node_type, path_string, list_key, separator)
 
-        our_keys = keys.split(' ')
-        required_keys = leaf_metadata['__keys'].split(' ')
+    def _add_to_list(self, db, node_type, path_string, list_keys, separator=' '):
+        path = self.decode_path_string(path_string, separator)
+        list_element = dpath.util.get(self.schema, path)
+        if not len(list_keys) == len(list_element['__listelement']['__schema']['__keys']):
+            raise PyConfHoardWrongKeys(path, list_element['__listelement']['__schema']['__keys'])
 
-        if not len(our_keys) == len(required_keys):
-            raise ValueError("Path: %s requires the following %s keys %s - %s keys provided" %
-                             (self.decode_path_string(path_string), len(required_keys), required_keys, len(our_keys)))
+        # string_composite_key = '{'
+        string_composite_key = ''
+        lk = 0
+        for list_key in list_element['__listelement']['__schema']['__keys']:
+            string_composite_key = string_composite_key + list_keys[lk] + ' '
+            lk = lk + 1
+        # string_composite_key = string_composite_key[:-1] + '}'
+        string_composite_key = string_composite_key[:-1]
 
-        # TODO::::: we need to validat eif a key already exists
+        path.append(string_composite_key)
+        lk = 0
+        for list_key in list_element['__listelement']['__schema']['__keys']:
+            path.append(list_key)
+            self.keyval[path_string + '{' + list_keys[lk] + '}/' + list_key] = list_keys[lk]
+            dpath.util.new(db, path, list_keys[lk])
+            path.pop()
+            lk = lk + 1
 
-        # Copy the templated list element
-        path.append('__listelement')
-        list_element_template = dpath.util.get(self.db, path)
-        path.pop()
+        self._create_new_list_element_in_schema(path, string_composite_key)
 
-        path.append(keys)
+    def _create_new_list_element_in_schema(self, path, string_composite_key):
+        """
+        This method takes in a path and will extend the schema so that the list element
+        includes the same schema data.
 
+        e.g. if we have a path /root/simplelist which is a list with a __listelement
+        describing it's schema.
+
+        And this is called with a path such as /root/simplelist/glow then we will
+        end up with /root/simplelist/glow with a matching schema.
+        THe paths on the new listelement will be adjusted with the new keys.
+        """
+        self.log.trace('%s %s ~extend-schema', PyConfHoardDatastore._convert_path_to_slash_string(path), string_composite_key)
+        val = path.pop()
+        list_element = dpath.util.get(self.schema, path)
+        path.append(val)
 
         new_list_element = {}
-        for list_item in list_element_template:
-            if list_item[0:2] == '__':
+        for list_item in list_element['__listelement']:
+            new_list_element[list_item] = copy.deepcopy(list_element['__listelement'][list_item])
+            if '__schema' in new_list_element[list_item]:
+                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace(
+                    '__listelement', string_composite_key, 1)
+
+        dpath.util.new(self.schema, path, new_list_element)
+
+    def dump(self, remove_root=False):
+        """
+        Dump will take the data from the datastore and provide a json
+        representation.
+
+        This will never be re-imported from this format, but instead 
+        the key-value data will be used to restructure this.
+        """
+        if remove_root:
+            if 'root' in self.db:
+                return json.dumps(self.db['root'], indent=4, sort_keys=True)
+            else:
+                return '{}'
+        return json.dumps(self.db, indent=4, sort_keys=True)
+
+    def persist(self):
+        return self.keyval
+
+    def get_fragment(self, path_string, separator=' '):
+        db = self.db
+        path = self.decode_path_string(path_string, separator)
+        fragment = dpath.util.get(db, path)
+        return json.dumps(fragment, indent=4, sort_keys=True)
+
+    @staticmethod
+    def _fetch_keys_from_path(obj, path):
+        result = []
+        for key in dpath.util.get(obj, path).keys():
+            if key == '__listelement':
+                path.append('__listelement')
+                return PyConfHoardDatastore._fetch_keys_from_path(obj, path)
+            elif key == '__schema':
                 pass
             else:
-                new_list_element[list_item] = copy.deepcopy(list_element_template[list_item])
-        #list[keys] = new_list_element
-        dpath.util.new(self.db, path, list_element_template)
-        dpath.util.new(self.db_values, path, {})
+                result.append(key)
+        return sorted(result)
 
-        schema = dpath.util.get(self.db, path)
-        values = dpath.util.get(self.db_values, path)
-
-        #print('SCHEMA: %s' %(schema))
-        #print('VALUES: %s' %(values))
-    
-        # TODO: this probably needs updating if we have more than a single level
-        # of items within our keys... It *MAY* be ok
-
-        for keyidx in range(len(required_keys)):
-            this_key_name = required_keys[keyidx]
-            # t the key values themselves
-            path.append(this_key_name)
-            dpath.util.new(self.db_values, path, our_keys[keyidx])
-            list_item_path = schema[this_key_name]['__schema']['__path']
-            # update the path so it's not /simplelist/item it should be /simplelist/<our keys>/item
-            replacement_path_with_our_key = list_item_path[0:list_item_path.rfind(this_key_name)] + keys + '/' + this_key_name
-            schema[this_key_name]['__schema']['__path'] = replacement_path_with_our_key
-
-
-
-    def convert_path_to_slash_string(self, path):
+    @staticmethod
+    def _convert_path_to_slash_string(path):
         if isinstance(path, list):
             path_string = ''
             for x in path:
                 path_string = path_string + '/' + x
             return path_string
-        else:
-            return path_string.replace(' ', '/')
-
-    def list(self, path_string, separator=' ', config=True, filter_blank_values=True):
-        """
-        This method provides a list of keys within a data object, which can be
-        filtered based upon config nodes, or only including nodes where a value
-        is set.
-        """
-        path = self.decode_path_string(path_string, separator=separator)
-        if len(path) == 0:
-            return sorted(self.db.keys())
-
-        try:
-            obj = dpath.util.get(self.db, path)
-        except KeyError:
-            raise ValueError('Path: %s does not exist - cannot build list' %
-                             (self.convert_path_to_slash_string(path)))
-        
-        try:
-            obj_values = dpath.util.get(self.db_values, path)
-        except KeyError:
-            obj_values = {}
-
-        #filter = PyConfHoardFilter(obj, obj_values)
-        filter = PyConfHoardFilter(self.db, self.db_values)
-        filter.convert(config=config, filter_blank_values=filter_blank_values)
-        filtered = filter.root
-
-        return dpath.util.get(filtered, path).keys()
-
-    def _merge_direct_to_root(self, new_node):
-        """
-        WARNING: this method has no safety checks
-        """
-        dpath.util.merge(self.db, new_node)
+        return path_string.replace(' ', '/')

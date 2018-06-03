@@ -10,21 +10,55 @@ from colorama import Style
 class yin_to_json:
 
     def __init__(self, input, quiet=False):
-        schema_by_tree = {}
-        path = ''
+        schema_config_tree = {}
+        schema_oper_tree = {}
+        schema_by_tree = {'root': {}}
+        path = '/root'
         tree = ET.parse(input)
         root = tree.getroot()
         self.quiet = quiet
         self.chain = []
         self.final_pop_done = False
 
-        self.process(root, path, schema_by_tree)
+        self.process(root, path, schema_by_tree['root'])
         self.schema = schema_by_tree
 
     def save(self, output):
         o = open(output, 'w')
         o.write(json.dumps(self.schema, indent=4))
         o.close()
+
+        self.schema_config_tree = json.loads(json.dumps(self.schema))
+        self.paths_to_delete = []
+        self.separate(self.schema_config_tree, True)
+        for path_to_delete in self.paths_to_delete:
+            dpath.util.delete(self.schema_config_tree, path_to_delete)
+        o = open(output.replace('.json', '-config.json'), 'w')
+        o.write(json.dumps(self.schema_config_tree, indent=4, sort_keys=True))
+        o.close()
+
+        self.schema_oper_tree = json.loads(json.dumps(self.schema))
+        self.paths_to_delete = []
+        self.separate(self.schema_oper_tree, False)
+        for path_to_delete in self.paths_to_delete:
+            dpath.util.delete(self.schema_oper_tree, path_to_delete)
+        o = open(output.replace('.json', '-oper.json'), 'w')
+        o.write(json.dumps(self.schema_oper_tree, indent=4, sort_keys=True))
+        o.close()
+
+    def separate(self, obj, config=True):
+        for child in obj:
+            if isinstance(obj[child], dict):
+
+                # TODO: for now we include list-keys in oper-data even if there is no oper-values.
+                if '__schema' in obj[child] and '__listkey' in obj[child]['__schema'] and obj[child]['__schema']['__listkey'] is True:
+                    self.separate(obj[child], config)
+                elif '__schema' in obj[child] and '__config' in obj[child]['__schema'] and obj[child]['__schema']['__config'] is False and config is True:
+                    self.paths_to_delete.append(obj[child]['__schema']['__path'])
+                elif '__schema' in obj[child] and '__config' in obj[child]['__schema'] and obj[child]['__schema']['__config'] is True and config is False:
+                    self.paths_to_delete.append(obj[child]['__schema']['__path'])
+                else:
+                    self.separate(obj[child], config)
 
     def process(self, obj, path, schema_by_tree, keys=[]):
         cpath = '/'
@@ -62,7 +96,7 @@ class yin_to_json:
                 for tmp in child:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
                         keys = tmp.attrib['value']
-                ourself['__schema']['__keys'] = keys
+                ourself['__schema']['__keys'] = keys.split(' ')
                 ourself['__schema']['__decendentconfig'] = False
                 ourself['__schema']['__decendentoper'] = False
                 if len(self.chain) == 0:
@@ -71,7 +105,7 @@ class yin_to_json:
                     ourself['__schema']['__rootlevel'] = False
 
                 self.chain.append(ourself)
-                self.process(child, path + '/' + child.attrib['name'], ourself,  keys=keys)
+                self.process(child, path + '/' + child.attrib['name'] + '/__listelement', ourself,  keys=keys)
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))
@@ -111,13 +145,6 @@ class yin_to_json:
                     schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = True
                 else:
                     schema_by_tree[child.attrib['name']]['__schema']['__rootlevel'] = False
-#                        elder[
-    #                else:
-    #                    print tmp.tag
-#        for child in obj:
-
-#        for x in self.chain:
-#           print ('    %s' %(x['__path']))
 
         if len(self.chain):
             self.chain.pop()
@@ -131,9 +158,7 @@ class yin_to_json:
             child = obj[childname]
             if isinstance(child, dict) and '__schema' in obj[childname]:
                 schema = obj[childname]['__schema']
-                #                sys.stderr.write('%s\n' %(schema))
                 if '__path' in schema:
-
                     sys.stderr.write('%s%s%s%s' % (Fore.GREEN, Style.BRIGHT, schema['__path'], Style.RESET_ALL))
                     if '__container' in schema and schema['__container']:
                         sys.stderr.write('%s%s%s%s ' % (Fore.GREEN, Style.NORMAL, ' container', Style.RESET_ALL))

@@ -39,6 +39,7 @@ class Resource(object):
 
         with PyConfHoardLock(self.DATASTORE, datastore, path) as lock:
             print('we have a lock...', lock)
+            print('we will be patching in this ', json_obj)
             update = lock.patch(json_obj)
-
+            print('response back', update) 
             resp.body = update

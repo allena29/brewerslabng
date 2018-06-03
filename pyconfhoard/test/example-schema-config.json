@@ -1,0 +1,171 @@
+{
+    "root": {
+        "simplelist": {
+            "__listelement": {
+                "__schema": {
+                    "__decendentconfig": true,
+                    "__decendentoper": true,
+                    "__elements": {},
+                    "__keys": [
+                        "id"
+                    ],
+                    "__list": true,
+                    "__path": "/root/simplelist",
+                    "__rootlevel": true
+                },
+                "id": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": true,
+                        "__path": "/root/simplelist/__listelement/id",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                },
+                "val": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": false,
+                        "__path": "/root/simplelist/__listelement/val",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                }
+            }
+        },
+        "simplestleaf": {
+            "__schema": {
+                "__config": true,
+                "__leaf": true,
+                "__listitem": true,
+                "__listkey": false,
+                "__path": "/root/simplestleaf",
+                "__rootlevel": true,
+                "__type": "string"
+            }
+        },
+        "stackedlists": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__path": "/root/stackedlists",
+                "__rootlevel": true
+            },
+            "lista": {
+                "__listelement": {
+                    "__schema": {
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__elements": {},
+                        "__keys": [
+                            "keya"
+                        ],
+                        "__list": true,
+                        "__path": "/root/stackedlists/lista",
+                        "__rootlevel": false
+                    },
+                    "keya": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": true,
+                            "__path": "/root/stackedlists/lista/__listelement/keya",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    },
+                    "listb": {
+                        "__listelement": {
+                            "__schema": {
+                                "__decendentconfig": true,
+                                "__decendentoper": false,
+                                "__elements": {},
+                                "__keys": [
+                                    "keyb"
+                                ],
+                                "__list": true,
+                                "__path": "/root/stackedlists/lista/__listelement/listb",
+                                "__rootlevel": false
+                            },
+                            "keyb": {
+                                "__schema": {
+                                    "__config": true,
+                                    "__leaf": true,
+                                    "__listitem": true,
+                                    "__listkey": true,
+                                    "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                                    "__rootlevel": false,
+                                    "__type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "tupperware": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": true,
+                "__path": "/root/tupperware",
+                "__rootlevel": true
+            },
+            "config": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/tupperware/config",
+                    "__rootlevel": false,
+                    "__type": "string"
+                }
+            },
+            "outer": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": false,
+                    "__path": "/root/tupperware/outer",
+                    "__rootlevel": false
+                },
+                "inner": {
+                    "__schema": {
+                        "__container": true,
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__path": "/root/tupperware/outer/inner",
+                        "__rootlevel": false
+                    },
+                    "number": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": false,
+                            "__path": "/root/tupperware/outer/inner/number",
+                            "__rootlevel": false,
+                            "__type": "uint32"
+                        }
+                    }
+                }
+            },
+            "outhere": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": false,
+                    "__decendentoper": false,
+                    "__path": "/root/tupperware/outhere",
+                    "__rootlevel": false
+                }
+            }
+        }
+    }
+}
