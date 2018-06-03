@@ -99,10 +99,9 @@ class PyConfHoardDatastore:
                 found_index = path_to_work_on.find('__listelement')
                 left_part_of_key = path_to_work_on[0:found_index]
                 right_part_of_key = path_to_work_on[found_index + len('__listelement'):]
-                
+
                 path = self.decode_path_string(left_part_of_key, separator='/')
                 path.append(key_in_path)
-                print ('crass', updated_key, key, left_part_of_key, right_part_of_key, path, key_in_path) 
                 self._create_new_list_element_in_schema(path, key_in_path)
 
                 path_to_work_on = left_part_of_key + key_in_path + '/' + right_part_of_key
@@ -193,7 +192,6 @@ class PyConfHoardDatastore:
         """
         self.log.trace('%s ?type', path_string)
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
-        print('>>>>>', path_string)
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
@@ -260,7 +258,7 @@ class PyConfHoardDatastore:
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             path.append(list_key)
-            self.keyval[path_string + '{' + list_keys[lk] + '}/' + list_key]  = list_keys[lk]
+            self.keyval[path_string + '{' + list_keys[lk] + '}/' + list_key] = list_keys[lk]
             dpath.util.new(db, path, list_keys[lk])
             path.pop()
             lk = lk + 1
@@ -280,7 +278,6 @@ class PyConfHoardDatastore:
         THe paths on the new listelement will be adjusted with the new keys.
         """
         self.log.trace('%s %s ~extend-schema', PyConfHoardDatastore._convert_path_to_slash_string(path), string_composite_key)
-        print ('poke', path, string_composite_key)
         val = path.pop()
         list_element = dpath.util.get(self.schema, path)
         path.append(val)
@@ -289,10 +286,10 @@ class PyConfHoardDatastore:
         for list_item in list_element['__listelement']:
             new_list_element[list_item] = copy.deepcopy(list_element['__listelement'][list_item])
             if '__schema' in new_list_element[list_item]:
-                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace('__listelement', string_composite_key, 1)
+                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace(
+                    '__listelement', string_composite_key, 1)
 
         dpath.util.new(self.schema, path, new_list_element)
-
 
     def dump(self, remove_root=False):
         """
