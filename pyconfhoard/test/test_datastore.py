@@ -53,7 +53,7 @@ class TestYang(unittest.TestCase):
     def test_set_list_element(self):
         list_key_values = ['glow']
         self.subject.create('/simplelist', list_key_values, separator='/')
-        self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
+        self.subject.set('/simplelist/glow/val', 'in the dark', separator='/')
     
     def test_dump(self):
         self.test_set_list_element()
@@ -61,7 +61,7 @@ class TestYang(unittest.TestCase):
         expected_result = """{
     "root": {
         "simplelist": {
-            "{glow}": {
+            "glow": {
                 "id": "glow",
                 "val": "in the dark"
             }
@@ -108,3 +108,52 @@ class TestYang(unittest.TestCase):
         # Assert
         expected_result = {'/simplestleaf': 'flowers'}
         self.assertEqual(result, expected_result)
+
+    def test_persist_list(self):
+
+        self.subject.create('simplelist', ['castle'])
+        
+        result = self.subject.persist()
+        
+        expected_result = {'simplelist{castle}/id': 'castle'}
+        self.assertEqual(result, expected_result)
+
+        expected_result = {'root': {'simplelist': {'castle': {'id': 'castle'}}}}
+        self.assertEqual(self.subject.db, expected_result)
+
+        expected_result = """{
+    "__schema": {
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__elements": {},
+        "__keys": [
+            "id"
+        ],
+        "__list": true,
+        "__path": "/root/simplelist",
+        "__rootlevel": true
+    },
+    "id": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": true,
+            "__path": "/root/simplelist/castle/id",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    },
+    "val": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": false,
+            "__path": "/root/simplelist/castle/val",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    }
+}"""
+        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)

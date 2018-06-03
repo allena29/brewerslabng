@@ -220,7 +220,7 @@ class PyConfHoardDatastore:
         """
         node_type = self.get_type(path_string, separator)
         if '__list' not in node_type or node_type['__list'] is False:
-            raise PyConfHoardNotAList(path)
+            raise PyConfHoardNotAList(path_string)
         self._add_to_list(self.db, node_type, path_string, list_key, separator)
 
     def _add_to_list(self, db, node_type, path_string, list_keys, separator=' '):
@@ -229,21 +229,31 @@ class PyConfHoardDatastore:
         if not len(list_keys) == len(list_element['__listelement']['__schema']['__keys']):
             raise PyConfHoardWrongKeys(path, list_element['__listelement']['__schema']['__keys'])
 
-        string_composite_key = '{'
+        # string_composite_key = '{'
+        string_composite_key = ''
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             string_composite_key = string_composite_key + list_keys[lk] + ' '
             lk = lk + 1
-        string_composite_key = string_composite_key[:-1] + '}'
+        # string_composite_key = string_composite_key[:-1] + '}'
+        string_composite_key = string_composite_key[:-1]
 
         path.append(string_composite_key)
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             path.append(list_key)
-            self.keyval[path_string + '/' + list_key] = list_keys[lk]
+            self.keyval[path_string + '{' + list_keys[lk] + '}/' + list_key]  = list_keys[lk]
             dpath.util.new(db, path, list_keys[lk])
             path.pop()
             lk = lk + 1
+
+        new_list_element = {}
+        for list_item in list_element['__listelement']:
+            new_list_element[list_item] = copy.deepcopy(list_element['__listelement'][list_item])
+            if '__schema' in new_list_element[list_item]:
+                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace('__listelement', string_composite_key)
+
+        dpath.util.new(self.schema, path, new_list_element)
 
     def dump(self, remove_root=False):
         """
