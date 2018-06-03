@@ -34,7 +34,7 @@ class yin_to_json:
         for path_to_delete in self.paths_to_delete:
             dpath.util.delete(self.schema_config_tree, path_to_delete)
         o = open(output.replace('.json', '-config.json'), 'w')
-        o.write(json.dumps(self.schema_config_tree, indent=4,sort_keys=True))
+        o.write(json.dumps(self.schema_config_tree, indent=4, sort_keys=True))
         o.close()
 
         self.schema_oper_tree = json.loads(json.dumps(self.schema))
@@ -43,7 +43,7 @@ class yin_to_json:
         for path_to_delete in self.paths_to_delete:
             dpath.util.delete(self.schema_oper_tree, path_to_delete)
         o = open(output.replace('.json', '-oper.json'), 'w')
-        o.write(json.dumps(self.schema_oper_tree, indent=4,sort_keys=True))
+        o.write(json.dumps(self.schema_oper_tree, indent=4, sort_keys=True))
         o.close()
 
     def separate(self, obj, config=True):
@@ -57,10 +57,8 @@ class yin_to_json:
                     self.paths_to_delete.append(obj[child]['__schema']['__path'])
                 elif '__schema' in obj[child] and '__config' in obj[child]['__schema'] and obj[child]['__schema']['__config'] is True and config is False:
                     self.paths_to_delete.append(obj[child]['__schema']['__path'])
-                else: 
+                else:
                     self.separate(obj[child], config)
-                
-
 
     def process(self, obj, path, schema_by_tree, keys=[]):
         cpath = '/'
@@ -107,7 +105,7 @@ class yin_to_json:
                     ourself['__schema']['__rootlevel'] = False
 
                 self.chain.append(ourself)
-                self.process(child, path + '/' + child.attrib['name'] + '/__listelement' , ourself,  keys=keys)
+                self.process(child, path + '/' + child.attrib['name'] + '/__listelement', ourself,  keys=keys)
             elif child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf':
                 if not self.quiet:
                     sys.stderr.write('%s%s/%s%s\n' % (Fore.MAGENTA, cpath, child.attrib['name'], Style.RESET_ALL))

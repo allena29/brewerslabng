@@ -12,6 +12,16 @@ class Error(Exception):
     pass
 
 
+class PyConfHoardDataStoreLocked(Error):
+    """
+    Raised when attempting to access a dastore which is locked
+    """
+
+    def __init__(self, datastore, path):
+        message = 'Failed to obtain a lock for %s/%s - it is already locked' % (datastore, path)
+        super().__init__(message)
+
+
 class PyConfHoardAccessNonLeaf(Error):
     """
     Raised when we access a part of the model (container, list) etc
@@ -19,7 +29,8 @@ class PyConfHoardAccessNonLeaf(Error):
     """
 
     def __init__(self, path):
-        self.message = 'Path %s is not a leaf.' % (convert_path_to_slash_string(path))
+        message = 'Path %s is not a leaf.' % (convert_path_to_slash_string(path))
+        super().__init__(message)
 
 
 class PyConfHoardNonConfigLeaf(Error):
@@ -28,7 +39,9 @@ class PyConfHoardNonConfigLeaf(Error):
     """
 
     def __init__(self, path):
-        self.message = 'Path %s is not a configuration leaf.' % (convert_path_to_slash_string(path))
+        message = 'Path %s is not a configuration leaf.' % (convert_path_to_slash_string(path))
+        super().__init__(message)
+
 
 class PyConfHoardNonConfigList(Error):
     """
@@ -36,7 +49,9 @@ class PyConfHoardNonConfigList(Error):
     """
 
     def __init__(self, path):
-        self.message = 'Path %s is not a configuration list: ' % (convert_path_to_slash_string(path))
+        message = 'Path %s is not a configuration list: ' % (convert_path_to_slash_string(path))
+        super().__init__(message)
+
 
 class PyConfHoardNotAList(Error):
     """
@@ -44,7 +59,9 @@ class PyConfHoardNotAList(Error):
     """
 
     def __init__(self, path):
-        self.message = 'Path %s is not a list: ' % (convert_path_to_slash_string(path))
+        message = 'Path %s is not a list: ' % (convert_path_to_slash_string(path))
+        super().__init__(message)
+
 
 class PyConfHoardWrongKeys(Error):
     """
@@ -52,22 +69,29 @@ class PyConfHoardWrongKeys(Error):
     """
 
     def __init__(self, path, keys):
-        self.message = 'Path %s is a list with the following keys required %s' % (convert_path_to_slash_string(path), keys)
+        message = 'Path %s is a list with the following keys required %s' % (convert_path_to_slash_string(path), keys)
+        super().__init__(message)
+
 
 class PyConfHoardDataNoLongerRequired(Error):
     """
     Raised when we attempt to load in data which is no longer part of the schema
     """
-    
+
     def __init__(self, path):
-        self.message = 'Path %s is no longer part of the schema - data loss would occur' % (path)
+        message = 'Path %s is no longer part of the schema - data loss would occur' % (path)
+        super().__init__(message)
+
 
 class PyConfHoardInvalidUse(Error):
 
     def __init__(self, msg):
-        self.message = msg
+        message = msg
+        super().__init__(message)
+
 
 class PyConfHoardUnhandledUse(Error):
 
     def __init__(self, msg):
-        self.message = msg
+        message = msg
+        super().__init__(message)

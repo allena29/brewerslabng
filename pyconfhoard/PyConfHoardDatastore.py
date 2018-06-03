@@ -9,12 +9,13 @@ import re
 import warnings
 import dpath.util
 from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse
- 
+
+
 class PyConfHoardDatastore:
 
     """
     The Datastore provides the ability to manipulate data (either config or operational) according to a defined schema.
-    
+
     A template scehma is loaded into the schema however this can be augmented as list items are added.
     When persisting the data we save in a flat keyval store, when we restore data we go through a process of augmenting
     the data.
@@ -65,8 +66,8 @@ class PyConfHoardDatastore:
 
     def _merge_keyval(self, key, val):
         self.log.trace('%s <- %s', key, val)
-   
-        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
         updated_key = regex.sub('/__listelement', key)
         if not updated_key[0:5] == '/root':
             updated_key = '/root' + updated_key
@@ -82,9 +83,9 @@ class PyConfHoardDatastore:
 
         self.validate_against_schema(schema, val)
 
-        ### TODO: if we pass the schema we have to add into self.db
-        ### First cover off the simple case without lists, although 
-        ### what we have done so far won't have made it harder.
+        # TODO: if we pass the schema we have to add into self.db
+        # First cover off the simple case without lists, although
+        # what we have done so far won't have made it harder.
         dpath.util.new(self.db, updated_key, val)
         self.keyval[key] = val
 
@@ -98,7 +99,7 @@ class PyConfHoardDatastore:
             raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
         if '__type' not in schema['__schema']:
             raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
-        
+
         if schema['__schema']['__type'] == 'string':
             return True
 
@@ -173,8 +174,8 @@ class PyConfHoardDatastore:
         Return the type of a particular leaf from the model.
         """
         self.log.trace('%s ?type', path_string)
-        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
-        print ('>>>>>', path_string)
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
+        print('>>>>>', path_string)
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)
         path = self.decode_path_string(path_string, separator)
@@ -205,7 +206,7 @@ class PyConfHoardDatastore:
         """Set the value of a leaf node"""
         self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
-        regex = re.compile( "{([A-Za-z0-9]*)}\/?" )
+        regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
 
@@ -227,7 +228,7 @@ class PyConfHoardDatastore:
         list_element = dpath.util.get(self.schema, path)
         if not len(list_keys) == len(list_element['__listelement']['__schema']['__keys']):
             raise PyConfHoardWrongKeys(path, list_element['__listelement']['__schema']['__keys'])
-        
+
         string_composite_key = '{'
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
@@ -239,7 +240,7 @@ class PyConfHoardDatastore:
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             path.append(list_key)
-            self.keyval[path_string + '/'+ list_key] = list_keys[lk]
+            self.keyval[path_string + '/' + list_key] = list_keys[lk]
             dpath.util.new(db, path, list_keys[lk])
             path.pop()
             lk = lk + 1
