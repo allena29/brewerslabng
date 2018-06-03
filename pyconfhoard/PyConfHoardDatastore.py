@@ -67,8 +67,9 @@ class PyConfHoardDatastore:
     def _merge_keyval(self, key, val):
         self.log.trace('%s <- %s', key, val)
 
+        # Get the schema.
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
-        updated_key = regex.sub('/__listelement', key)
+        updated_key = regex.sub('/__listelement/', key)
         if not updated_key[0:5] == '/root':
             updated_key = '/root' + updated_key
 
@@ -83,11 +84,26 @@ class PyConfHoardDatastore:
 
         self.validate_against_schema(schema, val)
 
+        dpath.util.new(self.db, updated_key, val)
+        self.keyval[key] = val
+
         # TODO: if we pass the schema we have to add into self.db
         # First cover off the simple case without lists, although
         # what we have done so far won't have made it harder.
-        dpath.util.new(self.db, updated_key, val)
-        self.keyval[key] = val
+        index = 0
+        if '__listelement' in updated_key:
+            keys_in_path = regex.findall(key)
+
+            for key_in_path in keys_in_path:
+                # strip everything to the right of this key
+                found_index = updated_key.find('__listelement', index + 1)
+                left_part_of_key = updated_key[0:found_index]
+                right_part_of_key = updated_key[found_index + len('__listelement'):]
+                
+                path = self.decode_path_string(left_part_of_key, separator='/')
+                path.append(key_in_path)
+                print ('crass', updated_key, key, left_part_of_key, right_part_of_key, path, key_in_path) 
+                self._create_new_list_element_in_schema(path, key_in_path)
 
     def validate_against_schema(self, schema, val):
         """
@@ -247,13 +263,34 @@ class PyConfHoardDatastore:
             path.pop()
             lk = lk + 1
 
+        self._create_new_list_element_in_schema(path, string_composite_key)
+
+    def _create_new_list_element_in_schema(self, path, string_composite_key):
+        """
+        This method takes in a path and will extend the schema so that the list element
+        includes the same schema data.
+
+        e.g. if we have a path /root/simplelist which is a list with a __listelement
+        describing it's schema.
+
+        And this is called with a path such as /root/simplelist/glow then we will
+        end up with /root/simplelist/glow with a matching schema.
+        THe paths on the new listelement will be adjusted with the new keys.
+        """
+        self.log.trace('%s %s ~extend-schema', PyConfHoardDatastore._convert_path_to_slash_string(path), string_composite_key)
+        print ('poke', path, string_composite_key)
+        val = path.pop()
+        list_element = dpath.util.get(self.schema, path)
+        path.append(val)
+
         new_list_element = {}
         for list_item in list_element['__listelement']:
             new_list_element[list_item] = copy.deepcopy(list_element['__listelement'][list_item])
             if '__schema' in new_list_element[list_item]:
-                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace('__listelement', string_composite_key)
+                new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace('__listelement', string_composite_key, 1)
 
         dpath.util.new(self.schema, path, new_list_element)
+
 
     def dump(self, remove_root=False):
         """

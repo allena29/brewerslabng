@@ -158,3 +158,50 @@ class TestYang(unittest.TestCase):
 }"""
         self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
         print (self.subject.keyval)
+
+    def test_importing_list_values(self):
+        key = '/simplelist{castle}/id'
+        val = 'castle'
+
+        # Act
+        self.subject._merge_keyval(key, val)
+
+        # Assert
+        expected_result = """{
+    "__schema": {
+        "__decendentconfig": true,
+        "__decendentoper": true,
+        "__elements": {},
+        "__keys": [
+            "id"
+        ],
+        "__list": true,
+        "__path": "/root/simplelist",
+        "__rootlevel": true
+    },
+    "id": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": true,
+            "__path": "/root/simplelist/castle/id",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    },
+    "val": {
+        "__schema": {
+            "__config": true,
+            "__leaf": true,
+            "__listitem": true,
+            "__listkey": false,
+            "__path": "/root/simplelist/castle/val",
+            "__rootlevel": false,
+            "__type": "string"
+        }
+    }
+}"""
+        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
+        print (self.subject.keyval)
+
