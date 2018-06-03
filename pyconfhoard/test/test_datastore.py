@@ -18,7 +18,7 @@ class TestYang(unittest.TestCase):
 
     def test_list_completion(self):
         result = self.subject.list('/', separator='/')
-        expected_result = ['simplelist', 'simplestleaf', 'tupperware']
+        expected_result = ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
         self.assertEqual(result, expected_result)
 
     def test_list_completion_leaf(self):
@@ -157,3 +157,4 @@ class TestYang(unittest.TestCase):
     }
 }"""
         self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
+        print (self.subject.keyval)

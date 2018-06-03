@@ -51,4 +51,21 @@ module tester {
     }
   }
 
+  container stackedlists {
+    list lista {
+      key keya;
+
+      leaf keya {
+        type string;
+      }
+
+      list listb {
+        key keyb;
+
+        leaf keyb {
+          type string;
+        }
+      }
+    }
+  }
 }

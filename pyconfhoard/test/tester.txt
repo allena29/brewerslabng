@@ -9,6 +9,11 @@ module: tester
   |     +--rw inner
   |        +--rw number?   uint32
   +--rw simplelist* [id]
-     +--rw id         string
-     +--rw val?       string
-     +--ro operval?   string
+  |  +--rw id         string
+  |  +--rw val?       string
+  |  +--ro operval?   string
+  +--rw stackedlists
+     +--rw lista* [keya]
+        +--rw keya     string
+        +--rw listb* [keyb]
+           +--rw keyb    string

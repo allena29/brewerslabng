@@ -138,6 +138,67 @@
                     }
                 }
             }
+        },
+        "stackedlists": {
+            "__schema": {
+                "__path": "/root/stackedlists",
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__rootlevel": true
+            },
+            "lista": {
+                "__listelement": {
+                    "__schema": {
+                        "__list": true,
+                        "__elements": {},
+                        "__path": "/root/stackedlists/lista",
+                        "__keys": [
+                            "keya"
+                        ],
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__rootlevel": false
+                    },
+                    "keya": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__path": "/root/stackedlists/lista/__listelement/keya",
+                            "__listitem": true,
+                            "__listkey": true,
+                            "__type": "string",
+                            "__rootlevel": false
+                        }
+                    },
+                    "listb": {
+                        "__listelement": {
+                            "__schema": {
+                                "__list": true,
+                                "__elements": {},
+                                "__path": "/root/stackedlists/lista/__listelement/listb",
+                                "__keys": [
+                                    "keyb"
+                                ],
+                                "__decendentconfig": true,
+                                "__decendentoper": false,
+                                "__rootlevel": false
+                            },
+                            "keyb": {
+                                "__schema": {
+                                    "__config": true,
+                                    "__leaf": true,
+                                    "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                                    "__listitem": true,
+                                    "__listkey": true,
+                                    "__type": "string",
+                                    "__rootlevel": false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

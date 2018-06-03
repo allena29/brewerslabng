@@ -48,6 +48,67 @@
                 "__type": "string"
             }
         },
+        "stackedlists": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__path": "/root/stackedlists",
+                "__rootlevel": true
+            },
+            "lista": {
+                "__listelement": {
+                    "__schema": {
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__elements": {},
+                        "__keys": [
+                            "keya"
+                        ],
+                        "__list": true,
+                        "__path": "/root/stackedlists/lista",
+                        "__rootlevel": false
+                    },
+                    "keya": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": true,
+                            "__path": "/root/stackedlists/lista/__listelement/keya",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    },
+                    "listb": {
+                        "__listelement": {
+                            "__schema": {
+                                "__decendentconfig": true,
+                                "__decendentoper": false,
+                                "__elements": {},
+                                "__keys": [
+                                    "keyb"
+                                ],
+                                "__list": true,
+                                "__path": "/root/stackedlists/lista/__listelement/listb",
+                                "__rootlevel": false
+                            },
+                            "keyb": {
+                                "__schema": {
+                                    "__config": true,
+                                    "__leaf": true,
+                                    "__listitem": true,
+                                    "__listkey": true,
+                                    "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                                    "__rootlevel": false,
+                                    "__type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "tupperware": {
             "__schema": {
                 "__container": true,
