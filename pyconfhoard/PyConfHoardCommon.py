@@ -1,0 +1,61 @@
+import dpath.util
+
+
+def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
+    """
+    This method should always be used to provide safe paths for dpath to work with.
+    In particular this will add a fake 'root' element at the begining of the list
+    as dpath functions don't like an empty glob.
+
+    TODO: in future we should look to intelligently seprate on spaces
+    i.e. level1 level2 level3 cfgonly "this is a value" should result in a path
+    path = ['level1', 'level2', 'level3', 'cfgonly']
+    value = 'this is a value'
+    """
+    if not isinstance(path, list):
+        if not path[0:5] == separator + 'root':
+            path = separator + 'root' + separator + path
+        separated = path.split(separator)
+    else:
+        if not path[0] == 'root':
+            path.insert(0, 'root')
+        separated = path
+
+    seplen = len(separated)
+    # Remove anything which is a null string
+    for i in range(seplen):
+        if separated[seplen-i-1] == '':
+            separated.pop(seplen-i-1)
+
+    for i in range(ignore_last_n):
+        try:
+            separated.pop()
+        except:
+            pass
+
+    if isinstance(get_index, int):
+        return separated[get_index]
+
+    return separated
+
+
+def fetch_keys_from_path(obj, path):
+    result = []
+    for key in dpath.util.get(obj, path).keys():
+        if key == '__listelement':
+            path.append('__listelement')
+            return fetch_keys_from_path(obj, path)
+        elif key == '__schema':
+            pass
+        else:
+            result.append(key)
+    return sorted(result)
+
+
+def convert_path_to_slash_string(path):
+    if isinstance(path, list):
+        path_string = ''
+        for x in path:
+            path_string = path_string + '/' + x
+        return path_string
+    return path_string.replace(' ', '/')

@@ -3,7 +3,7 @@ import json
 import os
 import dpath.util
 from PyConfHoardDatastore import PyConfHoardDatastore
-from PyConfHoardError import PyConfHoardPathAlreadyRegistered
+from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist
 
 class Data:
 
@@ -18,9 +18,26 @@ class Data:
         self.oper = PyConfHoardDatastore()
         self.config.load_blank_schema(config_schema)
         self.oper.load_blank_schema(oper_schema)
+        self.config.readonly = True
+        self.oper.readonly = True
 
         self.config_schema = config_schema
         self.oper_schema = oper_schema
+
+        self.map = {}
+
+    def list(self, path_string, separator=' '):
+        try:
+            return self.config.list(path_string, separator)
+        except:
+            pass
+
+        try:
+            return self.oper.list(path_string, separator)
+        except:
+            pass
+        
+        raise PyConfHoardDataPathDoesNotExist(path_string) 
 
     def register(self, path, readonly=False):
 #        if path in self.path_map:
@@ -38,11 +55,16 @@ class Data:
         dpath.util.new(self.config.db, '/root%s' % (path), thisconfig)
         dpath.util.new(self.oper.db, '/root%s' % (path), thisoper)
 
-#        dpath.util.new(self.config.db, '/root%s' % (path), PyConfHoardDatastore())
-#        dpath.util.new(self.oper.db, '/root%s' % (path), PyConfHoardDatastore())
-        
+        thisconfig.readonly = False
+        thisoper.readonly = False
 
+    def load_from_filesystem(self, path):
+        pass
+
+    def load_from_web(self, path):
 #        self. load_from_keyvals
+        pass
+
 
 class Thing:
 
