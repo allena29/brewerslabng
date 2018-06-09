@@ -1,5 +1,5 @@
 import dpath.util
-
+import re
 
 def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
     """
@@ -13,6 +13,9 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
     value = 'this is a value'
     """
     if not isinstance(path, list):
+        regex = re.compile("{([A-Za-z0-9]*)}")
+        path = regex.sub('/{\g<1>}', path)
+
         if not path[0:5] == separator + 'root':
             path = separator + 'root' + separator + path
         separated = path.split(separator)
@@ -20,6 +23,7 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
         if not path[0] == 'root':
             path.insert(0, 'root')
         separated = path
+    
 
     seplen = len(separated)
     # Remove anything which is a null string

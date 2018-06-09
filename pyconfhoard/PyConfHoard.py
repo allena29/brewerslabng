@@ -2,8 +2,9 @@ import logging
 import json
 import os
 import dpath.util
+from PyConfHoardCommon import decode_path_string
 from PyConfHoardDatastore import PyConfHoardDatastore
-from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist
+from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist,PyConfHoardDataPathNotRegistered
 
 class Data:
 
@@ -26,12 +27,24 @@ class Data:
 
         self.map = {}
 
+    def _lookup_datastore(self, path_string, database='config'):
+        path = str(decode_path_string(path_string))
+        if path_string in self.map:
+            return self.map[path_string][database]
+
+        for data in self.map:
+            if path_string[0:len(data)] == data:
+                print('about to use %s for %s' %(data,path_string))
+                return self.map[data][database]
+        raise PyConfHoardDataPathNotRegistered(path_string)
+
     def list(self, path_string, separator=' '):
+        self._lookup_datastore(path_string)
+
         try:
             return self.config.list(path_string, separator)
         except:
             pass
-
         try:
             return self.oper.list(path_string, separator)
         except:
@@ -39,21 +52,71 @@ class Data:
         
         raise PyConfHoardDataPathDoesNotExist(path_string) 
 
-    def register(self, path, readonly=False):
-#        if path in self.path_map:
-#            raise PyConfHoardPathAlreadyRegistered(path)
-            
+
+    def list(self, path_string, separator=' '):
+        try:
+            return self.config.list(path_string, separator)
+        except:
+            pass
+        try:
+            return self.oper.list(path_string, separator)
+        except:
+            pass
         
-#        self.path_map[path] = {'config': config,
-#                               'oper': oper,
-#                               'readonly': readonly}
+        raise PyConfHoardDataPathDoesNotExist(path_string) 
+
+    def get(self, path_string, database='config', separator=' '):
+        data = self._lookup_datastore(path_string, database)
+        return data.get(path_string, separator)
+
+        raise PyConfHoardDataPathDoesNotExist(path_string) 
+
+    def set_from_string(self, full_string, database='config', command=''):
+        """
+        A convenience function to split apart the path, command and value
+        and then call the set function.
+        """
+        value = decode_path_string(full_string[len(command):], get_index=-1)
+        path = full_string[:-len(value)-1]
+        self.set(path, value, database, separator=' ')
+
+    def set(self, path_string, set_val, database='config', separator=' '):
+        """
+        Set a value in the configuration datastore.
+
+        If the database value is set to 'oper' the changes will apply to
+        the operational datastore instead.
+        """
+        data = self._lookup_datastore(path_string, database)
+        print('using instnace %s for setting data' % (data))
+        data.set(path_string, set_val, separator)
+
+    def create(self, path_string, list_key, database='config', separator=' '):
+        """
+        Create a list item
+        """
+        data = self._lookup_datastore(path_string, database)
+        data.create(path_string, list_key, separator)
+
+    def register(self, path_string, readonly=False):
+        """
+        This method will registers a configuration/oper datastores at a specifc
+        part of the database.
+        """
+        if str(path_string) in self.map:
+            raise PyConfHoardPathAlreadyRegistered(path_string)
+
+        path = decode_path_string(path_string, separator='/')
 
         thisconfig = PyConfHoardDatastore()
         thisoper = PyConfHoardDatastore()
         thisconfig.load_blank_schema(self.config_schema)
         thisoper.load_blank_schema(self.oper_schema)
-        dpath.util.new(self.config.db, '/root%s' % (path), thisconfig)
-        dpath.util.new(self.oper.db, '/root%s' % (path), thisoper)
+        dpath.util.new(self.config.db, path, thisconfig)
+        dpath.util.new(self.oper.db, path, thisoper)
+
+        self.map[path_string] = {'config': thisconfig,
+                                 'oper': thisoper}
 
         thisconfig.readonly = False
         thisoper.readonly = False

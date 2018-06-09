@@ -110,3 +110,15 @@ class PyConfHoardDataPathDoesNotExist(Error):
     def __init__(self, path):
         message = 'The path %s does exist' % (path)
         super().__init__(message)
+
+
+class PyConfHoardDataPathNotRegistered(Error):
+
+    """
+    Raised if we are trying to access a key of data which has
+    not been registered properly by any consumers.
+    """
+
+    def __init__(self, path):
+        message = 'The path %s is not registered' % (path)
+        super().__init__(message)
