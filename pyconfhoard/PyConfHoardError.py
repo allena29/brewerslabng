@@ -95,3 +95,23 @@ class PyConfHoardUnhandledUse(Error):
     def __init__(self, msg):
         message = msg
         super().__init__(message)
+
+class PyConfHoardPathAlreadyRegistered(Error):
+
+    """ 
+    Raised if we are trying to register the same path for a datastore multiple times
+    """
+
+    def __init__(self, path):
+        message = 'The path %s has already been regsitered'
+        super().__init__(message)
+
+class PyConfHoardDataPathDoesNotExist(Error):
+
+    """
+    Raised if we are trying to access a key of data which does not exist
+    """
+
+    def __init__(self, path):
+        message = 'The path %s does exist'
+        super().__init__(message)

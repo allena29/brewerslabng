@@ -8,7 +8,7 @@ import os
 import re
 import warnings
 import dpath.util
-from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse, PyConfHoardDataPathDoesNotExist
 
 
 class PyConfHoardDatastore:
@@ -206,8 +206,9 @@ class PyConfHoardDatastore:
 
     def get(self, path_string, separator=' '):
         """
-        Get the value of a node from either the config or oper 
-        datastores.
+        Get the value of a node from either the datastore, this returns
+        whatever object type is requested. For accessing simple data
+        get_keypath is quicker..
         """
         node_type = self.get_type(path_string, separator)
         path = self.decode_path_string(path_string, separator)
@@ -218,15 +219,27 @@ class PyConfHoardDatastore:
 
         return None
 
+    def get_keypath(self, keypath):
+        """
+        Get the value of a node from the database
+        by providing it's keypath.
+
+        To reference list elements provide the path as 
+            /some/path/to/list{key}/leaf
+        """
+        if keypath not in self.keyval:
+            raise PyConfHoardDataPathDoesNotExist(keypath)
+
+        return self.keyval[keypath]
+
     def set(self, path_string, set_val, separator=' '):
         """Set the value of a leaf node"""
         self.log.trace('%s -> %s', path_string, set_val)
         node_type = self.get_type(path_string, separator)
+        self.keyval[path_string] = set_val
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = self.decode_path_string(path_string, separator)
-
-        self.keyval[path_string] = set_val
         dpath.util.new(self.db, path, set_val)
 
     def create(self, path_string, list_key, separator=' '):
@@ -254,7 +267,7 @@ class PyConfHoardDatastore:
         # string_composite_key = string_composite_key[:-1] + '}'
         string_composite_key = string_composite_key[:-1]
 
-        path.append(string_composite_key)
+        path.append('{' + string_composite_key + '}')
         lk = 0
         for list_key in list_element['__listelement']['__schema']['__keys']:
             path.append(list_key)
@@ -287,7 +300,7 @@ class PyConfHoardDatastore:
             new_list_element[list_item] = copy.deepcopy(list_element['__listelement'][list_item])
             if '__schema' in new_list_element[list_item]:
                 new_list_element[list_item]['__schema']['__path'] = new_list_element[list_item]['__schema']['__path'].replace(
-                    '__listelement', string_composite_key, 1)
+                    '/__listelement', '{' + string_composite_key + '}', 1)
 
         dpath.util.new(self.schema, path, new_list_element)
 
