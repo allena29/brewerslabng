@@ -7,12 +7,53 @@ module brewerslab {
   description "This yang module provides the basic data structure for the brewerslab
   homebrew automation software.";
 
+  revision 2018-06-10 {
+    description "Data model for iSpindel http://www.ispindel.de/docs/README_en.html";
+  }
+
   revision 2018-04-01 {
     description "First version with basic stats.";
   }
 
   container brewhouse {
     description "Status for the brewhouse itself, excluding recipes";
+
+    container gravity {
+
+      container fermentation {
+        leaf original {
+          type brewerslab:gravity;
+        }
+
+        leaf final {
+          type brewerslab:gravity;
+        }
+        container results {
+
+          leaf latest {
+            type brewerslab:gravity;
+            config false;
+            default 0.0000;
+          }
+
+          container average {
+            description "This container is theoretical";
+
+            leaf hourly {
+              type brewerslab:gravity;
+              config false;
+              default 0.0000;
+            }
+            leaf daily {
+              type brewerslab:gravity;
+              config false;
+              default 0.0000;
+            }
+          }
+        }
+      }
+    }
+
 
 
     container temperature {
@@ -208,6 +249,12 @@ module brewerslab {
   typedef temperature {
      type decimal64 {
          fraction-digits 2;
+     }
+  }
+
+  typedef gravity {
+     type decimal64 {
+         fraction-digits 4;
      }
   }
 }
