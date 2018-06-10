@@ -15,6 +15,9 @@ class Data:
     into a consistent view.
     """
 
+    DISCOVER_URL = "/v1/discover"
+    DATASTORE_URL = "/v1/datastore"
+
     def __init__(self, config_schema=None, oper_schema=None):
         self.config = PyConfHoardDatastore()
         self.oper = PyConfHoardDatastore()
@@ -29,6 +32,29 @@ class Data:
         self.oper_schema = oper_schema
 
         self.map = {}
+
+    def register_from_web(self, server):
+        """
+        This method uses a URL to discover the entire schema of the datastore
+        and how it has been subdividied. This will then make the relevant calls
+        to populate the database.
+
+        There is no similair register_from_file
+        """
+        response = requests.get(server + self.DISCOVER_URL).text
+        discover = json.loads(response)
+
+        self.config_schema = discover['schema-config']
+        self.oper_schema = discover['schema-oper']
+        datastores = discover['datastores']
+        for datastore in discover['datastores']:
+            metadata = discover['datastores'][datastore]
+            self.register(metadata['yangpath'], skip_schema_load=True)
+            self.load_from_web(metadata['yangpath'],
+                                server + self.DATASTORE_URL + '/running/' + metadata['appname'],
+                                server + self.DATASTORE_URL + '/operational/' + metadata['appname'])
+
+
 
     def _lookup_datastore(self, path_string, database='config'):
         path = str(decode_path_string(path_string))
@@ -100,7 +126,7 @@ class Data:
         data = self._lookup_datastore(path_string, database)
         data.create(path_string, list_key, separator)
 
-    def register(self, path_string, readonly=False):
+    def register(self, path_string, readonly=False, skip_schema_load=False):
         """
         This method will registers a configuration/oper datastores at a specifc
         part of the database.
@@ -112,8 +138,9 @@ class Data:
 
         thisconfig = PyConfHoardDatastore()
         thisoper = PyConfHoardDatastore()
-        thisconfig.load_blank_schema(self.config_schema)
-        thisoper.load_blank_schema(self.oper_schema)
+        if not skip_schema_load:
+            thisconfig.load_blank_schema(self.config_schema)
+            thisoper.load_blank_schema(self.oper_schema)
         dpath.util.new(self.config.db, path, thisconfig)
         dpath.util.new(self.oper.db, path, thisoper)
 

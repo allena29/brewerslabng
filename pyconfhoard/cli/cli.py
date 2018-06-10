@@ -94,13 +94,13 @@ class PyConfHoardCLI(Cmd):
         msg = 'Connecting...'
         PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
         try:
-            response = requests.get('%s/v1/discover' % (self.SERVER)).text
-            discover = json.loads(response)
+            self.pyconfhoarddata.register_from_web('%s/v1/discover' % (self.SERVER))
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
             sys.exit(0)
 
+        """
         # Basic Database - albeit blank
         self.config.schema = discover['schema-config']
         self.oper.schema = discover['schema-oper']
@@ -127,7 +127,7 @@ class PyConfHoardCLI(Cmd):
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
                 raise err
-
+        """
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False

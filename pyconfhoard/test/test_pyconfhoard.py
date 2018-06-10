@@ -2,6 +2,7 @@ import unittest
 import json
 import sys
 import dpath.util
+from mock import patch
 sys.path.append('test')
 from PyConfHoard import Data, Thing
 from PyConfHoardCommon import decode_path_string
@@ -73,4 +74,370 @@ class TestYang(unittest.TestCase):
         """
         self.subject._load('/tupperware', config)
         self.assertEqual(self.subject.get('/tupperware/config', separator='/'), 'abc123')
+
+    @patch("requests.get")
+    def test_load_metadata_from_web(self, requests_get_mock):
+        discover_response = DummyResponse("""{
+    "datastores": {
+        "Thing1": {
+            "appname": "The plastic container",
+            "yangpath": "/tupperware"
+        },
+        "Thing2": {
+            "appname": "The thins wil multiple things",
+            "yangpath": "/simplelist"
+        }
+    },
+    "schema-config": {
+        "root": {
+            "simplelist": {
+                "__listelement": {
+                    "__schema": {
+                        "__decendentconfig": true,
+                        "__decendentoper": true,
+                        "__elements": {},
+                        "__keys": [
+                            "id"
+                        ],
+                        "__list": true,
+                        "__path": "/root/simplelist",
+                        "__rootlevel": true
+                    },
+                    "id": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": true,
+                            "__path": "/root/simplelist/__listelement/id",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    },
+                    "val": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": false,
+                            "__path": "/root/simplelist/__listelement/val",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    }
+                }
+            },
+            "simplestleaf": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/simplestleaf",
+                    "__rootlevel": true,
+                    "__type": "string"
+                }
+            },
+            "stackedlists": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": false,
+                    "__path": "/root/stackedlists",
+                    "__rootlevel": true
+                },
+                "lista": {
+                    "__listelement": {
+                        "__schema": {
+                            "__decendentconfig": true,
+                            "__decendentoper": false,
+                            "__elements": {},
+                            "__keys": [
+                                "keya"
+                            ],
+                            "__list": true,
+                            "__path": "/root/stackedlists/lista",
+                            "__rootlevel": false
+                        },
+                        "keya": {
+                            "__schema": {
+                                "__config": true,
+                                "__leaf": true,
+                                "__listitem": true,
+                                "__listkey": true,
+                                "__path": "/root/stackedlists/lista/__listelement/keya",
+                                "__rootlevel": false,
+                                "__type": "string"
+                            }
+                        },
+                        "listb": {
+                            "__listelement": {
+                                "__schema": {
+                                    "__decendentconfig": true,
+                                    "__decendentoper": false,
+                                    "__elements": {},
+                                    "__keys": [
+                                        "keyb"
+                                    ],
+                                    "__list": true,
+                                    "__path": "/root/stackedlists/lista/__listelement/listb",
+                                    "__rootlevel": false
+                                },
+                                "keyb": {
+                                    "__schema": {
+                                        "__config": true,
+                                        "__leaf": true,
+                                        "__listitem": true,
+                                        "__listkey": true,
+                                        "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                                        "__rootlevel": false,
+                                        "__type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "tupperware": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": true,
+                    "__path": "/root/tupperware",
+                    "__rootlevel": true
+                },
+                "config": {
+                    "__schema": {
+                        "__config": true,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": false,
+                        "__path": "/root/tupperware/config",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                },
+                "outer": {
+                    "__schema": {
+                        "__container": true,
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__path": "/root/tupperware/outer",
+                        "__rootlevel": false
+                    },
+                    "inner": {
+                        "__schema": {
+                            "__container": true,
+                            "__decendentconfig": true,
+                            "__decendentoper": false,
+                            "__path": "/root/tupperware/outer/inner",
+                            "__rootlevel": false
+                        },
+                        "number": {
+                            "__schema": {
+                                "__config": true,
+                                "__leaf": true,
+                                "__listitem": true,
+                                "__listkey": false,
+                                "__path": "/root/tupperware/outer/inner/number",
+                                "__rootlevel": false,
+                                "__type": "uint32"
+                            }
+                        }
+                    }
+                },
+                "outhere": {
+                    "__schema": {
+                        "__container": true,
+                        "__decendentconfig": false,
+                        "__decendentoper": false,
+                        "__path": "/root/tupperware/outhere",
+                        "__rootlevel": false
+                    }
+                }
+            }
+        }
+    },
+    "schema-oper": {
+        "root": {
+            "simplelist": {
+                "__listelement": {
+                    "__schema": {
+                        "__decendentconfig": true,
+                        "__decendentoper": true,
+                        "__elements": {},
+                        "__keys": [
+                            "id"
+                        ],
+                        "__list": true,
+                        "__path": "/root/simplelist",
+                        "__rootlevel": true
+                    },
+                    "id": {
+                        "__schema": {
+                            "__config": true,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": true,
+                            "__path": "/root/simplelist/__listelement/id",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    },
+                    "operval": {
+                        "__schema": {
+                            "__config": false,
+                            "__leaf": true,
+                            "__listitem": true,
+                            "__listkey": false,
+                            "__path": "/root/simplelist/__listelement/operval",
+                            "__rootlevel": false,
+                            "__type": "string"
+                        }
+                    }
+                }
+            },
+            "simpleoper": {
+                "__schema": {
+                    "__config": false,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/simpleoper",
+                    "__rootlevel": true,
+                    "__type": "string"
+                }
+            },
+            "stackedlists": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": false,
+                    "__path": "/root/stackedlists",
+                    "__rootlevel": true
+                },
+                "lista": {
+                    "__listelement": {
+                        "__schema": {
+                            "__decendentconfig": true,
+                            "__decendentoper": false,
+                            "__elements": {},
+                            "__keys": [
+                                "keya"
+                            ],
+                            "__list": true,
+                            "__path": "/root/stackedlists/lista",
+                            "__rootlevel": false
+                        },
+                        "keya": {
+                            "__schema": {
+                                "__config": true,
+                                "__leaf": true,
+                                "__listitem": true,
+                                "__listkey": true,
+                                "__path": "/root/stackedlists/lista/__listelement/keya",
+                                "__rootlevel": false,
+                                "__type": "string"
+                            }
+                        },
+                        "listb": {
+                            "__listelement": {
+                                "__schema": {
+                                    "__decendentconfig": true,
+                                    "__decendentoper": false,
+                                    "__elements": {},
+                                    "__keys": [
+                                        "keyb"
+                                    ],
+                                    "__list": true,
+                                    "__path": "/root/stackedlists/lista/__listelement/listb",
+                                    "__rootlevel": false
+                                },
+                                "keyb": {
+                                    "__schema": {
+                                        "__config": true,
+                                        "__leaf": true,
+                                        "__listitem": true,
+                                        "__listkey": true,
+                                        "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
+                                        "__rootlevel": false,
+                                        "__type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "tupperware": {
+                "__schema": {
+                    "__container": true,
+                    "__decendentconfig": true,
+                    "__decendentoper": true,
+                    "__path": "/root/tupperware",
+                    "__rootlevel": true
+                },
+                "oper": {
+                    "__schema": {
+                        "__config": false,
+                        "__leaf": true,
+                        "__listitem": true,
+                        "__listkey": false,
+                        "__path": "/root/tupperware/oper",
+                        "__rootlevel": false,
+                        "__type": "string"
+                    }
+                },
+                "outer": {
+                    "__schema": {
+                        "__container": true,
+                        "__decendentconfig": true,
+                        "__decendentoper": false,
+                        "__path": "/root/tupperware/outer",
+                        "__rootlevel": false
+                    },
+                    "inner": {
+                        "__schema": {
+                            "__container": true,
+                            "__decendentconfig": true,
+                            "__decendentoper": false,
+                            "__path": "/root/tupperware/outer/inner",
+                            "__rootlevel": false
+                        }
+                    }
+                },
+                "outhere": {
+                    "__schema": {
+                        "__container": true,
+                        "__decendentconfig": false,
+                        "__decendentoper": false,
+                        "__path": "/root/tupperware/outhere",
+                        "__rootlevel": false
+                    }
+                }
+            }
+        }
+    }
+}""")
+        config_response = DummyResponse('')
+        oper_response = DummyResponse('')
+            
+        requests_get_mock.side_effect = [
+            discover_response,
+            config_response,
+            oper_response,
+            config_response,
+            oper_response
+        ]
+        self.subject.map = {}
+        
+        # Act
+        self.subject.register_from_web('http://localhost:8000')
+
+        # Assert
+        self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'] )
+class DummyResponse:
+    def __init__(self, text):
+        self.text=text
 
