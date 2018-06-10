@@ -15,7 +15,7 @@ class TestWrapperForData(unittest.TestCase):
         self.subject.register('/tupperware')
         self.subject.register('/simplelist')
 
-    def donttest_create_thing_one(self):
+    def test_create_thing_one(self):
 
         print('********')
         print(self.subject.config.db, 'root instance')
@@ -23,8 +23,6 @@ class TestWrapperForData(unittest.TestCase):
         print(self.subject.config.db['root']['tupperware'], 'tupperware')
         print(self.subject.config.db['root']['simplelist'], 'simplelist')
         print(self.subject.config.db)
-        # So far we should be able to merge things like this
-        # to have one view over lots of pyconfhoard datastore instances
 
         x=self.subject.config.db['root']['tupperware']
         x.set('/root/tupperware/config', 'plastic', separator='/')
@@ -32,17 +30,25 @@ class TestWrapperForData(unittest.TestCase):
         print(x.keyval)
         print('********')
         self.assertFalse(self.subject.config.db is self.subject.config.db['root']['tupperware'])
-        #iself.subject.register('/tupperware', self.thing1.config, self.thing1.oper)
 
-    def donttest_list(self):
-        self.subject.list('tupperware')
+    def test_list(self):
+        # List is used for auto-complete on things like th ecommand line
+        result = self.subject.list('tupperware')
+        self.assertEqual(result, ['config', 'outer', 'outhere'])
+
+        result = self.subject.list('/tupperware/outer', separator='/')
+        self.assertEqual(result, ['inner'])
+
+        result = self.subject.list('/', separator='/')
+        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+
         try:
             self.subject.list('carboard')
             self.fail('PyConfHoardDataPathDoesNotExist should have been thrown because we tried to access a non-existant path')
         except PyConfHoardDataPathDoesNotExist as err:
             pass
 
-    def donttest_get_and_set(self):
+    def test_get_and_set(self):
         try:
             self.subject.set('/x123123123', 'this')
             self.fail('We should have had an exception for accessing a non-registered path')
@@ -53,14 +59,14 @@ class TestWrapperForData(unittest.TestCase):
         result = self.subject.get('/tupperware/config', separator='/')
         self.assertEqual('this-value', result)
 
-    def donttest_decode_path_string(self):
+    def test_decode_path_string(self):
         result = decode_path_string('/x/1/2/3{abc}', separator='/')
         self.assertEqual(['root', 'x', '1', '2', '3', '{abc}'], result)
 
         result = decode_path_string('/x/1/2/3{abc}/x{def}', separator='/')
         self.assertEqual(['root', 'x', '1', '2', '3', '{abc}', 'x', '{def}'], result)
 
-    def donttest_list_create(self):
+    def test_list_create(self):
         self.subject.create('/simplelist', ['crystal'], separator='/')
         self.subject.set('/simplelist{crystal}/val', 'maze', separator='/')
         result = self.subject.get('/simplelist{crystal}/id', separator='/')
@@ -68,7 +74,7 @@ class TestWrapperForData(unittest.TestCase):
         result = self.subject.get('/simplelist{crystal}/val', separator='/')
         self.assertEqual(result, 'maze')
 
-    def donttest_load(self):
+    def test_load(self):
         config = """
         {"/root/tupperware/config": "abc123"}
         """
@@ -77,7 +83,7 @@ class TestWrapperForData(unittest.TestCase):
 
     @patch("requests.patch")
     @patch("requests.get")
-    def donttest_load_metadata_from_web(self, requests_get_mock, requests_patch_mock):
+    def test_load_metadata_from_web(self, requests_get_mock, requests_patch_mock):
         discover_response = DummyResponse("""{
     "datastores": {
         "Thing1": {
@@ -446,7 +452,7 @@ class TestWrapperForData(unittest.TestCase):
 
     def test_get_json_struct(self):
         # Build
-        self.donttest_get_and_set()
+        self.test_get_and_set()
         
         # Act
         answer = self.subject.get_database_as_json('/', database='config', separator='/')
