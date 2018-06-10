@@ -154,6 +154,7 @@ class PyConfHoardDatastore:
         """
         Shows structure of the databas
         """
+        self.log.trace('%s LIST' % (path_string))
         path = decode_path_string(path_string, separator)
         return fetch_keys_from_path(self.schema, path)
 
@@ -161,7 +162,7 @@ class PyConfHoardDatastore:
         """
         Return the type of a particular leaf from the model.
         """
-        self.log.trace('%s ?type', path_string)
+        self.log.trace('%s TYPE', path_string)
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/__listelement/', path_string)
         self.log.trace('%s', path_string)

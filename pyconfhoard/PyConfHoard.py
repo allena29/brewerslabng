@@ -6,7 +6,7 @@ import requests
 import warnings
 from requests.auth import HTTPBasicAuth
 from PyConfHoardCommon import decode_path_string
-from PyConfHoardDatastore import PyConfHoardDatastore
+from PyConfHoardDatastore import PyConfHoardDatastore, convert_path_to_slash_string
 from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist,PyConfHoardDataPathNotRegistered
 
 class Data:
@@ -21,21 +21,7 @@ class Data:
     DATASTORE_URL = "/v1/datastore"
     LOG_LEVEL = 3
 
-    def __init__(self, config_schema=None, oper_schema=None):
-        self.config = PyConfHoardDatastore()
-        self.oper = PyConfHoardDatastore()
-        if config_schema:
-            self.config.load_blank_schema(config_schema)
-        if oper_schema:
-            self.oper.load_blank_schema(oper_schema)
-        self.config.readonly = True
-        self.oper.readonly = True
-
-        self.config_schema = config_schema
-        self.oper_schema = oper_schema
-
-        self.map = {}
-
+    def __init__(self, config_schema=None, oper_schema=None):    
         logging.TRACE = 7
         def custom_level_trace(self, message, *args, **kws):
             if self.isEnabledFor(logging.TRACE):
@@ -45,6 +31,25 @@ class Data:
         logging.addLevelName(logging.TRACE, "TRACE")
         logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
         self.log = logging.getLogger('DatastoreFrontend')
+
+        self.config = PyConfHoardDatastore()
+        self.oper = PyConfHoardDatastore()
+        self.log.debug('Configuraton Instance created %s' % (self.config))
+        self.log.debug('Operational Instance created %s' % (self.oper))
+        if config_schema:
+            self.log.debug('Loading schema %s for configuration' % (config_schema))
+            self.config.load_blank_schema(config_schema)
+        if oper_schema:
+            self.log.debug('Loading schema %s for operational' % (oper_schema))
+            self.oper.load_blank_schema(oper_schema)
+        self.config.readonly = True
+        self.oper.readonly = True
+
+        self.config_schema = config_schema
+        self.oper_schema = oper_schema
+
+        self.map = {}
+
 
     def register_from_web(self, server, username="no-security", password="has-been-set"):
         """
@@ -78,39 +83,41 @@ class Data:
 
     def _lookup_datastore(self, path_string, database='config'):
         path = str(decode_path_string(path_string))
-        if path_string in self.map:
+        if convert_path_to_slash_string(path_string) in self.map:
             return self.map[path_string][database]
 
         for data in self.map:
             if path_string[0:len(data)] == data:
                 print('about to use %s for %s' %(data,path_string))
                 return self.map[data][database]
+
         raise PyConfHoardDataPathNotRegistered(path_string)
 
-    def list(self, path_string, separator=' '):
-        self._lookup_datastore(path_string)
+    def list(self, path_string, database=None,  separator=' '):
+        data = self._lookup_datastore(path_string)
+        print ('in list we get data of %s' % (data))
+        if isinstance(path_string, list):
+            path = path_string
+        else:
+            path = decode_path_string(path_string, separator=separator)
 
-        try:
-            return self.config.list(path_string, separator)
-        except:
-            pass
-        try:
-            return self.oper.list(path_string, separator)
-        except:
-            pass
-        
-        raise PyConfHoardDataPathDoesNotExist(path_string) 
+        if database is None or database == 'config':
+            try:
+                print ('a')
+                return self.config.list(path_string, separator)
+                print ('A')
+            except:
+                pass
 
-    def list(self, path_string, separator=' '):
-        try:
-            return self.config.list(path_string, separator)
-        except:
-            pass
-        try:
-            return self.oper.list(path_string, separator)
-        except:
-            pass
-        
+        if database is None or database == 'oper':
+            try:
+                print ('b')
+                return self.oper.list(path_string, separator)
+                print ('B')
+            except:
+                pass
+
+        print ('about to raise')    
         raise PyConfHoardDataPathDoesNotExist(path_string) 
 
     def get(self, path_string, database='config', separator=' '):

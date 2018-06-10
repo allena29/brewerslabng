@@ -33,13 +33,19 @@ class TestWrapperForData(unittest.TestCase):
 
     def test_list(self):
         # List is used for auto-complete on things like th ecommand line
-        result = self.subject.list('tupperware')
+        result = self.subject.list('/tupperware', separator='/')
         self.assertEqual(result, ['config', 'outer', 'outhere'])
 
         result = self.subject.list('/tupperware/outer', separator='/')
         self.assertEqual(result, ['inner'])
 
         result = self.subject.list('/', separator='/')
+        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+        
+        result = self.subject.list(['root'])
+        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+
+        result = self.subject.list([])
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
         try:
@@ -50,7 +56,7 @@ class TestWrapperForData(unittest.TestCase):
 
     def test_get_and_set(self):
         try:
-            self.subject.set('/x123123123', 'this')
+            self.subject.set('/x123123123', 'this', separator='/')
             self.fail('We should have had an exception for accessing a non-registered path')
         except PyConfHoardDataPathNotRegistered as err:
             pass
@@ -448,6 +454,8 @@ class TestWrapperForData(unittest.TestCase):
         expected_patch = """{\n    "/tupperware/config": "bang-bang-your-dead"\n}"""
         self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'] )
         requests_patch_mock.assert_called_once_with(auth=ANY, data=expected_patch, headers={'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running//tupperware")
+        result = self.subject.list([])
+        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
 
     def test_get_json_struct(self):

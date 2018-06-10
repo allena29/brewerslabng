@@ -1,7 +1,7 @@
 import dpath.util
 import re
 
-def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
+def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ignore_root=False):
     """
     This method should always be used to provide safe paths for dpath to work with.
     In particular this will add a fake 'root' element at the begining of the list
@@ -16,11 +16,14 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None):
         regex = re.compile("{([A-Za-z0-9]*)}")
         path = regex.sub('/{\g<1>}', path)
 
-        if not path[0:5] == separator + 'root':
+        if not path[0:5] == separator + 'root' and ignore_root is False:
             path = separator + 'root' + separator + path
         separated = path.split(separator)
     else:
-        if not path[0] == 'root':
+        if len(path) == 0:
+            if ignore_root is False:
+                path.insert(0, 'root')
+        elif not path[0] == 'root' and ignore_root is False:
             path.insert(0, 'root')
         separated = path
     
@@ -61,5 +64,11 @@ def convert_path_to_slash_string(path):
         path_string = ''
         for x in path:
             path_string = path_string + '/' + x
+        if len(path_string) == 0:
+            path_string = '/'
+        elif not path_string[0] == '/':
+            path_string = '/' + path_string
         return path_string
-    return path_string.replace(' ', '/')
+    if not path[0] == '/':
+        path = '/' + path
+    return path.replace(' ', '/')
