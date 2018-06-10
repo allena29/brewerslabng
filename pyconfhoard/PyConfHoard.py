@@ -3,6 +3,8 @@ import json
 import os
 import dpath.util
 import requests
+import warnings
+from requests.auth import HTTPBasicAuth
 from PyConfHoardCommon import decode_path_string
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist,PyConfHoardDataPathNotRegistered
@@ -17,6 +19,7 @@ class Data:
 
     DISCOVER_URL = "/v1/discover"
     DATASTORE_URL = "/v1/datastore"
+    LOG_LEVEL = 3
 
     def __init__(self, config_schema=None, oper_schema=None):
         self.config = PyConfHoardDatastore()
@@ -33,7 +36,17 @@ class Data:
 
         self.map = {}
 
-    def register_from_web(self, server):
+        logging.TRACE = 7
+        def custom_level_trace(self, message, *args, **kws):
+            if self.isEnabledFor(logging.TRACE):
+                self._log(logging.TRACE, message, args, **kws)
+        logging.Logger.trace = custom_level_trace
+        FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.addLevelName(logging.TRACE, "TRACE")
+        logging.basicConfig(level=self.LOG_LEVEL, format=FORMAT)
+        self.log = logging.getLogger('DatastoreFrontend')
+
+    def register_from_web(self, server, username="no-security", password="has-been-set"):
         """
         This method uses a URL to discover the entire schema of the datastore
         and how it has been subdividied. This will then make the relevant calls
@@ -41,15 +54,22 @@ class Data:
 
         There is no similair register_from_file
         """
-        response = requests.get(server + self.DISCOVER_URL).text
+        if username == 'no-security':
+            warnings.warn('Default username/password has been set for reading data')
+        auth = HTTPBasicAuth(username, password)
+
+        response = requests.get(server + self.DISCOVER_URL, auth=auth).text
         discover = json.loads(response)
 
         self.config_schema = discover['schema-config']
         self.oper_schema = discover['schema-oper']
+
         datastores = discover['datastores']
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
-            self.register(metadata['yangpath'], skip_schema_load=True)
+            (config, oper) = self.register(metadata['yangpath'], skip_schema_load=True)
+            config.schema = discover['schema-config']
+            oper.schema = discover['schema-oper']
             self.load_from_web(metadata['yangpath'],
                                 server + self.DATASTORE_URL + '/running/' + metadata['appname'],
                                 server + self.DATASTORE_URL + '/operational/' + metadata['appname'])
@@ -138,6 +158,11 @@ class Data:
 
         thisconfig = PyConfHoardDatastore()
         thisoper = PyConfHoardDatastore()
+        thisconfig.id = path_string
+        thisconfig.config = True
+        thisoper.id = path_string
+        thisoper.config = False
+
         if not skip_schema_load:
             thisconfig.load_blank_schema(self.config_schema)
             thisoper.load_blank_schema(self.oper_schema)
@@ -149,6 +174,32 @@ class Data:
 
         thisconfig.readonly = False
         thisoper.readonly = False
+
+        return (thisconfig, thisoper)
+
+    def persist_to_web(self, server, path_string, username="no-security", password="has-been-set"):
+        """
+        Persist a particular configuration datastore to a web-server running the pyconfhoard
+        REST API.
+
+        At the moment it has been decided to only implement configuration datastores here.
+        The idea is that operational data should be handled locally.
+        """
+        if username == 'no-security':
+            warnings.warn('Default username/password has been set for persisting data')
+
+        auth = HTTPBasicAuth(username, password)
+        headers = {"Content-Type": "application/json"}
+
+        data = self._lookup_datastore(path_string)
+        print('persit - going to use this datastore instance.. %s/%s/%s' % (data,data.id, data.config))
+        print('which has keyvals... %s' %(data.keyval))
+        print(server,self.DATASTORE_URL, data.id)
+        url = server + self.DATASTORE_URL + '/running/' + data.id
+        self.log.info('PERSIST %s (%s keys)' % (url, len(data.keyval)))
+
+        r = requests.patch(url=url, data=json.dumps(data.keyval, indent=4, sort_keys=True),
+                           auth=auth, headers=headers)
 
     def _load(self, path, json_config=None, json_oper=None):
         """
@@ -189,16 +240,20 @@ class Data:
 
         self._load(path, config_incoming, oper_incoming)
 
-    def load_from_web(self, path, url_config=None, url_oper=None):
+    def load_from_web(self, path, url_config=None, url_oper=None, username='no-security', password='has-been-set'):
         """
         Load data from a web URL and merge it into the correct data-store
         """
+        if username == 'no-security':
+            warnings.warn('Default username/password has been set for reading data')
+        auth = HTTPBasicAuth(username, password)
+
         oper_incoming = None
         if url_oper:
-            oper_incoming = requests.get(url_oper).text
+            oper_incoming = requests.get(url_oper, auth=auth).text
         config_incoming = None
         if url_config:
-            config_incoming = requests.get(url_config).text
+            config_incoming = requests.get(url_config, auth=auth).text
 
         self._load(path, config_incoming, oper_incoming)
 

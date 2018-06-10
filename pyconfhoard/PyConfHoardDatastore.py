@@ -34,6 +34,8 @@ class PyConfHoardDatastore:
     LOG_LEVEL = 3
 
     def __init__(self):
+        self.id = ""
+        self.config = True
         self.db = {}
         self.keyval = {}
         self.schema = {}

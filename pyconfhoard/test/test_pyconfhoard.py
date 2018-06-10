@@ -2,14 +2,14 @@ import unittest
 import json
 import sys
 import dpath.util
-from mock import patch
+from mock import patch, ANY
 sys.path.append('test')
 from PyConfHoard import Data, Thing
 from PyConfHoardCommon import decode_path_string
 from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardDataPathDoesNotExist, PyConfHoardDataPathNotRegistered
 
 
-class TestYang(unittest.TestCase):
+class TestWrapperForData(unittest.TestCase):
     def setUp(self):
         self.subject = Data('test/schema-config.json', 'test/schema-oper.json')
         self.subject.register('/tupperware')
@@ -75,8 +75,9 @@ class TestYang(unittest.TestCase):
         self.subject._load('/tupperware', config)
         self.assertEqual(self.subject.get('/tupperware/config', separator='/'), 'abc123')
 
+    @patch("requests.patch")
     @patch("requests.get")
-    def test_load_metadata_from_web(self, requests_get_mock):
+    def test_load_metadata_from_web(self, requests_get_mock, requests_patch_mock):
         discover_response = DummyResponse("""{
     "datastores": {
         "Thing1": {
@@ -434,9 +435,13 @@ class TestYang(unittest.TestCase):
         
         # Act
         self.subject.register_from_web('http://localhost:8000')
-
+        self.subject.set('/tupperware/config', 'bang-bang-your-dead', separator='/')
+        self.subject.persist_to_web('http://localhost:8000', '/tupperware')
+        
         # Assert
+        expected_patch = """{\n    "/tupperware/config": "bang-bang-your-dead"\n}"""
         self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'] )
+        requests_patch_mock.assert_called_once_with(auth=ANY, data=expected_patch, headers={'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running//tupperware")
 class DummyResponse:
     def __init__(self, text):
         self.text=text

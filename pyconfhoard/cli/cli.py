@@ -9,7 +9,6 @@ from colorama import Fore
 from colorama import Style
 from PyConfHoard import Data
 from cmd2 import Cmd
-from requests.auth import HTTPBasicAuth
 
 
 
@@ -99,35 +98,6 @@ class PyConfHoardCLI(Cmd):
         except Exception as err:
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
             sys.exit(0)
-
-        """
-        # Basic Database - albeit blank
-        self.config.schema = discover['schema-config']
-        self.oper.schema = discover['schema-oper']
-        self.datastores = discover['datastores']
-
-        for datastore in discover['datastores']:
-            metadata = discover['datastores'][datastore]
-
-            # Provide Dirty-flags
-            dflag = self.dirty_flags
-            for yp in metadata['yangpath'].split('/'):
-                if len(yp) > 0:
-                    if yp not in dflag:
-                        dflag[yp] = {}
-                    dflag = dflag[yp]
-
-            msg = 'Loading..<%s>' % (metadata['appname'])
-            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
-            try:
-                self.pyconfhoarddata.load_from_web(metadata['yangpath'],
-                                                   '%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname']),
-                                                   '%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname']))
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-            except Exception as err:
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
-                raise err
-        """
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
