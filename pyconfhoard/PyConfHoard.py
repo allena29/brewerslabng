@@ -7,10 +7,10 @@ import warnings
 from requests.auth import HTTPBasicAuth
 from PyConfHoardCommon import decode_path_string
 from PyConfHoardDatastore import PyConfHoardDatastore, convert_path_to_slash_string
-from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist,PyConfHoardDataPathNotRegistered
+from PyConfHoardError import PyConfHoardPathAlreadyRegistered, PyConfHoardDataPathDoesNotExist, PyConfHoardDataPathNotRegistered
+
 
 class Data:
-
 
     """
     This class provides a single interface to data which can be join many things
@@ -21,8 +21,9 @@ class Data:
     DATASTORE_URL = "/v1/datastore"
     LOG_LEVEL = 3
 
-    def __init__(self, config_schema=None, oper_schema=None):    
+    def __init__(self, config_schema=None, oper_schema=None):
         logging.TRACE = 7
+
         def custom_level_trace(self, message, *args, **kws):
             if self.isEnabledFor(logging.TRACE):
                 self._log(logging.TRACE, message, args, **kws)
@@ -34,6 +35,7 @@ class Data:
 
         self.config = PyConfHoardDatastore()
         self.oper = PyConfHoardDatastore()
+        self.log.debug('Data Frontend Instance %s' % (self))
         self.log.debug('Configuraton Instance created %s' % (self.config))
         self.log.debug('Operational Instance created %s' % (self.oper))
         if config_schema:
@@ -50,14 +52,37 @@ class Data:
 
         self.map = {}
 
+    def register_from_data(self, config_schema, oper_schema, datastores={}):
+        """
+        This method can be used in a similair way to register_from_web, however this method
+        requires paths to be registered to be placed in datastores which is a list of 
+        dictionaries.
+
+        e.g.
+
+        { 'thing1': {'yangpath': '/tupperware'} }
+        """
+        self.config_schema = config_schema
+        self.oper_schema = oper_schema
+        
+        self.config.schema = config_schema
+        self.oper.schema = oper_schema
+        for datastore in datastores:
+            metadata = datastores[datastore]
+            self._register(metadata['yangpath'], config_schema, oper_schema)
+
+    def _register(self, path, config_schema, oper_schema):
+        (config, oper) = self.register(path, skip_schema_load=True)
+        self.log.debug('Configuration Path %s instance as %s' % (path, config))
+        self.log.debug('Operational Path %s instance as %s' % (path, oper))
+        config.schema = config_schema
+        oper.schema = oper_schema
 
     def register_from_web(self, server, username="no-security", password="has-been-set"):
         """
         This method uses a URL to discover the entire schema of the datastore
         and how it has been subdividied. This will then make the relevant calls
         to populate the database.
-
-        There is no similair register_from_file
         """
         if username == 'no-security':
             warnings.warn('Default username/password has been set for reading data')
@@ -75,55 +100,30 @@ class Data:
         datastores = discover['datastores']
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
-            (config, oper) = self.register(metadata['yangpath'], skip_schema_load=True)
-            config.schema = discover['schema-config']
-            oper.schema = discover['schema-oper']
+            self._register(metadata['yangpath'], discover['schema-config'], discover['schema-oper'])
             self.load_from_web(metadata['yangpath'],
-                                server + self.DATASTORE_URL + '/running/' + metadata['appname'],
-                                server + self.DATASTORE_URL + '/operational/' + metadata['appname'])
-
-
+                               server + self.DATASTORE_URL + '/running/' + metadata['appname'],
+                               server + self.DATASTORE_URL + '/operational/' + metadata['appname'])
 
     def _lookup_datastore(self, path_string, database='config', separator='/'):
         path = str(decode_path_string(path_string, separator=separator))
-
-        print ('pathstring.... ', path) 
-        print ('path == root ', path == "['root']")
         if path == "['root']":
             if database == 'config':
                 return self.config
             else:
-                print('b')
-        print ('looking for ',path)
+                return self.oper
+
         if convert_path_to_slash_string(path_string) in self.map:
             return self.map[path_string][database]
 
         for data in self.map:
             if path_string[0:len(data)] == data:
-                print('about to use %s for %s' %(data,path_string))
                 return self.map[data][database]
 
         raise PyConfHoardDataPathNotRegistered(path_string)
 
     def list(self, path_string, database=None,  separator=' '):
-
-        print ('|||||||||||||||||||||||||||||||||||||||||||')
-        print(self, '<Data instancet ')
-        print(self.config, '<C Instance ')
-        print(self.oper, '<Oper Instance ')
-        print (self.map)
-        for data in self.map:
-            print ('data....%s' %(data))
-            print ('',self.map[data]['config'])
-            print ('',self.map[data]['config'].db)
-            print ('',self.map[data]['config'].schema.keys())
-            print ('',self.map[data]['oper'])
-            print ('',self.map[data]['oper'].db)
-            print ('',self.map[data]['oper'].schema.keys())
-        print ('|||||||||||||||||||||||||||||||||||||||||||')
-
         data = self._lookup_datastore(path_string, separator=separator)
-        print ('in list we get data of %s' % (data))
         if isinstance(path_string, list):
             path = path_string
         else:
@@ -131,28 +131,23 @@ class Data:
 
         if database is None or database == 'config':
             try:
-                print ('a')
                 return self.config.list(path_string, separator)
-                print ('A')
             except:
                 pass
 
         if database is None or database == 'oper':
             try:
-                print ('b')
                 return self.oper.list(path_string, separator)
-                print ('B')
             except:
                 pass
 
-        print ('about to raise')    
-        raise PyConfHoardDataPathDoesNotExist(path_string) 
+        raise PyConfHoardDataPathDoesNotExist(path_string)
 
     def get(self, path_string, database='config', separator=' '):
         data = self._lookup_datastore(path_string, database)
         return data.get(path_string, separator)
 
-        raise PyConfHoardDataPathDoesNotExist(path_string) 
+        raise PyConfHoardDataPathDoesNotExist(path_string)
 
     def set_from_string(self, full_string, database='config', command=''):
         """
@@ -171,8 +166,6 @@ class Data:
         the operational datastore instead.
         """
         data = self._lookup_datastore(path_string, database)
-        print ('###################### db used in set', data)
-        print('using instnace %s for setting data' % (data))
         data.set(path_string, set_val, separator)
 
     def create(self, path_string, list_key, database='config', separator=' '):
@@ -228,9 +221,6 @@ class Data:
         headers = {"Content-Type": "application/json"}
 
         data = self._lookup_datastore(path_string)
-        print('persit - going to use this datastore instance.. %s/%s/%s' % (data,data.id, data.config))
-        print('which has keyvals... %s' %(data.keyval))
-        print(server,self.DATASTORE_URL, data.id)
         url = server + self.DATASTORE_URL + '/running/' + data.id
         self.log.info('PERSIST %s (%s keys)' % (url, len(data.keyval)))
 
@@ -246,7 +236,7 @@ class Data:
         """
         if path not in self.map:
             raise PyConfHoardDataPathNotRegistered(path)
-    
+
         if json_config:
             config = json.loads(json_config)
             datastore = self._lookup_datastore(path, database='config')
@@ -256,7 +246,6 @@ class Data:
             oper = json.loads(json_oper)
             datastore = self._lookup_datastore(path, database='oper')
             datastore._merge_keyvals(oper)
-
 
     def load_from_filesystem(self, path, filepath_config=None, filepath_oper=None):
         """
@@ -303,7 +292,7 @@ class Data:
             else:
                 db = self.map[data]['oper']
 
-            path_to_sub_datastore =decode_path_string(data, separator='/')
+            path_to_sub_datastore = decode_path_string(data, separator='/')
             try:
                 data_from_sub_datastore = dpath.util.get(db.db, path_to_sub_datastore)
                 dpath.util.new(answer, path_to_sub_datastore, data_from_sub_datastore)
@@ -354,7 +343,6 @@ class Thing:
 
         self.log.info('PyConfHoard Started %s' % (self))
 
-
     def _open_stored_config(self):
         working_directory = os.getcwd()
         datastore = '../../datastore'
@@ -379,8 +367,6 @@ class Thing:
             o = open('%s/startup/%s.pch' % (datastore, self.APPNAME))
             json_str = o.read()
             o.close()
-            print('TODO merge required here')
-            print('After tha we should overwrite running')
 
         if not os.path.exists('%s/operational/%s.pch' % (datastore, self.APPNAME)):
             self.log.info('No existing opdata... providing empty schema')

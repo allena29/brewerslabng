@@ -24,7 +24,7 @@ class TestWrapperForData(unittest.TestCase):
         print(self.subject.config.db['root']['simplelist'], 'simplelist')
         print(self.subject.config.db)
 
-        x=self.subject.config.db['root']['tupperware']
+        x = self.subject.config.db['root']['tupperware']
         x.set('/root/tupperware/config', 'plastic', separator='/')
         print(x)
         print(x.keyval)
@@ -41,7 +41,7 @@ class TestWrapperForData(unittest.TestCase):
 
         result = self.subject.list('/', separator='/')
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
-        
+
         result = self.subject.list(['root'])
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
@@ -441,7 +441,7 @@ class TestWrapperForData(unittest.TestCase):
 }""")
         config_response = DummyResponse('')
         oper_response = DummyResponse('')
-            
+
         requests_get_mock.side_effect = [
             discover_response,
             config_response,
@@ -450,27 +450,27 @@ class TestWrapperForData(unittest.TestCase):
             oper_response
         ]
         self.subject.map = {}
-        
+
         # Act
         self.subject.register_from_web('http://localhost:8000')
         self.subject.set('/tupperware/config', 'bang-bang-your-dead', separator='/')
         self.subject.persist_to_web('http://localhost:8000', '/tupperware')
-        
+
         # Assert
         expected_patch = """{\n    "/tupperware/config": "bang-bang-your-dead"\n}"""
-        self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'] )
-        requests_patch_mock.assert_called_once_with(auth=ANY, data=expected_patch, headers={'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running//tupperware")
+        self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'])
+        requests_patch_mock.assert_called_once_with(auth=ANY, data=expected_patch, headers={
+                                                    'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running//tupperware")
         result = self.subject.list([])
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
-
 
     def test_get_json_struct(self):
         # Build
         self.test_get_and_set()
-        
+
         # Act
         answer = self.subject.get_database_as_json('/', database='config', separator='/')
-        
+
         # Assert
         expected_answer = """{
     "root": {
@@ -484,7 +484,7 @@ class TestWrapperForData(unittest.TestCase):
     def test_get_json_struct2(self):
         # Act
         answer = self.subject.get_database_as_json('/', database='config', separator='/', pretty=True)
-        
+
         # Assert
         expected_answer = """Database is blank!"""
         self.assertEqual(expected_answer, answer)
@@ -492,5 +492,4 @@ class TestWrapperForData(unittest.TestCase):
 
 class DummyResponse:
     def __init__(self, text):
-        self.text=text
-
+        self.text = text

@@ -1,6 +1,7 @@
 import dpath.util
 import re
 
+
 def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ignore_root=False):
     """
     This method should always be used to provide safe paths for dpath to work with.
@@ -26,7 +27,6 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ign
         elif not path[0] == 'root' and ignore_root is False:
             path.insert(0, 'root')
         separated = path
-    
 
     seplen = len(separated)
     # Remove anything which is a null string

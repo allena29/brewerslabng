@@ -12,7 +12,6 @@ from PyConfHoardCommon import decode_path_string, convert_path_to_slash_string
 from cmd2 import Cmd
 
 
-
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
@@ -82,12 +81,6 @@ class PyConfHoardCLI(Cmd):
         # need some kind of refresh mechanism for opdata/config
         if not no_networking:
             self._load_datastores()
-
-        print ('starting data**************************')
-        print (self.pyconfhoarddata.config.db)
-        print (self.pyconfhoarddata.config.schema)
-        print (self.pyconfhoarddata.oper.schema)
-        print (self.pyconfhoarddata.oper.db)
 
     def _load_datastores(self):
         """
@@ -185,20 +178,20 @@ class PyConfHoardCLI(Cmd):
                 path_to_find = decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements,
                                                   ignore_root=True)
                 slash_path = convert_path_to_slash_string(path_to_find)
-                print (slash_path, '<--- slash path %s' %(self.pyconfhoarddata))
+
                 xcmds = self.pyconfhoarddata.list(path_to_find, separator='/')
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
             except Exception as err:
-                print (traceback.format_exc())
-                print (str(err)),'<auto-complete inner'
+                # print(traceback.format_exc())
+                # print(str(err)), '<auto-complete inner'
                 pass
             cmds.sort()
         except Exception as err:
-            print (traceback.format_exc())
-            print (str(err))
+            # print(traceback.format_exc())
+            # print(str(err))
             pass
         return cmds
 
@@ -250,7 +243,6 @@ class PyConfHoardCLI(Cmd):
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
             return self._auto_complete(line, text, 'set ', config=True, filter_blank_values=False)
-
 
     def _command_commit(self, args):
         'Save configuration to the database'

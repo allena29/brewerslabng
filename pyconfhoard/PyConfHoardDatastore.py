@@ -149,7 +149,6 @@ class PyConfHoardDatastore:
 
         dpath.util.merge(self.db, payload)
 
-
     def list(self, path_string, separator=' '):
         """
         Shows structure of the databas
