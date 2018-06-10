@@ -66,3 +66,11 @@ class TestYang(unittest.TestCase):
         self.assertEqual(result, 'crystal')
         result = self.subject.get('/simplelist{crystal}/val', separator='/')
         self.assertEqual(result, 'maze')
+
+    def test_load(self):
+        config = """
+        {"/root/tupperware/config": "abc123"}
+        """
+        self.subject._load('/tupperware', config)
+        self.assertEqual(self.subject.get('/tupperware/config', separator='/'), 'abc123')
+

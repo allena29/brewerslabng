@@ -7,7 +7,7 @@ import json
 import requests
 from colorama import Fore
 from colorama import Style
-from PyConfHoardDatastore import PyConfHoardDatastore
+from PyConfHoard import Data
 from cmd2 import Cmd
 from requests.auth import HTTPBasicAuth
 
@@ -72,8 +72,9 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
-        self.oper  = PyConfHoardDatastore()
-        self.config = PyConfHoardDatastore()
+        self.pyconfhoarddata = Data()
+        self.oper = self.pyconfhoarddata.oper
+        self.config = self.pyconfhoarddata.config
 
         self.dirty_flags = {}
         self.dirty_flag = False
@@ -116,29 +117,16 @@ class PyConfHoardCLI(Cmd):
                         dflag[yp] = {}
                     dflag = dflag[yp]
 
-            msg = 'Loading..<OPER:%s>' % (metadata['appname'])
+            msg = 'Loading..<%s>' % (metadata['appname'])
             PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
             try:
-                response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
-                if len(response):
-                    operdata = json.loads(response)
-                    self.oper._merge_direct_to_root(operdata)
+                self.pyconfhoarddata.load_from_web(metadata['yangpath'],
+                                                   '%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname']),
+                                                   '%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname']))
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
             except Exception as err:
                 PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
                 raise err
-
-            config = {}
-            msg = 'Loading..<CFG:%s>' % (metadata['appname'])
-            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
-            try:
-                response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
-                if len(response):
-                    config = json.loads(response)
-                    self.config._merge_direct_to_root(config)
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-            except Exception as err:
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
 
 
     def _exit_conf_mode(self):

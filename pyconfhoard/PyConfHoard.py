@@ -2,6 +2,7 @@ import logging
 import json
 import os
 import dpath.util
+import requests
 from PyConfHoardCommon import decode_path_string
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardError import PyConfHoardPathAlreadyRegistered,PyConfHoardDataPathDoesNotExist,PyConfHoardDataPathNotRegistered
@@ -14,11 +15,13 @@ class Data:
     into a consistent view.
     """
 
-    def __init__(self, config_schema, oper_schema):
+    def __init__(self, config_schema=None, oper_schema=None):
         self.config = PyConfHoardDatastore()
         self.oper = PyConfHoardDatastore()
-        self.config.load_blank_schema(config_schema)
-        self.oper.load_blank_schema(oper_schema)
+        if config_schema:
+            self.config.load_blank_schema(config_schema)
+        if oper_schema:
+            self.oper.load_blank_schema(oper_schema)
         self.config.readonly = True
         self.oper.readonly = True
 
@@ -51,7 +54,6 @@ class Data:
             pass
         
         raise PyConfHoardDataPathDoesNotExist(path_string) 
-
 
     def list(self, path_string, separator=' '):
         try:
@@ -121,12 +123,57 @@ class Data:
         thisconfig.readonly = False
         thisoper.readonly = False
 
-    def load_from_filesystem(self, path):
-        pass
+    def _load(self, path, json_config=None, json_oper=None):
+        """
+        This internal methods takes a path of the database along with 
+        json strings for the configuration and operational data.
 
-    def load_from_web(self, path):
-#        self. load_from_keyvals
-        pass
+        The data here must be keyval pairs
+        """
+        if path not in self.map:
+            raise PyConfHoardDataPathNotRegistered(path)
+    
+        if json_config:
+            config = json.loads(json_config)
+            datastore = self._lookup_datastore(path, database='config')
+            datastore._merge_keyvals(config)
+
+        if json_oper:
+            oper = json.loads(json_oper)
+            datastore = self._lookup_datastore(path, database='oper')
+            datastore._merge_keyvals(oper)
+
+
+    def load_from_filesystem(self, path, filepath_config=None, filepath_oper=None):
+        """
+        Load data from a file system path and merge it into the correct data-store.
+        """
+        config_incoming = None
+        if filepath_config:
+            f = open(filepath_config)
+            config_incoming = f.read()
+            f.close()
+
+        oper_incoming = None
+        if filepath_oper:
+            f = open(filepath_oper)
+            oper_incoming = f.read()
+            f.close()
+
+        self._load(path, config_incoming, oper_incoming)
+
+    def load_from_web(self, path, url_config=None, url_oper=None):
+        """
+        Load data from a web URL and merge it into the correct data-store
+        """
+        oper_incoming = None
+        if url_oper:
+            oper_incoming = requests.get(url_oper).text
+        config_incoming = None
+        if url_config:
+            config_incoming = requests.get(url_config).text
+
+        self._load(path, config_incoming, oper_incoming)
 
 
 class Thing:

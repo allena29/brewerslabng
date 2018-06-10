@@ -64,7 +64,9 @@ class PyConfHoardDatastore:
         keyval_file = open(keyval_file)
         keyvals = json.loads(keyval_file.read())
         keyval_file.close()
+        self._merge_keyvals(keyvals)
 
+    def _merge_keyvals(self, keyvals):
         for keyval in keyvals:
             self._merge_keyval(keyval, keyvals[keyval])
 
