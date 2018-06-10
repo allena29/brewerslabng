@@ -8,7 +8,7 @@ import requests
 from colorama import Fore
 from colorama import Style
 from PyConfHoard import Data
-from PyConfHoardCommon import decode_path_string
+from PyConfHoardCommon import decode_path_string, convert_path_to_slash_string
 from cmd2 import Cmd
 
 
@@ -17,7 +17,7 @@ class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
     SERVER = 'http://127.0.0.1:8000'
-    LOG_LEVEL = logging.CRITICAL
+    LOG_LEVEL = 5
 
     def __init__(self, no_networking=False):
         Cmd.__init__(self)
@@ -83,6 +83,11 @@ class PyConfHoardCLI(Cmd):
         if not no_networking:
             self._load_datastores()
 
+        print ('starting data**************************')
+        print (self.pyconfhoarddata.config.db)
+        print (self.pyconfhoarddata.config.schema)
+        print (self.pyconfhoarddata.oper.schema)
+        print (self.pyconfhoarddata.oper.db)
 
     def _load_datastores(self):
         """
@@ -165,11 +170,10 @@ class PyConfHoardCLI(Cmd):
 
 
         """
-
-        if config is True:
-            db = self.config
+        if config:
+            database = 'config'
         else:
-            db = self.oper
+            database = 'oper'
 
         try:
             strip_partial_elements = 0
@@ -178,24 +182,29 @@ class PyConfHoardCLI(Cmd):
             try:
                 if not text == '':
                     strip_partial_elements = 1
-                path_to_find = db.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                xcmds = db.list(path_to_find)
+                path_to_find = decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements,
+                                                  ignore_root=True)
+                slash_path = convert_path_to_slash_string(path_to_find)
+                print (slash_path, '<--- slash path %s' %(self.pyconfhoarddata))
+                xcmds = self.pyconfhoarddata.list(path_to_find, separator='/')
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except ImportError as err:
+            except Exception as err:
+                print (traceback.format_exc())
+                print (str(err)),'<auto-complete inner'
                 pass
             cmds.sort()
         except Exception as err:
-            #print (str(err))
+            print (traceback.format_exc())
+            print (str(err))
             pass
         return cmds
 
     # Show Command
     def _command_oper_show(self, args):
         'Show node in the operational database'
-        print (args,'<oper')
         path = decode_path_string(args)
         try:
             print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
@@ -205,7 +214,6 @@ class PyConfHoardCLI(Cmd):
 
     def _command_conf_show(self, args):
         'Show node in the configuration database'
-        print (args,'<show')
         path = decode_path_string(args)
         try:
             print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))

@@ -69,6 +69,9 @@ class Data:
         self.config_schema = discover['schema-config']
         self.oper_schema = discover['schema-oper']
 
+        self.config.schema = discover['schema-config']
+        self.oper.schema = discover['schema-oper']
+
         datastores = discover['datastores']
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
@@ -81,8 +84,17 @@ class Data:
 
 
 
-    def _lookup_datastore(self, path_string, database='config'):
-        path = str(decode_path_string(path_string))
+    def _lookup_datastore(self, path_string, database='config', separator='/'):
+        path = str(decode_path_string(path_string, separator=separator))
+
+        print ('pathstring.... ', path) 
+        print ('path == root ', path == "['root']")
+        if path == "['root']":
+            if database == 'config':
+                return self.config
+            else:
+                print('b')
+        print ('looking for ',path)
         if convert_path_to_slash_string(path_string) in self.map:
             return self.map[path_string][database]
 
@@ -94,7 +106,23 @@ class Data:
         raise PyConfHoardDataPathNotRegistered(path_string)
 
     def list(self, path_string, database=None,  separator=' '):
-        data = self._lookup_datastore(path_string)
+
+        print ('|||||||||||||||||||||||||||||||||||||||||||')
+        print(self, '<Data instancet ')
+        print(self.config, '<C Instance ')
+        print(self.oper, '<Oper Instance ')
+        print (self.map)
+        for data in self.map:
+            print ('data....%s' %(data))
+            print ('',self.map[data]['config'])
+            print ('',self.map[data]['config'].db)
+            print ('',self.map[data]['config'].schema.keys())
+            print ('',self.map[data]['oper'])
+            print ('',self.map[data]['oper'].db)
+            print ('',self.map[data]['oper'].schema.keys())
+        print ('|||||||||||||||||||||||||||||||||||||||||||')
+
+        data = self._lookup_datastore(path_string, separator=separator)
         print ('in list we get data of %s' % (data))
         if isinstance(path_string, list):
             path = path_string

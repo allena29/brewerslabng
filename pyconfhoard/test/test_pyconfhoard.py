@@ -49,9 +49,15 @@ class TestWrapperForData(unittest.TestCase):
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
         try:
-            self.subject.list('carboard')
+            self.subject.list('/tupperware/inside/carboard', separator='/')
             self.fail('PyConfHoardDataPathDoesNotExist should have been thrown because we tried to access a non-existant path')
         except PyConfHoardDataPathDoesNotExist as err:
+            pass
+
+        try:
+            self.subject.list('carboard')
+            self.fail('PyConfHoardDataPathNotRegisrered should have been thrown because we tried to access a non-existant path')
+        except PyConfHoardDataPathNotRegistered as err:
             pass
 
     def test_get_and_set(self):
