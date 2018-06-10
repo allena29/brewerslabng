@@ -185,13 +185,13 @@ class PyConfHoardCLI(Cmd):
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
             except Exception as err:
-                # print(traceback.format_exc())
-                # print(str(err)), '<auto-complete inner'
+                print(traceback.format_exc())
+                print(str(err)), '<auto-complete inner'
                 pass
             cmds.sort()
         except Exception as err:
-            # print(traceback.format_exc())
-            # print(str(err))
+            print(traceback.format_exc())
+            print(str(err))
             pass
         return cmds
 

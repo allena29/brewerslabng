@@ -2,7 +2,8 @@ import dpath.util
 import re
 
 
-def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ignore_root=False):
+def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ignore_root=False,
+                       return_as_slash=False):
     """
     This method should always be used to provide safe paths for dpath to work with.
     In particular this will add a fake 'root' element at the begining of the list
@@ -41,10 +42,14 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ign
             pass
 
     if isinstance(get_index, int):
-        return separated[get_index]
+        return return_in_the_format(separated[get_index], return_as_slash)
 
-    return separated
+    return return_in_the_format(separated, return_as_slash)
 
+def return_in_the_format(path_as_list, return_as_slash=False):
+    if return_as_slash:
+        return convert_path_to_slash_string(path_as_list)
+    return path_as_list
 
 def fetch_keys_from_path(obj, path):
     result = []
@@ -71,4 +76,4 @@ def convert_path_to_slash_string(path):
         return path_string
     if not path[0] == '/':
         path = '/' + path
-    return path.replace(' ', '/')
+    return str(path.replace(' ', '/'))

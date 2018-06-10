@@ -69,10 +69,10 @@ class Data:
         self.oper.schema = oper_schema
         for datastore in datastores:
             metadata = datastores[datastore]
-            self._register(metadata['yangpath'], config_schema, oper_schema)
+            self._register(metadata['yangpath'], metadata['appname'], config_schema, oper_schema)
 
-    def _register(self, path, config_schema, oper_schema):
-        (config, oper) = self.register(path, skip_schema_load=True)
+    def _register(self, path, appname, config_schema, oper_schema):
+        (config, oper) = self.register(path, appname, skip_schema_load=True)
         self.log.debug('Configuration Path %s instance as %s' % (path, config))
         self.log.debug('Operational Path %s instance as %s' % (path, oper))
         config.schema = config_schema
@@ -100,30 +100,34 @@ class Data:
         datastores = discover['datastores']
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
-            self._register(metadata['yangpath'], discover['schema-config'], discover['schema-oper'])
+            self._register(metadata['yangpath'], metadata['appname'], discover['schema-config'], discover['schema-oper'])
             self.load_from_web(metadata['yangpath'],
                                server + self.DATASTORE_URL + '/running/' + metadata['appname'],
                                server + self.DATASTORE_URL + '/operational/' + metadata['appname'])
 
     def _lookup_datastore(self, path_string, database='config', separator='/'):
-        path = str(decode_path_string(path_string, separator=separator))
-        if path == "['root']":
+        path = decode_path_string(path_string, separator=separator, return_as_slash=True)
+
+        print (path)
+        if path == "/root":
             if database == 'config':
                 return self.config
             else:
                 return self.oper
 
-        if convert_path_to_slash_string(path_string) in self.map:
-            return self.map[path_string][database]
+        if path in self.map:
+            return self.map[path][database]
 
         for data in self.map:
-            if path_string[0:len(data)] == data:
+            path_trimmed = path[0:len(data)]
+            if path_trimmed == data:
                 return self.map[data][database]
 
         raise PyConfHoardDataPathNotRegistered(path_string)
 
     def list(self, path_string, database=None,  separator=' '):
         data = self._lookup_datastore(path_string, separator=separator)
+        self.log.trace('Using instance %s for list operation' % (data))
         if isinstance(path_string, list):
             path = path_string
         else:
@@ -175,7 +179,7 @@ class Data:
         data = self._lookup_datastore(path_string, database)
         data.create(path_string, list_key, separator)
 
-    def register(self, path_string, readonly=False, skip_schema_load=False):
+    def register(self, path_string, appname, readonly=False, skip_schema_load=False):
         """
         This method will registers a configuration/oper datastores at a specifc
         part of the database.
@@ -187,9 +191,9 @@ class Data:
 
         thisconfig = PyConfHoardDatastore()
         thisoper = PyConfHoardDatastore()
-        thisconfig.id = path_string
+        thisconfig.id = appname
         thisconfig.config = True
-        thisoper.id = path_string
+        thisoper.id = appname
         thisoper.config = False
 
         if not skip_schema_load:

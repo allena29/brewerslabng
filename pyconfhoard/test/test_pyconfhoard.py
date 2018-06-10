@@ -12,8 +12,8 @@ from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf,
 class TestWrapperForData(unittest.TestCase):
     def setUp(self):
         self.subject = Data('test/schema-config.json', 'test/schema-oper.json')
-        self.subject.register('/tupperware')
-        self.subject.register('/simplelist')
+        self.subject.register('/root/tupperware', 'TUPPERWARE')
+        self.subject.register('/root/simplelist', 'SIMPLELIST')
 
     def test_create_thing_one(self):
 
@@ -90,7 +90,7 @@ class TestWrapperForData(unittest.TestCase):
         config = """
         {"/root/tupperware/config": "abc123"}
         """
-        self.subject._load('/tupperware', config)
+        self.subject._load('/root/tupperware', config)
         self.assertEqual(self.subject.get('/tupperware/config', separator='/'), 'abc123')
 
     @patch("requests.patch")
@@ -99,12 +99,12 @@ class TestWrapperForData(unittest.TestCase):
         discover_response = DummyResponse("""{
     "datastores": {
         "Thing1": {
-            "appname": "The plastic container",
-            "yangpath": "/tupperware"
+            "appname": "ThePlasticContainer",
+            "yangpath": "/root/tupperware"
         },
         "Thing2": {
-            "appname": "The thins wil multiple things",
-            "yangpath": "/simplelist"
+            "appname": "TheThingCanContainMoreThings",
+            "yangpath": "/root/simplelist"
         }
     },
     "schema-config": {
@@ -453,14 +453,14 @@ class TestWrapperForData(unittest.TestCase):
 
         # Act
         self.subject.register_from_web('http://localhost:8000')
-        self.subject.set('/tupperware/config', 'bang-bang-your-dead', separator='/')
+        self.subject.set('/root/tupperware/config', 'bang-bang-your-dead', separator='/')
         self.subject.persist_to_web('http://localhost:8000', '/tupperware')
 
         # Assert
-        expected_patch = """{\n    "/tupperware/config": "bang-bang-your-dead"\n}"""
-        self.assertEqual(list(self.subject.map.keys()), ['/tupperware', '/simplelist'])
+        expected_patch = """{\n    "/root/tupperware/config": "bang-bang-your-dead"\n}"""
+        self.assertEqual(list(self.subject.map.keys()), ['/root/tupperware', '/root/simplelist'])
         requests_patch_mock.assert_called_once_with(auth=ANY, data=expected_patch, headers={
-                                                    'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running//tupperware")
+                                                    'Content-Type': 'application/json'}, url="http://localhost:8000/v1/datastore/running/ThePlasticContainer")
         result = self.subject.list([])
         self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
