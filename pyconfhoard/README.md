@@ -71,6 +71,9 @@ The yang file is transformed to `YIN` format (stanard pyang) and then this is tr
 
 ### Datastore
 
+*Note: these examples are outdated... they don't show the extra '/root' level which has been added*
+
+
 #### Python Access
 
 The manipulation of the datastore is the responsibility of `PyConfHoardDataStore` which makes use of the dpath library to provide the navigation. The schema is a straightforward JSON structure. The overall structure of the **user data** is maintained, each container and leaf have a '__schema' leaf whcih provides detail about the node (i.e. it's a config node, it's this type of data).
@@ -144,6 +147,27 @@ Lists are more challenging - the first pass of the datastore embedded the list e
 }    
 ```
 
+#### Key/Value Pairs
+
+The data itself is not stored in the json schema view shown above (although it was in earlier versions). Now the user data itself is stored within simple key/value paris. When an instance of the datastore is launched there are two things that happen.
+
+1. We take the schema (either configuration or operational)
+2. We iterate through the key/value pairs and map it to the schema. 
+  - If we come across any list elements we extend the schema to take account of the new structure (this is done by copying the listelement and transforming the paths).
+  
+
+The syntax of the key/value pairs is shown below, list-keys are denoted in the path surrounded by curly braces.
+
+```
+KEY: /path/to/a/leaf
+VALUE: foo
+
+KEY: /path/to/a/list{listkey}/key
+VALUE: foo
+
+KEY: /path/to/a/list{listkey}/leaf
+VALUE: bar
+```
 
 ##### Lifecycle of the datastores
 
@@ -155,7 +179,12 @@ Lists are more challenging - the first pass of the datastore embedded the list e
 ##### TODO:
 
 
-#### Datastore Operations
+#### Datastore Frontend/Backend
+
+**PyConfHoardDatastore** is the backend, in which there are separate instances for operation and configuration data. Furthermore it is possible to have different providers for different parts of the root datastore.
+
+**PyConfHoard** provides a single Data class, this provides a uniform and consistent view of the database so that configuration operational data appear together. This also provides some methods for loading datastores form files or the REST server.
+
 
 - `get(path)` - returns the __value associated with the node
 - `list(path)` - lists the children (keys) associated with the node
@@ -307,6 +336,55 @@ The server can be started from the pyconfhord dircetory.
 
 ```
 ./launch --rest
+```
+
+#### Discover
+
+The REST server provides a simple discovery mechanim so that consumers can learn about the schema, and how the datastore has been split up `http localhost:8000/v1/discover`
+
+```
+HTTP/1.1 200 OK
+Connection: close
+Date: Sun, 10 Jun 2018 15:38:00 GMT
+Server: gunicorn/19.7.1
+content-length: 13949
+content-type: application/json; charset=UTF-8
+
+{
+    "datastores": {},
+    "schema-config": {
+        "root": {
+            "brewhouse": {
+              .....
+            },
+            "brewlog": {
+            	 .....
+            },
+            "ingredients": {
+              .....
+            },
+            "recipes": {
+				.....
+            }
+        }
+    },
+    "schema-oper": {
+        "root": {
+            "brewhouse": {
+              ......
+            },
+            "brewlog": {
+				.....
+            },
+            "ingredients": {
+    			.....
+            },
+            "recipes": {
+				.....
+            }
+        }
+    }
+}
 ```
 
 An example of fetching config for the Temperature Provider is shown below.

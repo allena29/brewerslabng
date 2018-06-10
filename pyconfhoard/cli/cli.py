@@ -8,6 +8,7 @@ import requests
 from colorama import Fore
 from colorama import Style
 from PyConfHoard import Data
+from PyConfHoardCommon import decode_path_string
 from cmd2 import Cmd
 
 
@@ -93,7 +94,7 @@ class PyConfHoardCLI(Cmd):
         msg = 'Connecting...'
         PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
         try:
-            self.pyconfhoarddata.register_from_web('%s/v1/discover' % (self.SERVER))
+            self.pyconfhoarddata.register_from_web(self.SERVER)
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
@@ -191,28 +192,23 @@ class PyConfHoardCLI(Cmd):
             pass
         return cmds
 
-    def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
-        # todo: this no longer takes a path
-        if config:
-            answer = self.config.dump(remove_root=True)
-        else:
-            answer = self.oper.dump(remove_root=True)
-        if answer == '{}':
-            return 'Database is blank'
-        return(answer)
-
     # Show Command
     def _command_oper_show(self, args):
         'Show node in the operational database'
+        print (args,'<oper')
+        path = decode_path_string(args)
         try:
-            print(self._get_json_cfg_view(args, config=False))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _command_conf_show(self, args):
+        'Show node in the configuration database'
+        print (args,'<show')
+        path = decode_path_string(args)
         try:
-            print(self._get_json_cfg_view(args, config=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -250,19 +246,8 @@ class PyConfHoardCLI(Cmd):
 
     def _command_commit(self, args):
         'Save configuration to the database'
-        # TODO: we have to think about authentication one day
-        auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
-        headers = {"Content-Type": "application/json"}
-        # http patch http://127.0.0.1:8000/v1/datastore/running/TemperatureProvider <patch.json
-        print (headers,auth)
-        print (self.datastores)
         for this_datastore in self.datastores:
-            url = self.SERVER + "/v1/datastore/running/" + this_datastore
-            data = self.config.get_fragment(self.datastores[this_datastore]['yangpath'], separator='/')
-            print ('want to save this data', data)
-            print ('want to save to url', url)
-            r = requests.patch(url=url, data=json.dumps(data, indent=4), auth=auth, headers=headers)
-            print ('status from the http call ' , r.status_code)
+            self.pyconfhoarddata.persist(self.SERVER, self.datastores[this_datastore]['yangpath'])
 
     def do_eof(self, args):
         # Implements CTRL+D

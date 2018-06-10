@@ -136,6 +136,7 @@ class Data:
         the operational datastore instead.
         """
         data = self._lookup_datastore(path_string, database)
+        print ('###################### db used in set', data)
         print('using instnace %s for setting data' % (data))
         data.set(path_string, set_val, separator)
 
@@ -257,6 +258,29 @@ class Data:
 
         self._load(path, config_incoming, oper_incoming)
 
+    def get_database_as_json(self, path_string, database='config', separator='/', pretty=False):
+        answer = {'root': {}}
+        path = decode_path_string(path_string, separator=separator)
+
+        for data in self.map:
+            if database == 'config':
+                db = self.map[data]['config']
+            else:
+                db = self.map[data]['oper']
+
+            path_to_sub_datastore =decode_path_string(data, separator='/')
+            try:
+                data_from_sub_datastore = dpath.util.get(db.db, path_to_sub_datastore)
+                dpath.util.new(answer, path_to_sub_datastore, data_from_sub_datastore)
+            except KeyError:
+                pass
+
+            if pretty:
+                if len(answer['root']) == 0:
+                    return 'Database is blank!'
+                return json.dumps(answer['root'], indent=4, sort_keys=True)
+            return json.dumps(answer, indent=4, sort_keys=True)
+
 
 class Thing:
 
@@ -278,62 +302,62 @@ class Thing:
         self.log = logging.getLogger(self.APPNAME)
         self.log.info('PyConfHoard Init: %s' % (self))
 
+        self.pyconfhoarddata = Data('../../yang/schema-config.json', '../../yang/schema-oper.json')
+        (config, oper) = self.pyconfhoarddata.register(self.PATHPREFIX)
         # Load schema file - must have been generate by yin2json
-        self.config = PyConfHoardDatastore()
-        self.config.load_blank_schema(config_schema)
-        self.oper = PyConfHoardDatastore()
-        self.oper.load_blank_schema(oper_schema)
+        self.config = config
+        self.oper = oper
 
         self.log.info('PyConfHoard Load Default Schema: OK')
 
         if open_stored_config:
             self._open_stored_config()
 
-    def _open_stored_config(self):
-        if open_stored_config:
-            working_directory = os.getcwd()
-            datastore = '../../datastore'
-            if os.path.exists('%s/persist/%s.pch' % (datastore, self.APPNAME)):
-                self.log.info('Loading previous persisted data')
-
-                # Note: we trust when changes are written they are written directly
-                # to persist.... so we always just write to running for clients such
-                # as the CLI to read frmo
-                o = open('%s/persist/%s.pch' % (datastore, self.APPNAME))
-                json_str = o.read()
-                o.close()
-
-                self.config._merge_direct_to_root(json.loads(json_str))
-
-                o = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
-                o.write(self.config.dump())
-                o.close()
-
-            elif os.path.exists('%s/startup/%s.pch' % (datastore, self.APPNAME)):
-                self.log.info('Loading startup default data')
-                o = open('%s/startup/%s.pch' % (datastore, self.APPNAME))
-                json_str = o.read()
-                o.close()
-                print('TODO merge required here')
-                print('After tha we should overwrite running')
-
-            if not os.path.exists('%s/operational/%s.pch' % (datastore, self.APPNAME)):
-                self.log.info('No existing opdata... providing empty schema')
-                opdata = open('%s/operational/%s.pch' % (datastore, self.APPNAME), 'w')
-                opdata.write(self.oper.dump())
-                opdata.close()
-
-            if not os.path.exists('%s/running/%s.pch' % (datastore, self.APPNAME)):
-                self.log.info('No existing running.. providing empty schema')
-                cfgdata = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
-                cfgdata.write(self.config.dump())
-                cfgdata.close()
-
         if hasattr(self, 'setup') and callable(self.setup):
             self.log.info('PyConfHoard Setup %s' % (self))
             self.setup()
 
         self.log.info('PyConfHoard Started %s' % (self))
+
+
+    def _open_stored_config(self):
+        working_directory = os.getcwd()
+        datastore = '../../datastore'
+        if os.path.exists('%s/persist/%s.pch' % (datastore, self.APPNAME)):
+            self.log.info('Loading previous persisted data')
+
+            # Note: we trust when changes are written they are written directly
+            # to persist.... so we always just write to running for clients such
+            # as the CLI to read frmo
+            o = open('%s/persist/%s.pch' % (datastore, self.APPNAME))
+            json_str = o.read()
+            o.close()
+
+            self.config._merge_direct_to_root(json.loads(json_str))
+
+            o = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
+            o.write(self.config.dump())
+            o.close()
+
+        elif os.path.exists('%s/startup/%s.pch' % (datastore, self.APPNAME)):
+            self.log.info('Loading startup default data')
+            o = open('%s/startup/%s.pch' % (datastore, self.APPNAME))
+            json_str = o.read()
+            o.close()
+            print('TODO merge required here')
+            print('After tha we should overwrite running')
+
+        if not os.path.exists('%s/operational/%s.pch' % (datastore, self.APPNAME)):
+            self.log.info('No existing opdata... providing empty schema')
+            opdata = open('%s/operational/%s.pch' % (datastore, self.APPNAME), 'w')
+            opdata.write(self.oper.dump())
+            opdata.close()
+
+        if not os.path.exists('%s/running/%s.pch' % (datastore, self.APPNAME)):
+            self.log.info('No existing running.. providing empty schema')
+            cfgdata = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
+            cfgdata.write(self.config.dump())
+            cfgdata.close()
 
     def get_config(self, path):
         """
