@@ -1,11 +1,4 @@
-def convert_path_to_slash_string(path):
-    if isinstance(path, list):
-        path_string = ''
-        for x in path:
-            path_string = '%s/%s' % (path_string, x)
-        return path_string
-    else:
-        return path_string.replace(' ', '/')
+from PyConfHoardCommon import convert_path_to_slash_string
 
 
 class Error(Exception):
@@ -94,4 +87,38 @@ class PyConfHoardUnhandledUse(Error):
 
     def __init__(self, msg):
         message = msg
+        super().__init__(message)
+
+
+class PyConfHoardPathAlreadyRegistered(Error):
+
+    """ 
+    Raised if we are trying to register the same path for a datastore multiple times
+    """
+
+    def __init__(self, path):
+        message = 'The path %s has already been regsitered' % (path)
+        super().__init__(message)
+
+
+class PyConfHoardDataPathDoesNotExist(Error):
+
+    """
+    Raised if we are trying to access a key of data which does not exist
+    """
+
+    def __init__(self, path):
+        message = 'The path %s does exist' % (path)
+        super().__init__(message)
+
+
+class PyConfHoardDataPathNotRegistered(Error):
+
+    """
+    Raised if we are trying to access a key of data which has
+    not been registered properly by any consumers.
+    """
+
+    def __init__(self, path):
+        message = 'The path %s is not registered' % (path)
         super().__init__(message)

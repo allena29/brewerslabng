@@ -35,7 +35,7 @@ class TestYang(unittest.TestCase):
             self.fail('Accessing / should have thrown AccessNonLeaf exception')
         except PyConfHoardAccessNonLeaf:
             pass
-        
+
         result = self.subject.get_type('/simplelist{sdfsdfsdf}', separator='/')
         self.assertEqual(result['__path'], '/root/simplelist')
 
@@ -53,15 +53,15 @@ class TestYang(unittest.TestCase):
     def test_set_list_element(self):
         list_key_values = ['glow']
         self.subject.create('/simplelist', list_key_values, separator='/')
-        self.subject.set('/simplelist/glow/val', 'in the dark', separator='/')
-    
+        self.subject.set('/simplelist{glow}/val', 'in the dark', separator='/')
+
     def test_dump(self):
         self.test_set_list_element()
         result = self.subject.dump()
         expected_result = """{
     "root": {
         "simplelist": {
-            "glow": {
+            "{glow}": {
                 "id": "glow",
                 "val": "in the dark"
             }
@@ -83,7 +83,7 @@ class TestYang(unittest.TestCase):
         # Build
         schema = {'__schema': {
             '__type': 'string'
-            }
+        }
         }
 
         # Act
@@ -93,7 +93,7 @@ class TestYang(unittest.TestCase):
         # Build
         schema = {'__schema': {
             '__type': 'integer'
-            }
+        }
         }
 
         # Act
@@ -112,13 +112,13 @@ class TestYang(unittest.TestCase):
     def test_persist_list(self):
 
         self.subject.create('simplelist', ['castle'])
-        
+
         result = self.subject.persist()
-        
+
         expected_result = {'simplelist{castle}/id': 'castle'}
         self.assertEqual(result, expected_result)
 
-        expected_result = {'root': {'simplelist': {'castle': {'id': 'castle'}}}}
+        expected_result = {'root': {'simplelist': {'{castle}': {'id': 'castle'}}}}
         self.assertEqual(self.subject.db, expected_result)
 
         expected_result = """{
@@ -139,7 +139,7 @@ class TestYang(unittest.TestCase):
             "__leaf": true,
             "__listitem": true,
             "__listkey": true,
-            "__path": "/root/simplelist/castle/id",
+            "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
             "__type": "string"
         }
@@ -150,13 +150,13 @@ class TestYang(unittest.TestCase):
             "__leaf": true,
             "__listitem": true,
             "__listkey": false,
-            "__path": "/root/simplelist/castle/val",
+            "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
             "__type": "string"
         }
     }
 }"""
-        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['castle'], indent=4, sort_keys=True), expected_result)
+        self.assertEqual(json.dumps(self.subject.schema['root']['simplelist']['{castle}'], indent=4, sort_keys=True), expected_result)
 
     def test_importing_list_values(self):
         key = '/simplelist{castle}/id'
@@ -184,7 +184,7 @@ class TestYang(unittest.TestCase):
             "__leaf": true,
             "__listitem": true,
             "__listkey": true,
-            "__path": "/root/simplelist/castle/id",
+            "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
             "__type": "string"
         }
@@ -195,7 +195,7 @@ class TestYang(unittest.TestCase):
             "__leaf": true,
             "__listitem": true,
             "__listkey": false,
-            "__path": "/root/simplelist/castle/val",
+            "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
             "__type": "string"
         }
@@ -256,7 +256,7 @@ class TestYang(unittest.TestCase):
                 "__leaf": true,
                 "__listitem": true,
                 "__listkey": true,
-                "__path": "/root/stackedlists/lista/bbbb/listb/__listelement/keyb",
+                "__path": "/root/stackedlists/lista{bbbb}/listb/__listelement/keyb",
                 "__rootlevel": false,
                 "__type": "string"
             }
@@ -267,9 +267,15 @@ class TestYang(unittest.TestCase):
 
         # print (actual_result)
         self.assertEqual(actual_result, expected_result)
-        
+
         expected_result = {'/stackedlists/lista{aaaa}/keya': 'AAA', '/stackedlists/lista{aaaa}/listb{bbbb}/keyb': 'BBB'}
         actual_result = self.subject.keyval
 
         self.assertEqual(actual_result, expected_result)
-        
+
+    def test_get_keyval(self):
+        self.test_set_val()
+        self.test_set_list_element()
+        self.assertEqual(self.subject.get_keypath('/simplestleaf'), 'sleep')
+        print(self.subject.keyval)
+        self.assertEqual(self.subject.get_keypath('/simplelist{glow}/val'), 'in the dark')

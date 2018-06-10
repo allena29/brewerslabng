@@ -7,17 +7,16 @@ import json
 import requests
 from colorama import Fore
 from colorama import Style
-from PyConfHoardDatastore import PyConfHoardDatastore
+from PyConfHoard import Data
+from PyConfHoardCommon import decode_path_string, convert_path_to_slash_string
 from cmd2 import Cmd
-from requests.auth import HTTPBasicAuth
-
 
 
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
     SERVER = 'http://127.0.0.1:8000'
-    LOG_LEVEL = logging.CRITICAL
+    LOG_LEVEL = 5
 
     def __init__(self, no_networking=False):
         Cmd.__init__(self)
@@ -72,8 +71,9 @@ class PyConfHoardCLI(Cmd):
 
         self._in_conf_mode = False
 
-        self.oper  = PyConfHoardDatastore()
-        self.config = PyConfHoardDatastore()
+        self.pyconfhoarddata = Data()
+        self.oper = self.pyconfhoarddata.oper
+        self.config = self.pyconfhoarddata.config
 
         self.dirty_flags = {}
         self.dirty_flag = False
@@ -81,7 +81,6 @@ class PyConfHoardCLI(Cmd):
         # need some kind of refresh mechanism for opdata/config
         if not no_networking:
             self._load_datastores()
-
 
     def _load_datastores(self):
         """
@@ -93,53 +92,11 @@ class PyConfHoardCLI(Cmd):
         msg = 'Connecting...'
         PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
         try:
-            response = requests.get('%s/v1/discover' % (self.SERVER)).text
-            discover = json.loads(response)
+            self.pyconfhoarddata.register_from_web(self.SERVER)
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
             sys.exit(0)
-
-        # Basic Database - albeit blank
-        self.config.schema = discover['schema-config']
-        self.oper.schema = discover['schema-oper']
-        self.datastores = discover['datastores']
-
-        for datastore in discover['datastores']:
-            metadata = discover['datastores'][datastore]
-
-            # Provide Dirty-flags
-            dflag = self.dirty_flags
-            for yp in metadata['yangpath'].split('/'):
-                if len(yp) > 0:
-                    if yp not in dflag:
-                        dflag[yp] = {}
-                    dflag = dflag[yp]
-
-            msg = 'Loading..<OPER:%s>' % (metadata['appname'])
-            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
-            try:
-                response = requests.get('%s/v1/datastore/operational/%s' % (self.SERVER, metadata['appname'])).text
-                if len(response):
-                    operdata = json.loads(response)
-                    self.oper._merge_direct_to_root(operdata)
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-            except Exception as err:
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
-                raise err
-
-            config = {}
-            msg = 'Loading..<CFG:%s>' % (metadata['appname'])
-            PyConfHoardCLI.xterm_message(msg, Fore.YELLOW)
-            try:
-                response = requests.get('%s/v1/datastore/running/%s' % (self.SERVER, metadata['appname'])).text
-                if len(response):
-                    config = json.loads(response)
-                    self.config._merge_direct_to_root(config)
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', ''), Fore.GREEN, msg, newline=True)
-            except Exception as err:
-                PyConfHoardCLI.xterm_message(msg.replace('Loading..', 'ERROR! '), Fore.RED, msg, newline=True)
-
 
     def _exit_conf_mode(self):
         self._in_conf_mode = False
@@ -206,11 +163,10 @@ class PyConfHoardCLI(Cmd):
 
 
         """
-
-        if config is True:
-            db = self.config
+        if config:
+            database = 'config'
         else:
-            db = self.oper
+            database = 'oper'
 
         try:
             strip_partial_elements = 0
@@ -219,42 +175,41 @@ class PyConfHoardCLI(Cmd):
             try:
                 if not text == '':
                     strip_partial_elements = 1
-                path_to_find = db.decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements)
-                xcmds = db.list(path_to_find)
+                path_to_find = decode_path_string(line[len(cmd):], ignore_last_n=strip_partial_elements,
+                                                  ignore_root=True)
+                slash_path = convert_path_to_slash_string(path_to_find)
+
+                xcmds = self.pyconfhoarddata.list(path_to_find, separator='/')
                 cmds = []
                 for key in xcmds:
                     if key[0:len(text)] == text:
                         cmds.append(key + ' ')
-            except ImportError as err:
+            except Exception as err:
+                print(traceback.format_exc())
+                print(str(err)), '<auto-complete inner'
                 pass
             cmds.sort()
         except Exception as err:
-            #print (str(err))
+            print(traceback.format_exc())
+            print(str(err))
             pass
         return cmds
-
-    def _get_json_cfg_view(self, path, config=True, filter_blank_values=True):
-        # todo: this no longer takes a path
-        if config:
-            answer = self.config.dump(remove_root=True)
-        else:
-            answer = self.oper.dump(remove_root=True)
-        if answer == '{}':
-            return 'Database is blank'
-        return(answer)
 
     # Show Command
     def _command_oper_show(self, args):
         'Show node in the operational database'
+        path = decode_path_string(args)
         try:
-            print(self._get_json_cfg_view(args, config=False))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
 
     def _command_conf_show(self, args):
+        'Show node in the configuration database'
+        path = decode_path_string(args)
         try:
-            print(self._get_json_cfg_view(args, config=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -289,22 +244,10 @@ class PyConfHoardCLI(Cmd):
         if self._in_conf_mode:
             return self._auto_complete(line, text, 'set ', config=True, filter_blank_values=False)
 
-
     def _command_commit(self, args):
         'Save configuration to the database'
-        # TODO: we have to think about authentication one day
-        auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
-        headers = {"Content-Type": "application/json"}
-        # http patch http://127.0.0.1:8000/v1/datastore/running/TemperatureProvider <patch.json
-        print (headers,auth)
-        print (self.datastores)
         for this_datastore in self.datastores:
-            url = self.SERVER + "/v1/datastore/running/" + this_datastore
-            data = self.config.get_fragment(self.datastores[this_datastore]['yangpath'], separator='/')
-            print ('want to save this data', data)
-            print ('want to save to url', url)
-            r = requests.patch(url=url, data=json.dumps(data, indent=4), auth=auth, headers=headers)
-            print ('status from the http call ' , r.status_code)
+            self.pyconfhoarddata.persist(self.SERVER, self.datastores[this_datastore]['yangpath'])
 
     def do_eof(self, args):
         # Implements CTRL+D

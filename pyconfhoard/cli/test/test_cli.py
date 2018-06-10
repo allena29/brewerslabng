@@ -9,22 +9,14 @@ class TestPyConfHoardCLI(unittest.TestCase):
 
     def setUp(self):
         self.subject = PyConfHoardCLI(no_networking=True)
-        self.subject.config._load_datastores = Mock()
-        self.subject.oper._load_datastores = Mock()
-        self.subject.config.schema = json.loads(open('test/schema-config.json').read())
-        self.subject.oper.schema = json.loads(open('test/schema-oper.json').read())
+        # Manually deal with adding data in without using any files/web
+        with open('test/schema-config.json') as c:
+            conf_schema = json.loads(c.read())
+        with open('test/schema-oper.json') as o:
+            oper_schema = json.loads(o.read())
+        self.subject.pyconfhoarddata.register_from_data(conf_schema, oper_schema,
+                                                        datastores={ 'thing1': {'yangpath': '/root/tupperware', 'appname': 'APPNAME'} })
         self.maxDiff = 10000
-
-    def test_show_of_non_existing_path(self):
-        result = self.subject._get_json_cfg_view('show thisdoesnotexist')
-        expected_result = """Database is blank"""
-        self.assertEqual(result, expected_result)
-
-    def test_show_top_level(self):
-        self.subject.config.set('simplestleaf', 243)
-        result = self.subject._get_json_cfg_view('')
-        result = json.loads(result)
-        self.assertEqual(result['simplestleaf'], 243)
 
     def test_tab_completion_top_level_non_unique_input(self):
         line = 'show tupperware o'
@@ -40,6 +32,22 @@ class TestPyConfHoardCLI(unittest.TestCase):
         cmds = self.subject._auto_complete(line, text)
 
         self.assertEqual(cmds, ['tupperware '])
+
+    def test_tab_completion_top_level_wihtout_input(self):
+        """ Example:
+        2018-06-10 23:42:18,759 - DatastoreFrontend    DEBUG         Data Frontend Instance <PyConfHoard.Data object at 0x104a18fd0>
+        2018-06-10 23:42:18,759 - DatastoreFrontend    DEBUG         Configuraton Instance created <PyConfHoardDatastore.PyConfHoardDatastore object at 0x104a274e0>
+        2018-06-10 23:42:18,759 - DatastoreFrontend    DEBUG         Operational Instance created <PyConfHoardDatastore.PyConfHoardDatastore object at 0x1056edfd0>
+        2018-06-10 23:42:18,760 - DatastoreFrontend    DEBUG         Configuration Path /tupperware instance as <PyConfHoardDatastore.PyConfHoardDatastore object at 0x1056fddd8>
+        2018-06-10 23:42:18,760 - DatastoreFrontend    DEBUG         Operational Path /tupperware instance as <PyConfHoardDatastore.PyConfHoardDatastore object at 0x1056fdda0>
+        2018-06-10 23:42:18,760 - DatastoreFrontend    TRACE         Using instance <PyConfHoardDatastore.PyConfHoardDatastore object at 0x104a274e0> for list operation
+        2018-06-10 23:42:18,760 - DatastoreBackend     TRACE         ['root'] LIST
+        """
+        line = 'show '
+        text = ''
+        cmds = self.subject._auto_complete(line, text)
+
+        self.assertEqual(cmds, ['simplelist ', 'simplestleaf ', 'stackedlists ', 'tupperware '])
 
     def test_tab_completion_mid_level_unique_input_for_something_deep(self):
         line = 'show tupperware outer'
