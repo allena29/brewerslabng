@@ -107,8 +107,6 @@ class Data:
 
     def _lookup_datastore(self, path_string, database='config', separator='/'):
         path = decode_path_string(path_string, separator=separator, return_as_slash=True)
-
-        print (path)
         if path == "/root":
             if database == 'config':
                 return self.config
@@ -126,7 +124,14 @@ class Data:
         raise PyConfHoardDataPathNotRegistered(path_string)
 
     def list(self, path_string, database=None,  separator=' '):
-        data = self._lookup_datastore(path_string, separator=separator)
+        try:
+            data = self._lookup_datastore(path_string, separator=separator)
+        except PyConfHoardDataPathNotRegistered as err:
+            if database == 'config':
+                data = self.config
+            else:
+                data = self.oper
+
         self.log.trace('Using instance %s for list operation' % (data))
         if isinstance(path_string, list):
             path = path_string
@@ -331,7 +336,7 @@ class Thing:
         self.log.info('PyConfHoard Init: %s' % (self))
 
         self.pyconfhoarddata = Data('../../yang/schema-config.json', '../../yang/schema-oper.json')
-        (config, oper) = self.pyconfhoarddata.register(self.PATHPREFIX)
+        (config, oper) = self.pyconfhoarddata.register(self.PATHPREFIX, self.APPNAME)
         # Load schema file - must have been generate by yin2json
         self.config = config
         self.oper = oper
