@@ -9,7 +9,7 @@ import PyConfHoard
 class TemperatureProviderDs18B20(PyConfHoard.Thing):
 
     APPNAME = "TemperatureProvider"
-    PATHPREFIX = "/brewhouse/temperature"
+    PATHPREFIX = "/root/brewhouse/temperature"
 
     """
     This is an example of a basic temperature provider with basic logic
