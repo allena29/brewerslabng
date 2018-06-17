@@ -27,7 +27,7 @@ if not args.thing and not args.rest and not args.cli and not args.debug:
     sys.exit(1)
 
 if args.rest:
-    os.system('gunicorn --reload pyconfhoard.rest.server')
+    os.system('gunicorn -b :8600  --reload pyconfhoard.rest.server')
 elif args.cli:
     os.chdir('pyconfhoard/cli')
     os.system('PYTHONPATH=$PYTHONPATH:../ python cli.py')
