@@ -320,6 +320,7 @@ class Thing:
     LOG_LEVEL = 3
     APPNAME = None
     PATHPREFIX = None
+    DIE = False
 
     def __init__(self, open_stored_config=True, config_schema="../../yang-schema-config.json",
                  oper_schema="../../yang-schema-oper.json"):
@@ -407,6 +408,9 @@ class Thing:
         o = open('../../datastore/registered/%s.pch' % (self.APPNAME), 'w')
         o.write(json.dumps(metadata))
         o.close()
+
+    def should_we_sleep(self):
+        return not self.DIE
 
     def __del__(self):
         self.log.info('PyConfHoard Finished: %s' % (self))

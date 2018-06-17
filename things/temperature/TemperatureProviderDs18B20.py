@@ -153,7 +153,7 @@ class TemperatureProviderDs18B20(PyConfHoard.Thing):
                 time.sleep(1.0)
 
     def start(self):
-        while True:
+        while self.should_we_sleep():
             self.getResult()
             time.sleep(1)
 

@@ -6,6 +6,17 @@ import time
 import threading
 
 
+class thread_thing(threading.Thread):
+
+    def __init__(self, thing):
+        threading.Thread.__init__(self)
+        self.thing = thing
+
+    def run(self):
+        while 1:
+            print (thing,time.ctime())
+            time.sleep(1)
+
 class thread_rest_server(threading.Thread):
 
 
@@ -21,6 +32,8 @@ class thread_rest_server(threading.Thread):
 
 
 def before_all(context):
+    context.things = {}
+
     if 'PYCONF_DATASTORE' in os.environ:
         context.datastore_dir = os.environ['PYCONF_DATASTORE']
         context.port = 8600        
@@ -45,6 +58,10 @@ def before_all(context):
 
 
 def after_all(context):
+    for thing in context.things:
+        print ('Stopping thing.... %s' % (thing))
+        context.things[thing].launch.thing.DIE = True
+
     if 'PYCONF_DATASTORE' not in os.environ:
         print('Closing Rest Server....')
         process = subprocess.Popen('/bin/bash', stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -54,3 +71,5 @@ def after_all(context):
 
         print('Removing datastore from temporary directory')
         shutil.rmtree(context.datastore_dir)
+
+
