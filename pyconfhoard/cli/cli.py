@@ -2,6 +2,7 @@
 import traceback
 import time
 import logging
+import os
 import sys
 import json
 import requests
@@ -15,8 +16,11 @@ from cmd2 import Cmd
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
-    SERVER = 'http://127.0.0.1:8000'
-    LOG_LEVEL = 5
+    PORT = 8600
+    if 'PYCONF_PORT' in os.environ:
+        PORT = os.environ['PYCONF_PORT']
+    SERVER = 'http://127.0.0.1:%s' % (PORT)
+    LOG_LEVEL = 50
 
     def __init__(self, no_networking=False):
         Cmd.__init__(self)
@@ -95,6 +99,8 @@ class PyConfHoardCLI(Cmd):
             self.pyconfhoarddata.register_from_web(self.SERVER)
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
+            print(traceback.format_exc())
+            print(str(err))
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
             sys.exit(0)
 
@@ -227,8 +233,8 @@ class PyConfHoardCLI(Cmd):
         return self._auto_complete(line, text, 'create ', config=True, filter_blank_values=False)
 
     def _command_create(self, args):
-        path_to_list = self.config.decode_path_string(args, ignore_last_n=1)
-        key = self.config.decode_path_string(args, get_index=-1)
+        path_to_list = decode_path_string(args, ignore_last_n=1)
+        key = decode_path_string(args, get_index=-1)
         self.config.create(path_to_list, key)
 
     def _command_delete(self, args):
