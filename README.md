@@ -23,7 +23,7 @@ The best way to see how this project and code behaves is by running the approval
 
 The test harness follows Behaviour Driven Development approach which ensures asserts conditions in response to certain actions.
 
-
+The testharness will create and remove artefacts under a fresh (unique) directory under `/tmp`. At the end of all tests (including failures) this directory will be cleaned up.
 
 ```bash
 beahve
@@ -65,7 +65,18 @@ Took 0m0.000s
 [2018-06-17 00:53:34 +0100] [25815] [INFO] Shutting down: Master
 ```
 
-It is also possible to run the test harness with a pre-existing datastore/rest server with the environment variable `PYCONF_DATASTORE=/tmp/datastore`
+It is also possible to run the test harness with a pre-existing datastore/rest server with the environment variable `env PYCONF_DATASTORE=/tmp/datastore` - the contents of the datastore will remain.
+
+To start a rest server with you can use, this will remove anything left over in /tmp/datastore. When launching the REST server in throwaway mode we don't actually remove the data afterwards - however in most systems we expect that `/tmp/` would be destroyed on reboot.
+
+```
+# Terminal 1
+launch --throwaway
+
+# Terminal 2
+env PYCONF_DATASTORE=/tmp/datastore behave
+```
+
 
 # Things
 
@@ -90,9 +101,3 @@ The temperature itself is shown on the end of the second line, in this case the 
 # Launching - with FAKE directories.
 env FAKE_DS18B20_RESULT_DIR=/tmp/1wire ./launch --thing things/temperature/TemperatureProviderDs18B20.py
 ```
-
-
-
-
-
-
