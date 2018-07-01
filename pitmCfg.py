@@ -33,11 +33,11 @@ class pitmCfg:
 
 
 		# Updated Probe ID's
-		self.hltProbe="28-000003ebc866"
-		self.mashAProbe="28-000003eba86a"
-		self.mashBProbe="28-000003ebccea"
-		self.boilProbe="28-04147059baff"
-		self.fermProbe="28-0315018118ff"
+		self.hltProbe="28-0417c4b010ff"
+		self.mashAProbe="28-0417c4acedff"
+		self.mashBProbe="28-0417c4acedff"
+		self.boilProbe="28-0417c4adeaff"
+		self.fermProbe="28-0417c4aa05ff"
 
 		self.tempProbe="28-04150116e2ff"
 		# Probe Adjutment Tweak
