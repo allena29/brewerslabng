@@ -36,8 +36,9 @@ sudo make install
 # Google protocol buffers
 
 ```bash
-wget https://github.com/google/protobuf/releases/download/v3.5.1/protobuf-all-3.5.1.tar.gz
+git clone https://github.com/google/protobuf.git
 cd protobuf
+./autogen.sh
 ./configure
 make
 sudo make install
@@ -46,13 +47,15 @@ sudo ldconfig
 
 # Protobuf - C bindings
 
-Note: protobuf bindings for C cannot be compiled until the C++ version is installed.
+(https://github.com/protobuf-c/protobuf-c/issues/320)
 
 ```bash
-wget https://github.com/protobuf-c/protobuf-c/releases/download/v1.3.0/protobuf-c-1.3.0.tar.gz
-./confiugre
+sudo apt-get install libboost-all-dev
+git clone https://github.com/protobuf-c/protobuf-c.git
+cd protobuf-c
+./autogen.sh && ./configure --prefix=/usr
 make
-make install
+sudo make install
 ```
 
 
