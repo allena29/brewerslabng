@@ -2,6 +2,7 @@ import unittest
 import json
 import sys
 import dpath.util
+from decimal import Decimal
 sys.path.append('test')
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
@@ -285,3 +286,11 @@ class TestYang(unittest.TestCase):
         self.assertEqual(self.subject.get_keypath('/simplestleaf'), 'sleep')
         print(self.subject.keyval)
         self.assertEqual(self.subject.get_keypath('/simplelist{glow}/val'), 'in the dark')
+
+    def test_decimal64(self):
+        self.subject.set('/complex/dec1', "1.434", separator='/')
+        self.subject.set('/complex/dec2', "1.534", separator='/')
+       
+        self.assertEqual(self.subject.get_keypath('/complex/dec1'), Decimal('1.434'))
+        self.assertEqual(self.subject.get_keypath('/complex/dec2'), Decimal('1.534'))
+

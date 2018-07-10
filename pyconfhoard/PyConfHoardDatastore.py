@@ -91,7 +91,7 @@ class PyConfHoardDatastore:
         else:
             schema = self.schema_by_path[updated_key]
 
-        self.validate_against_schema(schema, val, key)
+        val = self.validate_against_schema(schema, val, key)
 
         dpath.util.new(self.db, updated_key, val)
         self.keyval[key] = val
@@ -121,6 +121,8 @@ class PyConfHoardDatastore:
         dictionary and a value and will validate and provide the
         value back - which may be converted from a string representation
         to a real representation of the data type.
+
+        The key argument is cosmetic only.
         """
         if '__schema' not in schema:
             raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
@@ -221,15 +223,20 @@ class PyConfHoardDatastore:
         
         This function requires a decoded path as a string
         e.g. ['root', 'brewhouse', 'temperature', 'mash', 'setpoint'] -> 65
+
+        TODO: This needs to validate against the schema!
         """
         path_string = convert_path_to_slash_string(path)
         self.log.trace('%s -> %s (separator %s)', path_string, set_val, separator)
         node_type = self.get_type(path_string, '/')
-        self.log.trace('%s SCHEMA %s' % (path_string, node_type))
+
+        self.log.trace('%s VALIDATE %s' % (path_string, node_type))
+        set_val = self.validate_against_schema({'__schema': node_type}, set_val, path_string)
         self.keyval[path_string] = set_val
 
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/{\g<1>}/', path_string)
+
         self.log.trace('updated patH_string inside set %s' % (path_string))
         path = decode_path_string(path_string, separator)
         self.log.trace('%s %s' %(path,set_val))

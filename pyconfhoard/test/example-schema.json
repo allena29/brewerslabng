@@ -240,7 +240,7 @@
                     "__listitem": true,
                     "__type": "decimal64",
                     "__typedef": false,
-                    "__faction-digits": 2,
+                    "__fraction-digits": 2,
                     "__rootlevel": false
                 }
             }

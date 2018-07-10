@@ -161,7 +161,7 @@ class yin_to_json:
                         for subchild in child:
                             for subsubchild in subchild:
                                 if subsubchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}fraction-digits':
-                                    schema_by_tree[child.attrib['name']]['__schema']['__faction-digits'] = int(subsubchild.attrib['value'])
+                                    schema_by_tree[child.attrib['name']]['__schema']['__fraction-digits'] = int(subsubchild.attrib['value'])
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}default':
                         schema_by_tree[child.attrib['name']]['__schema']['__default'] = tmp.attrib['value']
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}config':

@@ -24,7 +24,7 @@
             "dec2": {
                 "__schema": {
                     "__config": true,
-                    "__faction-digits": 2,
+                    "__fraction-digits": 2,
                     "__leaf": true,
                     "__listitem": true,
                     "__listkey": false,
