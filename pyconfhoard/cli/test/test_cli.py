@@ -47,7 +47,7 @@ class TestPyConfHoardCLI(unittest.TestCase):
         text = ''
         cmds = self.subject._auto_complete(line, text)
 
-        self.assertEqual(cmds, ['simplelist ', 'simplestleaf ', 'stackedlists ', 'tupperware '])
+        self.assertEqual(cmds, ['complex ', 'simplelist ', 'simplestleaf ', 'stackedlists ', 'tupperware '])
 
     def test_tab_completion_mid_level_unique_input_for_something_deep(self):
         line = 'show tupperware outer'

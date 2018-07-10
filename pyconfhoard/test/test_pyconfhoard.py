@@ -40,13 +40,13 @@ class TestWrapperForData(unittest.TestCase):
         self.assertEqual(result, ['inner'])
 
         result = self.subject.list('/', separator='/')
-        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+        self.assertEqual(result, ['complex', 'simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
         result = self.subject.list(['root'])
-        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+        self.assertEqual(result, ['complex', 'simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
         result = self.subject.list([])
-        self.assertEqual(result, ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
+        self.assertEqual(result, ['complex', 'simplelist', 'simplestleaf', 'stackedlists', 'tupperware'])
 
         try:
             self.subject.list('/tupperware/inside/carboard', separator='/')

@@ -18,7 +18,7 @@ class TestYang(unittest.TestCase):
 
     def test_list_completion(self):
         result = self.subject.list('/', separator='/')
-        expected_result = ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
+        expected_result = ['complex', 'simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
         self.assertEqual(result, expected_result)
 
     def test_list_completion_leaf(self):

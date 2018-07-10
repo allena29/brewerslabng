@@ -8,8 +8,9 @@ import os
 import re
 import warnings
 import dpath.util
+import decimal
 from PyConfHoardCommon import decode_path_string, fetch_keys_from_path, convert_path_to_slash_string
-from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse, PyConfHoardDataPathDoesNotExist
+from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf, PyConfHoardNonConfigList, PyConfHoardNotAList, PyConfHoardWrongKeys, PyConfHoardDataNoLongerRequired, PyConfHoardInvalidUse, PyConfHoardUnhandledUse, PyConfHoardDataPathDoesNotExist, PyConfHoardDataInvalidValueType, PyConfHoardInvalidYangSchema
 
 
 class PyConfHoardDatastore:
@@ -90,7 +91,7 @@ class PyConfHoardDatastore:
         else:
             schema = self.schema_by_path[updated_key]
 
-        self.validate_against_schema(schema, val)
+        self.validate_against_schema(schema, val, key)
 
         dpath.util.new(self.db, updated_key, val)
         self.keyval[key] = val
@@ -114,21 +115,34 @@ class PyConfHoardDatastore:
 
                 path_to_work_on = left_part_of_key + key_in_path + '/' + right_part_of_key
 
-    def validate_against_schema(self, schema, val):
+    def validate_against_schema(self, schema, val, key=""):
         """
         This method takes in the specific part of the schema as a
-        dictionary and a value and will validate and provide a boolean
-        response back.
+        dictionary and a value and will validate and provide the
+        value back - which may be converted from a string representation
+        to a real representation of the data type.
         """
         if '__schema' not in schema:
             raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
         if '__type' not in schema['__schema']:
             raise PyConfHoardInvalidUse('validate_against_schema not passed a valid schema definition')
 
+        invalid = False
         if schema['__schema']['__type'] == 'string':
-            return True
+            return val
+        elif schema['__schema']['__type'] == 'decimal64':
+            if '__fraction-digits' not in schema['__schema']:
+                raise PyConfHoardInvalidYangSchema('Decimal64 must have fraction-digits', key)
 
-        raise PyConfHoardUnhandledUse("validate only implemented for strings")
+            try:
+                return decimal.Decimal(val)
+            except decimal.InvalidOperation:
+                invalid = True
+
+        if invalid:
+            raise PyConfHoardDataInvalidValueType(val, schema['__schema']['__type'], key)
+        
+        raise PyConfHoardUnhandledUse("validate_against_schema - %s not implemented" % (schema['__schema']['__type']))
 
     def set_from_string(self, full_string, command=''):
         """
@@ -138,7 +152,7 @@ class PyConfHoardDatastore:
         value = decode_path_string(full_string[len(command):], get_index=-1)
         path = full_string[:-len(value)-1]
         self.set(path, value)
-        a=5/0
+
     def _merge_direct_to_root(self, payload):
         """
         Merge a payload direct to the root of the database.

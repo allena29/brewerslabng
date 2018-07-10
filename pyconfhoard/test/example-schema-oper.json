@@ -1,5 +1,14 @@
 {
     "root": {
+        "complex": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__path": "/root/complex",
+                "__rootlevel": true
+            }
+        },
         "simplelist": {
             "__listelement": {
                 "__schema": {

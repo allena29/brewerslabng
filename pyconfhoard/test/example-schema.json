@@ -209,6 +209,41 @@
                     }
                 }
             }
+        },
+        "complex": {
+            "__schema": {
+                "__path": "/root/complex",
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__rootlevel": true
+            },
+            "dec1": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__path": "/root/complex/dec1",
+                    "__listkey": false,
+                    "__listitem": true,
+                    "__type": "decimal64",
+                    "__typedef": true,
+                    "__fraction-digits": 2,
+                    "__rootlevel": false
+                }
+            },
+            "dec2": {
+                "__schema": {
+                    "__config": true,
+                    "__leaf": true,
+                    "__path": "/root/complex/dec2",
+                    "__listkey": false,
+                    "__listitem": true,
+                    "__type": "decimal64",
+                    "__typedef": false,
+                    "__faction-digits": 2,
+                    "__rootlevel": false
+                }
+            }
         }
     }
 }

@@ -1,5 +1,40 @@
 {
     "root": {
+        "complex": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__path": "/root/complex",
+                "__rootlevel": true
+            },
+            "dec1": {
+                "__schema": {
+                    "__config": true,
+                    "__fraction-digits": 2,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/complex/dec1",
+                    "__rootlevel": false,
+                    "__type": "decimal64",
+                    "__typedef": true
+                }
+            },
+            "dec2": {
+                "__schema": {
+                    "__config": true,
+                    "__faction-digits": 2,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/complex/dec2",
+                    "__rootlevel": false,
+                    "__type": "decimal64",
+                    "__typedef": false
+                }
+            }
+        },
         "simplelist": {
             "__listelement": {
                 "__schema": {
