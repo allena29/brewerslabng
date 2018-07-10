@@ -141,7 +141,8 @@ class TestYang(unittest.TestCase):
             "__listkey": true,
             "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     },
     "val": {
@@ -152,7 +153,8 @@ class TestYang(unittest.TestCase):
             "__listkey": false,
             "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     }
 }"""
@@ -186,7 +188,8 @@ class TestYang(unittest.TestCase):
             "__listkey": true,
             "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     },
     "val": {
@@ -197,7 +200,8 @@ class TestYang(unittest.TestCase):
             "__listkey": false,
             "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     }
 }"""
@@ -234,7 +238,8 @@ class TestYang(unittest.TestCase):
                 "__listkey": true,
                 "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
                 "__rootlevel": false,
-                "__type": "string"
+                "__type": "string",
+                "__typedef": false
             }
         }
     },
@@ -258,7 +263,8 @@ class TestYang(unittest.TestCase):
                 "__listkey": true,
                 "__path": "/root/stackedlists/lista{bbbb}/listb/__listelement/keyb",
                 "__rootlevel": false,
-                "__type": "string"
+                "__type": "string",
+                "__typedef": false
             }
         }
     }

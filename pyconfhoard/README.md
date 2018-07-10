@@ -200,7 +200,8 @@ Particular Points
 - **integers/booleans** show these as non-quoted strings when showing the Filtered/pretty view - cosmetic change only
 - **restrictions (part1)** simple valiation of restrictions
 - **enumeration** schema.json records the keys of enumerations (TBD: do we implement enumerations properly mapping to an ID or use the value itself)
-- **typedefs** no plan to support
+- **typedefs**
+ -  If a typedef is specified in the yang module it will be parsed - each leaf which is defined as that typedef will be *flattened* to the real type.
 - **imported yang files** YIN may provide a completely transparent rendering even if the yang model of interest iports others.
 - **grouping** potentially YIN makes this transparent - in which case support may be implicit
 - **container presence nodes** - likely a trivial extension to 

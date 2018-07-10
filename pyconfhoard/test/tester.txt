@@ -1,5 +1,5 @@
 module: tester
-  +--rw simplestleaf?   string
+  +--rw simplestleaf?   tester:typeA
   +--ro simpleoper?     string
   +--rw tupperware
   |  +--ro oper?      string

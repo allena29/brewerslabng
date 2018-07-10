@@ -8,6 +8,7 @@
                 "__listkey": false,
                 "__listitem": true,
                 "__type": "string",
+                "__typedef": true,
                 "__rootlevel": true
             }
         },
@@ -19,6 +20,7 @@
                 "__listkey": false,
                 "__listitem": true,
                 "__type": "string",
+                "__typedef": false,
                 "__rootlevel": true
             }
         },
@@ -38,6 +40,7 @@
                     "__listkey": false,
                     "__listitem": true,
                     "__type": "string",
+                    "__typedef": false,
                     "__rootlevel": false
                 }
             },
@@ -49,6 +52,7 @@
                     "__listkey": false,
                     "__listitem": true,
                     "__type": "string",
+                    "__typedef": false,
                     "__rootlevel": false
                 }
             },
@@ -85,6 +89,7 @@
                             "__listkey": false,
                             "__listitem": true,
                             "__type": "uint32",
+                            "__typedef": false,
                             "__rootlevel": false
                         }
                     }
@@ -112,6 +117,7 @@
                         "__listitem": true,
                         "__listkey": true,
                         "__type": "string",
+                        "__typedef": false,
                         "__rootlevel": false
                     }
                 },
@@ -123,6 +129,7 @@
                         "__listkey": false,
                         "__listitem": true,
                         "__type": "string",
+                        "__typedef": false,
                         "__rootlevel": false
                     }
                 },
@@ -134,6 +141,7 @@
                         "__listkey": false,
                         "__listitem": true,
                         "__type": "string",
+                        "__typedef": false,
                         "__rootlevel": false
                     }
                 }
@@ -168,6 +176,7 @@
                             "__listitem": true,
                             "__listkey": true,
                             "__type": "string",
+                            "__typedef": false,
                             "__rootlevel": false
                         }
                     },
@@ -192,6 +201,7 @@
                                     "__listitem": true,
                                     "__listkey": true,
                                     "__type": "string",
+                                    "__typedef": false,
                                     "__rootlevel": false
                                 }
                             }

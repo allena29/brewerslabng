@@ -3,7 +3,7 @@ module tester {
 	prefix tester;
 
   leaf simplestleaf {
-    type string;
+    type tester:typeA;
   }
   
   leaf simpleoper {
@@ -67,5 +67,9 @@ module tester {
         }
       }
     }
+  }
+
+  typedef typeA {
+    type string;
   }
 }
