@@ -138,7 +138,7 @@ class PyConfHoardDatastore:
         value = decode_path_string(full_string[len(command):], get_index=-1)
         path = full_string[:-len(value)-1]
         self.set(path, value)
-
+        a=5/0
     def _merge_direct_to_root(self, payload):
         """
         Merge a payload direct to the root of the database.
@@ -203,15 +203,24 @@ class PyConfHoardDatastore:
 
         return self.keyval[keypath]
 
-    def set(self, path_string, set_val, separator=' '):
-        """Set the value of a leaf node"""
+    def set(self, path, set_val, separator=' '):
+        """Set the value of a leaf node.
+        
+        This function requires a decoded path as a string
+        e.g. ['root', 'brewhouse', 'temperature', 'mash', 'setpoint'] -> 65
+        """
+        path_string = convert_path_to_slash_string(path)
         self.log.trace('%s -> %s', path_string, set_val)
-        node_type = self.get_type(path_string, separator)
+        node_type = self.get_type(path_string, '/')
         self.keyval[path_string] = set_val
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/{\g<1>}/', path_string)
         path = decode_path_string(path_string, separator)
-        dpath.util.new(self.db, path, set_val)
+        self.log.trace('%s %s' %(path,set_val))
+        self.log.trace('%s' %(self.db))
+        dpath.util.new(self.db, path_string, set_val, separator='/')
+        print(self.db)
+        print(self.keyval)
 
     def create(self, path_string, list_key, separator=' '):
         """

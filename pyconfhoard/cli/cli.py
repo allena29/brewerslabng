@@ -20,7 +20,7 @@ class PyConfHoardCLI(Cmd):
     if 'PYCONF_PORT' in os.environ:
         PORT = os.environ['PYCONF_PORT']
     SERVER = 'http://127.0.0.1:%s' % (PORT)
-    LOG_LEVEL = 50
+    LOG_LEVEL = 5
 
     def __init__(self, no_networking=False):
         Cmd.__init__(self)
@@ -206,7 +206,7 @@ class PyConfHoardCLI(Cmd):
         'Show node in the operational database'
         path = decode_path_string(args)
         try:
-            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -215,7 +215,7 @@ class PyConfHoardCLI(Cmd):
         'Show node in the configuration database'
         path = decode_path_string(args)
         try:
-            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -244,7 +244,8 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        self.config.set_from_string(args)
+        self.log.trace('Delegating SET commands to %s' % (self.pyconfhoarddata))
+        self.pyconfhoarddata.set_from_string(args, command='set ')
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
@@ -252,8 +253,8 @@ class PyConfHoardCLI(Cmd):
 
     def _command_commit(self, args):
         'Save configuration to the database'
-        for this_datastore in self.datastores:
-            self.pyconfhoarddata.persist(self.SERVER, self.datastores[this_datastore]['yangpath'])
+        for path_string in self.pyconfhoarddata.map:
+            self.pyconfhoarddata.persist_to_web(self.SERVER, path_string)                            
 
     def do_eof(self, args):
         # Implements CTRL+D

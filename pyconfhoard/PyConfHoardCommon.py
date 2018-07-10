@@ -21,6 +21,7 @@ def decode_path_string(path, separator=' ', ignore_last_n=0, get_index=None, ign
         if not path[0:5] == separator + 'root' and ignore_root is False:
             path = separator + 'root' + separator + path
         separated = path.split(separator)
+        print('separated.... ', separated)
     else:
         if len(path) == 0:
             if ignore_root is False:
@@ -65,6 +66,7 @@ def fetch_keys_from_path(obj, path):
 
 
 def convert_path_to_slash_string(path):
+    print('convert_path_to_slash_string', path)
     if isinstance(path, list):
         path_string = ''
         for x in path:

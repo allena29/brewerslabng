@@ -98,6 +98,7 @@ class Data:
         self.oper.schema = discover['schema-oper']
 
         datastores = discover['datastores']
+        self.log.trace('REGISTER discovered %s' %(datastores.keys()))
         for datastore in discover['datastores']:
             metadata = discover['datastores'][datastore]
             self._register(metadata['yangpath'], metadata['appname'], discover['schema-config'], discover['schema-oper'])
@@ -112,10 +113,11 @@ class Data:
                 return self.config
             else:
                 return self.oper
-
+        
         if path in self.map:
             return self.map[path][database]
-
+        
+        self.log.trace('MAP want %s: have: %s' % (path, self.map))
         for data in self.map:
             path_trimmed = path[0:len(data)]
             if path_trimmed == data:
@@ -163,8 +165,9 @@ class Data:
         A convenience function to split apart the path, command and value
         and then call the set function.
         """
+
         value = decode_path_string(full_string[len(command):], get_index=-1)
-        path = full_string[:-len(value)-1]
+        path = decode_path_string(full_string[:-len(value)-1])
         self.set(path, value, database, separator=' ')
 
     def set(self, path_string, set_val, database='config', separator=' '):
@@ -175,6 +178,7 @@ class Data:
         the operational datastore instead.
         """
         data = self._lookup_datastore(path_string, database)
+        self.log.trace('SET: %s <= %s' % (path_string, set_val))
         data.set(path_string, set_val, separator)
 
     def create(self, path_string, list_key, database='config', separator=' '):
@@ -243,6 +247,7 @@ class Data:
 
         The data here must be keyval pairs
         """
+        self.log.trace('_LOAD %s' % (path)) 
         if path not in self.map:
             raise PyConfHoardDataPathNotRegistered(path)
 
@@ -295,10 +300,13 @@ class Data:
         answer = {'root': {}}
         path = decode_path_string(path_string, separator=separator)
 
+        self.log.trace('GET_CURLY_VIEW %s' % (self.map))
         for data in self.map:
             if database == 'config':
+                self.log.trace('GET_CURLY_VIEW_CFG %s' % (data))
                 db = self.map[data]['config']
             else:
+                self.log.trace('GET_CURLY_VIEW_OPER %s' % (data))
                 db = self.map[data]['oper']
 
             path_to_sub_datastore = decode_path_string(data, separator='/')
@@ -321,6 +329,7 @@ class Thing:
     APPNAME = None
     PATHPREFIX = None
     DIE = False
+    DATASTORE_BASE = "../../datastore"
 
     def __init__(self, open_stored_config=True, config_schema="../../yang-schema-config.json",
                  oper_schema="../../yang-schema-oper.json"):
@@ -344,6 +353,9 @@ class Thing:
 
         self.log.info('PyConfHoard Load Default Schema: OK')
 
+        if 'PYCONF_DATASTORE' in os.environ:
+            self.DATASTORE_BASE = os.environ['PYCONF_DATASTORE']
+
         if open_stored_config:
             self._open_stored_config()
 
@@ -355,38 +367,39 @@ class Thing:
 
     def _open_stored_config(self):
         working_directory = os.getcwd()
-        datastore = '../../datastore'
-        if os.path.exists('%s/persist/%s.pch' % (datastore, self.APPNAME)):
+
+
+        if os.path.exists('%s/persist/%s.pch' % (self.DATASTORE_BASE, self.APPNAME)):
             self.log.info('Loading previous persisted data')
 
             # Note: we trust when changes are written they are written directly
             # to persist.... so we always just write to running for clients such
             # as the CLI to read frmo
-            o = open('%s/persist/%s.pch' % (datastore, self.APPNAME))
+            o = open('%s/persist/%s.pch' % (self.DATASTORE_BASE, self.APPNAME))
             json_str = o.read()
             o.close()
 
             self.config._merge_direct_to_root(json.loads(json_str))
 
-            o = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
+            o = open('%s/running/%s.pch' % (self.DATASTORE_BASE, self.APPNAME), 'w')
             o.write(self.config.dump())
             o.close()
 
-        elif os.path.exists('%s/startup/%s.pch' % (datastore, self.APPNAME)):
+        elif os.path.exists('%s/startup/%s.pch' % (self.DATASTORE_BASE, self.APPNAME)):
             self.log.info('Loading startup default data')
-            o = open('%s/startup/%s.pch' % (datastore, self.APPNAME))
+            o = open('%s/startup/%s.pch' % (self.DATASTORE_BASE, self.APPNAME))
             json_str = o.read()
             o.close()
 
-        if not os.path.exists('%s/operational/%s.pch' % (datastore, self.APPNAME)):
+        if not os.path.exists('%s/operational/%s.pch' % (self.DATASTORE_BASE, self.APPNAME)):
             self.log.info('No existing opdata... providing empty schema')
-            opdata = open('%s/operational/%s.pch' % (datastore, self.APPNAME), 'w')
+            opdata = open('%s/operational/%s.pch' % (self.DATASTORE_BASE, self.APPNAME), 'w')
             opdata.write(self.oper.dump())
             opdata.close()
 
-        if not os.path.exists('%s/running/%s.pch' % (datastore, self.APPNAME)):
+        if not os.path.exists('%s/running/%s.pch' % (self.DATASTORE_BASE, self.APPNAME)):
             self.log.info('No existing running.. providing empty schema')
-            cfgdata = open('%s/running/%s.pch' % (datastore, self.APPNAME), 'w')
+            cfgdata = open('%s/running/%s.pch' % (self.DATASTORE_BASE, self.APPNAME), 'w')
             cfgdata.write(self.config.dump())
             cfgdata.close()
 
@@ -394,18 +407,18 @@ class Thing:
         """
         This method takes in an XPATH(like?) expresion and returns data objects.
         """
-        val = self.datastore.get(self.PATHPREFIX + path, separator='/')
+        val = self.atastore.get(self.PATHPREFIX + path, separator='/')
         self.log.debug('GET: %s <= %s', path, val)
         return val
 
     def register(self):
-        self.log.info("Registering module")
+        self.log.info("Registering module %s:%s" % (self.APPNAME, self.PATHPREFIX))
         metadata = {
             'appname': self.APPNAME,
             'yangpath': self.PATHPREFIX,
         }
 
-        o = open('../../datastore/registered/%s.pch' % (self.APPNAME), 'w')
+        o = open('%s/registered/%s.pch' % (self.DATASTORE_BASE, self.APPNAME), 'w')
         o.write(json.dumps(metadata))
         o.close()
 
