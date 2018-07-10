@@ -175,10 +175,9 @@ class PyConfHoardDatastore:
         """
         Return the type of a particular leaf from the model.
         """
-        self.log.trace('%s TYPE', path_string)
+        self.log.trace('%s TYPE (separator %s)', path_string, separator)
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/__listelement/', path_string)
-        self.log.trace('%s', path_string)
         path = decode_path_string(path_string, separator)
         schema = dpath.util.get(self.schema, path)
 
@@ -224,15 +223,18 @@ class PyConfHoardDatastore:
         e.g. ['root', 'brewhouse', 'temperature', 'mash', 'setpoint'] -> 65
         """
         path_string = convert_path_to_slash_string(path)
-        self.log.trace('%s -> %s', path_string, set_val)
+        self.log.trace('%s -> %s (separator %s)', path_string, set_val, separator)
         node_type = self.get_type(path_string, '/')
+        self.log.trace('%s SCHEMA %s' % (path_string, node_type))
         self.keyval[path_string] = set_val
+
         regex = re.compile("{([A-Za-z0-9]*)}\/?")
         path_string = regex.sub('/{\g<1>}/', path_string)
+        self.log.trace('updated patH_string inside set %s' % (path_string))
         path = decode_path_string(path_string, separator)
         self.log.trace('%s %s' %(path,set_val))
         self.log.trace('%s' %(self.db))
-        dpath.util.new(self.db, path_string, set_val, separator='/')
+        dpath.util.new(self.db, path, set_val, separator='/')
         print(self.db)
         print(self.keyval)
 
