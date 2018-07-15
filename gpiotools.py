@@ -35,11 +35,11 @@ class gpiotools:
 				 'setup':False,'inverse':False,'pup':True},
 				# turns on/off power through the SSR
 			'zoneA':
-				{'input':False, 'pin':13,
+				{'input':False, 'pin':10,
 				 'setup':False,'inverse':True,'pup':True},
 				# turns on/off power through the SSR
 			'zoneAuse':
-				{'input':False, 'pin':10,
+				{'input':False, 'pin':13,
 				 'setup':False,'inverse':True,'pup':True},
 				# NO of the relay for HLT
 				# NC of the relay for Boiler
