@@ -41,6 +41,14 @@ fi
 
 cd /home/beer/brewerslab/slave
 mkdir ipc 2>/dev/null
+
+mkdir ipc/fermprogress
+touch ipc/sparge-not-finished
+touch ipc/ferm-notstarted
+touch ipc/boil_getting-ready
+touch ipc/mash_toggle_type-dough
+touch ipc/whirlpool-not-started
+
 mount -t tmpfs -o size=50M tmpfs ipc
 
 
