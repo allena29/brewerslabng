@@ -26,7 +26,7 @@ The test harness follows Behaviour Driven Development approach which ensures ass
 The testharness will create and remove artefacts under a fresh (unique) directory under `/tmp`. At the end of all tests (including failures) this directory will be cleaned up.
 
 ```bash
-beahve
+behave
 
 Creating datastore in a temporary directory... /tmp/tmpypyzbx1g
 Launching Rest Server....
@@ -74,7 +74,11 @@ To start a rest server with you can use, this will remove anything left over in 
 launch --throwaway
 
 # Terminal 2
-env PYCONF_DATASTORE=/tmp/datastore behave
+set -g -x PYCONF_PORT 8599
+set -g -x PYCONF_DATASTORE /tmp/datastore 
+behave
+
+# Terminal 3
 ```
 
 

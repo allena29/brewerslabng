@@ -32,16 +32,20 @@ class thread_rest_server(threading.Thread):
 
 
 def before_all(context):
+    context.basedir = os.getcwd()
     context.things = {}
+    context.cli = None
+    context.cli_last_result = []
+
+    if 'PYCONF_PORT' in os.environ:
+        context.port = os.environ['PYCONF_PORT']
+    else:
+        context.port = 8600
 
     if 'PYCONF_DATASTORE' in os.environ:
         context.datastore_dir = os.environ['PYCONF_DATASTORE']
-        context.port = 8600        
     else:
         datastore_dir = tempfile.mkdtemp(dir='/tmp')
-        context.port = 8599
-
-
         context.datastore_dir = datastore_dir
         context.uid = ('%s' % (context)).split(' ')[-1][:-1]
 
@@ -50,7 +54,7 @@ def before_all(context):
         os.mkdir(datastore_dir + '/running')
         os.mkdir(datastore_dir + '/persist')
         os.mkdir(datastore_dir + '/operational')
-
+        os.mkdir(datastore_dir + '/registered')
         print('Launching Rest Server....')
         context.thread_rest_server = thread_rest_server(context.datastore_dir, context.uid, context.port)
         context.thread_rest_server.start()
@@ -72,4 +76,7 @@ def after_all(context):
         print('Removing datastore from temporary directory')
         shutil.rmtree(context.datastore_dir)
 
-
+def after_scenario(context, scenario):
+    if context.cli:
+        print('Closing CLI Client')
+        context.cli.terminate(force=True)
