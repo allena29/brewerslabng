@@ -197,7 +197,7 @@ class pitmTemperature:
                         else:
                             self._accept_adjust_and_add_a_reading(probe, temperature)
 
-                time.sleep(1.0)
+                time.sleep(3.0)
 
     def submission(self):
         self._log("Submitting to control of Controller")
@@ -218,7 +218,7 @@ class pitmTemperature:
                 target = float(o.readline().rstrip())
                 fhandle.close()
             except:
-                target = 17
+                target = 19
 
             self._targetFerm = (target - 0.3, target + 0.3, target)
             self._mode = 'ferm'
@@ -264,7 +264,7 @@ class pitmTemperature:
         self._targetBoil = (-1, -1, -1)
         if os.path.exists('ipc/single-temp-probe'):
             self.probesToMonitor[self.cfg.hltProbe] = True
-        elif cm['_mode'].count("pump") or cm['_mode'].count("cool"):
+        elif cm['_mode'].count("pump") or cm['_mode'].count("cool") or cm['_mode'].count("ferm-wait"):
             self.doTemperatureing = True
             self.probesToMonitor[self.cfg.fermProbe] = True
             self.probesToMonitor[self.cfg.boilProbe] = True
