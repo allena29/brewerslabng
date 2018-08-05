@@ -77,8 +77,6 @@ launch --throwaway
 set -g -x PYCONF_PORT 8599
 set -g -x PYCONF_DATASTORE /tmp/datastore 
 behave
-
-# Terminal 3 - if you
 ```
 
 Sometimes it is good to rule out the test harness
@@ -93,6 +91,8 @@ set -g -x FAKE_DS18B20_RESULT_DIR /tmp/1wire
 ./launch --thing things/temperature/TemperatureProviderDs18B20.py
 
 # Terminal 3
+set -g -x PYCONF_PORT 8599
+set -g -x PYCONF_DATASTORE /tmp/datastore 
 ./launch --cli
 conf
 set brewhouse temperature mash setpoint 67

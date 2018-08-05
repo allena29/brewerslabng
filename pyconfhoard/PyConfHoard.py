@@ -1,5 +1,5 @@
 import logging
-import json
+import simplejson as json
 import os
 import dpath.util
 import requests
