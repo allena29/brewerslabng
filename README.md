@@ -70,7 +70,7 @@ It is also possible to run the test harness with a pre-existing datastore/rest s
 To start a rest server with you can use, this will remove anything left over in /tmp/datastore. When launching the REST server in throwaway mode we don't actually remove the data afterwards - however in most systems we expect that `/tmp/` would be destroyed on reboot.
 
 ```
-# Terminal 1
+# Terminal 1 - this will listen on port 8599
 launch --throwaway
 
 # Terminal 2
@@ -78,7 +78,25 @@ set -g -x PYCONF_PORT 8599
 set -g -x PYCONF_DATASTORE /tmp/datastore 
 behave
 
+# Terminal 3 - if you
+```
+
+Sometimes it is good to rule out the test harness
+
+```
+# Terminal 1 - this will listen on port 8600
+./launch --rest
+
+# Terminal 2 - a thing
+set -g -x PYCONF_DATASTORE /tmp/datastore/
+set -g -x FAKE_DS18B20_RESULT_DIR /tmp/1wire
+./launch --thing things/temperature/TemperatureProviderDs18B20.py
+
 # Terminal 3
+./launch --cli
+conf
+set brewhouse temperature mash setpoint 67
+commit
 ```
 
 
