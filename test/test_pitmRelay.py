@@ -1,4 +1,4 @@
-from mock import patch, Mock, call
+from mock import patch, Mock, call, ANY
 import unittest
 import time
 from pitmRelay import pitmRelay
@@ -31,6 +31,8 @@ class TestPitmRelay(unittest.TestCase):
         self.subject._mode = 'ferm'
         self.subject.cfg.fermProbe = 'ferm-probe'
         self.subject.zoneTarget = 20
+        self.subject.zoneUpTarget = 2
+        self.subject.zoneDownTarget = 200
         self.subject.fridgeHeat = True
         self.subject._gpioFermHeat = True
         self.subject.fridgeCool = False
@@ -49,7 +51,50 @@ class TestPitmRelay(unittest.TestCase):
 
         # Assert
         self.assertEqual(self.subject.groot.log.call_count, 1)
-        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 20 fridgeHeat: True/True fridgeCool: False/False (delay True) ', importance=0)
+        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 20(>2 <200) fridgeHeat: True/True fridgeCool: False/False (delay True) ', importance=0)
+
+
+    def test_callback_zome_temp_thread_when_ferm_valid_result_COOLING_AND_REACHED(self):
+        # Setup
+        self.subject._mode = 'ferm'
+        self.subject.cfg.fermProbe = 'ferm-probe'
+        self.subject.fridgeCompressorDelay = 0
+        self.subject.zoneTarget = 18
+        self.subject.zoneUpTarget = 17.3
+        self.subject.zoneDownTarget = 17.7
+        self.subject._lastValidReading['ferm'] = time.time() 
+
+        # We want two readings to test crossing from cooling to no cooling
+        cm = {
+            'currentResult' : {
+                self.subject.cfg.fermProbe : {
+                    'valid' : True,
+                    'temperature' : 19.0
+                }
+            }
+        }
+
+        self.subject.callback_zone_temp_thread(cm)
+
+        cm = {
+            'currentResult' : {
+                self.subject.cfg.fermProbe : {
+                    'valid' : True,
+                    'temperature' : 18.11
+                }
+            }
+        }
+        self.subject.fridgeCool = True
+        self.subject.callback_zone_temp_thread(cm)
+        self.subject._turn_cooling_off = Mock()
+        self.subject._turn_cooling_on = Mock()
+
+        # Action
+        self.subject._zone_ferm()
+
+        # Assert
+        self.assertEqual(self.subject._turn_cooling_off.call_count, 1)
+        self.assertEqual(self.subject._turn_cooling_on.call_count, 0)
 
 
     def test_callback_zome_temp_thread_when_ferm_valid_result_COOLING(self):
@@ -58,6 +103,8 @@ class TestPitmRelay(unittest.TestCase):
         self.subject.cfg.fermProbe = 'ferm-probe'
         self.subject.fridgeCompressorDelay = 0
         self.subject.zoneTarget = 18
+        self.subject.zoneUpTarget = 17.3
+        self.subject.zoneDownTarget = 17.7
         self.subject.fridgeHeat = False
         self.subject._gpioFermHeat = False
         self.subject.fridgeCool = True
@@ -76,7 +123,7 @@ class TestPitmRelay(unittest.TestCase):
 
         # Assert
         self.assertEqual(self.subject.groot.log.call_count, 1)
-        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 18 fridgeHeat: False/False fridgeCool: True/True (delay False) ', importance=0)
+        self.subject.groot.log.assert_called_once_with('Temp: 19.0 Target: 18(>17.3 <17.7) fridgeHeat: False/False fridgeCool: True/True (delay False) ', importance=0)
 
 
     def test_callback_zome_temp_thread_when_ferm_valid_result_TEMP_ERROR(self):

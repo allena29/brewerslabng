@@ -218,7 +218,7 @@ class pitmTemperature:
                 target = float(o.readline().rstrip())
                 fhandle.close()
             except:
-                target = 19
+                target = 17
 
             self._targetFerm = (target - 0.3, target + 0.3, target)
             self._mode = 'ferm'

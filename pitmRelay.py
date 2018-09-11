@@ -282,6 +282,8 @@ class pitmRelay:
 
         safety_check_ok = self._safety_check_for_missing_readings()
         if not safety_check_ok:
+
+            self.groot.log("Unrealistic readings!")
             # Cannot continue because we have no valid reading
             return
 
