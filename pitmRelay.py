@@ -125,7 +125,7 @@ class pitmRelay:
                         delay = True
                     else:
                         delay = False
-                    self.groot.log("Temp: %s Target: %s fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget,
+                    self.groot.log("Temp: %s Target: %s(>%s <%s) fridgeHeat: %s/%s fridgeCool: %s/%s (delay %s) " % (self.zoneTemp, self.zoneTarget, self.zoneUpTarget, self.zoneDownTarget,
                                                                                                             self.fridgeHeat, self._gpioFermHeat, self.fridgeCool, self._gpioFermCool, delay), importance=0)
                 else:
                     self.lcdDisplay.sendMessage("Temp Result Error", 2)
@@ -214,7 +214,6 @@ class pitmRelay:
     def _is_heating_required(self):
         if os.path.exists("ipc/disable-ferm-heat"):
             return False
-
         if self.zoneTemp < self.zoneUpTarget and not self.fridgeHeat:
             self.groot.log("Heating Requied %s < %s" % (self.zoneTemp, self.zoneUpTarget))
             return True
@@ -224,6 +223,7 @@ class pitmRelay:
     def _turn_cooling_off(self):
         self.gpio.output('fermCool', 0)
         self._gpioFermCool = False
+        self.fridgeCool = False
         if self.fridgeCompressorDelay < 1:
             self.fridgeCompressorDelay = 300
         if self.fermCoolActiveFor > 0:
@@ -235,15 +235,16 @@ class pitmRelay:
         """
         Important safety checks for compressor must be called before this
         """
-
         self.lcdDisplay.sendMessage(" Cooling", 2)
         self._gpioFermCool = True
         self.gpio.output('fermCool', 1)
+	self.fridgeCool = True
         if self.fermCoolActiveFor == -1:
             self.fermCoolActiveFor = time.time()
 
     def _turn_heating_on(self):
         self.fridgeHeat = True
+	self._gpioFermHeat = True
         self.gpio.output('fermHeat', 1)
 
         self.lcdDisplay.sendMessage(" Heating", 2)
@@ -253,6 +254,7 @@ class pitmRelay:
     def _turn_heating_off(self):
         self.fridgeHeat = False
         self.gpio.output('fermHeat', 0)
+        self._gpioFermHeat = False
         if self.fermHeatActiveFor > 0:
             self.meterFermH = self.meterFermH + (time.time() - self.fermHeatActiveFor)
             if self.fermHeatActiveFor > 0:
@@ -321,13 +323,14 @@ class pitmRelay:
                 self._turn_recirc_fan_on()
                 self._turn_cooling_on()
 
-        if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.05:
+
+        if self.fridgeHeat and self.zoneTemp > self.zoneTarget - 0.15:
             self.groot.log("Target Reached stopping heat active for %s" % (time.time() - self.fermHeatActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
             self._turn_recirc_fan_off()
 
-        if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.05:
+        if self.fridgeCool and self.zoneTemp < self.zoneTarget + 0.15:
             self.groot.log("Target Reached stopping cooling active for %s" % (time.time() - self.fermCoolActiveFor))
             self._turn_cooling_off()
             self._turn_heating_off()
