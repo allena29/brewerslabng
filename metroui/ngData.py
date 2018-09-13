@@ -1,1 +1,0 @@
-../cloud/ngData.py
