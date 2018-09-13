@@ -17,6 +17,68 @@ module brewerslab {
 
     container temperature {
       // implemented by TemperatureProvider
+    
+      container mash {
+        leaf monitor {
+          description "This determines if we should monitor the probe.";
+          type boolean;
+          config false;
+        }
+
+        leaf setpoint {
+          type brewerslab:temperature;
+          default 17.0;
+        }
+
+        leaf highpoint {
+          description "The temperature at which we need to start actively cooling.";
+          type brewerslab:temperature;
+          default 17.3;
+        }
+
+        leaf lowpoint {
+          description "The temperature at which we need to start actively heating.";
+          type brewerslab:temperature;
+          default 16.7;
+        }
+
+        container probe {
+          leaf id {
+            description "The probe id to provide measurements.";
+            type string;
+          }
+        } // end of probe
+
+        container results {
+
+          leaf latest {
+            type brewerslab:temperature;
+            config false;
+            default 0.00;
+          }
+
+          container average {
+
+            description "This container is theoretical";
+
+            leaf minute {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+            leaf hourly {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+            leaf daily {
+              type brewerslab:temperature;
+              config false;
+              default 0.00;
+            }
+          }
+        }
+      } // end of mash
 
       container fermentation {
         leaf monitor {
@@ -77,9 +139,8 @@ module brewerslab {
               default 0.00;
             }
           }
-
         }
-      }
+      } // end of fermentation
 
       container hardware {
         list probe {

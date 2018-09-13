@@ -5,14 +5,16 @@ import os
 
 class Resource(object):
 
+    DATASTORE = 'datastore'
+
     def on_get(self, req, resp):
         req.get_header('TOKEN')
 
         datastores = {}
-        base = 'datastore/registered'
+        base = self.DATASTORE + '/registered'
         for item in os.listdir(base):
             if item[-4:] == '.pch':
-                o = open('datastore/registered/%s' % (item))
+                o = open(self.DATASTORE + '/registered/%s' % (item))
                 metadata = json.loads(o.read())
                 o.close()
                 datastores[item[:-4]] = metadata

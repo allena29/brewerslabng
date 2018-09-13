@@ -2,6 +2,7 @@ import unittest
 import json
 import sys
 import dpath.util
+from decimal import Decimal
 sys.path.append('test')
 from PyConfHoardDatastore import PyConfHoardDatastore
 from PyConfHoardError import PyConfHoardAccessNonLeaf, PyConfHoardNonConfigLeaf
@@ -18,7 +19,7 @@ class TestYang(unittest.TestCase):
 
     def test_list_completion(self):
         result = self.subject.list('/', separator='/')
-        expected_result = ['simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
+        expected_result = ['complex', 'simplelist', 'simplestleaf', 'stackedlists', 'tupperware']
         self.assertEqual(result, expected_result)
 
     def test_list_completion_leaf(self):
@@ -141,7 +142,8 @@ class TestYang(unittest.TestCase):
             "__listkey": true,
             "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     },
     "val": {
@@ -152,7 +154,8 @@ class TestYang(unittest.TestCase):
             "__listkey": false,
             "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     }
 }"""
@@ -186,7 +189,8 @@ class TestYang(unittest.TestCase):
             "__listkey": true,
             "__path": "/root/simplelist{castle}/id",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     },
     "val": {
@@ -197,7 +201,8 @@ class TestYang(unittest.TestCase):
             "__listkey": false,
             "__path": "/root/simplelist{castle}/val",
             "__rootlevel": false,
-            "__type": "string"
+            "__type": "string",
+            "__typedef": false
         }
     }
 }"""
@@ -234,7 +239,8 @@ class TestYang(unittest.TestCase):
                 "__listkey": true,
                 "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
                 "__rootlevel": false,
-                "__type": "string"
+                "__type": "string",
+                "__typedef": false
             }
         }
     },
@@ -258,7 +264,8 @@ class TestYang(unittest.TestCase):
                 "__listkey": true,
                 "__path": "/root/stackedlists/lista{bbbb}/listb/__listelement/keyb",
                 "__rootlevel": false,
-                "__type": "string"
+                "__type": "string",
+                "__typedef": false
             }
         }
     }
@@ -279,3 +286,11 @@ class TestYang(unittest.TestCase):
         self.assertEqual(self.subject.get_keypath('/simplestleaf'), 'sleep')
         print(self.subject.keyval)
         self.assertEqual(self.subject.get_keypath('/simplelist{glow}/val'), 'in the dark')
+
+    def test_decimal64(self):
+        self.subject.set('/complex/dec1', "1.434", separator='/')
+        self.subject.set('/complex/dec2', "1.534", separator='/')
+       
+        self.assertEqual(self.subject.get_keypath('/complex/dec1'), Decimal('1.434'))
+        self.assertEqual(self.subject.get_keypath('/complex/dec2'), Decimal('1.534'))
+

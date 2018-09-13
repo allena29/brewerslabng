@@ -122,3 +122,30 @@ class PyConfHoardDataPathNotRegistered(Error):
     def __init__(self, path):
         message = 'The path %s is not registered' % (path)
         super().__init__(message)
+
+
+class PyConfHoardDataInvalidValueType(Error):
+
+    """
+    Raised if we are trying to set data which doesn't match the
+    schema type.
+    """
+
+    def __init__(self, key, keytype, val):
+        if val:
+            message = 'The value %s is not of type %s for key' % (val, keytype, key)
+        else:
+            message = 'The value %s is not of type %s' % (val, keytype)
+        super().__init__(message)
+
+
+class PyConfHoardInvalidYangSchema(Error):
+
+    """
+    Raised if we are trying to do something which validates
+    YANG RFC.
+    """
+
+    def __init__(self, msg, key):
+        message = "%s (%s)" % (msg, key)
+        super().__init__(message)

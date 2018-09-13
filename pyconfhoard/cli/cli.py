@@ -2,6 +2,7 @@
 import traceback
 import time
 import logging
+import os
 import sys
 import json
 import requests
@@ -15,7 +16,10 @@ from cmd2 import Cmd
 class PyConfHoardCLI(Cmd):
 
     prompt = 'wild@localhost> '
-    SERVER = 'http://127.0.0.1:8000'
+    PORT = 8600
+    if 'PYCONF_PORT' in os.environ:
+        PORT = os.environ['PYCONF_PORT']
+    SERVER = 'http://127.0.0.1:%s' % (PORT)
     LOG_LEVEL = 5
 
     def __init__(self, no_networking=False):
@@ -95,6 +99,8 @@ class PyConfHoardCLI(Cmd):
             self.pyconfhoarddata.register_from_web(self.SERVER)
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Comand Line READY'), Fore.GREEN, msg, newline=True)
         except Exception as err:
+            print(traceback.format_exc())
+            print(str(err))
             PyConfHoardCLI.xterm_message(msg.replace(msg, 'Unable to connect to command-line %s' % (self.SERVER)), Fore.RED, msg, newline=True)
             sys.exit(0)
 
@@ -200,7 +206,7 @@ class PyConfHoardCLI(Cmd):
         'Show node in the operational database'
         path = decode_path_string(args)
         try:
-            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -209,7 +215,7 @@ class PyConfHoardCLI(Cmd):
         'Show node in the configuration database'
         path = decode_path_string(args)
         try:
-            print(self.pyconfhoarddata.get_database_as_json(path, database='oper', pretty=True))
+            print(self.pyconfhoarddata.get_database_as_json(path, database='config', pretty=True))
             self._ok()
         except Exception as err:
             self._error(err)
@@ -227,8 +233,8 @@ class PyConfHoardCLI(Cmd):
         return self._auto_complete(line, text, 'create ', config=True, filter_blank_values=False)
 
     def _command_create(self, args):
-        path_to_list = self.config.decode_path_string(args, ignore_last_n=1)
-        key = self.config.decode_path_string(args, get_index=-1)
+        path_to_list = decode_path_string(args, ignore_last_n=1)
+        key = decode_path_string(args, get_index=-1)
         self.config.create(path_to_list, key)
 
     def _command_delete(self, args):
@@ -238,7 +244,8 @@ class PyConfHoardCLI(Cmd):
         'Set node in the configurationl database'
         if len(args) < 1:
             raise ValueError('Incomplete command: set %s' % (args))
-        self.config.set_from_string(args)
+        self.log.trace('Delegating SET commands to %s' % (self.pyconfhoarddata))
+        self.pyconfhoarddata.set_from_string(args, command='set ')
 
     def _autocomplete_conf_set(self, text, line, begidx, endidx):
         if self._in_conf_mode:
@@ -246,8 +253,8 @@ class PyConfHoardCLI(Cmd):
 
     def _command_commit(self, args):
         'Save configuration to the database'
-        for this_datastore in self.datastores:
-            self.pyconfhoarddata.persist(self.SERVER, self.datastores[this_datastore]['yangpath'])
+        for path_string in self.pyconfhoarddata.map:
+            self.pyconfhoarddata.persist_to_web(self.SERVER, path_string)                            
 
     def do_eof(self, args):
         # Implements CTRL+D

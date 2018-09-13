@@ -3,6 +3,7 @@
 import argparse
 import os
 import imp
+import shutil
 import sys
 import importlib
 sys.path.insert(0, os.getcwd() + '/pyconfhoard')
@@ -17,17 +18,34 @@ Launch a PyConfHoard 'thing'.
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('--thing', help="Path to a thing (e.g. things/temperature/TemperatureProviderDS18B20.py)")
 parser.add_argument('--rest', action='store_true')
+parser.add_argument('--throwaway', action='store_true')
 parser.add_argument('--cli', action='store_true')
 parser.add_argument('--debug', action='store_true', help="Launch in interactive debug mode")
 args = parser.parse_args()
 
 
-if not args.thing and not args.rest and not args.cli and not args.debug:
+if not args.throwaway and not args.thing and not args.rest and not args.cli and not args.debug:
     sys.stderr.write('Either --thing or --rest or --cli required')
     sys.exit(1)
 
-if args.rest:
-    os.system('gunicorn --reload pyconfhoard.rest.server')
+if args.throwaway:
+    os.environ['PYCONF_DATASTORE'] = '/tmp/datastore'
+    if os.path.exists('/tmp/datastore'):
+        shutil.rmtree('/tmp/datastore')
+    os.mkdir('/tmp/datastore')
+    if not os.path.exists('/tmp/datastore/running'):
+        os.mkdir('/tmp/datastore/running')
+    if not os.path.exists('/tmp/datastore/operational'):
+        os.mkdir('/tmp/datastore/operational')
+    if not os.path.exists('/tmp/datastore/persist'):
+        os.mkdir('/tmp/datastore/persist')
+    if not os.path.exists('/tmp/datastore/registered'):
+        os.mkdir('/tmp/datastore/registered')
+    if not os.path.exists('/tmp/datastore/default'):
+        os.mkdir('/tmp/datastore/default')
+    os.system('gunicorn -b :8599  --reload pyconfhoard.rest.server')
+elif args.rest:
+    os.system('gunicorn -b :8600  --reload pyconfhoard.rest.server')
 elif args.cli:
     os.chdir('pyconfhoard/cli')
     os.system('PYTHONPATH=$PYTHONPATH:../ python cli.py')

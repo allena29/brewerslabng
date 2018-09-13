@@ -38,7 +38,7 @@ class HeatingElementProviderSSR(PyConfHoard.Thing):
     """
 
     def start(self):
-        print 'null'
+        print('null')
 
 
 class Launch:

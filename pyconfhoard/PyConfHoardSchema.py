@@ -5,6 +5,7 @@ import argparse
 import xml.etree.ElementTree as ET
 from colorama import Fore
 from colorama import Style
+from PyConfHoardError import PyConfHoardInvalidYangSchema
 
 
 class yin_to_json:
@@ -20,6 +21,9 @@ class yin_to_json:
         self.chain = []
         self.final_pop_done = False
 
+        self.prefix = None
+        self.typedefs = {}
+        self.find_typedefs(root, path)
         self.process(root, path, schema_by_tree['root'])
         self.schema = schema_by_tree
 
@@ -59,6 +63,21 @@ class yin_to_json:
                     self.paths_to_delete.append(obj[child]['__schema']['__path'])
                 else:
                     self.separate(obj[child], config)
+
+    def find_typedefs(self, obj, path):
+        for child in obj:
+            if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}prefix':
+                self.prefix = child.attrib['value']
+            if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}typedef':
+                if not self.prefix:
+                    raise ValueError('Unable to parse typedef because we did not have a prefix')
+                typedef = '%s:%s' % (self.prefix, child.attrib['name'])
+                typedef_type = {'__type':  child[0].attrib['name']}
+                for subchild in child:
+                    for subsubchild in subchild:
+                        if subsubchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}fraction-digits':
+                            typedef_type['__fraction-digits'] = int(subsubchild.attrib['value'])
+                self.typedefs[typedef] = typedef_type
 
     def process(self, obj, path, schema_by_tree, keys=[]):
         cpath = '/'
@@ -126,10 +145,23 @@ class yin_to_json:
                     if tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
                         yang_type = tmp.attrib['name']
                         schema_by_tree[child.attrib['name']]['__schema']['__type'] = yang_type
+                        # TODO: refactor into the type def parsing code into a function
                         if yang_type == 'enumeration':
                             schema_by_tree[child.attrib['name']]['__schema']['__enum_values'] = []
                             for tmp2 in tmp:
                                 schema_by_tree[child.attrib['name']]['__schema']['__enum_values'].append(tmp2.attrib['name'])
+                        schema_by_tree[child.attrib['name']]['__schema']['__typedef'] = False
+                        if yang_type in self.typedefs:
+                            schema_by_tree[child.attrib['name']]['__schema']['__typedef'] = True
+                            for typedef in self.typedefs[yang_type]:
+                                schema_by_tree[child.attrib['name']]['__schema'][typedef] = self.typedefs[yang_type][typedef]
+    
+                        # TODO: refactor this with the type def parsing code into a function
+                        # Decimal 64 must have fraction digits
+                        for subchild in child:
+                            for subsubchild in subchild:
+                                if subsubchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}fraction-digits':
+                                    schema_by_tree[child.attrib['name']]['__schema']['__fraction-digits'] = int(subsubchild.attrib['value'])
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}default':
                         schema_by_tree[child.attrib['name']]['__schema']['__default'] = tmp.attrib['value']
                     elif tmp.tag == '{urn:ietf:params:xml:ns:yang:yin:1}config':

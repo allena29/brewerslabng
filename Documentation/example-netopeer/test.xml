@@ -1,0 +1,4 @@
+  <test xmlns="http://test.com">
+    <hello>BOO!!!RADLEY</hello>
+    <service>abc</service>
+  </test>

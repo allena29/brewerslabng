@@ -1,5 +1,5 @@
 module: tester
-  +--rw simplestleaf?   string
+  +--rw simplestleaf?   tester:typeA
   +--ro simpleoper?     string
   +--rw tupperware
   |  +--ro oper?      string
@@ -13,7 +13,10 @@ module: tester
   |  +--rw val?       string
   |  +--ro operval?   string
   +--rw stackedlists
-     +--rw lista* [keya]
-        +--rw keya     string
-        +--rw listb* [keyb]
-           +--rw keyb    string
+  |  +--rw lista* [keya]
+  |     +--rw keya     string
+  |     +--rw listb* [keyb]
+  |        +--rw keyb    string
+  +--rw complex
+     +--rw dec1?   tester:typeB
+     +--rw dec2?   decimal64

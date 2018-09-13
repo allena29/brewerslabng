@@ -1,5 +1,40 @@
 {
     "root": {
+        "complex": {
+            "__schema": {
+                "__container": true,
+                "__decendentconfig": true,
+                "__decendentoper": false,
+                "__path": "/root/complex",
+                "__rootlevel": true
+            },
+            "dec1": {
+                "__schema": {
+                    "__config": true,
+                    "__fraction-digits": 2,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/complex/dec1",
+                    "__rootlevel": false,
+                    "__type": "decimal64",
+                    "__typedef": true
+                }
+            },
+            "dec2": {
+                "__schema": {
+                    "__config": true,
+                    "__fraction-digits": 2,
+                    "__leaf": true,
+                    "__listitem": true,
+                    "__listkey": false,
+                    "__path": "/root/complex/dec2",
+                    "__rootlevel": false,
+                    "__type": "decimal64",
+                    "__typedef": false
+                }
+            }
+        },
         "simplelist": {
             "__listelement": {
                 "__schema": {
@@ -21,7 +56,8 @@
                         "__listkey": true,
                         "__path": "/root/simplelist/__listelement/id",
                         "__rootlevel": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__typedef": false
                     }
                 },
                 "val": {
@@ -32,7 +68,8 @@
                         "__listkey": false,
                         "__path": "/root/simplelist/__listelement/val",
                         "__rootlevel": false,
-                        "__type": "string"
+                        "__type": "string",
+                        "__typedef": false
                     }
                 }
             }
@@ -45,7 +82,8 @@
                 "__listkey": false,
                 "__path": "/root/simplestleaf",
                 "__rootlevel": true,
-                "__type": "string"
+                "__type": "string",
+                "__typedef": true
             }
         },
         "stackedlists": {
@@ -77,7 +115,8 @@
                             "__listkey": true,
                             "__path": "/root/stackedlists/lista/__listelement/keya",
                             "__rootlevel": false,
-                            "__type": "string"
+                            "__type": "string",
+                            "__typedef": false
                         }
                     },
                     "listb": {
@@ -101,7 +140,8 @@
                                     "__listkey": true,
                                     "__path": "/root/stackedlists/lista/__listelement/listb/__listelement/keyb",
                                     "__rootlevel": false,
-                                    "__type": "string"
+                                    "__type": "string",
+                                    "__typedef": false
                                 }
                             }
                         }
@@ -125,7 +165,8 @@
                     "__listkey": false,
                     "__path": "/root/tupperware/config",
                     "__rootlevel": false,
-                    "__type": "string"
+                    "__type": "string",
+                    "__typedef": false
                 }
             },
             "outer": {
@@ -152,7 +193,8 @@
                             "__listkey": false,
                             "__path": "/root/tupperware/outer/inner/number",
                             "__rootlevel": false,
-                            "__type": "uint32"
+                            "__type": "uint32",
+                            "__typedef": false
                         }
                     }
                 }

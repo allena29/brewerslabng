@@ -3,7 +3,7 @@ module tester {
 	prefix tester;
 
   leaf simplestleaf {
-    type string;
+    type tester:typeA;
   }
   
   leaf simpleoper {
@@ -66,6 +66,28 @@ module tester {
           type string;
         }
       }
+    }
+  }
+
+  container complex {
+    leaf dec1 {
+      type tester:typeB; 
+    }
+
+    leaf dec2 {
+      type decimal64 {
+        fraction-digits 2;
+      }
+    }
+  }
+
+  typedef typeA {
+    type string;
+  }
+
+  typedef typeB {
+    type decimal64 {
+      fraction-digits 2;
     }
   }
 }
