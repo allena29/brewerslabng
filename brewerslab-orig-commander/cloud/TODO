@@ -1,0 +1,568 @@
+feb9.SQL is clean
+
+
+TODO NOW:
+
+
+takeStock broken on app 
+
+
+
+
+
+gravityVolAdjustment --- take in gravity and gravity 
+
+___combine_adjust1  (adjusted gravity of our topup)
+preboilgravity (adjsut gravity pre boil)
+pretopup_post_mash_og
+
+
+inverseGravity Widget not supported
+
+
+
+
+
+
+
+BUGS
+
+
+- can't set hopmeasure/gather steps complete because the subStepNum we use is artifically higher than it should be
+	(guess android client uses listview index rather than the real substepnum)
+
+
+TODO: Future
+
+
+none of the android improvements mentioned in the following brewlog have been incorporated
+	 http://eleven.mellon-collie.net:54660/dbg/gql/SELECT%20*%20FROM%20gField%20WHERE%20brewlog=%272012-03-1%27%20AND%20fieldKey=%27notepage%27 
+
+in compile
+- bestbefore flag in compile no longer has a home. this might mean no stock best before happens anywhere
+- sub euqipment no longer exists
+- must sterilise flags seem missing
+- hop timer
+- not sure what preparation is
+- ignored sterilsiebottles for now
+- not sure gather/gatehr2 is really required in compile anymore.
+
+
+
+
+comments not incorporated from 17AG (ABC) using 17AG again
+
+SELECT * FROM gField WHERE brewlog='2012-03-18' AND fieldKey='notepage'
+
+
+12 Records
+
+Record 0
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 9
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332075856
+	_app = None
+	_fieldVal = think this step hasn't thought about the 4 litre topup
+
+	_Model__namespace = 
+Record 1
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 11
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332079262
+	_app = None
+	_fieldVal = seems a trend that temp increases after half hour or so, cracked the lid to last 5 minutes
+	_Model__namespace = 
+Record 2
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 13
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332081177
+	_app = None
+	_fieldVal = still don't have wort volume required.
+	_Model__namespace = 
+Record 3
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 14
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332081780
+	_app = None
+	_fieldVal = need an extra set of adjustments to allow us to asses if we should add any left over sparge during the boil, is I safe from a gravity of 1.006 point of view, and what dilution effect will it have (volume+grav)
+	_Model__namespace = 
+Record 4
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 13
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332081832
+	_app = None
+	_fieldVal = still don't have wort volume required.
+
+ correction,might have boil volume,' but it is not clear how to pups relate to it.
+
+ unsupported widget for inverse gravity.
+
+	_Model__namespace = 
+Record 5
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 15
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332084195
+	_app = None
+	_fieldVal = field to record boil volume, and candidate wort top up.
+
+we have 13+16 in boiler at start.
+2 litres of 1.019
+4 litres of 1.019
+	_Model__namespace = 
+Record 6
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 15
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332084234
+	_app = None
+	_fieldVal = field to record boil volume, and candidate wort top up.
+
+we have 13+16 in boiler at start.
+2 litres of 1.019
+4 litres of 1.019
+
+ the pre adjunct seems a nit redundant as thisisstoredin dynamic recipe adjustment.
+	_Model__namespace = 
+Record 7
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 19
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332087612
+	_app = None
+	_fieldVal = peed rain qty... 13 and 16.5
+	_Model__namespace = 
+Record 8
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 19
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332088155
+	_app = None
+	_fieldVal = peed rain qty... 13 and 16.5
+
+more stats required here, think we should only allow a single boiler to drain at once.
+
+drained out of 15 litre boiler 12 litres and 14.5 out the 20 litre
+
+	_Model__namespace = 
+Record 9
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 19
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332089779
+	_app = None
+	_fieldVal = peed rain qty... 13 and 16.5
+
+more stats required here, think we should only allow a single boiler to drain at once.
+
+drained out of 15 litre boiler 12 litres and 14.5 out the 20 litre
+
+need some calcs here to decide if top up or reboil wort left over.
+	_Model__namespace = 
+Record 10
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 20
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332091675
+	_app = None
+	_fieldVal = boiled 3 litres of left over wort with all hops, need to think about impact on bitterness and gravity
+	_Model__namespace = 
+Record 11
+	_activityNum = 0
+	_brewlog = 2012-03-18
+	_fieldLabel = None
+	_recipe = we dont have this in saveComment()
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_process = None
+	_stepNum = 22
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = 1332093309
+	_app = None
+	_fieldVal = rename some of these fields they are misleading.
+	_Model__namespace = 
+
+
+
+
+
+
+
+
+
+TODO:  Before 2nd breday
+Big change required to associate activityNum to gBrewlogSotck
+Big change required to associate activityNum to gEquipment
+ANDROID: need to allow auto generated steps to be completed
+Add in priming sugar/gather 2 of compile
+
+TODO: Before 1st brewday
+
+ANDROID: check complete button on Drain Wort step
+
+NEED TO PUT COMPILE FROM CALCUALTE SOMEWHERE
+
+
+
+eRROR    2012-02-29 23:56:29,631 cloudApi.py:819] setFieldWidget 16AG11i12 2012-03-1 Brewday 17 kettle20adjustedgravity widget 2
+
+
+
+
+
+
+
+
+
+#clone recipe
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=cloneRecipe&argNum=2&arg0=Pure%20Gold%20Goose&arg1=Pure%20Green%20Goose
+# add hops
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=addItemToRecipe&argNum=5&arg0=Pure%20Green%20Goose&arg1=Hops&arg2=Green%20Bullet&arg3=25&arg4=60
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=addItemToRecipe&argNum=5&arg0=Pure%20Green%20Goose&arg1=Hops&arg2=Green%20Bullet&arg3=24&arg4=15
+
+#delete hops
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=deleteItemFromRecipe&argNum=4&arg0=Pure%20Green%20Goose&arg1=Hops&arg2=Centennial&arg3=60.0
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=deleteItemFromRecipe&argNum=4&arg0=Pure%20Green%20Goose&arg1=Hops&arg2=Centennial&arg3=15.0
+
+
+
+#############################
+
+
+# calculate
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=calculateRecipe&argNum=1&arg0=Pure%20Green%20Goose&arg1=Hops&arg2=Pure%20Gold%20Goose
+
+
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=addNewPurchase&arg0=Consumable&arg1=Crown%20Caps&arg2=60&arg3=0.09&arg4=1&arg5=12&arg6=2012&arg7=Homebrew%20Centre%20Grimsby&arg8=1&arg9=0&argNum=10
+
+
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=checkStockAndPrice&argNum=2&arg0=New%20Green%20Goose&arg1=15AG10i11
+ ###dont use this anymore
+ ###http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=takeStock&argNum=2&arg0=New%20Green%20Goose&arg1=15AG10i11
+ ## use this instead
+
+
+
+LIST RECIPES
+	http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=listRecipes&argNum=0
+
+
+
+
+
+# make a new brewlog
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=startNewBrewlog&argNum=3&arg0=2012-02-23&arg2=15AG10i11&arg1=Green
+http://eleven.mellon-collie.net:54660/brewlab/?taskOperation=addStockToBrewlog&argNum=1&arg0=2012-06-08
+192.168.1.64:54660/brewlab/?taskOperation=compile&argNum=2&arg0=Nelson&arg1=2012-10-20
+http://192.168.1.64:54660/brewlab/?taskOperation=publish&argNum=2&arg0=2012-10-20&arg1=0
+
+
+
+		## take stock should be done before starting a brew log
+
+
+# comments from last brewlog
+http://eleven.mellon-collie.net:54660/dbg/gql/SELECT%20*%20FROM%20gField%20WHERE%20brewlog=%272011-11-04%27%20AND%20fieldKey=%27notepage%27
+
+
+
+
+eleven.mellon-collie.net:54660/brewlab/?taskOperation=addStockToBrewlog&argNum=1&arg0=2012-03-1
+
+
+
+SELECT * FROM gField WHERE brewlog='2011-11-04' AND fieldKey='notepage'
+
+
+15 Records
+
+Record 2
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 11
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = mash really started after filling the hlt. it was possible to fill the mash tun whilst observing the stabilising temperature of the mash tun
+	_Model__namespace = 
+
+
+
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 15
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = new spare arm didn't work very well.
+
+ think for sparing the first collection should be a n inch headspace. it seems that the water cools because of the 1inch head space and the temperature of the grain bed doesdnt raise.
+
+suggest the first running are collected by manually sprnkling and then use the spare arm towards the end
+	_Model__namespace = 
+Record 6
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 19
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = added about an extra litre of sort at about 1.012 half way through.
+	_Model__namespace = 
+Record 7
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 21
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = doing one boiler at a time added the hops, moved to a tilted top and turned on the tap without any further intervention.
+
+first boiler got 14litres from just the tilted boiler. remember the syphon effect gelps gets some of the wort out forgot to look at sight tube first.
+
+complete button still missing
+
+move cooling into dedicated step and have a tempgrav adjustment.
+
+two comments both say high gravity
+
+seriously do need a measurement here which shows the volume required in the fermentation bin ... I.e. fv dead space plus cooling contraction.
+
+
+second boiler sight tube was about 12.5 litres.
+think about what can be done to tra off quantity versus gravity at this stage.
+
+don't say what temp to rehydrate the yeast it should be 27 plus or minus 3
+
+
+25 litre in fv before cooling after the second 
+
+
+
+	_Model__namespace = 
+Record 8
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 22
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = but hoq much sort was expected
+	_Model__namespace = 
+Record 9
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 24
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = note the lid of the new fermentation bin can take a funnel with wire mesh which means not too much work is required to empty the 15litre boiler off all hops.
+	_Model__namespace = 
+Record 10
+	_activityNum = 0
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 25
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = the messurememt widget is on the previous step.
+	_Model__namespace = 
+Record 11
+	_activityNum = 1
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 0
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = first time with the new fermentation, the crap from the boiler starting settling withing 12 hours
+add a field for temperature peak, and add times to field saves-
+	_Model__namespace = 
+Record 12
+	_activityNum = 1
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 1
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = 
+	_Model__namespace = 
+Record 13
+	_activityNum = 1
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 5
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = 1.016
+	_Model__namespace = 
+Record 14
+	_activityNum = 2
+	_brewlog = 2011-11-04
+	_fieldLabel = None
+	_recipe = Green
+	_fieldKey = notepage
+	_parent_key = None
+	_fieldWidget = None
+	_stepNum = 0
+	_parent = None
+	_owner = test@example.com
+	_fieldTimestamp = None
+	_app = None
+	_fieldVal = dot have the mini kegs on here.
+	_Model__namespace = 
+

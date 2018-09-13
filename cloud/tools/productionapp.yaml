@@ -1,0 +1,31 @@
+application: brewerspad
+version: 3
+runtime: python
+threadsafe: false
+api_version: 1
+
+handlers:
+- url: /public/recipe/.*
+  script: public.py
+- url: /publish/import/.*
+  script: publish.py
+- url: /publish/export/.*
+  script: publish.py
+- url: /publish/recipe/.*
+  script: publish.py
+- url: /authorise/.*
+  script: authorise.py
+  secure: always
+- url: /bouncer/.*
+  script: bouncer.py
+- url: /dbg/.*
+  script: dbg.py
+- url: /import/.*
+  script: import.py
+- url: /modify/.*
+  script: modify.py
+- url: /exportdata/.*
+  script: exportData.py
+- url: /favicon\.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon\.ico

@@ -1,0 +1,6 @@
+- url: /exportData/.*
+  script: exportData.py
+- url: /brewlab/.*
+  script: brewlab.py
+- url: /stores/.*
+  script: brewlab.py

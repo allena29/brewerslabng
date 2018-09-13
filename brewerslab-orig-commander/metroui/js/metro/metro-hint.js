@@ -1,0 +1,1 @@
+link ../metro-hint.js
