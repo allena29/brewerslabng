@@ -78,8 +78,6 @@ RUN \
       cd libyang && \
       git checkout 85d09f3bdf5ea01ea2e01deb384b2b0dde057e3f && \
       mkdir build && cd build && \
-      #git checkout devel && \
-      #cmake -DCMAKE_BUILD_TYPE:String="Debug" -DENABLE_BUILD_TESTS=OFF .. && \
       cmake .. && \
       make -j6  && \
       make install && \
@@ -118,27 +116,19 @@ RUN \
       cd /opt/dev && \
       git clone https://github.com/sysrepo/sysrepo.git && \
       cd sysrepo && \
-      #git checkout 724a62fa830df7fcb2736b1ec41b320abe5064d2 && \
-      mkdir build && cd build && \
-      #git checkout devel && \
-      #cmake -DCMAKE_BUILD_TYPE:String="Debug" -DENABLE_TESTS=OFF -DREPOSITORY_LOC:PATH=/etc/sysrepo .. && \
-      cmake .. && \
-      make  && \
-      make install && \
-      ldconfig && \
-      cd .. && \
+      git checkout 724a62fa830df7fcb2736b1ec41b320abe5064d2 && \
       mkdir build_python3 && \
       cd build_python3 && \
-      cmake -DGEN_PYTHON_VERSION=3 .. && \
+      cmake -DREPOSITORY_LOC=/sysrepo -DGEN_PYTHON_VERSION=3 .. && \
       make -j6 && \
-      make install
+      make install && \
+      ldconfig 
 
 # libnetconf2
 RUN \
       git clone https://github.com/CESNET/libnetconf2.git && \
       cd libnetconf2 && mkdir build && cd build && \
       git checkout 54ba1c7a1dbd85f3e700c1629ced8e4b52bac4ec && \
-      # cmake -DCMAKE_BUILD_TYPE:String="Debug" -DENABLE_BUILD_TESTS=OFF .. && \
       cmake .. && \
       make -j6 && \
       make install && \
@@ -153,7 +143,6 @@ RUN \
       cd keystored && mkdir build && cd build && \
       git checkout devel-server && \
       cmake .. && \
-      #cmake -DCMAKE_BUILD_TYPE:String="Debug" .. && \
       make -j6  && \
       make install && \
       ldconfig
@@ -163,7 +152,6 @@ RUN \
       cd /opt/dev && \
       cd Netopeer2/server && mkdir build && cd build && \
       git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
-      # cmake -DCMAKE_BUILD_TYPE:String="Debug" .. && \
       cmake .. && \
       make -j6 && \
       make install && \
@@ -171,6 +159,11 @@ RUN \
       cmake -DCMAKE_BUILD_TYPE:String="Debug" .. && \
       make  && \
       make install
+
+RUN \
+    apt-get clean && \
+    apt-get autoclean && \
+    rm -fr /opt/dev
 
 ENV EDITOR vim
 EXPOSE 830
