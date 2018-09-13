@@ -1,0 +1,1 @@
+link ../metro-plugin-template.js

@@ -2,25 +2,34 @@
 
 ### BEGIN INIT INFO
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Provides:        brewerslabMaster
 =======
 # Provides:        piTempMonitorSlave
 >>>>>>> 0b32c09d3a6959e0518743336a0f7c30e0e2a596
+=======
+# Provides:        brewerslabCommander
+>>>>>>> 0192b08f9794de9deff1a1045842ba9f184b70ad
 # Required-Start:  $network $remote_fs $syslog
 # Required-Stop:   $network $remote_fs $syslog
 # Default-Start:   2 3 4 5
 # Default-Stop:
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Short-Description: Start piTempMonitor Master
 =======
 # Short-Description: Start piTempMonitor
 >>>>>>> 0b32c09d3a6959e0518743336a0f7c30e0e2a596
+=======
+# Short-Description: Start brewerslab Commander
+>>>>>>> 0192b08f9794de9deff1a1045842ba9f184b70ad
 ### END INIT INFO
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 case $1 in
         start)
+<<<<<<< HEAD
 <<<<<<< HEAD
                 sh /home/beer/brewerslab/master/start.sh
                 status=$?
@@ -34,6 +43,13 @@ case $1 in
         stop)
 		sh /home/beer/brewerslab/slave/stop.sh
 >>>>>>> 0b32c09d3a6959e0518743336a0f7c30e0e2a596
+=======
+                sh /home/beer/brewerslab/commander/start.sh
+                status=$?
+                ;;
+        stop)
+                sh /home/beer/brewerslab/commander/stop.sh
+>>>>>>> 0192b08f9794de9deff1a1045842ba9f184b70ad
                 status=$?
                 ;;
         restart)
@@ -44,3 +60,7 @@ case $1 in
                 exit 2
                 ;;
 esac
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0192b08f9794de9deff1a1045842ba9f184b70ad

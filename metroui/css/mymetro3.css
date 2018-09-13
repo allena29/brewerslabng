@@ -1,0 +1,33 @@
+
+
+.progress-bar {
+  display: block;
+  position: relative;
+  height: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: #eeeeee;
+}
+.progress-bar:before,
+.progress-bar:after {
+  display: table;
+  content: "";
+}
+.progress-bar:after {
+  clear: both;
+}
+.progress-bar .bar {
+  position: relative;
+  display: block;
+  float: left;
+  width: 0;
+  background-color: #1ba1e2;
+  height: 100%;
+}
+.progress-bar.small {
+  height: 5px;
+}
+.progress-bar.large {
+  height: 15px;
+}
+
