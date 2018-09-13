@@ -1,0 +1,21 @@
+module test {
+  namespace "http://test.com";
+  prefix test;
+
+  container test {
+    leaf hello {
+      type string;
+      default world;
+    }
+
+    leaf thinking {
+      type string;
+      config false;
+    }
+
+    leaf service {
+      type string;
+    }
+  }
+
+}

@@ -61,3 +61,4 @@ urllib3==1.22
 wcwidth==0.1.7
 wrapt==1.10.11
 simplejson==3.16.0
+netconf-console==2.0.1
