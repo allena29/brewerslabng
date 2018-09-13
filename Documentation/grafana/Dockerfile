@@ -28,6 +28,11 @@ RUN \
   echo "deb https://dl.bintray.com/fg2it/deb-rpi-1b stretch main" >>/etc/apt/sources.list.d/grafana.list && \
   apt-get update && apt-get -y install grafana
 
+COPY grafana.ini /etc/grafana/grafana.ini
+
+RUN \
+  chown grafana:grafana /etc/grafana/grafana.ini
+
 
 ENV EDITOR vim
-EXPOSE 3000
+EXPOSE 3000 8086

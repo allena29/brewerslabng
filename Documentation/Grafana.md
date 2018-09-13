@@ -1,0 +1,11 @@
+
+# Influx DB
+
+```
+CREATE DATABASE db1
+USE db1
+CREATE USER root WITH PASSWORD 'passhere' WITH ALL PRIVILEGES
+GRANT ALL PRIVILEGES ON db1 TO root
+```
+
+
