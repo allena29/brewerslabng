@@ -4,21 +4,23 @@ RUN \
       apt-get update && apt-get install -y \
       # general tools
       git \
+      vim \
+      curl \
+      gnupg \
+      apt-transport-https
+
+RUN \
+      apt-get install -y \
       cmake \
       build-essential \
-      vim \
       supervisor \
-      # libyang
       libpcre3-dev \
       pkg-config \
-      # sysrepo
       libavl-dev \
       libev-dev \
       libprotobuf-c-dev \
       protobuf-c-compiler \
-      # netopeer2 \
       libssl-dev \
-      # bindings
       swig \
       python-dev \
       libcurl4-openssl-dev \
@@ -32,7 +34,8 @@ RUN \
       libprotobuf-dev \
       doxygen-dbg  && \
       apt-get install -y libtool libtool-bin libxml2-dev libxslt1-dev libcurl4-openssl-dev xsltproc python-setuptools cmake zlib1g-dev libssl-dev pkg-config libreadline-dev && \ 
-      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake 
+      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake
+
 
 # add netconf user
 RUN \
