@@ -1,0 +1,25 @@
+module brewerslab-types {
+  
+  namespace "http://brewerslabng.mellon-collie.net/yang/types";
+  prefix "brewlabng-types";
+
+  typedef ds18b20-probe {
+    type string {
+      pattern "28-[0-9a-f]{1,32}" {
+        error-message "Invalid DS18B20 probe id";
+      }
+    }
+  }
+
+  typedef temperature-probe {
+    type union {
+      type ds18b20-probe;
+    }
+  }
+
+  typedef temperature {
+    type decimal64 {
+      fraction-digits 3;
+    }
+  }
+}

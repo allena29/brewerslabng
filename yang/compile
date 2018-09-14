@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Compiling yang to yin" >/dev/stderr
+for file in *.yang
+do
+  pyang -f yin $file >yin/$file.yin
+done
