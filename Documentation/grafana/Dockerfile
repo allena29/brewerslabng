@@ -28,11 +28,20 @@ RUN \
   echo "deb https://dl.bintray.com/fg2it/deb-rpi-1b stretch main" >>/etc/apt/sources.list.d/grafana.list && \
   apt-get update && apt-get -y install grafana
 
-COPY grafana.ini /etc/grafana/grafana.ini
+#RUN \
+#  /etc/init.d/grafana-server start || echo 'Overlook failure to start' 
 
+COPY grafana.ini /etc/grafana/grafana.ini
 RUN \
   chown grafana:grafana /etc/grafana/grafana.ini
 
+COPY influx.sql /tmp/influx.sql
+
+RUN \
+  /etc/init.d/influxdb start && \
+  echo "CREATE DATABASE temperatures;" | influx && \
+  influx -database temperatures < /tmp/influx.sql && \
+  influx < /tmp/influx.sql
 
 ENV EDITOR vim
 EXPOSE 3000 8086
