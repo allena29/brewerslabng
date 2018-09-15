@@ -6,7 +6,7 @@ def main():
 
     while True:
         try:
-            text = session.prompt('> ')
+            text = session.prompt('# ')
         except KeyboardInterrupt:
             continue
         except EOFError:
