@@ -1,7 +1,7 @@
 module brewerslab {
 
   namespace "http://brewerslabng.mellon-collie.net/yang/main";
-  prefix "brewlabng-teststub";
+  prefix "brewlabng";
 
   import brewerslab-types {
     prefix brewerslab-types;
