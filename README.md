@@ -1,8 +1,14 @@
 # brewerslabng
 
-This project is a clean-reworking of [Brewerslab](https://github.com/allena29/brewerslab) which is looking to provide an datamodel and associated implementation for a small brewery.
+This project is a clean-reworking of [Brewerslab](https://github.com/allena29/brewerslab) which is looking to provide an datamodel and associated implementation for a small brewery. There has been a lot of stop/start on rewriting the existing code - most of the problem stems from reactoring in between brewing beer is unlikely to happen- so a gradual migration is required.
 
-The data for the brewery will use a strong data model (YANG), and will use [**PyConfHoard**](pyconfhoard/README.md) to store and manage the data.
+There is still a strong desire to distribute, physical ports on a Raspberry Pi (I have two or three of these) can be extended with things like I2C, but that adds fragility for someone with my lack of soldering skills. Some obvious toolsets are too memory hungry or not available for ARM architecture (Tail-f ConfD, Elasticsearch, Kibana etc). Anything that uses Java is ruled out (Kafka was in with something to play with).
+
+By retaining the multicast transmission of JSON encoded data it will be possible to migrate functions one by one - and within a brewday it would be possible to switch from old to new. The old code imports code with the `pitm` designation (pi temperature monitor), the new code will be designated with `blng` (brewers lab next generation)
+
+The data for the brewery will use a strong data model (YANG), and this is still the desire.
+
+Docker on a Raspberry Pi appears to be quite favourable at this stage - however it doesn't magically solve architecture differences. There are caveats with Multicast on the MAC because it uses a VM (going our own way with VirtualBox is an efective workaround).
 
 
 ## Setup
@@ -17,7 +23,13 @@ The data for the brewery will use a strong data model (YANG), and will use [**Py
 
 
 
-# Given, When, Then - Tests
+# Approach
+
+- 1/ Move the recording of results to InfluxDB and Grafana
+- 2/ Move the manual flag setting to a basic CLI based approach using Netopeer2/Sysrepod
+- 3/ Re-implement functions
+
+# Testing
 
 The best way to see how this project and code behaves is by running the approval testing, this will run through a set of tests. This will create a datastore will be created in a temporary directory and removed after the test is compelted. 
 
