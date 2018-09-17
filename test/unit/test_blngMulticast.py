@@ -2,13 +2,13 @@ from mock import patch, Mock, call
 import unittest
 import time
 
-from pitmMcastOperations import pitmMcast
+from BlngMulticast import BlngMulticast
 
 
 class TestMcastOperations(unittest.TestCase):
 
     def setUp(self):
-        self.subject = pitmMcast()
+        self.subject = BlngMulticast()
         self.subject.groot.log = Mock()
 
 

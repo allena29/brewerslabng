@@ -1,18 +1,10 @@
 #!/usr/bin/python
-# piTempBuzzer
-import os
-import hashlib
-import struct
-import socket
 import syslog
 import sys
-import threading
 import time
 
-from pitmCfg import pitmCfg
 
-
-class pitmLogHandler:
+class BlngLogHandler:
 
     """
     This allow us to send logs to syslog and stdout
