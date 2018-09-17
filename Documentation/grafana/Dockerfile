@@ -27,7 +27,8 @@ RUN \
   curl -sL "https://packagecloud.io/gpg.key" | apt-key add - && \
   echo 'deb https://packagecloud.io/grafana/stable/debian/ stretch main' >/etc/apt/sources.list.d/grafana.list && \
   echo "deb https://dl.bintray.com/fg2it/deb-rpi-1b stretch main" >>/etc/apt/sources.list.d/grafana.list && \
-  apt-get update && apt-get -y install grafana
+  apt-get update && apt-get -y install grafana && \
+  mkdir /var/lib/grafana/dashboards
 
 COPY grafana.ini /etc/grafana/grafana.ini
 COPY dashboards/* /var/lib/grafana/dashboards
@@ -38,15 +39,15 @@ RUN \
   chown grafana:grafana /etc/grafana/grafana.ini && \
   chown -R grafana:grafana /var/lib/grafana/dashboards && \
   /etc/init.d/grafana-server start || echo 'Overlook failure to start'  && \
-  curl 'http://admin:beerng@127.0.0.1:3000/api/datasources' -X POST -H 'Content-Type: application/json;charset=UTF-8' --data-binary '{"name":"temperatures","type":"influxdb","url":"http://localhost:8086","access":"proxy","isDefault":true,"database":"temperatures","user":"root","password":"beerng"}'
+  curl 'http://admin:beerng@127.0.0.1:3000/api/datasources' -X POST -H 'Content-Type: application/json;charset=UTF-8' --data-binary '{"name":"beerstats","type":"influxdb","url":"http://localhost:8086","access":"proxy","isDefault":true,"database":"beerstats","user":"root","password":"beerng"}'
 
 
 COPY influx.sql /tmp/influx.sql
 
 RUN \
   /etc/init.d/influxdb start && \
-  echo "CREATE DATABASE temperatures;" | influx && \
-  influx -database temperatures < /tmp/influx.sql && \
+  echo "CREATE DATABASE beerstats;" | influx && \
+  influx -database beerstats < /tmp/influx.sql && \
   influx < /tmp/influx.sql
 
 ENV EDITOR vim

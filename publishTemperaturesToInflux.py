@@ -26,7 +26,7 @@ class PublishTemperatureToInflux(Subscriber.Subscriber):
 
     LOG_COMPONENT = 'Temperature2Influx'
     # TODO: move the URL for influx db to netconf config store
-    INFLUX_URL = 'http://192.168.3.6:8086/write?db=temperatures'
+    INFLUX_URL = 'http://192.168.3.6:8086/write?db=beerstats'
 
     def init(self):
         self.log.debug('Intialised to publish temperature to %s' % (self.INFLUX_URL))
@@ -66,15 +66,6 @@ class PublishTemperatureToInflux(Subscriber.Subscriber):
         """"
 +  65         TODO: we need to convert probeId mappings into Netconf datastore - not read from config file.
 +  66         TODO: we need to move target temperatures into Netconf datastore - not broadcast from governor
-i
-0
-down vote
-import requests
-
-url_string = 'http://localhost:8086/write?db=mydb'
-data_string = 'cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000'
-
-r = requests.post(url_string, data=data_string)
         """
         timestamp = int(time.time() * 1000000000)
         data_string = "ferm,host=%s value=%s %s" % (self.ID, msg_dict['ferm'], timestamp)
