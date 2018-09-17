@@ -29,12 +29,14 @@ RUN \
   echo "deb https://dl.bintray.com/fg2it/deb-rpi-1b stretch main" >>/etc/apt/sources.list.d/grafana.list && \
   apt-get update && apt-get -y install grafana
 
-#RUN \
-#  /etc/init.d/grafana-server start || echo 'Overlook failure to start' 
-
 COPY grafana.ini /etc/grafana/grafana.ini
+
+# Start grafana and add the image
 RUN \
-  chown grafana:grafana /etc/grafana/grafana.ini
+  chown grafana:grafana /etc/grafana/grafana.ini && \
+  /etc/init.d/grafana-server start || echo 'Overlook failure to start'  && \
+  curl 'http://admin:beerng@127.0.0.1:3000/api/datasources' -X POST -H 'Content-Type: application/json;charset=UTF-8' --data-binary '{"name":"temperatures","type":"influxdb","url":"http://localhost:8086","access":"proxy","isDefault":true,"database":"temperatures","user":"root","password":"beerng"}'
+
 
 COPY influx.sql /tmp/influx.sql
 
