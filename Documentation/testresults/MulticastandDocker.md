@@ -83,3 +83,21 @@ UDP buffer size:  208 KByte (default)
 root@7ca208fe8639:/opt/
 ```
 
+
+
+# Mac
+
+With a MAC Multicast doesn't work.
+
+Instead 
+ 
+- Install alpline linux in Virtualbox (livecd run `alpine-setup`)
+- Add a user `docker`
+- `apk add sudoer`
+- Add community repository `sudo vi /etc/apk/repositories`
+- Install docker, git vim
+
+The reason for doing this ourself is we can bind the virtualbox interface to be bridged to our local network interface and it will pick up mutlicast traffic.
+
+When starting the docker container we need to start it with `--net=host` option  [this page](https://hostpresto.com/community/tutorials/networking-with-docker-containers/) shows more details about dockers networking.
+
