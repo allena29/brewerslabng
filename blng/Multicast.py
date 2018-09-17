@@ -5,7 +5,8 @@ import logging
 import syslog
 import sys
 import json
-from BlngLogHandler import BlngLogHandler
+
+import blng.LogHandler as LogHandler
 
 """
 This class provides a nice interface to read data from a multicast
@@ -14,7 +15,7 @@ socket. The payload is a dictionary in json format padded to exactly
 """
 
 
-class BlngMulticast:
+class Multicast:
 
     DISABLE_CHECKSUM = True
     CHECKSUM = "ABFJDSGF"
@@ -22,7 +23,7 @@ class BlngMulticast:
     MCAST_PORT = 5000
 
     def __init__(self, mcast_port=0):
-        self.groot = BlngLogHandler()
+        self.groot = LogHandler.LogHandler('Multicast')
         self.sendSocket = None
         if mcast_port:
             self.MCAST_PORT = mcast_port
@@ -88,7 +89,8 @@ class BlngMulticast:
                 cm = json.loads(data)
                 checksum = cm['_checksum']
                 cm['_checksum'] = "                                        "
-                ourChecksum = hashlib.sha1("%s%s" % (cm, checksum)).hexdigest()
+                received_checksum = "%s%s" % (cm, checksum)
+                ourChecksum = hashlib.sha1(received_checksum.encode('utf-8')).hexdigest()
                 if self.DISABLE_CHECKSUM or self._verify_checksum(cm, port):
                     callback(cm)
             except ImportError:

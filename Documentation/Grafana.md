@@ -21,6 +21,12 @@ We can connect to the database with `influx -database temperatures`
 
 # Grafana
 
-Need to put datasource config directly in the right place (i.e. /etc/provisioning).
+#### Datasource.
 
+We currently provision the datasource by making an API call with grafana running.
 
+#### Dashboard.
+
+- Create a datashboard, and select the drop down box on the Panel Title
+  - select datasource `
+SELECT value from ferm

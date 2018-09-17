@@ -29,6 +29,18 @@ Docker on a Raspberry Pi appears to be quite favourable at this stage - however 
 - 2/ Move the manual flag setting to a basic CLI based approach using Netopeer2/Sysrepod
 - 3/ Re-implement functions
 
+
+
+# TODO:
+
+### publishTempeartureToInflux
+
+
+- TODO: we need to convert probeId mappings into Netconf datastore - not read from config file.
+- we need to move target temperatures into Netconf datastore - not broadcast from governor
+
+
+
 # Testing
 
 The best way to see how this project and code behaves is by running the approval testing, this will run through a set of tests. This will create a datastore will be created in a temporary directory and removed after the test is compelted. 

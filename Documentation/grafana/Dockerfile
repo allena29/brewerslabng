@@ -30,10 +30,13 @@ RUN \
   apt-get update && apt-get -y install grafana
 
 COPY grafana.ini /etc/grafana/grafana.ini
+COPY dashboards/* /var/lib/grafana/dashboards
+
 
 # Start grafana and add the image
 RUN \
   chown grafana:grafana /etc/grafana/grafana.ini && \
+  chown -R grafana:grafana /var/lib/grafana/dashboards && \
   /etc/init.d/grafana-server start || echo 'Overlook failure to start'  && \
   curl 'http://admin:beerng@127.0.0.1:3000/api/datasources' -X POST -H 'Content-Type: application/json;charset=UTF-8' --data-binary '{"name":"temperatures","type":"influxdb","url":"http://localhost:8086","access":"proxy","isDefault":true,"database":"temperatures","user":"root","password":"beerng"}'
 
