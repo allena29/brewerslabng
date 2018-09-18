@@ -22,8 +22,8 @@ class Multicast:
     MCAST_GROUP = "239.232.168.250"
     MCAST_PORT = 5000
 
-    def __init__(self, mcast_port=0):
-        self.groot = LogHandler.LogHandler('Multicast')
+    def __init__(self, mcast_port=0, log_component=''):
+        self.log = LogHandler.LogHandler(log_component + 'Multicast')
         self.sendSocket = None
         if mcast_port:
             self.MCAST_PORT = mcast_port
@@ -44,7 +44,7 @@ class Multicast:
         recalculated_checksum = hashlib.sha1(pre_verify.encode('utf-8')).hexdigest()
 
         if not recalculated_checksum == received_checksum:
-            self.groot.err("Checksum mismatch for data on port %s: %s != %s" % (
+            self.log.err("Checksum mismatch for data on port %s: %s != %s" % (
                 port, received_checksum, recalculated_checksum))
 
         return recalculated_checksum == received_checksum
@@ -94,5 +94,5 @@ class Multicast:
                 if self.DISABLE_CHECKSUM or self._verify_checksum(cm, port):
                     callback(cm)
             except ImportError:
-                self.groot.log("Error decoding input message\n%s" % (data))
+                self.log.debug("Error decoding input message\n%s" % (data))
                 pass

@@ -11,20 +11,21 @@ class HttpHandler(http.server.SimpleHTTPRequestHandler):
 class Http:
 
     HTTP_PORT = 4998
-    HTTP_ADDRESS = ""
+    HTTP_ADDRESS = "0.0.0.0"
 
-    def __init__(self, http_port=0):
-        self.groot = LogHandler.LogHandler('Http')
+    def __init__(self, http_port=0, log_component=''):
+        self.log = LogHandler.LogHandler(log_component + 'Http')
         if http_port:
             self.HTTP_PORT = http_port
 
     def http_callback_post(self, path, post):
-        print('http_callback_post not defined in child class')
+        print('http_callback_post not redefined')
 
     def http_callback_get(self, path):
-        print('http_callback_get not defined in child class')
+        print('http_callback_get not redefined')
 
     def serve(self):
+        self.log.info('Attempting to bind %s:%s' % (self.HTTP_ADDRESS, self.HTTP_PORT))
         self.http_server = socketserver.TCPServer((self.HTTP_ADDRESS, self.HTTP_PORT), HttpHandler)
         self.http_server_thread = threading.Thread(target=self.http_server.serve_forever)
         self.http_server_thread.daemon = True
