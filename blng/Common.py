@@ -6,7 +6,11 @@ import blng.LogHandler as LogHandler
 
 class Common:
 
+    MCAST_PORT = 4999
+
     def __init__(self):
+        self.__mcasthandler = None
+
         if not hasattr(self, 'ID'):
             # TODO: pick up ID from os.environ
             self.ID = "shjips"

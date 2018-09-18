@@ -1,18 +1,7 @@
-from __future__ import division
 #!/usr/bin/python
 
-# piTempLedFlasher
-import socket
-import json
-import os
-import hashlib
-import requests
-import struct
-import socket
-import syslog
-import sys
-import threading
 import time
+import requests
 import blng.Subscriber as Subscriber
 
 """
@@ -24,9 +13,10 @@ database.
 
 class PublishTemperatureToInflux(Subscriber.Subscriber):
 
+    MCAST_PORT = 5087
     LOG_COMPONENT = 'Temperature2Influx'
     # TODO: move the URL for influx db to netconf config store
-    INFLUX_URL = 'http://192.168.3.6:8086/write?db=beerstats'
+    INFLUX_URL = 'http://127.0.0.1:8086/write?db=beerstats'
 
     def init(self):
         self.log.debug('Intialised to publish temperature to %s' % (self.INFLUX_URL))
@@ -138,4 +128,4 @@ class PublishTemperatureToInflux(Subscriber.Subscriber):
 
 if __name__ == '__main__':
     publisher = PublishTemperatureToInflux()
-    publisher.subscribe(5087)
+    publisher.subscribe()
