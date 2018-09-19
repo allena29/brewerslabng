@@ -73,28 +73,28 @@ Each time a temperature reading is taken it is published via a JSON string publi
 
 ```json
 {	
-	'_operation': 'temperatureResults1',
-	'currentResult': {
-			'28-0417c4aa05ff': {
-					'timestamp': 1537224875.011157,
-					'valid': True, 
-					'temperature': 16.937
+	"_operation": "temperatureResults1",
+	"currentResult": {
+			"28-0417c4aa05ff': {
+					"timestamp": 1537224875.011157,
+					"valid": True, 
+					"temperature": 16.937
 			}
 	},
-	'_brewlog': '08.09.2018',
-	'_recipe': 'Citra18',
-	'_mode': 'ferm',
-	'currentStatus': 0,	
-	'hlt': '28-0417c4b010ff',
-	'mashA': '28-0417c4acedff',
-	'mashB': '28-0417c4acedff',
-	'ferm': '28-0417c4aa05ff', 
-	'_checksum': '                                        ', 
-	'tempTargetBoil': [-1, -1, -1],
-	'tempTargetHlt': [-1, -1, -1],
-	'tempTargetFerm': [16.7, 17.3, 17.0],
-	'tempTargetSparge': [-1, -1, -1], 
-	'tempTargetMash': [-1, -1, -1], 
+	"_brewlog": "08.09.2018",
+	"_recipe": "Citra18",
+	"_mode": "ferm",
+	"currentStatus": 0,	
+	"hlt": "28-0417c4b010ff",
+	"mashA": "28-0417c4acedff",
+	"mashB": "28-0417c4acedff",
+	"ferm": "28-0417c4aa05ff", 
+	"_checksum": "                                        ", 
+	"tempTargetBoil": [-1, -1, -1],
+	"tempTargetHlt": [-1, -1, -1],
+	"tempTargetFerm": [16.7, 17.3, 17.0],
+	"tempTargetSparge": [-1, -1, -1], 
+	"tempTargetMash": [-1, -1, -1], 
 	}
 }
 ```
@@ -104,6 +104,8 @@ Each time a temperature reading is taken it is published via a JSON string publi
 #### Fermentation Monitoring 
 
 An [iSpindel](https://github.com/universam1/iSpindel/blob/master/docs/README_en.md) can be used to provide an approximate the progress of fermentation, this is unlikely to be entirely accurate but provides a useful guide for the progress. The iSpindel can be configured to submit results to a service like Ubidots, or a Generic TCP server where we have a simpe JSON structure. 
+
+**Note: the iSpindle does not talk HTTP**
 
 
 ```json
