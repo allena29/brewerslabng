@@ -8,7 +8,7 @@ import blng.Common
 class BroadcastISpindelGravity(blng.Common.Common):
 
     """
-    This class will run an lightweight web-server to allow the iSpindel to connect
+    This class will run an lightweight tcp server to allow the iSpindel to connect
     via it's Generic HTTP method. The iSpindel must be configured with the IP
     address and HTTP_PORT of this server.
 
