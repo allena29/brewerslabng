@@ -32,10 +32,9 @@ class Multicast:
         """
         Open a socket for u to braodcast messges on
         """
-        self.sendSocket = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.sendSocket.setsockopt(
-            socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
+        self.log.info('Opening multicast send socket')
+        self.sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.sendSocket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
 
     def _verify_checksum(self, controlMessage, port='Unknown'):
         received_checksum = controlMessage['_checksum']
@@ -68,15 +67,15 @@ class Multicast:
 
         msg = json.dumps(controlMessage)
         msg = "%s%s" % (msg, " " * (1200 - len(msg)))
-        self.sendSocket.sendto(msg, (self.MCAST_GROUP, self.MCAST_PORT))
+        self.sendSocket.sendto(msg.encode('UTF-8'), (self.MCAST_GROUP, self.MCAST_PORT))
 
     def open_socket(self, callback, port):
         """
         Open a socket a listen for data in 1200 byte chunks.
         Fire the callback each time
         """
-        sock = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.log.info('Opening Multicast Receive Socket %s' % (port))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
         sock.bind(('', port))
