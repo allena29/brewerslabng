@@ -164,9 +164,16 @@ TODO... populate it.
 
 ## Graphical Dashbord
 
-The username is `beerng` and the password is `beerng`
+The username is `beerng` and the password is `beerng`. 
 
 ```
-docker run --name grafana -i -d -p 3000:3000 -p 8086:8086 allena29/grafana
+docker run --name grafana -i -d -p 3000:3000 -p 8086:8086 allena29/brewerslabng:grafana
 ```
 
+For the dashboards to receive any stats the following processes need to run, they need to be able to successfully receive multicast and be able to make HTTP calls to the Influx DB port 8086.
+
+```
+screen -dmS broadcastGravity python broadcastISpindelGravity.py
+screen -dmS publishGravity python publishGravityToInflux.py
+screen -dmS publishTemperature python publishTemperaturesToInflux.py
+```

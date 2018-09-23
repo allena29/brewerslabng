@@ -164,6 +164,8 @@ RUN \
       make  && \
       make install
 
+COPY start.sh /root
+
 RUN \
     apt-get clean && \
     apt-get autoclean && \
@@ -171,3 +173,6 @@ RUN \
 
 ENV EDITOR vim
 EXPOSE 830
+STOPSIGNAL SIGTERM
+CMD [ "/start.sh" ]
+

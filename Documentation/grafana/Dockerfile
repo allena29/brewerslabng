@@ -10,7 +10,7 @@ RUN \
       apt-transport-https \
       python3
 
-# add netconf user
+# add grafana user
 RUN \
     adduser --system graphana && \
     echo "graphana:graphana" | chpasswd
