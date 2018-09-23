@@ -156,3 +156,17 @@ The test harness follows Behaviour Driven Development approach which ensures ass
 TODO... populate it.
 
 
+
+
+
+# Functions
+
+
+## Graphical Dashbord
+
+The username is `beerng` and the password is `beerng`
+
+```
+docker run --name grafana -i -d -p 3000:3000 -p 8086:8086 allena29/grafana
+```
+

@@ -49,7 +49,11 @@ time                value
 1537222258839175168 17
 ```
 
+#### Backup Data
 
+```
+influxd backup -portable -database beerstats /tmp/x
+```
 
 # Grafana
 
