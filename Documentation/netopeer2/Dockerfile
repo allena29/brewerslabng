@@ -7,7 +7,8 @@ RUN \
       vim \
       curl \
       gnupg \
-      apt-transport-https
+      apt-transport-https \
+      python3
 
 RUN \
       apt-get install -y \

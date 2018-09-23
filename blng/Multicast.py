@@ -5,8 +5,8 @@ import logging
 import syslog
 import sys
 import json
-from pitmCfg import pitmCfg
-from pitmLogHandler import pitmLogHandler
+
+import blng.LogHandler as LogHandler
 
 """
 This class provides a nice interface to read data from a multicast
@@ -15,32 +15,35 @@ socket. The payload is a dictionary in json format padded to exactly
 """
 
 
-class pitmMcast:
+class Multicast:
 
     DISABLE_CHECKSUM = True
+    CHECKSUM = "ABFJDSGF"
+    MCAST_GROUP = "239.232.168.250"
+    MCAST_PORT = 5000
 
-    def __init__(self):
-        self.cfg = pitmCfg()
-        self.groot = pitmLogHandler()
+    def __init__(self, mcast_port=0, log_component=''):
+        self.log = LogHandler.LogHandler(log_component + 'Multicast')
         self.sendSocket = None
+        if mcast_port:
+            self.MCAST_PORT = mcast_port
 
     def _open_mcast_write_socket(self):
         """
         Open a socket for u to braodcast messges on
         """
-        self.sendSocket = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.sendSocket.setsockopt(
-            socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
+        self.log.info('Opening multicast send socket')
+        self.sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.sendSocket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
 
     def _verify_checksum(self, controlMessage, port='Unknown'):
         received_checksum = controlMessage['_checksum']
         controlMessage['_checksum'] = "                                        "
-        recalculated_checksum = hashlib.sha1(
-            "%s%s" % (controlMessage, self.cfg.checksum)).hexdigest()
+        pre_verify = "%s%s" % (controlMessage, self.CHECKSUM)
+        recalculated_checksum = hashlib.sha1(pre_verify.encode('utf-8')).hexdigest()
 
         if not recalculated_checksum == received_checksum:
-            self.groot.err("Checksum mismatch for data on port %s: %s != %s" % (
+            self.log.err("Checksum mismatch for data on port %s: %s != %s" % (
                 port, received_checksum, recalculated_checksum))
 
         return recalculated_checksum == received_checksum
@@ -48,9 +51,9 @@ class pitmMcast:
     def _calculate_and_set_checksum(self, controlMessage):
         # generate the checksum with a bank string first
         controlMessage['_checksum'] = "                                        "
-        checksum = "%s%s" % (controlMessage, self.cfg.checksum)
+        checksum = "%s%s" % (controlMessage, self.CHECKSUM)
         # then update the message with the actual checksum
-        controlMessage['_checksum'] = hashlib.sha1(checksum).hexdigest()
+        controlMessage['_checksum'] = hashlib.sha1(checksum.encode('utf-8')).hexdigest()
 
         return controlMessage
 
@@ -64,20 +67,19 @@ class pitmMcast:
 
         msg = json.dumps(controlMessage)
         msg = "%s%s" % (msg, " " * (1200 - len(msg)))
-        self.sendSocket.sendto(msg, (self.cfg.mcastGroup, port))
+        self.sendSocket.sendto(msg.encode('UTF-8'), (self.MCAST_GROUP, self.MCAST_PORT))
 
     def open_socket(self, callback, port):
         """
         Open a socket a listen for data in 1200 byte chunks.
         Fire the callback each time
         """
-        sock = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.log.info('Opening Multicast Receive Socket %s' % (port))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 4)
         sock.bind(('', port))
-        mreq = struct.pack("4sl", socket.inet_aton(
-            self.cfg.mcastGroup), socket.INADDR_ANY)
+        mreq = struct.pack("4sl", socket.inet_aton(self.MCAST_GROUP), socket.INADDR_ANY)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
         while True:
@@ -86,9 +88,10 @@ class pitmMcast:
                 cm = json.loads(data)
                 checksum = cm['_checksum']
                 cm['_checksum'] = "                                        "
-                ourChecksum = hashlib.sha1("%s%s" % (cm, checksum)).hexdigest()
+                received_checksum = "%s%s" % (cm, checksum)
+                ourChecksum = hashlib.sha1(received_checksum.encode('utf-8')).hexdigest()
                 if self.DISABLE_CHECKSUM or self._verify_checksum(cm, port):
                     callback(cm)
             except ImportError:
-                self.groot.log("Error decoding input message\n%s" % (data))
+                self.log.debug("Error decoding input message\n%s" % (data))
                 pass

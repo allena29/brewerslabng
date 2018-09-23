@@ -1,0 +1,33 @@
+module brewerslab-teststub {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/teststub";
+  prefix "brewlabng-teststub";
+
+  import brewerslab-types {
+    prefix brewerslab-types;
+  }
+
+  grouping tests {
+    container tests {
+      container temperature {
+        list probes {
+          key probeid;
+
+          leaf probeid {
+            type brewerslab-types:temperature-probe;
+          }
+
+          leaf run {
+            description "Describes if we want the test to be running or not.";
+            type boolean;
+          }
+
+          leaf value {
+            description "The temperature we want to report.";
+            type brewerslab-types:temperature;
+          }
+        }
+      }
+    }
+  }
+}

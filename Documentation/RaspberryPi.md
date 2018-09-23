@@ -117,6 +117,17 @@ pip install -r requirements.txt
 
 ### Optional VIM Enhancements
 
+These are pretty slow on a raspberry pi
+
 ```bash
 git clone https://github.com/AdamWhittingham/vim-config.git ~/.vim && ~/.vim/install
+```
+
+
+### Docker
+
+```bash
+curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
+sudo groupadd docker
+sudo gpasswd -a beerng docker
 ```
