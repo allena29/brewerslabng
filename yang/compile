@@ -9,4 +9,4 @@ do
   pyang -f yin $file >yin/$file.yin
 done
 
-python yinmunger.py --parent brewerslab --yin yin
+python yinmunger.py --parent brewerslab --yin yin | tee schema.xml
