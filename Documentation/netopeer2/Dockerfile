@@ -164,7 +164,7 @@ RUN \
       make  && \
       make install
 
-COPY start.sh /root
+COPY start.sh /
 
 RUN \
     apt-get clean && \

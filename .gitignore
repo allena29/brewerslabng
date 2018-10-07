@@ -14,3 +14,5 @@ datastore/startup/*.pch
 datastore/tmpfs/*
 datastore/operational/*
 datastore/running/*
+persist/
+yang/schema.xml

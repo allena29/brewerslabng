@@ -177,3 +177,10 @@ screen -dmS broadcastGravity python broadcastISpindelGravity.py
 screen -dmS publishGravity python publishGravityToInflux.py
 screen -dmS publishTemperature python publishTemperaturesToInflux.py
 ```
+
+
+## Netconf Configuration Store
+
+```
+docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw allena29/brewerslabng:netopeer /bin/bash
+```
