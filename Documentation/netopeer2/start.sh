@@ -11,6 +11,9 @@ rm -fr /tmp/sysrepo.tar
 sysrepod
 netopeer2-server
 
+echo "install yang"
+sysrepoctl --install --yang=/brewerslabng/yang/brewerslab.yang
+
 while true; do
 sleep 10
 done

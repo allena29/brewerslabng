@@ -7,8 +7,7 @@
 ```bash
 docker build -t netopeer .
 
-docker run -p 830:830 -i -d netopeer:latest  /bin/bash
-
+docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw allena29/brewerslabng:netopeer /bin/bash
 
 docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS                  NAMES
@@ -601,6 +600,26 @@ test:test {
 ```
 
 
+### Basic python based netconf
+
+```
+
+from lxml import etree
+from ncclient import manager
+import warnings
+import logging
+warnings.simplefilter("ignore", DeprecationWarning)
+
+logger = logging.getLogger('ncclient')
+logger.setLevel('WARNING')
+manager = manager.connect(host='localhost', port=830, username='netconf', password='netconf', hostkey_verify=False, unknown_host_cb=lambda x: True, look_for_keys=False)
+schema_xml_str = str(manager.get_schema(identifier='brewerslab'))
+schema = schema_xml.getchildren()[0].text
+
+
+
+```
+
 ---
 
 ---
@@ -743,4 +762,5 @@ make
 
 
 
+---
 
