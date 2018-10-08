@@ -24,6 +24,7 @@ RUN \
       libssl-dev \
       swig \
       python-dev \
+      python3-dev \
       libcurl4-openssl-dev \
       libxslt-dev \
       libxml2-dev \
@@ -35,7 +36,8 @@ RUN \
       libprotobuf-dev \
       doxygen-dbg  && \
       apt-get install -y libtool libtool-bin libxml2-dev libxslt1-dev libcurl4-openssl-dev xsltproc python-setuptools cmake zlib1g-dev libssl-dev pkg-config libreadline-dev && \ 
-      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake
+      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake screen
+
 
 
 # add netconf user
@@ -170,6 +172,11 @@ RUN \
     apt-get clean && \
     apt-get autoclean && \
     rm -fr /opt/dev
+
+RUN \ 
+    curl https://bootstrap.pypa.io/get-pip.py | python3 && \
+    pip install ptpython prompt-toolkit
+
 
 ENV EDITOR vim
 EXPOSE 830
