@@ -9,6 +9,7 @@ tar xvf /tmp/sysrepo.tar
 rm -fr /tmp/sysrepo.tar
 
 sysrepod
+sysrepo-plugind
 netopeer2-server
 
 echo "install yang"

@@ -11,7 +11,7 @@ RUN \
       python3
 
 RUN \
-      apt-get install -y \
+      apt-get update && apt-get install -y \
       cmake \
       build-essential \
       supervisor \
@@ -36,7 +36,8 @@ RUN \
       libprotobuf-dev \
       doxygen-dbg  && \
       apt-get install -y libtool libtool-bin libxml2-dev libxslt1-dev libcurl4-openssl-dev xsltproc python-setuptools cmake zlib1g-dev libssl-dev pkg-config libreadline-dev && \ 
-      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake screen
+      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake screen && \
+      apt-get install -y libffi-dev || echo 'livffi-dev does not exist'
 
 
 
@@ -147,7 +148,6 @@ RUN \
       cd Netopeer2 && \
       git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
       cd keystored && mkdir build && cd build && \
-      git checkout devel-server && \
       cmake .. && \
       make -j6  && \
       make install && \
