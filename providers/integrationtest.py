@@ -2,5 +2,5 @@
 
 import dataprovider
 
-dp = dataprovider.DataProvider('brewerslab')
+dp = dataprovider.DataProvider('integrationtest')
 dp.connect()

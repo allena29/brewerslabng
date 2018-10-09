@@ -34,8 +34,12 @@ ssh -lnetconf -p 830 127.0.0.1 -s netconf
 
 # Basic Test or Sysrepod and Netopeer
 
-```
 
+See... https://asciinema.org/a/VVG2j1Zn0QFbkrhlbOUz0Ll5q
+
+
+
+```
 Create a file basic.json - This is [Documentation/example-netopeer/basic.json](Documentation/example-netopeer/basic.json)
 
 ```json
@@ -69,7 +73,7 @@ module test {
 ### Install yang
 
 ```bash
-sudo sysrepoctl --install --yang=test.yang
+sysrepoctl --install --yang=test.yang
 sysrepocfg --import=basic.json --format=json --datastore=startup test
 ```
 

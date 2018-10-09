@@ -166,7 +166,6 @@ RUN \
       make  && \
       make install
 
-COPY start.sh /
 
 RUN \
     apt-get clean && \
@@ -175,8 +174,9 @@ RUN \
 
 RUN \ 
     curl https://bootstrap.pypa.io/get-pip.py | python3 && \
-    pip install ptpython prompt-toolkit
+    pip install ptpython prompt-toolkit ncclient
 
+COPY start.sh /
 
 ENV EDITOR vim
 EXPOSE 830

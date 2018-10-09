@@ -1,0 +1,21 @@
+module integrationtest {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/integrationtest";
+  prefix "integrationtest";
+
+  leaf simpleleaf {
+    type string;
+  }
+
+  container simplecontainer {
+    presence true;
+  }
+
+  list simplelist {
+    key simplekey;
+
+    leaf simplekey {
+      type string;
+    }
+  }
+}

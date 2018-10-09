@@ -11,28 +11,6 @@ module brewerslab {
     prefix brewerslab-teststub;
   }
 
-
-  leaf simpleleaf {
-    type string;
-  }
-
-  container simplecontainer {
-    presence true;
-  }
-
-  list simplelist {
-    key simplekey;
-
-    leaf simplekey {
-      type string;
-    }
-  }
-
   uses brewerslab-teststub:tests;
 
-  grouping abc {
-    leaf xyz {
-      type string;
-    }
-  }
 }
