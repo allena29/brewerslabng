@@ -48,7 +48,7 @@ module integrationtest {
 
   typedef type1 {
     type string {
-      pattern "brew\S+" {
+      pattern "brew[a-z]*" {
         error-message "String must start with brew";
       }
     }

@@ -12,22 +12,33 @@ sysrepod
 sysrepo-plugind
 netopeer2-server
 
+mkdir /logs
+
 echo "install yang"
-sysrepoctl --install --yang=/brewerslabng/yang/brewerslab.yang
-sysrepoctl --install --yang=/brewerslabng/yang/integrationtest.yang
+cd /brewerslabng/yang
+for yang in *.yang
+do
+  echo "... $yang"
+  sysrepoctl --install --yang=$yang 2>/logs/$yang.sysrepo.install
+done
 
 echo "Start brewerslab subscriber"
 cd /brewerslabng/providers
-screen -dmS providers python3 brewerslab.py
-
-echo "Strt integration test"
-screen -dmS providerstest python3 integrationtest.py
+for provider in *.py
+do
+  echo "... $provider"
+  screen -dmS provider$provider python3 $provider
+done
 
 
 echo "Import startup configuration"
-echo "{}" > /tmp/startup.json
-sysrepocfg --import=/tmp/startup.json --format=json --datastore=startup brewerslab
-sysrepocfg --import=/tmp/startup.json --format=json --datastore=startup integrationtest
+cd /brewerslabng/init-data
+for xml in *.xml
+do  
+  module=`echo "$xml" | sed -e 's/\.xml//'`
+  echo "... $module"
+  sysrepocfg --import=$xml --format=xml --datastore=startup $module
+done
 
 while true; do
 sleep 10
