@@ -3,6 +3,9 @@ module integrationtest {
   namespace "http://brewerslabng.mellon-collie.net/yang/integrationtest";
   prefix "integrationtest";
 
+  import crux { prefix crux; }
+
+
   leaf simpleleaf {
     type string;
   }
@@ -16,6 +19,57 @@ module integrationtest {
 
     leaf simplekey {
       type string;
+    }
+
+    leaf nonleafkey {
+      type uint32;
+      description "ABC";
+      crux:info "A non-leaf key";
+    }
+  }
+
+  container morecomplex {
+
+    leaf leaf2 {
+      crux:info "must be 1 or 0 dont sit on the fence";
+      type boolean;
+    }
+
+    leaf leaf3 {
+      crux:info "Should allow a string starting with brew - but no spaces";
+      type type2;
+    }
+
+    leaf leaf4 {
+      crux:info "Should allow A, B, C or a uint32";
+      type type4;
+    }
+  }
+
+  typedef type1 {
+    type string {
+      pattern "brew\S+" {
+        error-message "String must start with brew";
+      }
+    }
+  }
+
+  typedef type2 {
+    type uint32;
+  }
+
+  typedef type3 {
+    type enumeration {
+      enum A;
+      enum B;
+      enum C;
+    }
+  }
+
+  typedef type4 {
+    type union {
+      type type3;
+      type type2;
     }
   }
 }

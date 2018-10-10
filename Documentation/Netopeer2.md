@@ -348,6 +348,8 @@ docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw b3bd /b
 
 # Using NCS to build a 'Network Element Driver'
 
+https://asciinema.org/a/cAn9F8MQOFSyeVBGjyvaURG1R
+
 Note: NCS/NSO is the commerical Tail-F/Cisco version of Conf-D which comes with full CLI, Java and Python bindings. [Pionner](https://github.com/NSO-developer/pioneer/) is a package to build NETCONF NED's which relies of python. [Conf-D](http://www.tail-f.com/confd-basic/) has a basic version (with crippled CLI, no Java, no Python) - if that was available for ARM architecture I wouldn't care about playing with Sysrepo.
 
 ```
