@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "Building Image" >/dev/stderr
+image=`docker build Documentation/netopeer2 | tail -n 1 | awk '{print $3}'`
+
+echo "Image $image" >/dev/stderr
+
+pwd=`pwd`
+echo "Running in local dir $pwd" >/dev/stderr
+container=`docker run -i -d -p 830:830 -v $pwd:/brewerslabng:rw $image`
+
+echo "Container $container" >/dev/stderr
+
+docker ps >/dev/stderr
+
+docker exec -i -t $container /bin/bash

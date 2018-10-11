@@ -44,6 +44,24 @@ module integrationtest {
       crux:info "Should allow A, B, C or a uint32";
       type type4;
     }
+
+    container inner {
+      presence true;
+      leaf leaf5 {
+        type string;
+        mandatory true;
+      }
+
+      leaf leaf6 {
+        type string;
+        mandatory false;
+      }
+
+      leaf leaf7 {
+        type string;
+        default "this-is-a-default";
+      }
+    }
   }
 
   typedef type1 {

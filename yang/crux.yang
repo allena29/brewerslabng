@@ -17,6 +17,17 @@ module crux {
         <capability>http://brewerslabng.mellon-collie.net/yang/main?module=brewerslab</capability>";
         type string;
       }
+
+      leaf namespace {
+        description "The namespace of the yang module";
+        type string;
+        mandatory true;
+      }
+
+      leaf revision {
+        description "Revision of the module";
+        type string;
+      }
     }
   }
 

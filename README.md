@@ -181,6 +181,41 @@ screen -dmS publishTemperature python publishTemperaturesToInflux.py
 
 ## Netconf Configuration Store
 
+The NETCONF datastore runs sysrepo and netopeer2 within a docker instance, the tag `netopeer` or `netopeer-arm` can be used from `allena29/brewerslabng` respository. 	
 ```
-docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw allena29/brewerslabng:netopeer /bin/bash
+./launch-netconf
 ```
+
+## CLI (Crux)
+
+The CLI connects via NETCONF and will read the configuration stored under `crux-cli`, in particular the modules list.
+
+```
+namespace: http://brewerslabng.mellon-collie.net/yang/crux
+module: crux
+  +--rw crux-cli
+     +--rw modules* [module]
+        +--rw module       string
+        +--rw namespace    string
+        +--rw revision?    string
+```
+
+The initial data can be provided in `init-data/crux.xml` to ensure when the docker image starts sensible data is imported.
+
+```xml
+<crux-cli xmlns="http://brewerslabng.mellon-collie.net/yang/crux">
+  <modules>
+     <module>brewerslab</module>
+     <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
+  </modules>
+  <modules>
+     <module>integrationtest</module>
+     <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
+  </modules>
+</crux-cli>
+```
+
+
+##### TODO:
+
+- validate module revisions when connecting CLI.
