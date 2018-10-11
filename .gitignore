@@ -16,3 +16,4 @@ datastore/operational/*
 datastore/running/*
 persist/
 yang/schema.xml
+.cache/
