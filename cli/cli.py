@@ -54,7 +54,6 @@ class cruxformat:
         When a user makes a mistake within operational mode provide some guidance to the user including a
         list of commands that are valid
         """
-        
         print('%s\nError: expecting...\n' % (line))
         for command in self.DEFAULT_OPER_COMMANDS:
             print('%s%s - %s' % (command, ' '*(10-len(command)), self.DEFAULT_OPER_COMMANDS[command]))
@@ -164,11 +163,13 @@ class cruxli:
         if line[0:4] == 'conf':
             self.log.debug('Switching into configuration mode')
             self.mode = 1
-        elif line[0:5] == 'show ':
+        elif line[0:4] == 'show':
             self.log.debug('Show operation state')
         elif line[0:4] == 'exit':
             self.log.debug('Exit required')
             self.exit = True
+        elif line == "":
+            pass
         else:
             self.cliformat.opermode_error(line)
 
@@ -180,7 +181,6 @@ class cruxli:
             self.process_config_cli_line(self.cliformat.configmode_prompt())
         else:
             self.process_cli_line(self.cliformat.opermode_prompt())
-
 
     def loop(self):
         try:

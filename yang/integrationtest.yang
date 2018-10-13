@@ -29,6 +29,11 @@ module integrationtest {
   }
 
   container morecomplex {
+    leaf nonconfig {
+      config false;
+      crux:info "A non-configuration node";
+      type string;
+    }
 
     leaf leaf2 {
       crux:info "must be 1 or 0 dont sit on the fence";
