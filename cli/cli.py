@@ -35,6 +35,7 @@ class cruxformat:
         self.session = PromptSession()
         self.config_mode = False
         self.prompt = 'brewer@localhost> '
+        self.config_prompt = 'brewer@localhost# '
 
     @staticmethod
     def bottom_toolbar():
@@ -43,6 +44,9 @@ class cruxformat:
     def welcome(self):
         print('Welcome to BREWERS COMMAND LINE INTERFACE')
         return self.opermode_prompt()
+
+    def configmode_prompt(self):
+        return self.session.prompt(self.config_prompt, bottom_toolbar=cruxformat.bottom_toolbar, completer=self.get_oper_mode_command_list(), complete_while_typing=True, validate_while_typing=True, auto_suggest=AutoSuggestFromHistory())
 
     def opermode_prompt(self):
         return self.session.prompt(self.prompt, bottom_toolbar=cruxformat.bottom_toolbar, completer=self.get_oper_mode_command_list(), complete_while_typing=True, validate_while_typing=True, auto_suggest=AutoSuggestFromHistory())
@@ -161,13 +165,13 @@ class cruxli:
 
     def process_cli_line(self, line):
         self.log.debug('Oper line into us: %s' % (line))
-        if line[0:4] == 'conf':
-            self.log.debug('Switching into configuration mode')
+        if line[0:4] == "conf":
+            self.log.debug("Switching into configuration mode")
             self.mode = 1
-        elif line[0:4] == 'show':
-            self.log.debug('Show operation state')
-        elif line[0:4] == 'exit':
-            self.log.debug('Exit required')
+        elif line[0:4] == "show":
+            self.log.debug("Show operation state")
+        elif line[0:4] == "exit":
+            self.log.debug("Exit required")
             self.exit = True
         elif line == "":
             pass
@@ -175,8 +179,11 @@ class cruxli:
             self.cliformat.opermode_error(line)
 
     def process_config_cli_line(self, line):
-        self.log.debug('Config line to use: %s' % (line))
-
+        self.log.debug("Config line to use: %s" % (line))
+        if line[0:4] == "exit":
+            self.log.debug("Switching into operational mode")
+            self.mode = 0
+            
     def get_and_process_next_command(self):
         if self.mode:
             self.process_config_cli_line(self.cliformat.configmode_prompt())
