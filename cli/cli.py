@@ -41,6 +41,7 @@ class cruxformat:
         return HTML('Connected')
 
     def welcome(self):
+        print('Welcome to BREWERS COMMAND LINE INTERFACE')
         return self.opermode_prompt()
 
     def opermode_prompt(self):
