@@ -86,29 +86,19 @@ class cruxformat:
 
 class cruxli:
 
-    CRUX_NS = "{http://brewerslabng.mellon-collie.net/yang/crux}"
-
     def __init__(self, host='localhost', port='830',
                  username='netconf', password='netconf'):
 
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=FORMAT)
         self.log = logging.getLogger('cli')
-        transport_log = logging.getLogger('ncclient.transport.ssh')
-        transport_log.level = logging.ERROR
-        rpc_log = logging.getLogger('cclient.operations.rpc')
-        rpc_log.level = logging.ERROR
-        session_log = logging.getLogger('ncclient.transport.session')
-        session_log.level = logging.ERROR
 
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.cliformat = None
-
-        self.netconf_capa = {}
-        self.top_levels = {}
+        self.yang_manager = Yang.Yang()
 
     def reset_cli(self):
         self.mode = 0
@@ -117,7 +107,7 @@ class cruxli:
     def start_cli_session(self):
         self.reset_cli()
         self.netconf = self._connect_netconf(self.host, self.port, self.username, self.password)
-        self.negotiate_netconf(self.netconf)
+        self.yang_manager.negotiate_netconf_capabilities(self.netconf)
 
     def __del__(self):
         self._disconnect_netconf()
@@ -159,25 +149,6 @@ class cruxli:
 
         return netconf
 
-    def negotiate_netconf(self, netconf):
-        for capa in netconf.server_capabilities:
-            c = capa.split('?')
-            c.append('')
-            self.netconf_capa[c[0]] = {'module': c[1]}
-
-        if 'http://brewerslabng.mellon-collie.net/yang/crux' not in self.netconf_capa:
-            raise ValueError("NETCONF does not support crux protocol")
-
-        filter = """<crux-cli xmlns="http://brewerslabng.mellon-collie.net/yang/crux"><modules></crux-cli>"""
-
-        crux_modules = self._netconf_get_xml(netconf, filter)
-        if len(crux_modules) == 0:
-            raise ValueError("Unable to fetch list of supported CRUX CLI modules")
-
-        self._process_modules(netconf, crux_modules[0])
-
-        return netconf
-
     def _process_module(self, cm):
         module = None
         namespace = None
@@ -195,6 +166,13 @@ class cruxli:
                     if t.tag == self.CRUX_NS + "tag":
                         tops.append(t.text)
 
+        if module and namespace:
+            if namespace not in self.netconf_capa:
+                raise ValueError('NETCONF server does expose %s %s' % (module,
+                                                                       namespace))
+
+        self.cli_modules[module] = namespace
+
         return (module, namespace, revision, tops)
 
     def _process_modules(self, netconf, crux_modules):
@@ -206,24 +184,15 @@ class cruxli:
             (module, namespace, revision, tops) = self._process_module(cm)
 
             for t in tops:
-                if t in self.top_levels:
+                if t in self.yang_manager.top_levels:
                     raise ValueError("Top-level tag %s is already registered to another namespace")
                 self.log.debug("Registered new top-level tag %s to %s" % (t, namespace))
-                self.top_levels[t] = namespace
+                self.yang_manager.top_levels[t] = namespace
 
-            if module and namespace:
-                if namespace not in self.netconf_capa:
-                    raise ValueError('NETCONF server does expose %s %s' % (module,
-                                                                           namespace))
+            self.yang_manager.cache_schema(netconf, module, namespace, revision)
 
-            Yang._cache_schema(self.log, netconf, module, namespace, revision)
-
-    def _netconf_get_xml(self, netconf, filter, config=True, source='running'):
-        filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
-            %s
-        </nc:filter>""" % (filter)
-        data_str = str(netconf.get_config(source=source, filter=filter_xml))
-        return etree.fromstring(data_str.encode('UTF-8')).getchildren()[0]
+        for ym in self.yang_manager.netconf_capa:
+            print("We need schema for %s" % (ym))
 
     def process_cli_line(self, line):
         self.log.debug('Oper line into us: %s' % (line))

@@ -44,8 +44,8 @@ class TestCruxLI(unittest.TestCase):
              "http://brewerslabng.mellon-collie.net/yang/integrationtest",
              "unspecified", ["simpleleaf"])
         ]
-        self.subject.netconf_capa['http://brewerslabng.mellon-collie.net/yang/main'] = {}
-        self.subject.netconf_capa['http://brewerslabng.mellon-collie.net/yang/integrationtest'] = {}
+        self.subject.yang_manager.netconf_capa['http://brewerslabng.mellon-collie.net/yang/main'] = {}
+        self.subject.yang_manager.netconf_capa['http://brewerslabng.mellon-collie.net/yang/integrationtest'] = {}
         crux_modules = etree.fromstring(self.CRUX_CLI_XML)[0]
 
         # Act
@@ -59,12 +59,14 @@ class TestCruxLI(unittest.TestCase):
         # Build
         self.subject._process_module = Mock()
         self.subject._process_module.side_effect = [
+            ('abc', 'http://123', '2018-01-01', ['top-tag1', 'top-tag2']),
             ('abc', 'http://123', '2018-01-01', ['top-tag1', 'top-tag2'])
         ]
         crux_modules = etree.fromstring(self.CRUX_CLI_XML)[0]
 
         # Act
         with self.assertRaises(ValueError):
+
             self.subject._process_modules(self.netconf, crux_modules)
 
     def test_basic(self):

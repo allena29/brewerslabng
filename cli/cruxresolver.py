@@ -1,8 +1,9 @@
 import logging
+import re
 import sys
 sys.path.append("../")
 from blng import Common
-
+from blng import Yang
 from lxml import etree
 
 
@@ -54,16 +55,3 @@ class cruxresolver:
     def load_schema_to_memory(self, tag, namespace):
         self.log.debug("loading schema %s to %s" % (namespace, tag))
         module = 'integrationtest'
-        xml = etree.parse(".cache/%s.schema" % (module))
-        xml_root = xml.getroot()
-
-        # There seems to be no optimal answers - so we will just get on and convert to YIN instead.
-        # Unlike YIN munger which we were using before this at least is a hell of a lot more dynamic
-        # based upon what is happening
-        yang = xml_root.getchildren()[0].text
-        self.log.debug("Retreived a YANG schema of %s" % (yang))
-        with open('.cache/%s.yang' % (module), 'w') as file:
-            file.write(yang)
-
-        pyang_command = "pyang -p .cache -f yin .cache/%s.yang" % (module)
-        Common.shell_command(pyang_command)
