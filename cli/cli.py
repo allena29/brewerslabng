@@ -1,28 +1,30 @@
 #!/usr/bin/python3
 
-import argparse
+# import argparse
 import hashlib
 import logging
 import os
 import time
 from ncclient import manager
 from lxml import etree
-from prompt_toolkit import prompt
+# from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.validation import Validator, ValidationError
-from prompt_toolkit.history import InMemoryHistory
+# from prompt_toolkit.validation import Validator, ValidationError
+# from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 
 class cruxformat:
 
     """
-    This class is responsible for providing the cosmetic appearance of the command line interface, the behaviour itself is defined
-    in cruxli. Much of the presentation options here are goverend by prompt_toolkit
+    This class is responsible for providing the cosmetic appearance of
+    the command line interface, the behaviour itself is defined in cruxli.
+    Much of the presentation options here are goverend by prompt_toolkit
 
-    The command line interface has two basic modes, operational and configuration mode.
+    The command line interface has two basic modes, operational and
+    configuration modes.
     """
 
     DEFAULT_OPER_COMMANDS = {
@@ -46,22 +48,35 @@ class cruxformat:
         return self.opermode_prompt()
 
     def configmode_prompt(self):
-        return self.session.prompt(self.config_prompt, bottom_toolbar=cruxformat.bottom_toolbar, completer=self.get_oper_mode_command_list(), complete_while_typing=True, validate_while_typing=True, auto_suggest=AutoSuggestFromHistory())
+        print("")
+        print("[edit] ")
+        return self.session.prompt(self.config_prompt,
+                                   bottom_toolbar=cruxformat.bottom_toolbar,
+                                   completer=self.get_oper_mode_command_list(),
+                                   complete_while_typing=True,
+                                   validate_while_typing=True,
+                                   auto_suggest=AutoSuggestFromHistory())
 
     def opermode_prompt(self):
-        return self.session.prompt(self.prompt, bottom_toolbar=cruxformat.bottom_toolbar, completer=self.get_oper_mode_command_list(), complete_while_typing=True, validate_while_typing=True, auto_suggest=AutoSuggestFromHistory())
+        return self.session.prompt(self.prompt,
+                                   bottom_toolbar=cruxformat.bottom_toolbar,
+                                   completer=self.get_oper_mode_command_list(),
+                                   complete_while_typing=True,
+                                   validate_while_typing=True,
+                                   auto_suggest=AutoSuggestFromHistory())
 
     def get_oper_mode_command_list(self):
         return WordCompleter(self.DEFAULT_OPER_COMMANDS.keys())
 
     def opermode_error(self, line):
         """
-        When a user makes a mistake within operational mode provide some guidance to the user including a
-        list of commands that are valid
+        When a user makes a mistake within operational mode provide some
+        guidance to the user including a list of commands that are valid
         """
         print('%s\nError: expecting...\n' % (line))
         for command in self.DEFAULT_OPER_COMMANDS:
-            print('%s%s - %s' % (command, ' '*(10-len(command)), self.DEFAULT_OPER_COMMANDS[command]))
+            print('%s%s - %s' % (command, ' '*(10-len(command)),
+                                 self.DEFAULT_OPER_COMMANDS[command]))
         print("[error][%s]" % (self.get_time()))
 
     def get_time(self):
@@ -70,7 +85,10 @@ class cruxformat:
 
 class cruxli:
 
-    def __init__(self, host='localhost', port='830', username='netconf', password='netconf'):
+    CRUX_NS = "{http://brewerslabng.mellon-collie.net/yang/crux}"
+
+    def __init__(self, host='localhost', port='830',
+                 username='netconf', password='netconf'):
 
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=FORMAT)
@@ -82,14 +100,23 @@ class cruxli:
         session_log = logging.getLogger('ncclient.transport.session')
         session_log.level = logging.ERROR
 
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.cliformat = None
+
         self.netconf_capa = {}
-        self.top_level = {}
+        self.top_levels = {}
 
-        self.netconf = self._connect_netconf(host, port, username, password)
-        self.cliformat = cruxformat()
-
+    def reset_cli(self):
         self.mode = 0
         self.exit = False
+
+    def start_cli_session(self):
+        self.reset_cli()
+        self.netconf = self._connect_netconf(self.host, self.port, self.username, self.password)
+        self.negotiate_netconf(self.netconf)
 
     def __del__(self):
         self._disconnect_netconf()
@@ -97,15 +124,21 @@ class cruxli:
     def _disconnect_netconf(self):
         pass
 
+    def attach_formatter(self, formatter):
+        self.cliformat = formatter
+
     def _connect_netconf(self, host, port, username, password):
         """
-        Connect to a given NETCONF host and verify that it has the CRUX YANG module installed.
+        Connect to a given NETCONF host and verify that it has the CRUX
+        YANG module installed.
 
-        If a NETCONF server does indeed have the correct module installed it shuld provide a
-        list of YANG Modules which are to be used with this CLI engine.
+        If a NETCONF server does indeed have the correct module installed
+        it shuld provide a list of YANG Modules which are to be used with
+        this CLI engine.
 
         <?xml version="1.0" encoding="UTF-8"?>
-         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"
+               xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
           <crux-cli xmlns="http://brewerslabng.mellon-collie.net/yang/crux">
            <modules>
             <module>brewerslab</module>
@@ -117,10 +150,15 @@ class cruxli:
          </data>
         """
 
-        netconf = manager.connect(host=host, port=port, username=username, password=password,
-                                  hostkey_verify=False, allow_agent=False, look_for_keys=False,
+        netconf = manager.connect(host=host, port=port,
+                                  username=username, password=password,
+                                  hostkey_verify=False, allow_agent=False,
+                                  look_for_keys=False,
                                   unknown_host_cb=lambda x: True)
 
+        return netconf
+
+    def negotiate_netconf(self, netconf):
         for capa in netconf.server_capabilities:
             c = capa.split('?')
             c.append('')
@@ -135,44 +173,71 @@ class cruxli:
         if len(crux_modules) == 0:
             raise ValueError("Unable to fetch list of supported CRUX CLI modules")
 
-        crux_modules = crux_modules[0]
-        for cm in crux_modules.getchildren():
-            module = None
-            namespace = None
-            revision = 'unspecified'
-            for x in cm.getchildren():
-                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}module":
-                    module = x.text
-                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}namespace":
-                    namespace = x.text
-                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}revision":
-                    revision = x.text
-                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}top-level-tags":
-                    for t in x.getchildren():
-                        if t.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}tag":
-                            if t.text in self.top_level:
-                                raise ValueError("Top-level tag %s is already registered to another namespace")
-                            self.top_level[t.text] = {'namespace': namespace}
-                            self.log.debug("Registered new top-level tag %s to %s" % (t.text, namespace))
-            if module and namespace:
-                if namespace not in self.netconf_capa:
-                    raise ValueError('NETCONF server does expose %s %s' % (module, namespace))
-
-            id = "%s-%s-%s" % (module, namespace, revision)
-            hash = hashlib.sha1(id.encode('UTF-8')).hexdigest()
-            self.netconf_capa[namespace]['id'] = hash
-            if os.path.exists('.cache/%s.schema' % (hash)):
-                self.log.debug('We have a cached version of the schema %s/%s' % (id, hash))
-                print('already have %s' % (hash))
-            else:
-                self.log.debug('We do not have a version of the schema for %s' % (id))
-                with open('.cache/%s.schema' % (hash), 'w') as file:
-                    file.write(str(netconf.get_schema(module)))
+        self._process_modules(netconf, crux_modules[0])
 
         return netconf
 
+    def _process_module(self, cm):
+        module = None
+        namespace = None
+        revision = 'unspecified'
+        tops = {}
+        for x in cm.getchildren():
+            if x.tag == self.CRUX_NS + "module":
+                module = x.text
+            if x.tag == self.CRUX_NS + "namespace":
+                namespace = x.text
+            if x.tag == self.CRUX_NS + "revision":
+                revision = x.text
+            if x.tag == self.CRUX_NS + "top-level-tags":
+                for t in x.getchildren():
+                    if t.tag == self.CRUX_NS + "tag":
+                        tops[t.text] = namespace
+        return (module, namespace, revision, tops)
+
+    def _process_modules(self, netconf, crux_modules):
+        """
+        Process the list of modules given an XML structure representing the
+        configuration of /crux-cli
+        """
+        for cm in crux_modules.getchildren():
+            (module, namespace, revision, tops) = self._process_module(cm)
+
+            for t in tops:
+                if t in self.top_levels:
+                    raise ValueError("Top-level tag %s is already registered to another namespace")
+                self.log.debug("Registered new top-level tag %s to %s" % (t, tops[t]))
+                self.top_levels[t] = tops[t]
+
+            if module and namespace:
+                if namespace not in self.netconf_capa:
+                    raise ValueError('NETCONF server does expose %s %s' % (module,
+                                                                           namespace))
+
+            self._cache_schema(netconf, module, namespace, revision)
+
+    def _cache_schema(self, netconf, module, namespace, revision):
+        """
+        Fetch the NETCONF schema from the NETCONF server and store it
+        for later user. If the YANG module changes we expect that the
+        revision will be updated
+        TODO: we are not actually doing anything to get a certain revision
+        """
+        id = "%s-%s-%s" % (module, namespace, revision)
+        hash = hashlib.sha1(id.encode('UTF-8')).hexdigest()
+        self.netconf_capa[namespace]['id'] = hash
+        if os.path.exists('.cache/%s.schema' % (hash)):
+            self.log.debug('We have a cached schema of %s/%s' % (id, hash))
+            print('already have %s' % (hash))
+        else:
+            self.log.debug('We do not have a schema of %s' % (id))
+            with open('.cache/%s.schema' % (hash), 'w') as file:
+                file.write(str(netconf.get_schema(module)))
+
     def _netconf_get_xml(self, netconf, filter, config=True, source='running'):
-        filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">%s</nc:filter>""" % (filter)
+        filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+            %s
+        </nc:filter>""" % (filter)
         data_str = str(netconf.get_config(source=source, filter=filter_xml))
         return etree.fromstring(data_str.encode('UTF-8')).getchildren()[0]
 
@@ -219,5 +284,8 @@ class cruxli:
             pass
 
 
-cli = cruxli()
-cli.loop()
+if __name__ == '__main__':
+    cli = cruxli()
+    cli.attach_formatter(cruxformat())
+    cli.start_cli_session()
+    cli.loop()
