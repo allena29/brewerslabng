@@ -224,15 +224,11 @@ class cruxli:
         revision will be updated
         TODO: we are not actually doing anything to get a certain revision
         """
-        id = "%s-%s-%s" % (module, namespace, revision)
-        hash = hashlib.sha1(id.encode('UTF-8')).hexdigest()
-        self.netconf_capa[namespace]['id'] = hash
-        if os.path.exists('.cache/%s.schema' % (hash)):
-            self.log.debug('We have a cached schema of %s/%s' % (id, hash))
-            print('already have %s' % (hash))
+        if os.path.exists('.cache/%s.schema' % (module)):
+            self.log.debug('We have a cached schema of %s' % (module))
         else:
-            self.log.debug('We do not have a schema of %s' % (id))
-            with open('.cache/%s.schema' % (hash), 'w') as file:
+            self.log.debug('We do not have a schema of %s' % (module))
+            with open('.cache/%s.schema' % (module), 'w') as file:
                 file.write(str(netconf.get_schema(module)))
 
     def _netconf_get_xml(self, netconf, filter, config=True, source='running'):

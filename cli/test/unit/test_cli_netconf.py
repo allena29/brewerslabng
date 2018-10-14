@@ -1,7 +1,7 @@
+import unittest
 import sys
 sys.path.append('../../')
 from mock import patch, Mock, call
-import unittest
 from cli import cruxli
 from lxml import etree
 
