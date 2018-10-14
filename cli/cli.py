@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
 # import argparse
-import hashlib
 import logging
-import os
-import re
+import sys
 import time
+sys.path.append("../")
+from blng import Yang
 from ncclient import manager
 from lxml import etree
 # from prompt_toolkit import prompt
@@ -216,26 +216,7 @@ class cruxli:
                     raise ValueError('NETCONF server does expose %s %s' % (module,
                                                                            namespace))
 
-            self._cache_schema(netconf, module, namespace, revision)
-
-    def _cache_schema(self, netconf, module, namespace, revision):
-        """
-        Fetch the NETCONF schema from the NETCONF server and store it
-        for later user. If the YANG module changes we expect that the
-        revision will be updated
-        TODO: we are not actually doing anything to get a certain revision
-        """
-        if os.path.exists('.cache/%s.schema' % (module)):
-            self.log.debug('We have a cached schema of %s' % (module))
-        else:
-            self.log.debug('We do not have a schema of %s' % (module))
-            with open('.cache/%s.schema' % (module), 'w') as file:
-                yang = str(netconf.get_schema(module))
-                yang_imports = re.compile('\s*import\s+(\S+)\s*.*').findall(yang)
-                for y in yang_imports:
-                    self.log.debug('Dealing with dependent Schema %s' % (y))
-                    self._cache_schema(netconf, y, None, None)
-                file.write(yang)
+            Yang._cache_schema(self.log, netconf, module, namespace, revision)
 
     def _netconf_get_xml(self, netconf, filter, config=True, source='running'):
         filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
