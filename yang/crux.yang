@@ -28,6 +28,16 @@ module crux {
         description "Revision of the module";
         type string;
       }
+
+      list top-level-tags {
+        description "A number of top-level modules provided - this is defined to ensure that
+        when we can effectively isolate the intereting parts of the datastore.";
+        key tag;
+
+        leaf tag {
+          type string;
+        }
+      }
     }
   }
 

@@ -67,6 +67,7 @@ class cruxformat:
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
+
 class cruxli:
 
     def __init__(self, host='localhost', port='830', username='netconf', password='netconf'):
@@ -82,6 +83,7 @@ class cruxli:
         session_log.level = logging.ERROR
 
         self.netconf_capa = {}
+        self.top_level = {}
 
         self.netconf = self._connect_netconf(host, port, username, password)
         self.cliformat = cruxformat()
@@ -124,23 +126,34 @@ class cruxli:
             c.append('')
             self.netconf_capa[c[0]] = {'module': c[1]}
 
-        if not 'http://brewerslabng.mellon-collie.net/yang/crux' in self.netconf_capa:
+        if 'http://brewerslabng.mellon-collie.net/yang/crux' not in self.netconf_capa:
             raise ValueError("NETCONF does not support crux protocol")
 
         filter = """<crux-cli xmlns="http://brewerslabng.mellon-collie.net/yang/crux"><modules></crux-cli>"""
-        crux_modules = self._netconf_get_xml(netconf, filter)[0]
+
+        crux_modules = self._netconf_get_xml(netconf, filter)
+        if len(crux_modules) == 0:
+            raise ValueError("Unable to fetch list of supported CRUX CLI modules")
+
+        crux_modules = crux_modules[0]
         for cm in crux_modules.getchildren():
             module = None
             namespace = None
             revision = 'unspecified'
             for x in cm.getchildren():
-                if x.tag == '{http://brewerslabng.mellon-collie.net/yang/crux}module':
+                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}module":
                     module = x.text
-                if x.tag == '{http://brewerslabng.mellon-collie.net/yang/crux}namespace':
+                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}namespace":
                     namespace = x.text
-                if x.tag == '{http://brewerslabng.mellon-collie.net/yang/crux}revision':
+                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}revision":
                     revision = x.text
-
+                if x.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}top-level-tags":
+                    for t in x.getchildren():
+                        if t.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}tag":
+                            if t.text in self.top_level:
+                                raise ValueError("Top-level tag %s is already registered to another namespace")
+                            self.top_level[t.text] = {'namespace': namespace}
+                            self.log.debug("Registered new top-level tag %s to %s" % (t.text, namespace))
             if module and namespace:
                 if namespace not in self.netconf_capa:
                     raise ValueError('NETCONF server does expose %s %s' % (module, namespace))
@@ -183,7 +196,7 @@ class cruxli:
         if line[0:4] == "exit":
             self.log.debug("Switching into operational mode")
             self.mode = 0
-            
+
     def get_and_process_next_command(self):
         if self.mode:
             self.process_config_cli_line(self.cliformat.configmode_prompt())
@@ -204,6 +217,7 @@ class cruxli:
             pass
         except EOFError:
             pass
+
 
 cli = cruxli()
 cli.loop()

@@ -6,5 +6,8 @@
   <modules>
 	  <module>integrationtest</module>
 	  <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
+	  <top-level-tags>
+		<tag>simpleleaf</tag>
+     	  </top-level-tags>		
   </modules>
 </crux-cli>
