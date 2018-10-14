@@ -4,6 +4,7 @@
 import hashlib
 import logging
 import os
+import re
 import time
 from ncclient import manager
 from lxml import etree
@@ -229,7 +230,12 @@ class cruxli:
         else:
             self.log.debug('We do not have a schema of %s' % (module))
             with open('.cache/%s.schema' % (module), 'w') as file:
-                file.write(str(netconf.get_schema(module)))
+                yang = str(netconf.get_schema(module))
+                yang_imports = re.compile('\s*import\s+(\S+)\s*.*').findall(yang)
+                for y in yang_imports:
+                    self.log.debug('Dealing with dependent Schema %s' % (y))
+                    self._cache_schema(netconf, y, None, None)
+                file.write(yang)
 
     def _netconf_get_xml(self, netconf, filter, config=True, source='running'):
         filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
