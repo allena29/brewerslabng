@@ -181,7 +181,7 @@ class cruxli:
         module = None
         namespace = None
         revision = 'unspecified'
-        tops = {}
+        tops = []
         for x in cm.getchildren():
             if x.tag == self.CRUX_NS + "module":
                 module = x.text
@@ -192,7 +192,8 @@ class cruxli:
             if x.tag == self.CRUX_NS + "top-level-tags":
                 for t in x.getchildren():
                     if t.tag == self.CRUX_NS + "tag":
-                        tops[t.text] = namespace
+                        tops.append(t.text)
+
         return (module, namespace, revision, tops)
 
     def _process_modules(self, netconf, crux_modules):
@@ -206,8 +207,8 @@ class cruxli:
             for t in tops:
                 if t in self.top_levels:
                     raise ValueError("Top-level tag %s is already registered to another namespace")
-                self.log.debug("Registered new top-level tag %s to %s" % (t, tops[t]))
-                self.top_levels[t] = tops[t]
+                self.log.debug("Registered new top-level tag %s to %s" % (t, namespace))
+                self.top_levels[t] = namespace
 
             if module and namespace:
                 if namespace not in self.netconf_capa:
