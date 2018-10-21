@@ -7,7 +7,6 @@ import time
 sys.path.append("../")
 from blng import Yang
 from ncclient import manager
-from lxml import etree
 # from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit import PromptSession
