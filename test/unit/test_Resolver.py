@@ -124,3 +124,23 @@ class TestCruxResolver(unittest.TestCase):
 
         # Assert
         self.assertEqual(list(self.subject.in_memory.keys()), ['integrationtest'])
+
+    def test_show(self):
+        """
+        Basic test of showing everything from the top level
+        """
+
+        (cmd, xpath, value) = self.subject.resolve("show")
+        self.assertEqual(cmd, "show")
+        self.assertEqual(xpath, "/")
+        self.assertEqual(value, None)
+        (cmd, xpath, value) = self.subject.resolve("show simpleleaf")
+
+        self.assertEqual(cmd, "show")
+        self.assertEqual(xpath, "/simpleleaf")
+        self.assertEqual(value, None)
+
+        (cmd, xpath, value) = self.subject.resolve("set simpleleaf \"abc 1234\"")
+        self.assertEqual(cmd, "set")
+        self.assertEqual(xpath, "/simpleleaf")
+        self.assertEqual(value, "abc 1234")
