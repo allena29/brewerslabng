@@ -28,6 +28,23 @@ module integrationtest {
     }
   }
 
+  typedef type-a {
+    type string;
+  }
+
+  grouping group-a {
+    leaf a {
+      type string;
+    }
+  }
+
+  container resolver {
+    uses group-a;
+    leaf leaf-a {
+      type type-a;
+    }
+  }
+
   container morecomplex {
     leaf nonconfig {
       config false;

@@ -33,8 +33,8 @@ class Resolver:
     def __init__(self):
         self.top_tag_to_module = {}
         self.in_memory = {}
-        FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
-        logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+        format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.basicConfig(level=logging.DEBUG, format=format)
         self.log = logging.getLogger('cruxresolver')
 
     def register_top_tag(self, top_tag, module):
