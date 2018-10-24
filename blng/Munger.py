@@ -43,7 +43,9 @@ class Munger:
         print(self.outstanding_uses)
 
         xml_string = str(etree.tostring(xmldoc, pretty_print=True))
-        print(xml_string[2:-1].replace('\\n', '\n'))
+        o = open('z.xml', 'w')
+        o.write(str(xml_string).replace('\\n', '\n')[2:-1])
+        o.close()
 
     def pass1_parse_and_recurse(self, module_name, xmldoc):
         """The first pass parsing builds an index of groups and typedefs"""
@@ -121,7 +123,14 @@ class Munger:
     def handle_uses(self, child):
         for grandchild in child.getchildren():
             print(grandchild.tag, grandchild.text, grandchild.attrib.keys(), "<<< grandchild of uses")
-        print(child.tag, child.text, child.attrib.keys(), "<<<<<<<<<<<<<<<< USES")
+        if ":" not in child.attrib['name']:
+            uses = "%s:%s" % (self.our_prefix, child.attrib['name'])
+        else:
+            uses = "%s" % (child.attrib['name'])
+        custom = etree.Element("cruxuses")
+        child.append(custom)
+        custom.append(self.outstanding_uses[uses])
+        print(child.tag, child.text, child.attrib.keys(), child.attrib['name'], uses, "<<<<<<<<<<<<<<<< USES")
 
     def handle_null(self, child=None):
         if child:
