@@ -37,6 +37,7 @@ class Munger:
         xmldoc = etree.parse(".cache/%s.yin" % (module)).getroot()
         self.pass1_parse_and_recurse('integrationtest', xmldoc)
         self.pass2_stitch_and_recurse(xmldoc)
+        self.pass2_stitch_and_recurse(xmldoc)
 
         xml_string = str(etree.tostring(xmldoc, pretty_print=True))
         o = open('z.xml', 'w')
@@ -64,7 +65,7 @@ class Munger:
         Everytime we load a new YANG module we build a list which has a key of prefix
         and the associated yang module (i.e. import <module> { prefix <prefix> }; ) in
         YANG terms."""
-
+        self.dirty_flag = False
         self.our_prefix = None
         for child in xmldoc.getchildren():
             if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}prefix":
@@ -93,32 +94,42 @@ class Munger:
             grandchild = grandchildren[grandchild_id]
             self._lookup_method(grandchild)(grandchild, grandchild_id)
 
+    def handle_type(self, sprog, sprog_id, sprog_replacement):
+        type = sprog.attrib['name']
+        if type in ('string', 'boolean', 'uint8', 'uint16', 'uint32'):
+            pass
+        elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.typedef_map:
+            for stranger in self.typedef_map['%s:%s' % (self.our_prefix, type)]:
+                if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
+                    sprog_replacement.append((sprog_id, stranger, sprog))
+
+        elif ':' in type and type in self.typedef_map:
+            for stranger in self.typedef_map['%s' % (type)]:
+                if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
+                    sprog_replacement.append((sprog_id, stranger, sprog))
+        elif type == 'union':
+            pass
+            #great_grandchildren = grandchild.getchildren()
+            # for great_grandchild_id in range(len(great_grandchildren)):
+        #        great_grandchild = great_grandchildren[great_grandchild_id]
+        #        print(great_grandchild.tag, great_grandchild.attrib.keys(), '<<<great grandchild')
+        else:
+            raise Error.BlngYangTypeNotSupported(type, '?')
+        return sprog_replacement
+
     def handle_leaf(self, child, grandchild_id=-1):
         grandchildren = child.getchildren()
+        replace_grandchildren = []
 
         for grandchild_id in range(len(grandchildren)):
             grandchild = grandchildren[grandchild_id]
-            replace_grandchildren = []
             if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                type = grandchild.attrib['name']
-                if type in ('string', 'boolean'):
-                    custom_type = etree.Element("cruxtype", type=type)
-                    child.append(custom_type)
-                elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.typedef_map:
-                    for stranger in self.typedef_map['%s:%s' % (self.our_prefix, type)]:
-                        if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                            replace_grandchildren.append((grandchild_id, stranger, grandchild))
-
-                elif ':' in type and type in self.typedef_map:
-                    for stranger in self.typedef_map['%s' % (type)]:
-                        if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                            replace_grandchildren.append((grandchild_id, stranger, grandchild))
-                else:
-                    raise Error.BlngYangTypeNotSupported(type)
+                replace_grandchildren = self.handle_type(grandchild, grandchild_id, replace_grandchildren)
 
         for (index, new_grandchild, old_grandchild) in replace_grandchildren:
             child.insert(index, new_grandchild)
             child.remove(old_grandchild)
+            self.dirty_flag = True
 
     def handle_list(self, child, grandchild_id=-1):
         pass
@@ -131,6 +142,7 @@ class Munger:
         parent = child.getparent()
         for new_child in self.grouping_map[uses].getchildren():
             parent.append(new_child)
+            self.dirty_flag = True
         parent.remove(child)
 
     def handle_null(self, child=None, grandchild_id=-1):
