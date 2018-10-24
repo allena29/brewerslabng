@@ -82,13 +82,16 @@ class Munger:
                     if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}prefix":
                         prefix_map[grandchild.attrib['value']] = child.attrib['module']
 
-        for child in xmldoc.getchildren():
+        children = xmldoc.getchildren()
+        for child_index in range(len(children)):
+            child = children[child_index]
+        # for child in xmldoc.getchildren():
             if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}import":
                 for grandchild in child.getchildren():
                     if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}prefix":
                         prefix_map[grandchild.attrib['value']] = child.attrib['module']
 
-            self._lookup_method(child)(child)
+            new_child = self._lookup_method(child)(child)
 
         print(prefix_map, '<<<<prefix map')
 
@@ -98,24 +101,33 @@ class Munger:
             self._lookup_method(grandchild)(grandchild)
 
     def handle_leaf(self, child):
-        for grandchild in child.getchildren():
+        grandchildren = child.getchildren()
+
+        for grandchild_id in range(len(grandchildren)):
+            grandchild = grandchildren[grandchild_id]
+            replace_grandchild = []
             if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
                 type = grandchild.attrib['name']
                 if type in ('string', 'boolean'):
                     custom_type = etree.Element("cruxtype", type=type)
                     child.append(custom_type)
                 elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.outstanding_types:
-                    custom_type = etree.Element("cruxtype", type="typedef")
-                    custom_type.append(self.outstanding_types['%s:%s' % (self.our_prefix, type)])
-                    child.append(custom_type)
+                    for stranger in self.outstanding_types['%s:%s' % (self.our_prefix, type)]:
+                        if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
+                            replace_grandchild.append((grandchild_id, stranger, grandchild))
+
                 elif ':' in type and type in self.outstanding_types:
-                    custom_type = etree.Element("cruxtype", type="typedef")
-                    custom_type.append(self.outstanding_types[type])
-                    child.append(custom_type)
+                    for stranger in self.outstanding_types['%s' % (type)]:
+                        if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
+                            replace_grandchild.append((grandchild_id, stranger, grandchild))
                 else:
                     print(self.outstanding_types)
                     print(self.our_prefix)
                     raise Error.BlngYangTypeNotSupported(type)
+
+        for (index, new_grandchild, old_grandchild) in replace_grandchild:
+            child.insert(index, new_grandchild)
+            child.remove(old_grandchild)
 
     def handle_list(self, child):
         print(child.tag, child.text, child.attrib.keys(), "<<<<<<<<<<<<<<<< LIST")
