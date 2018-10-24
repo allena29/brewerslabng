@@ -24,6 +24,7 @@ class Munger:
     def munge(self, module):
         self.outstanding_types = {}
         self.outstanding_uses = {}
+        self.trail = []
         format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=format)
         self.log = logging.getLogger('munger')
@@ -32,13 +33,17 @@ class Munger:
             raise Error.BlngSchemaNotCached(module)
 
         # The main module we care about
+        self.xmldoc = etree.parse(".cache/%s.yin" % (module))
         xmldoc = etree.parse(".cache/%s.yin" % (module)).getroot()
-
+        print(xmldoc)
         self.pass1_parse_and_recurse('integrationtest', xmldoc)
 
         self.pass2_stitch_and_recurse(xmldoc)
         print(self.outstanding_types)
         print(self.outstanding_uses)
+
+        xml_string = str(etree.tostring(xmldoc, pretty_print=True))
+        print(xml_string[2:-1].replace('\\n', '\n'))
 
     def pass1_parse_and_recurse(self, module_name, xmldoc):
         """The first pass parsing builds an index of groups and typedefs"""
@@ -63,6 +68,11 @@ class Munger:
         and the associated yang module (i.e. import <module> { prefix <prefix> }; ) in
         YANG terms."""
 
+        self.our_prefix = None
+        for child in xmldoc.getchildren():
+            if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}prefix":
+                self.our_prefix = child.attrib['value']
+
         prefix_map = {}
         for child in xmldoc.getchildren():
             if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}import":
@@ -83,17 +93,35 @@ class Munger:
     def handle_container(self, child):
         print("CPONMTINAER", child.attrib.keys(), child.text, child.tag)
         for grandchild in child.getchildren():
-            print(grandchild.tag, grandchild.attrib.keys(), grandchild.text)
+            self._lookup_method(grandchild)(grandchild)
 
     def handle_leaf(self, child):
-        self.log.debug('TODO workout what to do with leaf types - these ccan be typedefs or unions')
         for grandchild in child.getchildren():
             if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
                 type = grandchild.attrib['name']
-                if type in ('string'):
-                    return
+                if type in ('string', 'boolean'):
+                    custom_type = etree.Element("cruxtype", type=type)
+                    child.append(custom_type)
+                elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.outstanding_types:
+                    custom_type = etree.Element("cruxtype", type="typedef")
+                    custom_type.append(self.outstanding_types['%s:%s' % (self.our_prefix, type)])
+                    child.append(custom_type)
+                elif ':' in type and type in self.outstanding_types:
+                    custom_type = etree.Element("cruxtype", type="typedef")
+                    custom_type.append(self.outstanding_types[type])
+                    child.append(custom_type)
                 else:
-                    raise ValueError("leaf type not recognised ... %s" % (type))
+                    print(self.outstanding_types)
+                    print(self.our_prefix)
+                    raise Error.BlngYangTypeNotSupported(type)
+
+    def handle_list(self, child):
+        print(child.tag, child.text, child.attrib.keys(), "<<<<<<<<<<<<<<<< LIST")
+
+    def handle_uses(self, child):
+        for grandchild in child.getchildren():
+            print(grandchild.tag, grandchild.text, grandchild.attrib.keys(), "<<< grandchild of uses")
+        print(child.tag, child.text, child.attrib.keys(), "<<<<<<<<<<<<<<<< USES")
 
     def handle_null(self, child=None):
         if child:
@@ -105,5 +133,16 @@ class Munger:
             return self.handle_leaf
         elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}container":
             return self.handle_container
+        if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}list":
+            return self.handle_list
+        elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}uses":
+            return self.handle_uses
+        elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}namespace", "{urn:ietf:params:xml:ns:yang:yin:1}prefix",
+                           "{urn:ietf:params:xml:ns:yang:yin:1}import", "{urn:ietf:params:xml:ns:yang:yin:1}typedef",
+                           "{urn:ietf:params:xml:ns:yang:yin:1}grouping"):
+            # These things are handled via pass 1
+            return self.handle_null
+        elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}presence"):
+            return self.handle_null
 
-        return self.handle_null
+        raise Error.BlngYangSchemaNotSupported(child.tag)
