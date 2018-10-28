@@ -207,3 +207,63 @@ when we can effectively isolate the intereting parts of the datastore.</text>
     </type>
   </leaf>
 </module>"""
+
+    SCHEMA_USES = """<?xml version="1.0" encoding="UTF-8"?>
+<module name="integrationtest"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest"
+        xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+  <prefix value="integrationtest"/>
+  <grouping name="group-a">
+    <leaf name="a">
+      <type name="string"/>
+    </leaf>
+  </grouping>
+  <container name="resolver">
+    <uses name="group-a"/>
+  </container>
+</module>"""
+
+    SCHEMA_PRIMITIVE = """<?xml version="1.0" encoding="UTF-8"?>
+<module name="integrationtest"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest"
+        xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+  <prefix value="integrationtest"/>
+  <leaf name="simpleleaf">
+    <type name="string"/>
+  </leaf>
+  <container name="simplecontainer">
+    <presence value="true"/>
+  </container>
+  <container name="morecomplex">
+    <leaf name="nonconfig">
+      <type name="string"/>
+      <config value="false"/>
+    </leaf>
+    <leaf name="leaf2">
+      <type name="boolean"/>
+    </leaf>
+    <container name="inner">
+      <presence value="true"/>
+      <leaf name="leaf5">
+        <type name="string"/>
+        <mandatory value="true"/>
+      </leaf>
+      <leaf name="leaf6">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+        <mandatory value="false"/>
+      </leaf>
+      <leaf name="leaf7">
+        <type name="string"/>
+        <default value="this-is-a-default"/>
+      </leaf>
+    </container>
+  </container>
+</module>"""
