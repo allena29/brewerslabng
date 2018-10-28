@@ -99,7 +99,7 @@ class resources:
     </container>
   </container>
   <typedef name="type-a">
-    <type name="string"/>
+    <type name="uint32"/>
   </typedef>
   <grouping name="group-a">
     <leaf name="a">
@@ -114,7 +114,7 @@ class resources:
   </container>
 </module>"""
 
-    SCHEMA_2 = """<?xml version="1.0" encoding="UTF-8"?>
+    SCHEMA_CRUX = """<?xml version="1.0" encoding="UTF-8"?>
 <module name="crux"
         xmlns="urn:ietf:params:xml:ns:yang:yin:1"
         xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux">
@@ -180,4 +180,30 @@ when we can effectively isolate the intereting parts of the datastore.</text>
       </list>
     </list>
   </container>
+</module>"""
+
+    SCHEMA_UNION = """<?xml version="1.0" encoding="UTF-8"?>
+<module name="integrationtest"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest"
+        xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+  <prefix value="integrationtest"/>
+  <typedef name="type2">
+    <type name="uint32"/>
+  </typedef>
+  <typedef name="type3">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+  </typedef>
+  <leaf name="uuuuuuuu">
+    <type name="union">
+      <type name="type3"/>
+      <type name="type2"/>
+      <type name="string"/>
+    </type>
+  </leaf>
 </module>"""

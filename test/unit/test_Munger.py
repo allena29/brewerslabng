@@ -1,5 +1,8 @@
-import unittest
+
+import os
 import sys
+import unittest
+from lxml import etree
 sys.path.append('../../')
 from blng import Munger
 from example import resources
@@ -7,19 +10,41 @@ from example import resources
 
 class TestCruxMunger(unittest.TestCase):
 
-    SCHEMA_1 = resources.SCHEMA_1
-    SCHEMA_2 = resources.SCHEMA_2
+    def _loadXmlDoc(self, schema_string):
+        return etree.fromstring(schema_string.encode('UTF-8'))
 
     def setUp(self):
+        self.maxDiff = 4000
         self.subject = Munger.Munger()
+        if not os.path.exists('.cache/crux.yin'):
+            yin_file = open(".cache/crux.yin", "w")
+            yin_file.write(resources.SCHEMA_CRUX)
+            yin_file.close()
 
-        yin_file = open(".cache/integrationtest.yin", "w")
-        yin_file.write(self.SCHEMA_1)
-        yin_file.close()
+    def test_munge_union_typedefs(self):
+        """Test the basic resolution of typedefs within a union."""
+        xmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_UNION))
+        received_answer = self.subject.pretty(xmldoc)
 
-        yin_file = open(".cache/crux.yin", "w")
-        yin_file.write(self.SCHEMA_2)
-        yin_file.close()
+        expected_answer = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+  <prefix value="integrationtest"/>
+  <typedef name="type2">
+    </typedef>
+  <typedef name="type3">
+    </typedef>
+  <leaf name="uuuuuuuu">
+    <type name="union">
+      <type name="string"/>
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+  <type name="uint32"/>
+  </type>
+  </leaf>
+</module>
+"""
 
-    def test_munge_simplecase(self):
-        self.subject.munge("integrationtest")
+        self.assertEqual(expected_answer, received_answer)

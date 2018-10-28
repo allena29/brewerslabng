@@ -21,28 +21,50 @@ class Munger:
 
     NAMESPACES = {"yin": "urn:ietf:params:xml:ns:yang:yin:1"}
 
-    def munge(self, module):
-        self.typedef_map = {}
-        self.grouping_map = {}
-        self.trail = []
+    def __init__(self):
         format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=format)
         self.log = logging.getLogger('munger')
 
+    def load_file(self, module):
         if not os.path.exists(".cache/%s.yin" % (module)):
             raise Error.BlngSchemaNotCached(module)
 
         # The main module we care about
         self.xmldoc = etree.parse(".cache/%s.yin" % (module))
         xmldoc = etree.parse(".cache/%s.yin" % (module)).getroot()
+        return xmldoc
+
+    def munge(self, module, xmldoc):
+        self.typedef_map = {}
+        self.grouping_map = {}
+        self.replacements = []
+        self.xmldoc = xmldoc
+
         self.pass1_parse_and_recurse('integrationtest', xmldoc)
         self.pass2_stitch_and_recurse(xmldoc)
-        self.pass2_stitch_and_recurse(xmldoc)
+        self.pass3(xmldoc)
+        return xmldoc
 
-        xml_string = str(etree.tostring(xmldoc, pretty_print=True))
+    def pretty(self, xmldoc):
+        xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
+        return str(xmlstr).replace('\\n', '\n')[2:-1]
+
+    def save_to_file(self, xmldoc):
         o = open('z.xml', 'w')
-        o.write(str(xml_string).replace('\\n', '\n')[2:-1])
+        o.write(self.pretty(xmldoc))
         o.close()
+
+    def pass3(self, xmldoc):
+        for (index, new, old, parent) in self.replacements:
+            if parent:
+                parent.append(new)
+                try:
+                    parent.remove(old)
+                except:
+                    print('failed to remove', old, 'from', parent)
+            else:
+                print('skipping', new, old, parent)
 
     def pass1_parse_and_recurse(self, module_name, xmldoc):
         """The first pass parsing builds an index of groups and typedefs"""
@@ -94,28 +116,33 @@ class Munger:
             grandchild = grandchildren[grandchild_id]
             self._lookup_method(grandchild)(grandchild, grandchild_id)
 
-    def handle_type(self, sprog, sprog_id, sprog_replacement):
+    def handle_type(self, sprog, sprog_id, parent):
         type = sprog.attrib['name']
-        if type in ('string', 'boolean', 'uint8', 'uint16', 'uint32'):
+        if type in ('string', 'boolean', 'uint8', 'uint16', 'uint32', 'enumeration'):
             pass
+        # stranger means the typedef itelf
         elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.typedef_map:
             for stranger in self.typedef_map['%s:%s' % (self.our_prefix, type)]:
                 if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                    sprog_replacement.append((sprog_id, stranger, sprog))
-
+                    self.log.debug('typedef replacement - added to list %s:%s (ourprefix)', self.our_prefix, type)
+                    self.replacements.append((sprog_id, stranger, sprog, parent))
+                    self.handle_type(stranger, -1, sprog)
         elif ':' in type and type in self.typedef_map:
             for stranger in self.typedef_map['%s' % (type)]:
                 if stranger.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                    sprog_replacement.append((sprog_id, stranger, sprog))
+                    self.log.debug('typedef replacement - added to list %s', type)
+                    self.replacements.append((sprog_id, stranger, sprog, parent))
+                    self.handle_type(stranger, -1, sprog)
         elif type == 'union':
-            pass
-            #great_grandchildren = grandchild.getchildren()
-            # for great_grandchild_id in range(len(great_grandchildren)):
-        #        great_grandchild = great_grandchildren[great_grandchild_id]
-        #        print(great_grandchild.tag, great_grandchild.attrib.keys(), '<<<great grandchild')
+            sproglets = sprog.getchildren()
+            for sproglet_id in range(len(sproglets)):
+                sproglet = sproglets[sproglet_id]
+                if sproglet.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
+                    print(sproglet.text, sproglet.attrib['name'], sproglet.text, sproglet, sprog)
+                    self.handle_type(sproglet, sproglet_id, sprog)
+
         else:
             raise Error.BlngYangTypeNotSupported(type, '?')
-        return sprog_replacement
 
     def handle_leaf(self, child, grandchild_id=-1):
         grandchildren = child.getchildren()
@@ -124,12 +151,7 @@ class Munger:
         for grandchild_id in range(len(grandchildren)):
             grandchild = grandchildren[grandchild_id]
             if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                replace_grandchildren = self.handle_type(grandchild, grandchild_id, replace_grandchildren)
-
-        for (index, new_grandchild, old_grandchild) in replace_grandchildren:
-            child.insert(index, new_grandchild)
-            child.remove(old_grandchild)
-            self.dirty_flag = True
+                self.handle_type(grandchild, grandchild_id, child)
 
     def handle_list(self, child, grandchild_id=-1):
         pass

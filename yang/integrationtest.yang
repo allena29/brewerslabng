@@ -29,7 +29,7 @@ module integrationtest {
   }
 
   typedef type-a {
-    type string;
+    type uint32;
   }
 
   grouping group-a {
