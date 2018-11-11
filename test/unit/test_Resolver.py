@@ -29,9 +29,16 @@ class TestCruxResolver(unittest.TestCase):
         # Assert
         self.assertEqual(list(self.subject.in_memory.keys()), ['integrationtest'])
 
-    def test_show(self):
+    def test_resolving_inner(self):
+        (cmd, xpath, value) = self.subject.resolve("show morecomplex leaf2")
+        self.assertEqual(cmd, "show")
+        self.assertEqual(xpath, "/morecomplex/leaf2")
+        self.assertEqual(value, None)
+
+    def test_resolving_top_level(self):
         """
-        Basic test of showing everything from the top level
+        Basic test of resolving things at the top level, we should always be given back
+        a command, xpath and value
         """
 
         (cmd, xpath, value) = self.subject.resolve("show")
@@ -53,3 +60,8 @@ class TestCruxResolver(unittest.TestCase):
         self.assertEqual(cmd, "set")
         self.assertEqual(xpath, "/simpleleaf")
         self.assertEqual(value, "abc 1234")
+
+        (cmd, xpath, value) = self.subject.resolve("show simplecontainer")
+        self.assertEqual(cmd, 'show')
+        self.assertEqual(xpath, "/simplecontainer")
+        self.assertEqual(value, None)

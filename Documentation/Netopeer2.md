@@ -38,6 +38,13 @@ ssh -lnetconf -p 830 127.0.0.1 -s netconf
 See... https://asciinema.org/a/VVG2j1Zn0QFbkrhlbOUz0Ll5q
 
 
+# Operational vs Configuration Data
+
+Read http://www.sysrepo.org/static/doc/html/subscribtions.html
+
+It shows the design pattern of sysrepod is that whenever a consumer asks for operational data a data provider *MUST* always satisfy that request - there is no concept here of persisting operational data. Therefore sysrepod is for **configuration** only.
+
+
 
 ```
 Create a file basic.json - This is [Documentation/example-netopeer/basic.json](Documentation/example-netopeer/basic.json)

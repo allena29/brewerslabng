@@ -57,7 +57,7 @@ class Munger:
 
     def pass3(self, xmldoc):
         for (index, new, old, parent) in self.replacements:
-            if parent:
+            if parent is not None:
                 parent.append(new)
                 try:
                     parent.remove(old)
@@ -86,8 +86,11 @@ class Munger:
 
         Everytime we load a new YANG module we build a list which has a key of prefix
         and the associated yang module (i.e. import <module> { prefix <prefix> }; ) in
-        YANG terms."""
-        self.dirty_flag = False
+        YANG terms.
+
+        In addition as we recurse we will build lists of replcements we need to make which will
+        be process in pass 3.
+        """
         self.our_prefix = None
         for child in xmldoc.getchildren():
             if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}prefix":
@@ -138,7 +141,6 @@ class Munger:
             for sproglet_id in range(len(sproglets)):
                 sproglet = sproglets[sproglet_id]
                 if sproglet.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
-                    print(sproglet.text, sproglet.attrib['name'], sproglet.text, sproglet, sprog)
                     self.handle_type(sproglet, sproglet_id, sprog)
 
         else:
@@ -164,7 +166,6 @@ class Munger:
         parent = child.getparent()
         for new_child in self.grouping_map[uses].getchildren():
             parent.append(new_child)
-            self.dirty_flag = True
         parent.remove(child)
 
     def handle_null(self, child=None, grandchild_id=-1):
