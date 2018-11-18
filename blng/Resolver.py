@@ -27,66 +27,123 @@ class Resolver:
     """
 
     NAMESPACES = {"yin": "urn:ietf:params:xml:ns:yang:yin:1"}
-    QUOTED_STRING_REGEX = re.compile("^.*\"([#~\%\^\&<'\/\?\\>\=\-\@:;\[\]\(\)\{\}a-zA-Z0-9 \*\$!\.\+_\\\"]*)\"")
+    QUOTED_STRING_REGEX = re.compile("^.* (\"([#~\%\^\&<'\/\?\\>\=\-\@:;\[\]\(\)\{\}a-zA-Z0-9 \*\$!\.\+_\\\"]*)\"$)")
 #    QUOTED_STRING_REGEX = re.compile("([#~%^&<'/?\\>=-@:;[](){}a-zA-Z0-9 *$!.+_\\\"]*)")
 
     def __init__(self):
         self.top_tag_to_module = {}
-        self.in_memory = {}
+        self.path_lookup_cache = {}
+        self.namespace_to_module = {}
+        self.module_cache = {}
+
         format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=format)
         self.log = logging.getLogger('cruxresolver')
 
-    def register_top_tag(self, top_tag, module):
-        self.top_tag_to_module[top_tag] = module
-
     def resolve(self, path):
         """
-        We convert some kind of string into an XPATH like expression.
+        We convert some kind of string into an XPATH like expression and should return a tuple providing
+        - The command which was prefixing the command line
+        - The XPATH of the node.
+        - The values in a list
         """
-        value = None
+        values = []
         if path.find(' ') == -1:
-            command = path
-            xpath = "/"
-        else:
-            command = path[0:path.find(' ')]
-            path = path[path.find(' ')+1:]
-            if command == 'set' and self.QUOTED_STRING_REGEX.match(path):
-                value = self.QUOTED_STRING_REGEX.sub('\g<1>', path)
-                path = path[0:len(path) - len(value) - 3]
+            return (path, "/", [])
 
-            xpath = "/"
-            xpath_parts = path.split(' ')
-            for tmp in xpath_parts:
-                xpath = xpath + tmp + "/"
-            xpath = xpath[: -1]
+        command = path[0:path.find(' ')]
+        path = path[len(command)+1:]
+        if command == 'set':
+            while self.QUOTED_STRING_REGEX.match(path):
+                value = self.QUOTED_STRING_REGEX.sub('\g<1>', path)[1:-1]
+                path = path[0:len(path) - len(value)-3]
+                values.insert(0, value)
 
-        return (command, xpath, value)
+        xpath = "/"
+        xpath_parts = path.split(' ')
+        for tmp in xpath_parts:
+            xpath = xpath + tmp + "/"
+        xpath = xpath[: -1]
 
-    def load_top_tags_to_memory(self, ):
+        # TODO: now we need to validate if the path is valid - if it's not valid then we could have
+        # a non-quoted set value
+
+        # The biggest problem right now is what do we look up against.
+        # If we start looking up against the YANG schema we are back in the same problems
+        # as the last set of tries
+        # If we look up against the netopeer2 we are highly suboptimalself.
+        #
+        # The current logic we have in here might be ok for
+        # set morecomplex list keya keyb
+        # but what will probably break is
+        # set list-outside keya list-insider keyb
+        # we somehow need to cancel out the keys everytime we look at something.
+        self._find_schema_definition_for_path(xpath)
+
+        return (command, xpath, values)
+
+    def _find_schema_definition_for_path(self, xpath):
         """
-        It's entirely possible the consume may ask us for some data right at the top level
-        in which case it necessary to load every top tag's schema into memory at this point
-        in time.
-        """
-        for toptag in self.top_tag_to_namesapce:
-            self.log.debug("Loading schema for top-tag %s" % (toptag))
-            self.load_schema_to_memory(toptag, self.top_tag_to_namesapce[toptag])
+        This method works to find an XMLdoc which gives us the YIN based schema.
 
-    def load_schema_to_memory(self, tag, module):
+        E.g. /morecomplex/leaf2 will at first fail to find /morecomplex/leaf2 but
+        will match on /morecomplex because that is a registered top-tag.
+
+        E.g. /ficticiuous/leaf3 will fail because we don't have a regstiered top-tag
+
+        This method can be thought about as working backwards to find the schema.
+        """
+        xpath_list = xpath.split("/")
+        if xpath[0] == "/":
+            xpath_list.pop(0)
+        while len(xpath_list):
+            if Resolver._cache_path_format(xpath_list) in self.path_lookup_cache:
+                raise ValueError(" what we want to add here is a path_lookup_cache of %s which takes us to the schema place of this thing (excluding list keys) " % (xpath))
+                return
+            xpath_list.pop()
+        print(self.path_lookup_cache.keys())
+        raise Error.BlngPathNotValid(xpath)
+
+    def register_top_tag(self, xpath_top_tag, namespace, module_name):
+        """
+        Registering at top_tag will populate the following structures.
+
+        namespace_to_module[<yang-namespace>] = module_name
+        path_lookup_cache[<xpath of top-level tag>] = XML YIN representation of yang
+
+        TODO: we must validate to make sure we don't allow overlapping tags
+        """
+        self.namespace_to_module[namespace] = module_name
+        self._load_schema_to_memory(module_name)
+
+        self.path_lookup_cache[Resolver._cache_path_format(xpath_top_tag)] = self.module_cache[module_name]
+
+    def _load_schema_to_memory(self, module_name):
         """
         There is a a big assumption made at this point that we have pre-cached all the data and
         from a NETCONF call and have furthermore converted them to a YIN representation.
 
         At this stage we are just trying to load in the data we need - we probably need namespaces too!
         """
-        self.log.debug("loading schema %s to %s", module, tag)
+        self.log.debug("loading schema %s to memory", module_name)
 
-        if not os.path.exists(".cache/%s.yin" % (module)):
-            raise Error.BlngSchemaNotCached(module)
+        if module_name in self.module_cache:
+            return (module_name, self.module_cache[module_name])
 
-        xmldoc = etree.parse(".cache/%s.yin" % (module))
-#        xmlroot = xmldoc.getroot()
+        if not os.path.exists(".cache/%s.yin" % (module_name)):
+            raise Error.BlngSchemaNotCached(module_name)
+
+        xmldoc = etree.parse(".cache/%s.yin" % (module_name))
         module_name = xmldoc.xpath('/yin:module', namespaces=self.NAMESPACES)[0].attrib['name']
-        self.in_memory[module_name] = xmldoc
-        return module_name
+        self.module_cache[module_name] = xmldoc
+        return (module_name, self.module_cache[module_name])
+
+    @staticmethod
+    def _cache_path_format(path):
+        if isinstance(path, list):
+            formatted_path = path
+        else:
+            formatted_path = path.split('/')
+            if path[0] == '/':
+                formatted_path.pop(0)
+        return str(formatted_path)

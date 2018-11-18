@@ -64,6 +64,27 @@ class resources:
       <type name="string"/>
       <config value="false"/>
     </leaf>
+       <list name="composite-key-list">
+      <key value="firstkey, secondkey"/>
+      <leaf name="firstkey">
+        <type name="string"/>
+      </leaf>
+      <leaf name="secondkey">
+        <type name="string"/>
+      </leaf>
+      <leaf name="mandatoryleaf">
+        <type name="string"/>
+        <mandatory value="true"/>
+      </leaf>
+      <leaf name="optionalleaf">
+        <type name="string"/>
+        <mandatory value="false"/>
+      </leaf>
+      <leaf name="defaultleaf">
+        <type name="string"/>
+        <default value="ABC123"/>
+      </leaf>
+    </list>
     <leaf name="leaf2">
       <crux:info>
         <crux:text>must be 1 or 0 dont sit on the fence</crux:text>

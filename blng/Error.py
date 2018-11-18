@@ -1,6 +1,15 @@
 """Exceptions for using with BLNG"""
 
 
+class BlngPathNotValid(Exception):
+
+    """Raised when we decode a path that is not valid and cannot reasonably decode it."""
+
+    def __init__(self, path):
+        message = '%s is not valid.' % (path)
+        super().__init__(message)
+
+
 class BlngSchemaNotCached(Exception):
 
     """Raised when attempting to access a dastore which is not pre-cached."""
