@@ -1,4 +1,5 @@
 import unittest
+import os
 import sys
 sys.path.append('../../')
 from blng import Resolver
@@ -9,6 +10,7 @@ from example import resources
 class TestCruxResolver(unittest.TestCase):
 
     SCHEMA_1 = resources.SCHEMA_1
+    CRUX_SCHEMA = resources.CRUX_XML
 
     def setUp(self):
 
@@ -20,6 +22,10 @@ class TestCruxResolver(unittest.TestCase):
         yin_file.write(self.SCHEMA_1)
         yin_file.close()
 
+        if not os.path.exists(".cache/__crux-schema.xml"):
+            crux_schema_file = open(".cache/__crux-schema.xml", "w")
+            crux_schema_file.write(self.CRUX_XML)
+            crux_schema_file.close()
     # def test_basic_lookup_of_a_top_level(self):
     #    self.subject.show('')
 

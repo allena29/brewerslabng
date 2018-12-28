@@ -5,6 +5,7 @@ from lxml import etree
 import sys
 sys.path.append('../')
 from blng import Common
+from blng import Munger
 
 
 class Yang:
@@ -79,6 +80,10 @@ class Yang:
     def convert_yang_to_yin(self, module):
         """
         Convert YANG file to YIN - including all imports of each YANG module we encounter.
+
+        Ideally we wouldn't do any advance processing like this and instead grab schema on demand
+        for the given part of the CLI tree. If we keep going down the road of converting YANG to YIN
+        then we still have the problem of dealing with list elements which are not trivial todo.
         """
         if not os.path.exists(".cache/%s.yin" % (module)):
             self.log.debug("Converting file %s to YIN representation" % (module))
@@ -94,6 +99,10 @@ class Yang:
         Common.shell_command(pyang_command)
 
     def negotiate_netconf_capabilities(self, netconf):
+        """
+        This method is badly named, it doesn't just negotiate the capabilities of the NETCONF server
+        but does a whole lot of munging into a new single schema representation.
+        """
         for capa in netconf.server_capabilities:
             c = capa.split('?')
             c.append('')
@@ -109,6 +118,20 @@ class Yang:
             raise ValueError("Unable to fetch list of supported CRUX CLI modules")
 
         self._process_modules(netconf, crux_modules[0])
+        self._munge_all_modules_into_single_schema()
+
+    def _munge_all_modules_into_single_schema(self):
+        combined_xmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
+        for ym in self.cli_modules:
+            self.log.error("Need to munge %s" % (ym))
+            munger = Munger.Munger()
+            (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
+            for child in crux_xmldoc.getchildren():
+                combined_xmldoc.append(child)
+        with open('.cache/__crux-schema.xml', 'w') as file:
+            file.write(munger.pretty(combined_xmldoc))
+            o = open('/tmp/z.xml', 'w')
+            o.write(munger.pretty(combined_xmldoc))
 
     def _process_modules(self, netconf, crux_modules):
         """
@@ -119,6 +142,9 @@ class Yang:
         and we will then go on to convert those into YIN representations. By the point
         we start converting we *should* have recursively downloaded all the dependeny
         YANG files as the method cache_schema is recursive in nature.
+
+        However, we don't have a get_schema from this XPATH so we may still have to do
+        this.
         """
         for cm in crux_modules.getchildren():
             (module, namespace, revision, tops) = self._process_module(cm)
