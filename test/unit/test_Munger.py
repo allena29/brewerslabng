@@ -22,14 +22,22 @@ class TestCruxMunger(unittest.TestCase):
             yin_file = open(".cache/crux.yin", "w")
             yin_file.write(resources.SCHEMA_CRUX)
             yin_file.close()
+
+        if not os.path.exists('.cache/integrationtest.yin'):
+            yin_file = open('.cache/integrationtest.yin', 'w')
+            yin_file.write(resources.SCHEMA_1)
+            yin_file.close()
+
         self.subject.typedef_map = {}
         self.subject.replacements = []
         self.subject.grouping_map = {}
 
     def test_simple_types(self):
         """Test very basic primitive types"""
-        xmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_PRIMITIVE))
+        xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_PRIMITIVE))
         received_answer = self.subject.pretty(xmldoc)
+        received_answer2 = self.subject.pretty(newxmldoc)
+
         expected_answer = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
   <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
   <prefix value="integrationtest"/>
@@ -69,12 +77,61 @@ class TestCruxMunger(unittest.TestCase):
   </container>
 </module>
 """
+        expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+  <simpleleaf>
+    <yin-schema><leaf name="simpleleaf">
+    <type name="string"/>
+  </leaf>
+  </yin-schema>
+  </simpleleaf>
+  <simplecontainer>
+    <yin-schema><container name="simplecontainer">
+    <presence value="true"/>
+  </container>
+  </yin-schema>
+  </simplecontainer>
+  <morecomplex>
+    <yin-schema><container name="morecomplex">
+    <leaf name="nonconfig">
+      <type name="string"/>
+      <config value="false"/>
+    </leaf>
+    <leaf name="leaf2">
+      <type name="boolean"/>
+    </leaf>
+    <container name="inner">
+      <presence value="true"/>
+      <leaf name="leaf5">
+        <type name="string"/>
+        <mandatory value="true"/>
+      </leaf>
+      <leaf name="leaf6">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+        <mandatory value="false"/>
+      </leaf>
+      <leaf name="leaf7">
+        <type name="string"/>
+        <default value="this-is-a-default"/>
+      </leaf>
+    </container>
+  </container>
+</yin-schema>
+  </morecomplex>
+</crux-schema>"""
+
         self.assertEqual(expected_answer, received_answer)
+        # self.assertEqual(expected_answer2, received_answer2)
 
     def test_grouping(self):
         """Test basic uses from in the same yang module"""
-        xmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_USES))
+        xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_USES))
         received_answer = self.subject.pretty(xmldoc)
+        received_answer2 = self.subject.pretty(newxmldoc)
+
         expected_answer = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
   <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
   <prefix value="integrationtest"/>
@@ -87,12 +144,34 @@ class TestCruxMunger(unittest.TestCase):
   </container>
 </module>
 """
+
+        expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+  <group-a>
+    <yin-schema>
+      <grouping xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="group-a">
+    </grouping>
+    </yin-schema>
+  </group-a>
+  <resolver>
+    <yin-schema>
+      <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
+    <leaf name="a">
+      <type name="string"/>
+    </leaf>
+  </container>
+    </yin-schema>
+  </resolver>
+</crux-schema>
+"""
+
         self.assertEqual(expected_answer, received_answer)
+        self.assertEqual(expected_answer2, received_answer2)
 
     def test_munge_union_typedefs(self):
         """Test the basic resolution of typedefs within a union."""
-        xmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_UNION))
+        xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_UNION))
         received_answer = self.subject.pretty(xmldoc)
+        received_answer2 = self.subject.pretty(newxmldoc)
         expected_answer = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
   <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
   <prefix value="integrationtest"/>
@@ -113,7 +192,39 @@ class TestCruxMunger(unittest.TestCase):
   </leaf>
 </module>
 """
+
+        expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+  <type2>
+    <yin-schema>
+      <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type2">
+    </typedef>
+    </yin-schema>
+  </type2>
+  <type3>
+    <yin-schema>
+      <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type3">
+    </typedef>
+    </yin-schema>
+  </type3>
+  <uuuuuuuu>
+    <yin-schema>
+      <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="uuuuuuuu">
+    <type name="union">
+      <type name="string"/>
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+  <type name="uint32"/>
+  </type>
+  </leaf>
+    </yin-schema>
+  </uuuuuuuu>
+</crux-schema>
+"""
         self.assertEqual(expected_answer, received_answer)
+        self.assertEqual(expected_answer2, received_answer2)
 
     def test_pass1(self):
         # Build

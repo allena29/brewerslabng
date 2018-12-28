@@ -17,6 +17,26 @@ class Munger:
 
     The Yang module should ensure we have all of the YIN schemas available, chasing through imports -
     therefore this module will just take the happy path.
+
+    This was very simplisitc, when looking up the schema produced here we don't get a very usable form because
+    YIN organises by the type of the element- with name's being an attribute of the the type
+
+    xmlroot.findall('/', namespaces=NAMESPACES)
+    Out[10]:
+    [<Element {urn:ietf:params:xml:ns:yang:yin:1}namespace at 0x1088de638>,
+     <Element {urn:ietf:params:xml:ns:yang:yin:1}prefix at 0x1088de170>,
+     <Element {urn:ietf:params:xml:ns:yang:yin:1}import at 0x1088cf440>,
+     <Element {urn:ietf:params:xml:ns:yang:yin:1}leaf at 0x1088cf2d8>,
+     <Element {urn:ietf:params:xml:ns:yang:yin:1}container at 0x1088cffc8>,
+     <Element {urn:ietf:params:xml:ns:yang:yin:1}list at 0x1088cfe18>]
+
+     This makes it hard to use xpath's to determine if something is a leaf!
+     A potential quick hack would be to think about inverting the xmldoc as a
+     pass 4 - but things are getting very tangled already.
+
+     There is at least a consistent xmldoc at the end of mung so it could be the
+     least worst option.
+
     """
 
     NAMESPACES = {"yin": "urn:ietf:params:xml:ns:yang:yin:1"}
@@ -44,7 +64,23 @@ class Munger:
         self.pass1_parse_and_recurse('integrationtest', xmldoc)
         self.pass2_stitch_and_recurse(xmldoc)
         self.pass3(xmldoc)
-        return xmldoc
+        newxmldoc = self.pass4(xmldoc)
+        return (xmldoc, newxmldoc)  # , newxmldoc
+
+    def pass4(self, xmldoc):
+        newxmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
+        self._inversion_recursor(xmldoc, newxmldoc)
+        return newxmldoc
+
+    def _inversion_recursor(self, xmldoc, newxmldoc):
+        for child in xmldoc.getchildren():
+            print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor")
+            if 'name' in child.attrib:
+                newnode = etree.Element(str(child.attrib['name']))
+                yin = etree.Element('yin-schema')
+                yin.append(etree.fromstring(etree.tostring(child)))
+                newnode.append(yin)
+                newxmldoc.append(newnode)
 
     def pretty(self, xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
