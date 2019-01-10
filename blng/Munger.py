@@ -15,28 +15,26 @@ class Munger:
     document. We will need to set some very clear guidance on a reasonable level of hirerarhcy for typedef's
     etc, groupings etc.
 
-    The Yang module should ensure we have all of the YIN schemas available, chasing through imports -
-    therefore this module will just take the happy path.
+    The Yang module should ensure we have all of the YIN schemas available, chasing through imports.
 
-    This was very simplisitc, when looking up the schema produced here we don't get a very usable form because
-    YIN organises by the type of the element- with name's being an attribute of the the type
+    Once the munger has combined the YIN Module is inverted.
+        <leaf name="name-of-leaf">        we have    <name-of-leaf>
+           <type name="string"/>                        <yin-schema>
+                                                            <type name="string"/>
+                                                        </yin-schema>
+        </leaf>                                      </name-of-leaf>
 
-    xmlroot.findall('/', namespaces=NAMESPACES)
-    Out[10]:
-    [<Element {urn:ietf:params:xml:ns:yang:yin:1}namespace at 0x1088de638>,
-     <Element {urn:ietf:params:xml:ns:yang:yin:1}prefix at 0x1088de170>,
-     <Element {urn:ietf:params:xml:ns:yang:yin:1}import at 0x1088cf440>,
-     <Element {urn:ietf:params:xml:ns:yang:yin:1}leaf at 0x1088cf2d8>,
-     <Element {urn:ietf:params:xml:ns:yang:yin:1}container at 0x1088cffc8>,
-     <Element {urn:ietf:params:xml:ns:yang:yin:1}list at 0x1088cfe18>]
+    This module only ever acts on a single YIN module at any time - however it should be simple for something
+    else to stitch things together (it should require nothing more than just appending each YIN module).
 
-     This makes it hard to use xpath's to determine if something is a leaf!
-     A potential quick hack would be to think about inverting the xmldoc as a
-     pass 4 - but things are getting very tangled already.
-
-     There is at least a consistent xmldoc at the end of mung so it could be the
-     least worst option.
-
+    In addition we will wrap this as
+        <crux-schema>
+            <inverted-schema>
+            </inverted-schema>
+            <crux-paths>
+                <path>/name-of-leaf</path>
+            </crux-paths>
+        </crux>
     """
 
     NAMESPACES = {"yin": "urn:ietf:params:xml:ns:yang:yin:1"}
@@ -65,31 +63,60 @@ class Munger:
         self.pass2_stitch_and_recurse(xmldoc)
         self.pass3(xmldoc)
         newxmldoc = self.pass4(xmldoc)
+        self.pass5(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
 
+    def pass5(self, newxmldoc):
+        pathlist = []
+        paths = []
+        self._path_recursor(newxmldoc, pathlist, paths)
+        pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
+        for path in paths:
+            node = etree.Element('path')
+            node.text = path
+            pathxml.append(node)
+        newxmldoc.append(pathxml)
+
+    def _path_recursor(self, newxmldoc, pathlist, paths):
+        for child in newxmldoc.getchildren():
+            if child.tag not in ('yin-schema'):
+                pathlist.append(child.tag.replace('{urn:ietf:params:xml:ns:yang:yin:1}', ''))
+                this_path = '/'.join(pathlist)
+                for grandchild in child.getchildren():
+                    if grandchild.tag == 'yin-schema':
+                        grandchild.attrib['path'] = '/' + this_path
+                paths.append('/' + this_path)
+                self._path_recursor(child, pathlist, paths)
+                pathlist.pop()
+
     def pass4(self, xmldoc):
-        newxmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
+        """
+        The inversion recursion turns a YIN document inside out, rather than indexing the
+        document by the tyoe (i.e. <leaf>) with the name inside as an attribute each element
+        is named by it's true name. The YIN structure is then provided as a child in a new
+        <yin-schema>.
+        """
+        newxmldoc = etree.fromstring("""<inverted-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></inverted-schema>""")
         self._inversion_recursor(xmldoc, newxmldoc)
-        return newxmldoc
+
+        cruxxmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
+        cruxxmldoc.append(newxmldoc)
+        return cruxxmldoc
 
     def _inversion_recursor(self, xmldoc, newxmldoc):
         for child in xmldoc.getchildren():
-            print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor")
             if 'name' in child.attrib:
                 newnode = etree.Element(str(child.attrib['name']))
                 yin = etree.Element('yin-schema')
                 yin.append(etree.fromstring(etree.tostring(child)))
                 newnode.append(yin)
                 newxmldoc.append(newnode)
+            else:
+                print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor")
 
     def pretty(self, xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
-
-    def save_to_file(self, xmldoc):
-        o = open('z.xml', 'w')
-        o.write(self.pretty(xmldoc))
-        o.close()
 
     def pass3(self, xmldoc):
         for (index, new, old, parent) in self.replacements:

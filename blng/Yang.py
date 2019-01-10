@@ -120,18 +120,31 @@ class Yang:
         self._process_modules(netconf, crux_modules[0])
         self._munge_all_modules_into_single_schema()
 
+    def pretty(self, xmldoc):
+        xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
+        return str(xmlstr).replace('\\n', '\n')[2:-1]
+
     def _munge_all_modules_into_single_schema(self):
         combined_xmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
+
+        pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
+        invertxml = etree.fromstring("""<inverted-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></inverted-schema>""")
+        combined_xmldoc.append(pathxml)
+        combined_xmldoc.append(invertxml)
+
         for ym in self.cli_modules:
-            self.log.error("Need to munge %s" % (ym))
-            munger = Munger.Munger()
-            (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
-            for child in crux_xmldoc.getchildren():
-                combined_xmldoc.append(child)
+            with open('.cache/%s.crux.xml' % (ym)) as inverted_file:
+                xmldoc = etree.fromstring(inverted_file.read())
+                for child in xmldoc.getchildren():
+                    if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}crux-paths':
+                        for grandchild in child.getchildren():
+                            pathxml.append(grandchild)
+                    if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}inverted-schema':
+                        for grandchild in child.getchildren():
+                            invertxml.append(grandchild)
+
         with open('.cache/__crux-schema.xml', 'w') as file:
-            file.write(munger.pretty(combined_xmldoc))
-            o = open('/tmp/z.xml', 'w')
-            o.write(munger.pretty(combined_xmldoc))
+            file.write(self.pretty(combined_xmldoc))
 
     def _process_modules(self, netconf, crux_modules):
         """
@@ -158,8 +171,14 @@ class Yang:
             self.cache_schema(netconf, module, namespace, revision)
 
         for ym in self.cli_modules:
-            print("We need schema for %s" % (ym))
             self.convert_yang_to_yin(ym)
+
+            self.log.error("Need to munge %s" % (ym))
+            munger = Munger.Munger()
+            (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
+
+            with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
+                inverted_file.write(munger.pretty(crux_xmldoc))
 
     def _netconf_get_xml(self, netconf, filter, config=True, source='running'):
         filter_xml = """<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">

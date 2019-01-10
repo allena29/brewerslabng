@@ -78,20 +78,24 @@ class TestCruxMunger(unittest.TestCase):
 </module>
 """
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
-  <simpleleaf>
-    <yin-schema><leaf name="simpleleaf">
+  <inverted-schema>
+    <simpleleaf>
+      <yin-schema path="/inverted-schema/simpleleaf">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simpleleaf">
     <type name="string"/>
   </leaf>
-  </yin-schema>
-  </simpleleaf>
-  <simplecontainer>
-    <yin-schema><container name="simplecontainer">
+      </yin-schema>
+    </simpleleaf>
+    <simplecontainer>
+      <yin-schema path="/inverted-schema/simplecontainer">
+        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simplecontainer">
     <presence value="true"/>
   </container>
-  </yin-schema>
-  </simplecontainer>
-  <morecomplex>
-    <yin-schema><container name="morecomplex">
+      </yin-schema>
+    </simplecontainer>
+    <morecomplex>
+      <yin-schema path="/inverted-schema/morecomplex">
+        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="morecomplex">
     <leaf name="nonconfig">
       <type name="string"/>
       <config value="false"/>
@@ -119,12 +123,20 @@ class TestCruxMunger(unittest.TestCase):
       </leaf>
     </container>
   </container>
-</yin-schema>
-  </morecomplex>
-</crux-schema>"""
+      </yin-schema>
+    </morecomplex>
+  </inverted-schema>
+  <crux-paths>
+    <path>/inverted-schema</path>
+    <path>/inverted-schema/simpleleaf</path>
+    <path>/inverted-schema/simplecontainer</path>
+    <path>/inverted-schema/morecomplex</path>
+  </crux-paths>
+</crux-schema>
+"""
 
         self.assertEqual(expected_answer, received_answer)
-        # self.assertEqual(expected_answer2, received_answer2)
+        self.assertEqual(expected_answer2, received_answer2)
 
     def test_grouping(self):
         """Test basic uses from in the same yang module"""
@@ -146,21 +158,28 @@ class TestCruxMunger(unittest.TestCase):
 """
 
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
-  <group-a>
-    <yin-schema>
-      <grouping xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="group-a">
+  <inverted-schema>
+    <group-a>
+      <yin-schema path="/inverted-schema/group-a">
+        <grouping xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="group-a">
     </grouping>
-    </yin-schema>
-  </group-a>
-  <resolver>
-    <yin-schema>
-      <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
+      </yin-schema>
+    </group-a>
+    <resolver>
+      <yin-schema path="/inverted-schema/resolver">
+        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
     <leaf name="a">
       <type name="string"/>
     </leaf>
   </container>
-    </yin-schema>
-  </resolver>
+      </yin-schema>
+    </resolver>
+  </inverted-schema>
+  <crux-paths>
+    <path>/inverted-schema</path>
+    <path>/inverted-schema/group-a</path>
+    <path>/inverted-schema/resolver</path>
+  </crux-paths>
 </crux-schema>
 """
 
@@ -194,21 +213,22 @@ class TestCruxMunger(unittest.TestCase):
 """
 
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
-  <type2>
-    <yin-schema>
-      <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type2">
+  <inverted-schema>
+    <type2>
+      <yin-schema path="/inverted-schema/type2">
+        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type2">
     </typedef>
-    </yin-schema>
-  </type2>
-  <type3>
-    <yin-schema>
-      <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type3">
+      </yin-schema>
+    </type2>
+    <type3>
+      <yin-schema path="/inverted-schema/type3">
+        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type3">
     </typedef>
-    </yin-schema>
-  </type3>
-  <uuuuuuuu>
-    <yin-schema>
-      <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="uuuuuuuu">
+      </yin-schema>
+    </type3>
+    <uuuuuuuu>
+      <yin-schema path="/inverted-schema/uuuuuuuu">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="uuuuuuuu">
     <type name="union">
       <type name="string"/>
     <type name="enumeration">
@@ -219,8 +239,15 @@ class TestCruxMunger(unittest.TestCase):
   <type name="uint32"/>
   </type>
   </leaf>
-    </yin-schema>
-  </uuuuuuuu>
+      </yin-schema>
+    </uuuuuuuu>
+  </inverted-schema>
+  <crux-paths>
+    <path>/inverted-schema</path>
+    <path>/inverted-schema/type2</path>
+    <path>/inverted-schema/type3</path>
+    <path>/inverted-schema/uuuuuuuu</path>
+  </crux-paths>
 </crux-schema>
 """
         self.assertEqual(expected_answer, received_answer)
