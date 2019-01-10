@@ -68,24 +68,26 @@ class Munger:
 
     def pass5(self, newxmldoc):
         pathlist = []
-        paths = []
+        paths = {}
         self._path_recursor(newxmldoc, pathlist, paths)
         pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
         for path in paths:
-            node = etree.Element('path')
-            node.text = path
-            pathxml.append(node)
+            if not path == '/':
+
+                node = etree.Element('path')
+                node.text = path
+                pathxml.append(node)
         newxmldoc.append(pathxml)
 
     def _path_recursor(self, newxmldoc, pathlist, paths):
         for child in newxmldoc.getchildren():
             if child.tag not in ('yin-schema'):
                 pathlist.append(child.tag.replace('{urn:ietf:params:xml:ns:yang:yin:1}', ''))
-                this_path = '/'.join(pathlist)
+                this_path = '/'.join(pathlist)[15:]
                 for grandchild in child.getchildren():
                     if grandchild.tag == 'yin-schema':
-                        grandchild.attrib['path'] = '/' + this_path
-                paths.append('/' + this_path)
+                        grandchild.attrib['path'] = this_path
+                paths[this_path] = 1
                 self._path_recursor(child, pathlist, paths)
                 pathlist.pop()
 
@@ -95,6 +97,8 @@ class Munger:
         document by the tyoe (i.e. <leaf>) with the name inside as an attribute each element
         is named by it's true name. The YIN structure is then provided as a child in a new
         <yin-schema>.
+
+        We only recurse for containers and lists
         """
         newxmldoc = etree.fromstring("""<inverted-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></inverted-schema>""")
         self._inversion_recursor(xmldoc, newxmldoc)
@@ -111,8 +115,18 @@ class Munger:
                 yin.append(etree.fromstring(etree.tostring(child)))
                 newnode.append(yin)
                 newxmldoc.append(newnode)
+
+                if child.tag in ('{urn:ietf:params:xml:ns:yang:yin:1}container',
+                                 '{urn:ietf:params:xml:ns:yang:yin:1}list',
+                                 '{urn:ietf:params:xml:ns:yang:yin:1}grouping',
+                                 '{urn:ietf:params:xml:ns:yang:yin:1}choice',
+                                 '{urn:ietf:params:xml:ns:yang:yin:1}case'):
+                    print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - doing recursor")
+                    self._inversion_recursor(child, newnode)
+                else:
+                    print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - skipping recursor")
             else:
-                print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor")
+                print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor (no name tag)")
 
     def pretty(self, xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
@@ -221,6 +235,15 @@ class Munger:
     def handle_list(self, child, grandchild_id=-1):
         pass
 
+    def handle_case(self, child, grandchild_id=-1):
+        pass
+
+    def handle_choice(self, child, grandchild_id=-1):
+        grandchildren = child.getchildren()
+        for grandchild_id in range(len(grandchildren)):
+            grandchild = grandchildren[grandchild_id]
+            self._lookup_method(grandchild)(grandchild, grandchild_id)
+
     def handle_uses(self, child, grandchild_id=-1):
         if ":" not in child.attrib['name']:
             uses = "%s:%s" % (self.our_prefix, child.attrib['name'])
@@ -239,7 +262,11 @@ class Munger:
             return self.handle_leaf
         elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}container":
             return self.handle_container
-        if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}list":
+        elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}choice":
+            return self.handle_choice
+        elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}case":
+            return self.handle_case
+        elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}list":
             return self.handle_list
         elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}uses":
             return self.handle_uses

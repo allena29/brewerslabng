@@ -77,24 +77,25 @@ class TestCruxMunger(unittest.TestCase):
   </container>
 </module>
 """
+
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
     <simpleleaf>
-      <yin-schema path="/inverted-schema/simpleleaf">
+      <yin-schema path="/simpleleaf">
         <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simpleleaf">
     <type name="string"/>
   </leaf>
       </yin-schema>
     </simpleleaf>
     <simplecontainer>
-      <yin-schema path="/inverted-schema/simplecontainer">
+      <yin-schema path="/simplecontainer">
         <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simplecontainer">
     <presence value="true"/>
   </container>
       </yin-schema>
     </simplecontainer>
     <morecomplex>
-      <yin-schema path="/inverted-schema/morecomplex">
+      <yin-schema path="/morecomplex">
         <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="morecomplex">
     <leaf name="nonconfig">
       <type name="string"/>
@@ -124,13 +125,85 @@ class TestCruxMunger(unittest.TestCase):
     </container>
   </container>
       </yin-schema>
+      <nonconfig>
+        <yin-schema path="/morecomplex/nonconfig">
+          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="nonconfig">
+      <type name="string"/>
+      <config value="false"/>
+    </leaf>
+        </yin-schema>
+      </nonconfig>
+      <leaf2>
+        <yin-schema path="/morecomplex/leaf2">
+          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf2">
+      <type name="boolean"/>
+    </leaf>
+        </yin-schema>
+      </leaf2>
+      <inner>
+        <yin-schema path="/morecomplex/inner">
+          <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="inner">
+      <presence value="true"/>
+      <leaf name="leaf5">
+        <type name="string"/>
+        <mandatory value="true"/>
+      </leaf>
+      <leaf name="leaf6">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+        <mandatory value="false"/>
+      </leaf>
+      <leaf name="leaf7">
+        <type name="string"/>
+        <default value="this-is-a-default"/>
+      </leaf>
+    </container>
+        </yin-schema>
+        <leaf5>
+          <yin-schema path="/morecomplex/inner/leaf5">
+            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf5">
+        <type name="string"/>
+        <mandatory value="true"/>
+      </leaf>
+          </yin-schema>
+        </leaf5>
+        <leaf6>
+          <yin-schema path="/morecomplex/inner/leaf6">
+            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf6">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+        <mandatory value="false"/>
+      </leaf>
+          </yin-schema>
+        </leaf6>
+        <leaf7>
+          <yin-schema path="/morecomplex/inner/leaf7">
+            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf7">
+        <type name="string"/>
+        <default value="this-is-a-default"/>
+      </leaf>
+          </yin-schema>
+        </leaf7>
+      </inner>
     </morecomplex>
   </inverted-schema>
   <crux-paths>
-    <path>/inverted-schema</path>
-    <path>/inverted-schema/simpleleaf</path>
-    <path>/inverted-schema/simplecontainer</path>
-    <path>/inverted-schema/morecomplex</path>
+    <path></path>
+    <path>/simpleleaf</path>
+    <path>/simplecontainer</path>
+    <path>/morecomplex</path>
+    <path>/morecomplex/nonconfig</path>
+    <path>/morecomplex/leaf2</path>
+    <path>/morecomplex/inner</path>
+    <path>/morecomplex/inner/leaf5</path>
+    <path>/morecomplex/inner/leaf6</path>
+    <path>/morecomplex/inner/leaf7</path>
   </crux-paths>
 </crux-schema>
 """
@@ -160,25 +233,32 @@ class TestCruxMunger(unittest.TestCase):
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
     <group-a>
-      <yin-schema path="/inverted-schema/group-a">
+      <yin-schema path="/group-a">
         <grouping xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="group-a">
     </grouping>
       </yin-schema>
     </group-a>
     <resolver>
-      <yin-schema path="/inverted-schema/resolver">
+      <yin-schema path="/resolver">
         <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
     <leaf name="a">
       <type name="string"/>
     </leaf>
   </container>
       </yin-schema>
+      <a>
+        <yin-schema>
+          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="a">
+      <type name="string"/>
+    </leaf>
+        </yin-schema>
+      </a>
     </resolver>
   </inverted-schema>
   <crux-paths>
-    <path>/inverted-schema</path>
-    <path>/inverted-schema/group-a</path>
-    <path>/inverted-schema/resolver</path>
+    <path></path>
+    <path>/group-a</path>
+    <path>/resolver</path>
   </crux-paths>
 </crux-schema>
 """
@@ -215,19 +295,19 @@ class TestCruxMunger(unittest.TestCase):
         expected_answer2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
     <type2>
-      <yin-schema path="/inverted-schema/type2">
+      <yin-schema path="/type2">
         <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type2">
     </typedef>
       </yin-schema>
     </type2>
     <type3>
-      <yin-schema path="/inverted-schema/type3">
+      <yin-schema path="/type3">
         <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type3">
     </typedef>
       </yin-schema>
     </type3>
     <uuuuuuuu>
-      <yin-schema path="/inverted-schema/uuuuuuuu">
+      <yin-schema path="/uuuuuuuu">
         <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="uuuuuuuu">
     <type name="union">
       <type name="string"/>
@@ -243,13 +323,14 @@ class TestCruxMunger(unittest.TestCase):
     </uuuuuuuu>
   </inverted-schema>
   <crux-paths>
-    <path>/inverted-schema</path>
-    <path>/inverted-schema/type2</path>
-    <path>/inverted-schema/type3</path>
-    <path>/inverted-schema/uuuuuuuu</path>
+    <path></path>
+    <path>/type2</path>
+    <path>/type3</path>
+    <path>/uuuuuuuu</path>
   </crux-paths>
 </crux-schema>
 """
+
         self.assertEqual(expected_answer, received_answer)
         self.assertEqual(expected_answer2, received_answer2)
 

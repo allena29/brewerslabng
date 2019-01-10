@@ -14,6 +14,56 @@ module integrationtest {
     presence true;
   }
 
+ //pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults integrationtest.yang | grep -v '<!-- # entries: ' | sed -e 's/<!-- # /</' | sed -e 's/<!-- /</' | sed -e 's/\.\. -->/"\/>/' | sed -e 's/: / val="/' | sed -e 's/ -->/"\/>/' | sed -e 's/-->/"\/>/' | xmllint --format - >integrationtest.sample.2.xml
+ // this looked attractive as an option - however we already have a better option by inversion recursion
+  grouping secondlist {
+    list listb {
+      key "secondkey thirdkey";
+      leaf secondkey {
+        type string;
+      }
+      leaf thirdkey {
+        type string;
+      }
+      leaf nonkey {
+        type string;
+      }
+      // note the next two lines are invisible!
+      choice MAKEYOURMINDUP {
+        case OPTION1 {
+          leaf FIRSTOPTION {
+              type string;
+              crux:info "choice";
+          }
+        }
+        case OPTION2 {
+          leaf SECONDOPTION {
+            type string;
+          }
+        }
+      }
+      container things {
+        leaf thing {
+          type string;
+        }
+        leaf musthave {
+          type string;
+          mandatory true;
+        }
+      }
+      container nothings {
+
+      }
+    }
+  }
+
+  list lista {
+    key firstkey;
+    leaf firstkey {
+      type string;
+    }
+    uses secondlist;
+  }
   list simplelist {
     key simplekey;
 
