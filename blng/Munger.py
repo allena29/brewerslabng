@@ -64,9 +64,14 @@ class Munger:
         self.pass3(xmldoc)
         newxmldoc = self.pass4(xmldoc)
         self.pass5(newxmldoc)
+        self.pass6(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
 
-    def pass5(self, newxmldoc):
+    def pass6(self, newxmldoc):
+        """
+        This works throuhg the YANG module to add paths as an attribute into each yin-schema
+        node. e.g. <yin-schema path="/simpleleaf">
+        """
         pathlist = []
         paths = {}
         self._path_recursor(newxmldoc, pathlist, paths)
@@ -90,6 +95,40 @@ class Munger:
                 paths[this_path] = 1
                 self._path_recursor(child, pathlist, paths)
                 pathlist.pop()
+
+    def pass5(self, newxmldoc):
+        """
+        This method aims to condense down the schema, particularly things like groups which appear
+        but since we have already expanded the schema this just leads to a more confusing and verbose
+        than necessary.
+
+        TODO: we need to pick interesting things from yin-schema - if a leaf has regular expressesions
+        or complex types, crux:info's etc these need to included.
+        """
+
+        for child in newxmldoc.getchildren():
+            if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}grouping":
+                newxmldoc.remove(child)
+                for grandchild in child.getchildren():
+                    newxmldoc.append(grandchild)
+            elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}choice":
+                parent = newxmldoc.find('..')
+                grandparent = parent.find('..')
+                grandparent.remove(parent)
+                for stepchild in parent.getchildren():
+                    if not stepchild.tag == 'yin-schema':
+                        for grandstepchild in stepchild.getchildren():
+                            if not grandstepchild.tag == 'yin-schema':
+                                grandparent.append(grandstepchild)
+
+            elif child.tag == "yin-schema":
+                for grandchild in child.getchildren():
+                    print('   SOMETHING INTERESTINGondense....', child.tag, child.text, child.attrib.keys())
+                    for great_grandchild in grandchild.getchildren():
+                        grandchild.remove(great_grandchild)
+                print('condense....', child.tag, child.text, child.attrib.keys())
+
+            self.pass5(child)
 
     def pass4(self, xmldoc):
         """

@@ -458,3 +458,24 @@ when we can effectively isolate the intereting parts of the datastore.</text>
       </morecomplex>
     </crux-schema>
 """
+
+    SCHEMA_CHOICE = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
+<namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+<prefix value="integrationtest"/>
+  <choice name="MAKEYOURMINDUP">
+    <case name="OPTION1">
+      <leaf name="FIRSTOPTION">
+        <crux:info>
+          <crux:text>choice</crux:text>
+        </crux:info>
+        <type name="string"/>
+      </leaf>
+    </case>
+    <case name="OPTION2">
+      <leaf name="SECONDOPTION">
+        <type name="string"/>
+      </leaf>
+    </case>
+  </choice>
+</module>
+"""

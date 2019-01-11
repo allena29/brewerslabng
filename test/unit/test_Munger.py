@@ -8,6 +8,7 @@ sys.path.append('../../')
 from blng import Munger
 from blng import Error
 from example import resources
+from answers import answers
 
 
 class TestCruxMunger(unittest.TestCase):
@@ -334,7 +335,16 @@ class TestCruxMunger(unittest.TestCase):
         self.assertEqual(expected_answer, received_answer)
         self.assertEqual(expected_answer2, received_answer2)
 
-    def test_pass1(self):
+    def test_choice(self):
+        """Test the basic munging of a yang choice/case"""
+        xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_CHOICE))
+        received_answer = self.subject.pretty(xmldoc)
+        received_answer2 = self.subject.pretty(newxmldoc)
+
+        self.assertEqual(answers.SCHEMA_CHOICE_EXPECTED1, received_answer)
+        self.assertEqual(answers.SCHEMA_CHOICE_EXPECTED2, received_answer2)
+
+    def donttest_pass1(self):
         # Build
         xmldoc = self._loadXmlDoc(resources.SCHEMA_1)
 
