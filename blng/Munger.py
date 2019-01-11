@@ -131,7 +131,13 @@ class Munger:
 
                     if keep_grandchildren is False:
                         for great_grandchild in grandchild.getchildren():
-                            grandchild.remove(great_grandchild)
+                            if great_grandchild.tag not in ("{urn:ietf:params:xml:ns:yang:yin:1}type",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}default",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}presence",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}enum",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}config",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}mandatory"):
+                                grandchild.remove(great_grandchild)
                 print('condense....', child.tag, child.text, child.attrib.keys())
 
             self.pass5(child)
