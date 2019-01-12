@@ -123,7 +123,6 @@ class Munger:
 
             elif child.tag == "yin-schema":
                 for grandchild in child.getchildren():
-                    print('   SOMETHING INTERESTINGondense....', child.tag, child.text, child.attrib.keys())
                     keep_grandchildren = False
                     for great_grandchild in grandchild.getchildren():
                         if great_grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type" and great_grandchild.attrib['name'] == 'union':
@@ -138,7 +137,6 @@ class Munger:
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}config",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}mandatory"):
                                 grandchild.remove(great_grandchild)
-                print('condense....', child.tag, child.text, child.attrib.keys())
 
             self.pass5(child)
 
@@ -172,12 +170,11 @@ class Munger:
                                  '{urn:ietf:params:xml:ns:yang:yin:1}grouping',
                                  '{urn:ietf:params:xml:ns:yang:yin:1}choice',
                                  '{urn:ietf:params:xml:ns:yang:yin:1}case'):
-                    print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - doing recursor")
                     self._inversion_recursor(child, newnode)
-                else:
-                    print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - skipping recursor")
-            else:
-                print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor (no name tag)")
+                # else:
+                #     print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - skipping recursor")
+            # else:
+                # print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor (no name tag)")
 
     def pretty(self, xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
@@ -190,9 +187,7 @@ class Munger:
                 try:
                     parent.remove(old)
                 except:
-                    print('failed to remove', old, 'from', parent)
-            else:
-                print('skipping', new, old, parent)
+                    pass
 
     def pass1_parse_and_recurse(self, module_name, xmldoc):
         """The first pass parsing builds an index of groups and typedefs"""

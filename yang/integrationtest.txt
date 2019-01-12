@@ -1,0 +1,33 @@
+module: integrationtest
+  +--rw simpleleaf?        string
+  +--rw simplecontainer!
+  +--rw lista* [firstkey]
+  |  +--rw firstkey    string
+  |  +--rw listb* [secondkey thirdkey]
+  |     +--rw secondkey             string
+  |     +--rw thirdkey              string
+  |     +--rw nonkey?               string
+  |     +--rw (MAKEYOURMINDUP)?
+  |     |  +--:(OPTION1)
+  |     |  |  +--rw FIRSTOPTION?    string
+  |     |  +--:(OPTION2)
+  |     |     +--rw SECONDOPTION?   string
+  |     +--rw things
+  |     |  +--rw thing?      string
+  |     |  +--rw musthave    string
+  |     +--rw nothings
+  +--rw simplelist* [simplekey]
+  |  +--rw simplekey     string
+  |  +--rw nonleafkey?   uint32
+  +--rw resolver
+  |  +--rw a?        string
+  |  +--rw leaf-a?   type-a
+  +--rw morecomplex
+     +--ro nonconfig?   string
+     +--rw leaf2?       boolean
+     +--rw leaf3?       type2
+     +--rw leaf4?       type4
+     +--rw inner!
+        +--rw leaf5    string
+        +--rw leaf6?   string
+        +--rw leaf7?   string

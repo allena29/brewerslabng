@@ -10,6 +10,24 @@ class BlngPathNotValid(Exception):
         super().__init__(message)
 
 
+class BlngMissingValue(Exception):
+
+    """Raised when we decode a path and the schema requires a value not provided."""
+
+    def __init__(self, path):
+        message = '%s missing value for path' % (path)
+        super().__init__(message)
+
+
+class BlngValueNotEscpaedOrQuoted(Exception):
+
+    """Raised when we decode a path but what follows is not a simple value, not properly quoted or escaped."""
+
+    def __init__(self, path):
+        message = '%s value not properly escaped or quoted' % (path)
+        super().__init__(message)
+
+
 class BlngSchemaNotCached(Exception):
 
     """Raised when attempting to access a dastore which is not pre-cached."""
