@@ -1,0 +1,61 @@
+module crux {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/crux";
+  prefix crux; 
+
+  description "Common things which might be useful all over the place";
+
+  container crux-cli {
+    list modules {
+
+      description "Defines a list of modules which are publicly available for configuration";
+      key module;
+
+      leaf module {
+        description "Name of yang module, which should match the module name advertised when
+        establishing a netconf session.
+        <capability>http://brewerslabng.mellon-collie.net/yang/main?module=brewerslab</capability>";
+        type string;
+      }
+
+      leaf namespace {
+        description "The namespace of the yang module";
+        type string;
+        mandatory true;
+      }
+
+      leaf revision {
+        description "Revision of the module";
+        type string;
+      }
+
+      list top-level-tags {
+        description "A number of top-level modules provided - this is defined to ensure that
+        when we can effectively isolate the intereting parts of the datastore.";
+        key tag;
+
+        leaf tag {
+          type string;
+        }
+      }
+    }
+  }
+
+  extension trigger {
+    description "Use to specify if data at a certain node should trigger an expensive
+    processing/validation operation - or if the data should just be persisted to the
+    datastore.";
+
+    argument boolean {
+      yin-element true;
+    }
+  }
+
+  extension info {
+    description "Help text for user-interfaces";
+    argument text {
+      yin-element true;
+    }
+  }
+
+}

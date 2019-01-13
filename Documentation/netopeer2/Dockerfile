@@ -11,7 +11,7 @@ RUN \
       python3
 
 RUN \
-      apt-get install -y \
+      apt-get update && apt-get install -y \
       cmake \
       build-essential \
       supervisor \
@@ -24,6 +24,7 @@ RUN \
       libssl-dev \
       swig \
       python-dev \
+      python3-dev \
       libcurl4-openssl-dev \
       libxslt-dev \
       libxml2-dev \
@@ -35,7 +36,9 @@ RUN \
       libprotobuf-dev \
       doxygen-dbg  && \
       apt-get install -y libtool libtool-bin libxml2-dev libxslt1-dev libcurl4-openssl-dev xsltproc python-setuptools cmake zlib1g-dev libssl-dev pkg-config libreadline-dev && \ 
-      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake
+      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake screen && \
+      apt-get install -y libffi-dev || echo 'livffi-dev does not exist'
+
 
 
 # add netconf user
@@ -145,7 +148,6 @@ RUN \
       cd Netopeer2 && \
       git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
       cd keystored && mkdir build && cd build && \
-      git checkout devel-server && \
       cmake .. && \
       make -j6  && \
       make install && \
@@ -164,12 +166,17 @@ RUN \
       make  && \
       make install
 
-COPY start.sh /
 
 RUN \
     apt-get clean && \
     apt-get autoclean && \
     rm -fr /opt/dev
+
+RUN \ 
+    curl https://bootstrap.pypa.io/get-pip.py | python3 && \
+    pip install ptpython prompt-toolkit ncclient
+
+COPY start.sh /
 
 ENV EDITOR vim
 EXPOSE 830

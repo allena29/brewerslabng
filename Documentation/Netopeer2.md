@@ -7,8 +7,7 @@
 ```bash
 docker build -t netopeer .
 
-docker run -p 830:830 -i -d netopeer:latest  /bin/bash
-
+docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw allena29/brewerslabng:netopeer /bin/bash
 
 docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS                  NAMES
@@ -35,8 +34,19 @@ ssh -lnetconf -p 830 127.0.0.1 -s netconf
 
 # Basic Test or Sysrepod and Netopeer
 
-```
 
+See... https://asciinema.org/a/VVG2j1Zn0QFbkrhlbOUz0Ll5q
+
+
+# Operational vs Configuration Data
+
+Read http://www.sysrepo.org/static/doc/html/subscribtions.html
+
+It shows the design pattern of sysrepod is that whenever a consumer asks for operational data a data provider *MUST* always satisfy that request - there is no concept here of persisting operational data. Therefore sysrepod is for **configuration** only.
+
+
+
+```
 Create a file basic.json - This is [Documentation/example-netopeer/basic.json](Documentation/example-netopeer/basic.json)
 
 ```json
@@ -70,7 +80,7 @@ module test {
 ### Install yang
 
 ```bash
-sudo sysrepoctl --install --yang=test.yang
+sysrepoctl --install --yang=test.yang
 sysrepocfg --import=basic.json --format=json --datastore=startup test
 ```
 
@@ -333,7 +343,19 @@ except Exception as e:
     print (e)
 ```
 
+
+```
+docker run -i -d -p 830:830 -v /Users/adam/brewerslabng:/brewerslabng:rw b3bd /bin/bash
+
+
+```
+
+--------
+--------
+
 # Using NCS to build a 'Network Element Driver'
+
+https://asciinema.org/a/cAn9F8MQOFSyeVBGjyvaURG1R
 
 Note: NCS/NSO is the commerical Tail-F/Cisco version of Conf-D which comes with full CLI, Java and Python bindings. [Pionner](https://github.com/NSO-developer/pioneer/) is a package to build NETCONF NED's which relies of python. [Conf-D](http://www.tail-f.com/confd-basic/) has a basic version (with crippled CLI, no Java, no Python) - if that was available for ARM architecture I wouldn't care about playing with Sysrepo.
 
@@ -601,6 +623,26 @@ test:test {
 ```
 
 
+### Basic python based netconf
+
+```
+
+from lxml import etree
+from ncclient import manager
+import warnings
+import logging
+warnings.simplefilter("ignore", DeprecationWarning)
+
+logger = logging.getLogger('ncclient')
+logger.setLevel('WARNING')
+manager = manager.connect(host='localhost', port=830, username='netconf', password='netconf', hostkey_verify=False, unknown_host_cb=lambda x: True, look_for_keys=False)
+schema_xml_str = str(manager.get_schema(identifier='brewerslab'))
+schema = schema_xml.getchildren()[0].text
+
+
+
+```
+
 ---
 
 ---
@@ -743,4 +785,5 @@ make
 
 
 
+---
 

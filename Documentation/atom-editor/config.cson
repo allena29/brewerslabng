@@ -1,0 +1,65 @@
+m q"*":
+  "autocomplete-plus":
+    autoActivationDelay: 250
+    confirmCompletion: "tab"
+  "autocomplete-python":
+    useKite: false
+  "better-git-blame":
+    searchInLayerEnabled: false
+  "build-python": {}
+  core:
+    audioBeep: false
+    automaticallyUpdate: false
+    disabledPackages: [
+      "autocomplete-python"
+      "vim-mode-visual-block"
+      "markdown-writer"
+      "linter-xmllint"
+    ]
+    openEmptyEditorOnStart: false
+    packagesWithKeymapsDisabled: [
+      "script"
+    ]
+    projectHome: "/Users/allena29/brewerslabng"
+    restorePreviousWindowsOnStart: "no"
+    telemetryConsent: "limited"
+    titleBar: "custom"
+  editor:
+    fontSize: 11
+    preferredLineLength: 120
+    scrollPastEnd: true
+    showIndentGuide: true
+  "editor-background":
+    image:
+      backgroundSize: "cover"
+  "exception-reporting":
+    userId: "030672b8-61b8-4a85-b0be-09e8e61cf9b8"
+  "ide-python":
+    python: "/usr/local/bin/python3"
+  linter:
+    lintOnChange: false
+    lintOnOpen: false
+  "linter-python":
+    executablePath: "/usr/local/bin/pylama"
+    optionsFile: "~/.pylama.ini"
+    withPylint: true
+  "linter-ui-default":
+    panelHeight: 348
+  "pretty-json":
+    prettifyOnSaveJSON: true
+  "python-autopep8":
+    formatOnSave: true
+    maxLineLength: 160
+  "random-wallpaper":
+    autoChangeIntervalSeconds: 180
+    wallpaperAlpha: 0.16
+    wallpaperFileGlob: "/Users/allena29/wallpaper/*.?(png|jpg)"
+    wallpaperSize: "cover"
+  script:
+    cwdBehavior: "Directory of the script"
+    ignoreSelection: true
+  "split-diff":
+    ignoreWhitespace: true
+    muteNotifications: true
+  welcome:
+    showOnStartup: false

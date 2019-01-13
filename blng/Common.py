@@ -5,6 +5,13 @@ import blng.LogHandler as LogHandler
 import blng.Multicast as Multicast
 import blng.Http as Http
 import blng.Tcp as Tcp
+import subprocess
+
+
+def shell_command(command):
+    process = subprocess.Popen('/bin/bash', stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    (output, error) = process.communicate(command.encode('utf-8'))
+    return (output, error)
 
 
 class Common:
