@@ -24,11 +24,6 @@ class Resolver:
     The schema is a bespoke format derrived from Yang (see Munger). It is an inverted version of YIN.
     """
 
-    NAMESPACES = {"yin": "urn:ietf:params:xml:ns:yang:yin:1",
-                  "x1": "http://brewerslabng.mellon-collie.net/yang/main",
-                  "x2": "http://brewerslabng.mellon-collie.net/yang/types",
-                  "x3": "http://brewerslabng.mellon-collie.net/yang/teststub"
-                  }
     QUOTED_STRING_REGEX = re.compile("^.* (\"([#~\%\^\&<'\/\?\\>\=\-\@:;\[\]\(\)\{\}a-zA-Z0-9 \*\$!\.\+_\\\"]*)\"$)")
     REGEX_REMOVE_PROPERLY_ESCAPED_CHARACTERS = re.compile('\\[\\" ]')
 #    QUOTED_STRING_REGEX = re.compile("([#~%^&<'/?\\>=-@:;[](){}a-zA-Z0-9 *$!.+_\\\"]*)")
@@ -95,13 +90,29 @@ class Resolver:
                     xpath = xpath + '/' + path_split[idx]
                     return (xpath, 'primitive',  value)
                 elif schema_simple_type == 'list':
-                    xpath = xpath + '/' + path_split[idx]
-                    keys = []
 
+                    keys = []
+                    xpath = xpath + '/' + path_split[idx]
+                    keys = self._get_list_keys_from_schema(schema)
+                    key_idx = idx
+                    for key_num in range(len(keys)):
+                        (keyname, keyvalue) = keys[key_num]
+                        (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
+                        keys[key_num] = (keyname, value)
+                        key_idx = string_end_idx
                     return (xpath, 'list', keys)
         # raise Error.BlngPathNotValid(path)
             idx = idx + 1
         return (xpath, 'TYOE',  '')
+
+    def _get_list_keys_from_schema(self, schema):
+        keys = []
+        for child in schema.getchildren():
+            if child.tag == "list":
+                for grandchild in child.getchildren():
+                    if grandchild.tag == 'key':
+                        keys.append((grandchild.attrib['value'], None))
+        return keys
 
     def _find_a_quoted_escaped_string(self, path_split, start_idx):
         """
@@ -281,26 +292,6 @@ class Resolver:
         self._load_schema_to_memory(module_name)
 
         self.path_lookup_cache[Resolver._cache_path_format(xpath_top_tag)] = self.module_cache[module_name]
-
-    def _load_schema_to_memory(self, module_name):
-        """
-        There is a a big assumption made at this point that we have pre-cached all the data and
-        from a NETCONF call and have furthermore converted them to a YIN representation.
-
-        At this stage we are just trying to load in the data we need - we probably need namespaces too!
-
-        """
-        self.log.debug("loading schema %s to memory", module_name)
-        if module_name in self.module_cache:
-            return (module_name, self.module_cache[module_name])
-
-        if not os.path.exists(".cache/%s.yin" % (module_name)):
-            raise Error.BlngSchemaNotCached(module_name)
-
-        xmldoc = etree.parse(".cache/%s.yin" % (module_name))
-        module_name = xmldoc.xpath('/yin:module', namespaces=self.NAMESPACES)[0].attrib['name']
-        self.module_cache[module_name] = xmldoc
-        return (module_name, self.module_cache[module_name])
 
     @staticmethod
     def _cache_path_format(path):

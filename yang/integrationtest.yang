@@ -14,6 +14,23 @@ module integrationtest {
     presence true;
   }
 
+  container container-and-lists {
+    list multi-key-list {
+      key "A B";
+
+      leaf "A" {
+        type string;
+      }
+      leaf "B" {
+        type string;
+      }
+      container inner {
+        leaf "C" {
+          type string;
+        }
+      }
+    }
+  }
  //pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults integrationtest.yang | grep -v '<!-- # entries: ' | sed -e 's/<!-- # /</' | sed -e 's/<!-- /</' | sed -e 's/\.\. -->/"\/>/' | sed -e 's/: / val="/' | sed -e 's/ -->/"\/>/' | sed -e 's/-->/"\/>/' | xmllint --format - >integrationtest.sample.2.xml
  // this looked attractive as an option - however we already have a better option by inversion recursion
   grouping secondlist {

@@ -146,7 +146,7 @@ class TestCruxResolver(unittest.TestCase):
 
         self.assertEqual(path, '/simplelist')
         self.assertEqual(pathtype, 'list')
-        self.assertEqual(value, [('keyname', 'THEKEY')])
+        self.assertEqual(value, [('simplekey', 'THEKEY')])
 
     def tet_find_xpath_simple_path_at_top_level_with_missing_value(self):
         with self.assertRaises(Error.BlngMissingValue) as context:

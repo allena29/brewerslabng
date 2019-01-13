@@ -27,6 +27,12 @@
     <path>/group-a</path>
     <path>/simpleleaf</path>
     <path>/simplecontainer</path>
+    <path>/container-and-lists</path>
+    <path>/container-and-lists/multi-key-list</path>
+    <path>/container-and-lists/multi-key-list/A</path>
+    <path>/container-and-lists/multi-key-list/B</path>
+    <path>/container-and-lists/multi-key-list/inner</path>
+    <path>/container-and-lists/multi-key-list/inner/C</path>
     <path>/lista</path>
     <path>/lista/firstkey</path>
     <path>/lista/secondlist</path>
@@ -214,6 +220,46 @@
         </container>
       </yin-schema>
     </simplecontainer>
+    <container-and-lists>
+      <yin-schema path="/container-and-lists">
+        <container>
+        </container>
+      </yin-schema>
+      <multi-key-list>
+        <yin-schema path="/container-and-lists/multi-key-list">
+          <list>
+            <key value="A B"/>
+          </list>
+        </yin-schema>
+        <A>
+          <yin-schema path="/container-and-lists/multi-key-list/A">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </A>
+        <B>
+          <yin-schema path="/container-and-lists/multi-key-list/B">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </B>
+        <inner>
+          <yin-schema path="/container-and-lists/multi-key-list/inner">
+            <container>
+            </container>
+          </yin-schema>
+          <C>
+            <yin-schema path="/container-and-lists/multi-key-list/inner/C">
+              <leaf>
+                <type name="string"/>
+              </leaf>
+            </yin-schema>
+          </C>
+        </inner>
+      </multi-key-list>
+    </container-and-lists>
     <lista>
       <yin-schema path="/lista">
         <list>
