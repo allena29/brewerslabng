@@ -144,32 +144,28 @@ class TestCruxResolver(unittest.TestCase):
     def test_resolve_xpath_simple_list(self):
         (path, pathtype, value) = self.subject._find_xpath('simplelist THEKEY')
 
-        self.assertEqual(path, '/simplelist')
-        self.assertEqual(pathtype, 'list')
+        self.assertEqual(path, "/simplelist[simplekey='THEKEY']")
+        self.assertEqual(pathtype, 'listelement')
         self.assertEqual(value, [('simplekey', 'THEKEY')])
 
-    def tet_find_xpath_simple_path_at_top_level_with_missing_value(self):
-        with self.assertRaises(Error.BlngMissingValue) as context:
-            (path, value) = self.subject._find_xpath('simpleleaf')
+    def test_resolve_xpath_containers_and_lsits(self):
+        (path, pathtype, value) = self.subject._find_xpath('container-and-lists multi-key-list antelope bear')
 
-        self.assertEqual(str(context.exception), 'XYZ requires a value')
+        self.assertEqual(path, "/container-and-lists/multi-key-list[A='antelope',B='bear']")
+        self.assertEqual(pathtype, 'listelement')
+        self.assertEqual(value, [('A', 'antelope'), ('B', 'bear')])
 
-    def tet_find_xpath_simple_escaped_string(self):
-        (path, value) = self.subject._find_xpath('simpleleaf escpaed\\ string')
+        (path, pathtype, value) = self.subject._find_xpath('container-and-lists multi-key-list antelope bear inner C cow')
 
-        self.assertEqual(path, '/simpleleaf')
-        self.assertEqual(value, 'escaped string')
+        self.assertEqual(path, "/container-and-lists/multi-key-list[A='antelope',B='bear']/inner/C")
+        self.assertEqual(pathtype, 'primitive')
+        self.assertEqual(value, 'cow')
 
-    def tet_find_xpath_simple_quoted_string(self):
-        (path, value) = self.subject._find_xpath('simpleleaf "quoted string"')
-
-        self.assertEqual(path, '/simpleleaf')
-        self.assertEqual(value, 'quoted string')
-
-    def tet_find_xpath_non_existant(self):
-        with self.assertRaises(Error.BlngPathNotValid) as context:
-            (path, value) = self.subject._find_xpath('XYZ')
-        self.assertEqual(str(context.exception), "XYZ is not valid.")
+        # try to set a container as if it was a leaf
+        with self.assertRaises(Error.BlngUnableToResolveString) as context:
+            (path, pathtype, value) = self.subject._find_xpath('container-and-lists multi-key-list antelope bear inner cow')
+        self.assertEqual(str(context.exception),
+                         """The path ['container-and-lists', 'multi-key-list', 'antelope', 'bear', 'inner', 'cow'] could not be resolved against the current schema.""")
 
     def test__ensure_remaining_path_is_a_properly_escaped_string_not_properly_quoted(self):
         with self.assertRaises(Error.BlngValueNotEscpaedOrQuoted) as context:

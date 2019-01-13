@@ -46,6 +46,15 @@ class BlngYangSchemaNotSupported(Exception):
         super().__init__(message)
 
 
+class BlngUnableToResolveString(Exception):
+
+    """Raised when it is not possible to resolve a string into an XPATH like expression."""
+
+    def __init__(self, path):
+        message = 'The path %s could not be resolved against the current schema.' % (path)
+        super().__init__(message)
+
+
 class BlngYangTypeNotSupported(Exception):
 
     """Raised when we encounter a YANG type (not a typedef) which is not supported."""

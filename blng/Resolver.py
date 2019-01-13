@@ -48,7 +48,7 @@ class Resolver:
 
         return (command, everythingelse)
 
-    def _find_xpath(self, path):
+    def _find_xpath(self, path, xpath="", idx=0, path_split=None):
         """
         This method works left to right to find the XPATH, TYPE, and optional VALUE
         given a string.
@@ -58,20 +58,21 @@ class Resolver:
         """
         self.log.info('_find_path:   %s', path)
 
-        xpath = ""
-        path_split = path.split(' ')
+        if not path_split:
+            path_split = path.split(' ')
+
         current_path = self.path_root
 
-        idx = 0
         while idx < len(path_split):
             self.log.info('                   idx %s: %s', idx, path_split[idx])
             current_path = current_path + '/' + path_split[idx]
-
+            print('CURRENTPATH', current_path)
             self.log.info('                    LOOKING FOR %s', current_path)
         #    for child in self.inverted_schema.getchildren():
         #        self.log.info('xsdfnsdlkfjskldf %s', child.tag)
             # thing = self.inverted_schema.xpath(current_path, namespaces=self.NAMESPACES)
             thing = self.inverted_schema.xpath(current_path[1:])
+            print('DOING ANSWER', thing)
             """
             Everytime we get a thing we need to inspect the child yin-schema
             to determin the type of the path and then work out what to do from there.
@@ -81,7 +82,7 @@ class Resolver:
              """
             if thing:
                 (schema, schema_simple_type) = self._get_schema_from_thing(thing[0])
-
+                print('SCHEMA', schema, schema_simple_type)
                 if schema_simple_type == 'structure':
                     xpath = xpath + '/' + path_split[idx]
                 elif schema_simple_type == 'primitive':
@@ -90,20 +91,33 @@ class Resolver:
                     xpath = xpath + '/' + path_split[idx]
                     return (xpath, 'primitive',  value)
                 elif schema_simple_type == 'list':
-
+                    print('START OF LIST STUFF', path_split)
                     keys = []
                     xpath = xpath + '/' + path_split[idx]
+                    xpath = xpath + '['
                     keys = self._get_list_keys_from_schema(schema)
                     key_idx = idx
+                    print('STARTING TO LOOKUP FOR LIST VALUES AT', key_idx)
+                    print('GOT KEYS', keys)
                     for key_num in range(len(keys)):
                         (keyname, keyvalue) = keys[key_num]
                         (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
+
                         keys[key_num] = (keyname, value)
-                        key_idx = string_end_idx
-                    return (xpath, 'list', keys)
-        # raise Error.BlngPathNotValid(path)
+                        key_idx = string_end_idx + 1
+                        if key_num > 0:
+                            xpath = xpath + ','
+                        xpath = xpath + keyname + "='" + value.replace(' ', '\\ ') + "'"
+
+                        idx = idx + 1
+                    xpath = xpath + ']'
+                    print(string_start_idx, string_end_idx, len(path_split), path_split)
+                    if string_end_idx == len(path_split):
+                        return(xpath, 'listelement', keys)
+        # raise Error.BlngPathNotValid(path )
             idx = idx + 1
-        return (xpath, 'TYOE',  '')
+
+        raise Error.BlngUnableToResolveString(str(path_split))
 
     def _get_list_keys_from_schema(self, schema):
         keys = []
@@ -111,7 +125,8 @@ class Resolver:
             if child.tag == "list":
                 for grandchild in child.getchildren():
                     if grandchild.tag == 'key':
-                        keys.append((grandchild.attrib['value'], None))
+                        for key in grandchild.attrib['value'].split(' '):
+                            keys.append((key, None))
         return keys
 
     def _find_a_quoted_escaped_string(self, path_split, start_idx):
@@ -234,64 +249,6 @@ class Resolver:
         # So now we **ONLY** know that the xpath is actually in the schema. but we've gone
         # right to the hsallow end.... we need to go deeper
         return (command, xpath, values)
-
-    def _find_deeper_path(self, xpath, shallow_path_found):
-        raise NotImplementedError('finddepperpath')
-
-        """
-        ***** HOPEFULLY  **** when this is called we have the same xpath that
-        _find_schema_definition_for_path was called
-        but we have got a bit more precice already
-        But it's probably pretty shitty go get to xpath from shallow_path so we might
-        as well just get to xpath from the whole thing.
-        """
-
-        raise ValueError("We are going depeer from something with just a memref %s to %s" % (shallow_path_found, xpath))
-        # But the problem here is this can be variable it might be a direct parent or a great greate grat grandparent.
-        # So this implies we always have ot go fromt he root not just our closest relative!
-        raise ValueError('We have a problem here')
-
-    def _find_schema_definition_for_path(self, xpath):
-        raise NotImplementedError('findschemaforpathh')
-        """
-        This method works to find an XMLdoc which gives us the YIN based schema.
-
-        E.g. /morecomplex/leaf2 will at first fail to find /morecomplex/leaf2 but
-        will match on /morecomplex because that is a registered top-tag.
-
-        E.g. /ficticiuous/leaf3 will fail because we don't have a regstiered top-tag
-
-        This method can be thought about as working backwards to find the schema.
-
-        **RIGHT NOW** this just doesn't F**Ck up if the thing isn't in the cache.
-        **what's in GIT** gives an exception rather than assertions failing.
-
-        """
-        xpath_list = xpath.split("/")
-        if xpath[0] == "/":
-            xpath_list.pop(0)
-        while len(xpath_list):
-            if Resolver._cache_path_format(xpath_list) in self.path_lookup_cache:
-                return self.path_lookup_cache[Resolver._cache_path_format(xpath_list)]
-            xpath_list.pop()
-        print(self.path_lookup_cache.keys())
-        raise Error.BlngPathNotValid(xpath)
-
-    def register_top_tag(self, xpath_top_tag, namespace, module_name):
-        raise NotImplementedError('registertoptag')
-
-        """
-        Registering at top_tag will populate the following structures.
-
-        namespace_to_module[<yang-namespace>] = module_name
-        path_lookup_cache[<xpath of top-level tag>] = XML YIN representation of yang
-
-        TODO: we must validate to make sure we don't allow overlapping tags
-        """
-        self.namespace_to_module[namespace] = module_name
-        self._load_schema_to_memory(module_name)
-
-        self.path_lookup_cache[Resolver._cache_path_format(xpath_top_tag)] = self.module_cache[module_name]
 
     @staticmethod
     def _cache_path_format(path):
