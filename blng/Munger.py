@@ -133,6 +133,7 @@ class Munger:
                             if great_grandchild.tag not in ("{urn:ietf:params:xml:ns:yang:yin:1}type",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}default",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}presence",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}pattern",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}enum",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}key",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}config",

@@ -27,6 +27,8 @@
     <path>/group-a</path>
     <path>/simpleleaf</path>
     <path>/simplecontainer</path>
+    <path>/simpleenum</path>
+    <path>/patternstr</path>
     <path>/container-and-lists</path>
     <path>/container-and-lists/multi-key-list</path>
     <path>/container-and-lists/multi-key-list/A</path>
@@ -220,6 +222,30 @@
         </container>
       </yin-schema>
     </simplecontainer>
+    <simpleenum>
+      <yin-schema path="/simpleenum">
+        <leaf>
+          <type name="enumeration">
+            <enum name="A">
+              <value value="1"/>
+            </enum>
+          </type>
+        </leaf>
+      </yin-schema>
+    </simpleenum>
+    <patternstr>
+      <yin-schema path="/patternstr">
+        <leaf>
+          <type name="string">
+            <pattern value=".*Strasse">
+              <error-message>
+                <value>sdfsdf</value>
+              </error-message>
+            </pattern>
+          </type>
+        </leaf>
+      </yin-schema>
+    </patternstr>
     <container-and-lists>
       <yin-schema path="/container-and-lists">
         <container>

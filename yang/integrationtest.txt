@@ -1,6 +1,14 @@
 module: integrationtest
-  +--rw simpleleaf?        string
+  +--rw simpleleaf?            string
   +--rw simplecontainer!
+  +--rw simpleenum?            enumeration
+  +--rw patternstr?            string
+  +--rw container-and-lists
+  |  +--rw multi-key-list* [A B]
+  |     +--rw A        string
+  |     +--rw B        string
+  |     +--rw inner
+  |        +--rw C?   string
   +--rw lista* [firstkey]
   |  +--rw firstkey    string
   |  +--rw listb* [secondkey thirdkey]

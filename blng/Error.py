@@ -19,6 +19,15 @@ class BlngMissingValue(Exception):
         super().__init__(message)
 
 
+class BlngWrongValueType(Exception):
+
+    """Raised when we find a value which doesn't match the allowed types."""
+
+    def __init__(self, value, path):
+        message = '%s is not a correct type for path %s' % (value, path)
+        super().__init__(message)
+
+
 class BlngValueNotEscpaedOrQuoted(Exception):
 
     """Raised when we decode a path but what follows is not a simple value, not properly quoted or escaped."""

@@ -66,13 +66,11 @@ class Resolver:
         while idx < len(path_split):
             self.log.info('                   idx %s: %s', idx, path_split[idx])
             current_path = current_path + '/' + path_split[idx]
-            print('CURRENTPATH', current_path)
             self.log.info('                    LOOKING FOR %s', current_path)
         #    for child in self.inverted_schema.getchildren():
         #        self.log.info('xsdfnsdlkfjskldf %s', child.tag)
             # thing = self.inverted_schema.xpath(current_path, namespaces=self.NAMESPACES)
             thing = self.inverted_schema.xpath(current_path[1:])
-            print('DOING ANSWER', thing)
             """
             Everytime we get a thing we need to inspect the child yin-schema
             to determin the type of the path and then work out what to do from there.
@@ -89,6 +87,8 @@ class Resolver:
                     # value = self._ensure_remaining_path_is_a_properly_escaped_string(path_split, idx+1)
                     (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, idx+1)
                     xpath = xpath + '/' + path_split[idx]
+                    self._validate_value(current_path, value)
+
                     return (xpath, 'primitive',  value)
                 elif schema_simple_type == 'list':
                     print('START OF LIST STUFF', path_split)
@@ -102,6 +102,8 @@ class Resolver:
                     for key_num in range(len(keys)):
                         (keyname, keyvalue) = keys[key_num]
                         (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
+
+                        self._validate_value(current_path+'/' + keyname, value)
 
                         keys[key_num] = (keyname, value)
                         key_idx = string_end_idx + 1
@@ -118,6 +120,65 @@ class Resolver:
             idx = idx + 1
 
         raise Error.BlngUnableToResolveString(str(path_split))
+
+    def _additional_validation_constraints(self, method, type, constraints, xpath, value):
+        return True
+
+    def _validate_value(self, xpath, value):
+        """Validate to ensure a given value matches the schema of the xpath."""
+        self.log.info('Validate %s value %s', xpath, value)
+        types_allowed = self._find_types_allowed(xpath)
+
+        for (validation_method, validation_type, additional_constraints) in types_allowed:
+            ok = False
+            if validation_method == 'type':
+                if validation_type == 'string':
+                    ok = True
+                elif validation_type == 'uint32':
+                    try:
+                        if int(value) >= 0 or int(value) <= 4294967295:
+                            ok = True
+                    except ValueError:
+                        pass
+
+            if ok and self._additional_validation_constraints(validation_method, validation_type,
+                                                              additional_constraints, xpath, value):
+                return True
+        raise Error.BlngWrongValueType(value, xpath)
+
+    def _find_types_allowed(self, xpath):
+        """
+        This method returns a list of tuples which can be used to validate the values.
+        The tuple consits of
+         1: 'type'  or 'literal' or 'list'
+         2: the type from the yang module, or a specific value in the case of enumeartions.
+            in the case of a list this is the keys in the list that is returned.
+         3: pattern - if yang has a pattern defined (NOT IMPLEMENTED!)
+         """
+        schema = self.inverted_schema.xpath(xpath[1:]+'/yin-schema')[0]
+        types_allowed = []
+        for child in schema.getchildren():
+            for grandchild in child.getchildren():
+                if grandchild.tag == 'key':
+                    types_allowed.append(('list', grandchild.attrib['value'].split(' '), None))
+                elif grandchild.tag == 'type':
+                    if grandchild.attrib['name'] == 'union':
+                        for greatgrandchild in grandchild.getchildren():
+                            if greatgrandchild.tag == 'type':
+                                if greatgrandchild.attrib['name'] == 'enumeration':
+                                    for greatgreatgrandchild in greatgrandchild.getchildren():
+                                        if greatgreatgrandchild.tag == 'enum':
+                                            types_allowed.append(('literal', greatgreatgrandchild.attrib['name'], None))
+                                else:
+                                    types_allowed.append(('type', greatgrandchild.attrib['name'], None))
+                    elif grandchild.attrib['name'] == 'enumeration':
+                        for greatgrandchild in grandchild.getchildren():
+                            if greatgrandchild.tag == 'enum':
+                                types_allowed.append(('literal', greatgrandchild.attrib['name'], None))
+                    else:
+                        types_allowed.append(('type', grandchild.attrib['name'], None))
+
+        return (types_allowed)
 
     def _get_list_keys_from_schema(self, schema):
         keys = []
@@ -203,52 +264,6 @@ class Resolver:
         if not schema:
             raise ValueError('missing schema')
         return (schema, schema_simple_type)
-
-    def resolve(self, path):
-        """
-        We convert some kind of string into an XPATH like expression and should return a tuple providing
-        - The command which was prefixing the command line
-        - The XPATH of the node.
-        - The values in a list
-        """
-        raise NotImplementedError('resolve')
-        values = []
-        if path.find(' ') == -1:
-            return (path, "/", [])
-
-        command = path[0: path.find(' ')]
-        path = path[len(command)+1:]
-        if command == 'set':
-            while self.QUOTED_STRING_REGEX.match(path):
-                value = self.QUOTED_STRING_REGEX.sub('\g<1>', path)[1: -1]
-                path = path[0: len(path) - len(value)-3]
-                values.insert(0, value)
-
-        xpath = "/"
-        xpath_parts = path.split(' ')
-        for tmp in xpath_parts:
-            xpath = xpath + tmp + "/"
-        xpath = xpath[: -1]
-
-        # TODO: now we need to validate if the path is valid - if it's not valid then we could have
-        # a non-quoted set value
-
-        # The biggest problem right now is what do we look up against.
-        # If we start looking up against the YANG schema we are back in the same problems
-        # as the last set of tries
-        # If we look up against the netopeer2 we are highly suboptimalself.
-        #
-        # The current logic we have in here might be ok for
-        # set morecomplex list keya keyb
-        # but what will probably break is
-        # set list-outside keya list-insider keyb
-        # we somehow need to cancel out the keys everytime we look at something.
-        shallow_path_found = self._find_schema_definition_for_path(xpath)
-        self._find_deeper_path(xpath, shallow_path_found)
-
-        # So now we **ONLY** know that the xpath is actually in the schema. but we've gone
-        # right to the hsallow end.... we need to go deeper
-        return (command, xpath, values)
 
     @staticmethod
     def _cache_path_format(path):

@@ -10,116 +10,7 @@ from example import resources
 class TestCruxResolver(unittest.TestCase):
 
     def setUp(self):
-
         self.subject = Resolver.Resolver(open("crux-example.xml"))
-        """
-    TODO:
-    SCHEMA_1 = resources.SCHEMA_1
-    CRUX_SCHEMA = resources.CRUX_XML
-
-        self.subject.register_top_tag("/simpleleaf", "http://brewerslabng.mellon-collie.net/yang/integrationtest", "integrationtest")
-        self.subject.register_top_tag("/morecomplex", "http://brewerslabng.mellon-collie.net/yang/integrationtest", "integrationtest")
-
-        yin_file = open(".cache/integrationtest.yin", "w")
-        yin_file.write(self.SCHEMA_1)
-        yin_file.close()
-
-        if not os.path.exists(".cache/__crux-schema.xml"):
-            crux_schema_file = open(".cache/__crux-schema.xml", "w")
-            crux_schema_file.write(self.CRUX_XML)
-            crux_schema_file.close()
-    # def test_basic_lookup_of_a_top_level(self):
-    #    self.subject.show('')
-
-    def test_find_schema_definition_for_path_not_registered(self):
-
-        # Act
-        with self.assertRaises(Error.BlngPathNotValid) as context:
-            self.subject._find_schema_definition_for_path('/ficticiuosus/sdff/sdfsdf')
-        self.assertEqual(str(context.exception), "/ficticiuosus/sdff/sdfsdf is not valid.")
-
-    def test_find_schema_definition_for_path_registered_simple_path(self):
-        # Act
-        self.subject._find_schema_definition_for_path('/morecomplex/leaf2')
-        self.assertTrue(str(["morecomplex", "leaf2"]) in self.subject.path_lookup_cache)
-
-    def test_find_schema_definition_for_path_registered_composite_list_case(self):
-        # Act
-        todo = ""
-        self.subject._find_schema_definition_for_path('/morecomplex/composite-key-list/keyone/keytwo')
-        self.assertEqual(todo, "this should be the schema for /morecomplex/composite-key-list")
-        self.assertTrue(str(["morecomplex", "composite-key-list", "keyone", "keytwo"]) in self.subject.path_lookup_cache)
-
-    def test_load_simple_schema(self):
-        # Act
-        (result_module_name, result_module) = self.subject._load_schema_to_memory('integrationtest')
-
-        # Assert
-        self.assertEqual(list(self.subject.module_cache.keys()), ['integrationtest'])
-        self.assertEqual(self.subject.path_lookup_cache[str(["simpleleaf"])], result_module)
-        self.assertEqual(result_module_name, "integrationtest")
-        self.assertEqual(result_module, self.subject.module_cache["integrationtest"])
-
-        # Act
-        (result_module_name, result_module2) = self.subject._load_schema_to_memory('integrationtest')
-
-        # Assert
-        self.assertEqual(list(self.subject.module_cache.keys()), ['integrationtest'])
-        self.assertEqual(self.subject.path_lookup_cache[str(["simpleleaf"])], result_module)
-        self.assertEqual(result_module_name, "integrationtest")
-        self.assertEqual(result_module, self.subject.module_cache["integrationtest"])
-        self.assertEqual(result_module, result_module2)
-
-    def test_some_bad_cases(self):
-        (cmd, xpath, values) = self.subject.resolve("set morecomplex composite-key-list abc ABC\" \"987 654\"")
-        self.assertEqual(cmd, "set")
-        self.assertEqual(xpath, "/morecomplex/composite-key-list")
-        self.assertEqual(values, ["abc ABC", "987 654"])
-
-    def test_resolving_inner(self):
-        (cmd, xpath, values) = self.subject.resolve("show morecomplex leaf2")
-        self.assertEqual(cmd, "show")
-        self.assertEqual(xpath, "/morecomplex/leaf2")
-        self.assertEqual(values, [])
-
-        (cmd, xpath, values) = self.subject.resolve("set morecomplex composite-key-list \"abc ABC\" \"987 654\"")
-        self.assertEqual(cmd, "set")
-        self.assertEqual(xpath, "/morecomplex/composite-key-list")
-        self.assertEqual(values, ["abc ABC", "987 654"])
-
-        # (cmd, xpath, values) = self.subject.resolve("set morecomplex composite-key-list abc 987")
-        # self.assertEqual(cmd, "set")
-        # self.assertEqual(xpath, "/morecomplex/composite-key-list")
-        # self.assertEqual(values, ["abc", "987"])
-
-    def test_resolving_top_level(self):
-
-
-        (cmd, xpath, values) = self.subject.resolve("show")
-        self.assertEqual(cmd, "show")
-        self.assertEqual(xpath, "/")
-        self.assertEqual(values, [])
-        (cmd, xpath, values) = self.subject.resolve("show simpleleaf")
-
-        self.assertEqual(cmd, "show")
-        self.assertEqual(xpath, "/simpleleaf")
-        self.assertEqual(values, [])
-
-        (cmd, xpath, values) = self.subject.resolve("set simpleleaf \"abc 1234\"")
-        self.assertEqual(cmd, "set")
-        self.assertEqual(xpath, "/simpleleaf")
-        self.assertEqual(values, ["abc 1234"])
-
-        (cmd, xpath, values) = self.subject.resolve("set simpleleaf abc1234")
-        self.assertEqual(cmd, "set")
-        self.assertEqual(xpath, "/simpleleaf")
-        self.assertEqual(values, ["abc1234"])
-
-        (cmd, xpath, values) = self.subject.resolve("show simplecontainer")
-        self.assertEqual(cmd, 'show')
-        self.assertEqual(xpath, "/simplecontainer")
-        self.assertEqual(values, [])
-    """
 
     def test_find_command(self):
         (command, everythingelse) = self.subject._find_command('set abc')
@@ -135,11 +26,11 @@ class TestCruxResolver(unittest.TestCase):
         self.assertEqual(value, 'thevalue')
 
     def test_resolve_xpath_simple_path_at_top_level_in_a_container(self):
-        (path, pathtype, value) = self.subject._find_xpath('resolver leaf-a A')
+        (path, pathtype, value) = self.subject._find_xpath('resolver leaf-a 242')
 
         self.assertEqual(path, '/resolver/leaf-a')
         self.assertEqual(pathtype, 'primitive')
-        self.assertEqual(value, 'A')
+        self.assertEqual(value, '242')
 
     def test_resolve_xpath_simple_list(self):
         (path, pathtype, value) = self.subject._find_xpath('simplelist THEKEY')
@@ -191,6 +82,23 @@ class TestCruxResolver(unittest.TestCase):
 
         value = self.subject._find_a_quoted_escaped_string(['key', 'value\\', 'ex"tra\\', 'thing'], 1)
         self.assertEqual(value, ('value ex"tra thing', 1, 3))
+
+    def test_find_types_allowed(self):
+        types = self.subject._find_types_allowed('/simpleleaf')
+        self.assertEqual([('type', 'string', None)], types)
+
+        types = self.subject._find_types_allowed('/morecomplex/leaf4')
+        self.assertEqual([('literal', 'A', None),
+                          ('literal', 'B', None),
+                          ('literal', 'C', None),
+                          ('type', 'uint32', None)
+                          ], types)
+
+        types = self.subject._find_types_allowed('/simpleenum')
+        self.assertEqual([('literal', 'A', None)], types)
+
+        types = self.subject._find_types_allowed('/simplelist')
+        self.assertEqual([('list', ['simplekey'], None)], types)
 
     def est__ensure_TODOr(self):
         raise ValueError('think shaed - we need more advanced handling because list keys (and compositse) can be followed by more xpath and schema stuff).')
