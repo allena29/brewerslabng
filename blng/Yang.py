@@ -124,6 +124,16 @@ class Yang:
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
 
+    def strip_xmlns(self, xmlstr):
+        REGEX_COLON_TAGS = re.compile("<([^>]+:[^>]+)>")
+        REGEX_XMLNS = re.compile('xmlns.*="[^"]+"')
+        for replacement in REGEX_COLON_TAGS.findall(xmlstr):
+            xmlstr = xmlstr.replace(replacement, replacement.replace(':', '__'))
+        for xmlns in REGEX_XMLNS.findall(xmlstr):
+            xmlstr = xmlstr.replace(xmlns, '')
+        xmlstr = xmlstr.replace(' >', '>')
+        return xmlstr
+
     def _munge_all_modules_into_single_schema(self):
         combined_xmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
 
@@ -144,7 +154,7 @@ class Yang:
                             invertxml.append(grandchild)
 
         with open('.cache/__crux-schema.xml', 'w') as file:
-            file.write(self.pretty(combined_xmldoc))
+            file.write(self.strip_xmlns(self.pretty(combined_xmldoc)))
 
     def _process_modules(self, netconf, crux_modules):
         """

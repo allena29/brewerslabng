@@ -134,6 +134,7 @@ class Munger:
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}default",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}presence",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}enum",
+                                                            "{urn:ietf:params:xml:ns:yang:yin:1}key",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}config",
                                                             "{urn:ietf:params:xml:ns:yang:yin:1}mandatory"):
                                 grandchild.remove(great_grandchild)

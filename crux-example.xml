@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+<crux-schema>
   <crux-paths>
     <path/>
     <path>/tests</path>
@@ -49,37 +48,38 @@
   <inverted-schema>
     <tests>
       <yin-schema path="/tests">
-        <container xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="tests">
+        <container>
         </container>
       </yin-schema>
       <temperature>
         <yin-schema path="/tests/temperature">
-          <container xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="temperature">
+          <container>
           </container>
         </yin-schema>
         <probes>
           <yin-schema path="/tests/temperature/probes">
-            <list xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="probes">
+            <list>
+              <key value="probeid"/>
             </list>
           </yin-schema>
           <probeid>
             <yin-schema path="/tests/temperature/probes/probeid">
-              <leaf xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="probeid">
-                <type name="brewerslab-types:temperature-probe"/>
+              <leaf>
+                <type name="brewerslab-types__temperature-probe"/>
               </leaf>
             </yin-schema>
           </probeid>
           <run>
             <yin-schema path="/tests/temperature/probes/run">
-              <leaf xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="run">
+              <leaf>
                 <type name="boolean"/>
               </leaf>
             </yin-schema>
           </run>
           <value>
             <yin-schema path="/tests/temperature/probes/value">
-              <leaf xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main" xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types" xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub" name="value">
-                <type name="brewerslab-types:temperature"/>
+              <leaf>
+                <type name="brewerslab-types__temperature"/>
               </leaf>
             </yin-schema>
           </value>
@@ -88,13 +88,13 @@
     </tests>
     <type-a>
       <yin-schema path="/type-a">
-        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type-a">
+        <typedef>
         </typedef>
       </yin-schema>
     </type-a>
     <type1>
       <yin-schema path="/type1">
-        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type1">
+        <typedef>
           <type name="string">
             <pattern value="brew[a-z]*">
               <error-message>
@@ -107,19 +107,19 @@
     </type1>
     <type2>
       <yin-schema path="/type2">
-        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type2">
+        <typedef>
         </typedef>
       </yin-schema>
     </type2>
     <type3>
       <yin-schema path="/type3">
-        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type3">
+        <typedef>
         </typedef>
       </yin-schema>
     </type3>
     <type4>
       <yin-schema path="/type4">
-        <typedef xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="type4">
+        <typedef>
         </typedef>
       </yin-schema>
     </type4>
@@ -127,45 +127,46 @@
       <yin-schema path="/secondlist"/>
       <listb>
         <yin-schema path="/secondlist/listb">
-          <list xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="listb">
+          <list>
+            <key value="secondkey thirdkey"/>
           </list>
         </yin-schema>
         <secondkey>
           <yin-schema path="/secondlist/listb/secondkey">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="secondkey">
+            <leaf>
               <type name="string"/>
             </leaf>
           </yin-schema>
         </secondkey>
         <thirdkey>
           <yin-schema path="/secondlist/listb/thirdkey">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="thirdkey">
+            <leaf>
               <type name="string"/>
             </leaf>
           </yin-schema>
         </thirdkey>
         <nonkey>
           <yin-schema path="/secondlist/listb/nonkey">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="nonkey">
+            <leaf>
               <type name="string"/>
             </leaf>
           </yin-schema>
         </nonkey>
         <things>
           <yin-schema path="/secondlist/listb/things">
-            <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="things">
+            <container>
             </container>
           </yin-schema>
           <thing>
             <yin-schema path="/secondlist/listb/things/thing">
-              <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="thing">
+              <leaf>
                 <type name="string"/>
               </leaf>
             </yin-schema>
           </thing>
           <musthave>
             <yin-schema path="/secondlist/listb/things/musthave">
-              <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="musthave">
+              <leaf>
                 <type name="string"/>
                 <mandatory value="true"/>
               </leaf>
@@ -174,22 +175,22 @@
         </things>
         <nothings>
           <yin-schema path="/secondlist/listb/nothings">
-            <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="nothings"/>
+            <container />
           </yin-schema>
         </nothings>
         <FIRSTOPTION>
           <yin-schema path="/secondlist/listb/FIRSTOPTION">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="FIRSTOPTION">
-              <crux:info>
-                <crux:text>choice</crux:text>
-              </crux:info>
+            <leaf>
+              <crux__info>
+                <crux__text>choice</crux__text>
+              </crux__info>
               <type name="string"/>
             </leaf>
           </yin-schema>
         </FIRSTOPTION>
         <SECONDOPTION>
           <yin-schema path="/secondlist/listb/SECONDOPTION">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="SECONDOPTION">
+            <leaf>
               <type name="string"/>
             </leaf>
           </yin-schema>
@@ -201,51 +202,53 @@
     </group-a>
     <simpleleaf>
       <yin-schema path="/simpleleaf">
-        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simpleleaf">
+        <leaf>
           <type name="string"/>
         </leaf>
       </yin-schema>
     </simpleleaf>
     <simplecontainer>
       <yin-schema path="/simplecontainer">
-        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simplecontainer">
+        <container>
           <presence value="true"/>
         </container>
       </yin-schema>
     </simplecontainer>
     <lista>
       <yin-schema path="/lista">
-        <list xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="lista">
+        <list>
+          <key value="firstkey"/>
         </list>
       </yin-schema>
       <firstkey>
         <yin-schema path="/lista/firstkey">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="firstkey">
+          <leaf>
             <type name="string"/>
           </leaf>
         </yin-schema>
       </firstkey>
       <secondlist>
         <yin-schema path="/lista/secondlist">
-          <uses xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="secondlist"/>
+          <uses />
         </yin-schema>
       </secondlist>
     </lista>
     <simplelist>
       <yin-schema path="/simplelist">
-        <list xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simplelist">
+        <list>
+          <key value="simplekey"/>
         </list>
       </yin-schema>
       <simplekey>
         <yin-schema path="/simplelist/simplekey">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="simplekey">
+          <leaf>
             <type name="string"/>
           </leaf>
         </yin-schema>
       </simplekey>
       <nonleafkey>
         <yin-schema path="/simplelist/nonleafkey">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="nonleafkey">
+          <leaf>
             <type name="uint32"/>
           </leaf>
         </yin-schema>
@@ -253,19 +256,19 @@
     </simplelist>
     <resolver>
       <yin-schema path="/resolver">
-        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
+        <container>
         </container>
       </yin-schema>
       <leaf-a>
         <yin-schema path="/resolver/leaf-a">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf-a">
+          <leaf>
             <type name="uint32"/>
           </leaf>
         </yin-schema>
       </leaf-a>
       <a>
         <yin-schema>
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="a">
+          <leaf>
             <type name="string"/>
           </leaf>
         </yin-schema>
@@ -273,12 +276,12 @@
     </resolver>
     <morecomplex>
       <yin-schema path="/morecomplex">
-        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="morecomplex">
+        <container>
         </container>
       </yin-schema>
       <nonconfig>
         <yin-schema path="/morecomplex/nonconfig">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="nonconfig">
+          <leaf>
             <type name="string"/>
             <config value="false"/>
           </leaf>
@@ -286,23 +289,23 @@
       </nonconfig>
       <leaf2>
         <yin-schema path="/morecomplex/leaf2">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf2">
+          <leaf>
             <type name="boolean"/>
           </leaf>
         </yin-schema>
       </leaf2>
       <leaf3>
         <yin-schema path="/morecomplex/leaf3">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf3">
+          <leaf>
           </leaf>
         </yin-schema>
       </leaf3>
       <leaf4>
         <yin-schema path="/morecomplex/leaf4">
-          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf4">
-            <crux:info>
-              <crux:text>Should allow A, B, C or a uint32</crux:text>
-            </crux:info>
+          <leaf>
+            <crux__info>
+              <crux__text>Should allow A, B, C or a uint32</crux__text>
+            </crux__info>
             <type name="union">
               <type name="enumeration">
                 <enum name="A"/>
@@ -316,13 +319,13 @@
       </leaf4>
       <inner>
         <yin-schema path="/morecomplex/inner">
-          <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="inner">
+          <container>
             <presence value="true"/>
           </container>
         </yin-schema>
         <leaf5>
           <yin-schema path="/morecomplex/inner/leaf5">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf5">
+            <leaf>
               <type name="string"/>
               <mandatory value="true"/>
             </leaf>
@@ -330,7 +333,7 @@
         </leaf5>
         <leaf6>
           <yin-schema path="/morecomplex/inner/leaf6">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf6">
+            <leaf>
               <type name="string"/>
               <mandatory value="false"/>
             </leaf>
@@ -338,7 +341,7 @@
         </leaf6>
         <leaf7>
           <yin-schema path="/morecomplex/inner/leaf7">
-            <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="leaf7">
+            <leaf>
               <type name="string"/>
               <default value="this-is-a-default"/>
             </leaf>
