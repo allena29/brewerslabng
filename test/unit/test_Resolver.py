@@ -99,13 +99,3 @@ class TestCruxResolver(unittest.TestCase):
 
         types = self.subject._find_types_allowed('/simplelist')
         self.assertEqual([('list', ['simplekey'], None)], types)
-
-    def est__ensure_TODOr(self):
-        raise ValueError('think shaed - we need more advanced handling because list keys (and compositse) can be followed by more xpath and schema stuff).')
-        raise ValueError('we probably want to convert things into true xpath when we encounter keys')
-        raise ValueError('but of course when we do encounter a list we will have yin schema which will tell us exactly how many keys there are so we can')
-        raise ValueError('make the lookup somewhat recursive even if the string can be a simpler implementaiton')
-        with self.assertRaises(Error.BlngValueNotEscpaedOrQuoted) as context:
-            self.subject._ensure_remaining_path_is_a_properly_escaped_string(['key', '"value', 'thin"g'], 1)
-
-        self.assertEqual(str(context.exception), "['key', '\"value', 'thin\"g'] value not properly escaped or quoted")

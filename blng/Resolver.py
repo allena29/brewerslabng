@@ -80,7 +80,6 @@ class Resolver:
              """
             if thing:
                 (schema, schema_simple_type) = self._get_schema_from_thing(thing[0])
-                print('SCHEMA', schema, schema_simple_type)
                 if schema_simple_type == 'structure':
                     xpath = xpath + '/' + path_split[idx]
                 elif schema_simple_type == 'primitive':
@@ -91,14 +90,11 @@ class Resolver:
 
                     return (xpath, 'primitive',  value)
                 elif schema_simple_type == 'list':
-                    print('START OF LIST STUFF', path_split)
                     keys = []
                     xpath = xpath + '/' + path_split[idx]
                     xpath = xpath + '['
                     keys = self._get_list_keys_from_schema(schema)
                     key_idx = idx
-                    print('STARTING TO LOOKUP FOR LIST VALUES AT', key_idx)
-                    print('GOT KEYS', keys)
                     for key_num in range(len(keys)):
                         (keyname, keyvalue) = keys[key_num]
                         (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
@@ -113,7 +109,6 @@ class Resolver:
 
                         idx = idx + 1
                     xpath = xpath + ']'
-                    print(string_start_idx, string_end_idx, len(path_split), path_split)
                     if string_end_idx == len(path_split):
                         return(xpath, 'listelement', keys)
         # raise Error.BlngPathNotValid(path )
