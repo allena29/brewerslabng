@@ -196,3 +196,13 @@ class Yang:
         </nc:filter>""" % (filter)
         data_str = str(netconf.get_config(source=source, filter=filter_xml))
         return etree.fromstring(data_str.encode('UTF-8')).getchildren()[0]
+
+
+if __name__ == '__main__':
+    for idx in range(len(sys.argv)-1):
+        ym = sys.argv[idx+1]
+
+        munger = Munger.Munger()
+        (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
+        with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
+            inverted_file.write(munger.pretty(crux_xmldoc))

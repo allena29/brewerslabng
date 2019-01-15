@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="brewerslab-teststub"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:brewlabng-teststub="http://brewerslabng.mellon-collie.net/yang/teststub"
+        xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/teststub"/>
+  <prefix value="brewlabng-teststub"/>
+  <import module="brewerslab-types">
+    <prefix value="brewerslab-types"/>
+  </import>
+  <grouping name="tests">
+    <container name="tests">
+      <container name="temperature">
+        <list name="probes">
+          <key value="probeid"/>
+          <leaf name="probeid">
+            <type name="brewerslab-types:temperature-probe"/>
+          </leaf>
+          <leaf name="run">
+            <description>
+              <text>Describes if we want the test to be running or not.</text>
+            </description>
+            <type name="boolean"/>
+          </leaf>
+          <leaf name="value">
+            <description>
+              <text>The temperature we want to report.</text>
+            </description>
+            <type name="brewerslab-types:temperature"/>
+          </leaf>
+        </list>
+      </container>
+    </container>
+  </grouping>
+</module>

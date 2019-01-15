@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <crux-cli xmlns="http://brewerslabng.mellon-collie.net/yang/crux">
+    <modules>
+      <!-- # keys: module-->
+      <!-- # entries: 0.. -->
+      <module>
+        <!-- type: string -->
+      </module>
+      <namespace>
+        <!-- type: string -->
+      </namespace>
+      <revision>
+        <!-- type: string -->
+      </revision>
+      <top-level-tags>
+        <!-- # keys: tag-->
+        <!-- # entries: 0.. -->
+        <tag>
+          <!-- type: string -->
+        </tag>
+      </top-level-tags>
+    </modules>
+  </crux-cli>
+</data>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="brewerslab-types"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:brewlabng-types="http://brewerslabng.mellon-collie.net/yang/types">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/types"/>
+  <prefix value="brewlabng-types"/>
+  <typedef name="ds18b20-probe">
+    <type name="string">
+      <pattern value="28-[0-9a-f]{1,32}">
+        <error-message>
+          <value>Invalid DS18B20 probe id</value>
+        </error-message>
+      </pattern>
+    </type>
+  </typedef>
+  <typedef name="temperature-probe">
+    <type name="union">
+      <type name="ds18b20-probe"/>
+    </type>
+  </typedef>
+  <typedef name="temperature">
+    <type name="decimal64">
+      <fraction-digits value="3"/>
+    </type>
+  </typedef>
+</module>

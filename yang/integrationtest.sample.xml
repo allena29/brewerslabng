@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <integrationtest xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+    <simpleleaf>
+      <!-- type: string -->
+    </simpleleaf>
+    <simplecontainer>
+      <!-- presence: true -->
+    </simplecontainer>
+    <simpleenum>
+      <!-- type: enumeration -->
+    </simpleenum>
+    <patternstr>
+      <!-- type: string -->
+    </patternstr>
+    <container-and-lists>
+      <multi-key-list>
+        <!-- # keys: A,B-->
+        <!-- # entries: 0.. -->
+        <A>
+          <!-- type: string -->
+        </A>
+        <B>
+          <!-- type: string -->
+        </B>
+        <inner>
+          <C>
+            <!-- type: string -->
+          </C>
+        </inner>
+      </multi-key-list>
+    </container-and-lists>
+    <lista>
+      <!-- # keys: firstkey-->
+      <!-- # entries: 0.. -->
+      <firstkey>
+        <!-- type: string -->
+      </firstkey>
+      <listb>
+        <!-- # keys: secondkey,thirdkey-->
+        <!-- # entries: 0.. -->
+        <secondkey>
+          <!-- type: string -->
+        </secondkey>
+        <thirdkey>
+          <!-- type: string -->
+        </thirdkey>
+        <nonkey>
+          <!-- type: string -->
+        </nonkey>
+        <FIRSTOPTION>
+          <!-- type: string -->
+        </FIRSTOPTION>
+        <SECONDOPTION>
+          <!-- type: string -->
+        </SECONDOPTION>
+        <things>
+          <thing>
+            <!-- type: string -->
+          </thing>
+          <musthave>
+            <!-- type: string -->
+          </musthave>
+        </things>
+        <nothings/>
+      </listb>
+    </lista>
+    <simplelist>
+      <!-- # keys: simplekey-->
+      <!-- # entries: 0.. -->
+      <simplekey>
+        <!-- type: string -->
+      </simplekey>
+      <nonleafkey>
+        <!-- type: uint32 -->
+      </nonleafkey>
+    </simplelist>
+    <resolver>
+      <a>
+        <!-- type: string -->
+      </a>
+      <leaf-a>
+        <!-- type: type-a -->
+      </leaf-a>
+    </resolver>
+    <morecomplex>
+      <nonconfig>
+        <!-- type: string -->
+      </nonconfig>
+      <leaf2>
+        <!-- type: boolean -->
+      </leaf2>
+      <leaf3>
+        <!-- type: type2 -->
+      </leaf3>
+      <leaf4>
+        <!-- type: type4 -->
+      </leaf4>
+      <inner>
+        <!-- presence: true -->
+        <leaf5>
+          <!-- type: string -->
+        </leaf5>
+        <leaf6>
+          <!-- type: string -->
+        </leaf6>
+        <leaf7>this-is-a-default</leaf7>
+      </inner>
+    </morecomplex>
+  </integrationtest>
+</data>

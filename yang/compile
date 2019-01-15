@@ -1,0 +1,37 @@
+#!/bin/bash
+
+project_dir=`git rev-parse --show-toplevel`
+if [ "$project_dir" = "" ]
+then
+  echo "Unable to find project directory."
+  exit 1;
+fi
+
+cd $project_dir
+
+echo "Cleaning cache"
+rm -fr .cache/*
+rm -fr cli/.cache/*
+
+echo "Building sample XML"
+
+cd yang
+for yang in *.yang
+do 
+no_yang_suffix=`echo "$yang" | sed -e 's/\.yang//'`
+#pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults integrationtest.yang | grep -v '<!-- # entries: ' | sed -e 's/<!-- # /</' | sed -e 's/<!-- /</' | sed -e 's/\.\. -->/"\/>/' | sed -e 's/: / val="/' | sed -e 's/ -->/"\/>/' | sed -e 's/-->/"\/>/' >$yang.sample.xml
+pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults $yang >$no_yang_suffix.sample.xml
+pyang -f tree $yang >$no_yang_suffix.txt
+pyang -f yin -o $no_yang_suffix.yin $yang
+done
+
+cp *.yang ../.cache
+cp *.yin ../.cache
+
+
+echo "Compiling YANG to CRUX"
+module_list=`grep '<module>' ../init-data/crux.xml | sed -e 's_.*<module>__' | sed -e 's_</module>.*__'`
+echo $module_list
+cd ../blng
+python Yang.py $module_list
+

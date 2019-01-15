@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="brewerslab"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:brewlabng="http://brewerslabng.mellon-collie.net/yang/main"
+        xmlns:brewerslab-types="http://brewerslabng.mellon-collie.net/yang/types"
+        xmlns:brewerslab-teststub="http://brewerslabng.mellon-collie.net/yang/teststub">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/main"/>
+  <prefix value="brewlabng"/>
+  <import module="brewerslab-types">
+    <prefix value="brewerslab-types"/>
+  </import>
+  <import module="brewerslab-teststub">
+    <prefix value="brewerslab-teststub"/>
+  </import>
+  <uses name="brewerslab-teststub:tests"/>
+</module>

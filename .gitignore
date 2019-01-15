@@ -1,6 +1,7 @@
 ncs
 *.pyc
 *.yin
+!yang/*.yin
 schema.json
 schema-oper.json
 schema-config.json

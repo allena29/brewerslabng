@@ -5,7 +5,7 @@ module integrationtest {
 
   import crux { prefix crux; }
 
-
+  container integrationtest {
   leaf simpleleaf {
     type string;
   }
@@ -111,15 +111,6 @@ module integrationtest {
     }
   }
 
-  typedef type-a {
-    type uint32;
-  }
-
-  grouping group-a {
-    leaf a {
-      type string;
-    }
-  }
 
   container resolver {
     uses group-a;
@@ -169,13 +160,12 @@ module integrationtest {
     }
   }
 
-  typedef type1 {
-    type string {
-      pattern "brew[a-z]*" {
-        error-message "String must start with brew";
-      }
-    }
   }
+  // type-defs/groups below here
+
+
+
+
 
   typedef type2 {
     type uint32;
@@ -193,6 +183,26 @@ module integrationtest {
     type union {
       type type3;
       type type2;
+    }
+  }
+
+
+  typedef type-a {
+    type uint32;
+  }
+
+  grouping group-a {
+    leaf a {
+      type string;
+    }
+  }
+
+
+  typedef type1 {
+    type string {
+      pattern "brew[a-z]*" {
+        error-message "String must start with brew";
+      }
     }
   }
 }

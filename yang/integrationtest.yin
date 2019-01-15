@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="integrationtest"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest"
+        xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux">
+  <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+  <prefix value="integrationtest"/>
+  <import module="crux">
+    <prefix value="crux"/>
+  </import>
+  <container name="integrationtest">
+    <leaf name="simpleleaf">
+      <type name="string"/>
+    </leaf>
+    <container name="simplecontainer">
+      <presence value="true"/>
+    </container>
+    <leaf name="simpleenum">
+      <type name="enumeration">
+        <enum name="A">
+          <value value="1"/>
+        </enum>
+      </type>
+    </leaf>
+    <leaf name="patternstr">
+      <type name="string">
+        <pattern value=".*Strasse">
+          <error-message>
+            <value>sdfsdf</value>
+          </error-message>
+        </pattern>
+      </type>
+    </leaf>
+    <container name="container-and-lists">
+      <list name="multi-key-list">
+        <key value="A B"/>
+        <leaf name="A">
+          <type name="string"/>
+        </leaf>
+        <leaf name="B">
+          <type name="string"/>
+        </leaf>
+        <container name="inner">
+          <leaf name="C">
+            <type name="string"/>
+          </leaf>
+        </container>
+      </list>
+    </container>
+    <grouping name="secondlist">
+      <list name="listb">
+        <key value="secondkey thirdkey"/>
+        <leaf name="secondkey">
+          <type name="string"/>
+        </leaf>
+        <leaf name="thirdkey">
+          <type name="string"/>
+        </leaf>
+        <leaf name="nonkey">
+          <type name="string"/>
+        </leaf>
+        <choice name="MAKEYOURMINDUP">
+          <case name="OPTION1">
+            <leaf name="FIRSTOPTION">
+              <type name="string"/>
+              <crux:info>
+                <crux:text>choice</crux:text>
+              </crux:info>
+            </leaf>
+          </case>
+          <case name="OPTION2">
+            <leaf name="SECONDOPTION">
+              <type name="string"/>
+            </leaf>
+          </case>
+        </choice>
+        <container name="things">
+          <leaf name="thing">
+            <type name="string"/>
+          </leaf>
+          <leaf name="musthave">
+            <type name="string"/>
+            <mandatory value="true"/>
+          </leaf>
+        </container>
+        <container name="nothings"/>
+      </list>
+    </grouping>
+    <list name="lista">
+      <key value="firstkey"/>
+      <leaf name="firstkey">
+        <type name="string"/>
+      </leaf>
+      <uses name="secondlist"/>
+    </list>
+    <list name="simplelist">
+      <key value="simplekey"/>
+      <leaf name="simplekey">
+        <type name="string"/>
+      </leaf>
+      <leaf name="nonleafkey">
+        <type name="uint32"/>
+        <description>
+          <text>ABC</text>
+        </description>
+        <crux:info>
+          <crux:text>A non-leaf key</crux:text>
+        </crux:info>
+      </leaf>
+    </list>
+    <container name="resolver">
+      <uses name="group-a"/>
+      <leaf name="leaf-a">
+        <type name="type-a"/>
+      </leaf>
+    </container>
+    <container name="morecomplex">
+      <leaf name="nonconfig">
+        <config value="false"/>
+        <crux:info>
+          <crux:text>A non-configuration node</crux:text>
+        </crux:info>
+        <type name="string"/>
+      </leaf>
+      <leaf name="leaf2">
+        <crux:info>
+          <crux:text>must be 1 or 0 dont sit on the fence</crux:text>
+        </crux:info>
+        <type name="boolean"/>
+      </leaf>
+      <leaf name="leaf3">
+        <crux:info>
+          <crux:text>Should allow a string starting with brew - but no spaces</crux:text>
+        </crux:info>
+        <type name="type2"/>
+      </leaf>
+      <leaf name="leaf4">
+        <crux:info>
+          <crux:text>Should allow A, B, C or a uint32</crux:text>
+        </crux:info>
+        <type name="type4"/>
+      </leaf>
+      <container name="inner">
+        <presence value="true"/>
+        <leaf name="leaf5">
+          <type name="string"/>
+          <mandatory value="true"/>
+        </leaf>
+        <leaf name="leaf6">
+          <type name="string"/>
+          <mandatory value="false"/>
+        </leaf>
+        <leaf name="leaf7">
+          <type name="string"/>
+          <default value="this-is-a-default"/>
+        </leaf>
+      </container>
+    </container>
+  </container>
+  <typedef name="type2">
+    <type name="uint32"/>
+  </typedef>
+  <typedef name="type3">
+    <type name="enumeration">
+      <enum name="A"/>
+      <enum name="B"/>
+      <enum name="C"/>
+    </type>
+  </typedef>
+  <typedef name="type4">
+    <type name="union">
+      <type name="type3"/>
+      <type name="type2"/>
+    </type>
+  </typedef>
+  <typedef name="type-a">
+    <type name="uint32"/>
+  </typedef>
+  <grouping name="group-a">
+    <leaf name="a">
+      <type name="string"/>
+    </leaf>
+  </grouping>
+  <typedef name="type1">
+    <type name="string">
+      <pattern value="brew[a-z]*">
+        <error-message>
+          <value>String must start with brew</value>
+        </error-message>
+      </pattern>
+    </type>
+  </typedef>
+</module>
