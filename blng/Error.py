@@ -1,6 +1,15 @@
 """Exceptions for using with BLNG"""
 
 
+class BlngPathHasNoSchema(Exception):
+
+    """Raised when we cannot find a schema for the path."""
+
+    def __init__(self, path):
+        message = '%s does not have a valid schema- the path may not be valid.' % (path)
+        super().__init__(message)
+
+
 class BlngPathNotValid(Exception):
 
     """Raised when we decode a path that is not valid and cannot reasonably decode it."""

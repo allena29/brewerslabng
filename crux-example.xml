@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <crux-schema>
   <crux-paths>
     <path/>
@@ -58,24 +59,28 @@
     <tests>
       <yin-schema path="/tests">
         <container>
-        </container>
+      </container>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
       </yin-schema>
       <temperature>
         <yin-schema path="/tests/temperature">
           <container>
-          </container>
+        </container>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
         </yin-schema>
         <probes>
           <yin-schema path="/tests/temperature/probes">
             <list>
               <key value="probeid"/>
             </list>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
           </yin-schema>
           <probeid>
             <yin-schema path="/tests/temperature/probes/probeid">
               <leaf>
                 <type name="brewerslab-types__temperature-probe"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
             </yin-schema>
           </probeid>
           <run>
@@ -83,6 +88,7 @@
               <leaf>
                 <type name="boolean"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
             </yin-schema>
           </run>
           <value>
@@ -90,6 +96,7 @@
               <leaf>
                 <type name="brewerslab-types__temperature"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/main</namespace>
             </yin-schema>
           </value>
         </probes>
@@ -98,13 +105,15 @@
     <integrationtest>
       <yin-schema path="/integrationtest">
         <container>
-        </container>
+    </container>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
       <simpleleaf>
         <yin-schema path="/integrationtest/simpleleaf">
           <leaf>
             <type name="string"/>
           </leaf>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
       </simpleleaf>
       <simplecontainer>
@@ -112,6 +121,7 @@
           <container>
             <presence value="true"/>
           </container>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
       </simplecontainer>
       <simpleenum>
@@ -123,6 +133,7 @@
               </enum>
             </type>
           </leaf>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
       </simpleenum>
       <patternstr>
@@ -136,24 +147,28 @@
               </pattern>
             </type>
           </leaf>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
       </patternstr>
       <container-and-lists>
         <yin-schema path="/integrationtest/container-and-lists">
           <container>
-          </container>
+      </container>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
         <multi-key-list>
           <yin-schema path="/integrationtest/container-and-lists/multi-key-list">
             <list>
               <key value="A B"/>
             </list>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
           <A>
             <yin-schema path="/integrationtest/container-and-lists/multi-key-list/A">
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </A>
           <B>
@@ -161,36 +176,43 @@
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </B>
           <inner>
             <yin-schema path="/integrationtest/container-and-lists/multi-key-list/inner">
               <container>
-              </container>
+          </container>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
             <C>
               <yin-schema path="/integrationtest/container-and-lists/multi-key-list/inner/C">
                 <leaf>
                   <type name="string"/>
                 </leaf>
+                <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
               </yin-schema>
             </C>
           </inner>
         </multi-key-list>
       </container-and-lists>
       <secondlist>
-        <yin-schema path="/integrationtest/secondlist"/>
+        <yin-schema path="/integrationtest/secondlist">
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
+        </yin-schema>
         <listb>
           <yin-schema path="/integrationtest/secondlist/listb">
             <list>
               <key value="secondkey thirdkey"/>
             </list>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
           <secondkey>
             <yin-schema path="/integrationtest/secondlist/listb/secondkey">
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </secondkey>
           <thirdkey>
@@ -198,6 +220,7 @@
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </thirdkey>
           <nonkey>
@@ -205,18 +228,21 @@
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </nonkey>
           <things>
             <yin-schema path="/integrationtest/secondlist/listb/things">
               <container>
-              </container>
+          </container>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
             <thing>
               <yin-schema path="/integrationtest/secondlist/listb/things/thing">
                 <leaf>
                   <type name="string"/>
                 </leaf>
+                <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
               </yin-schema>
             </thing>
             <musthave>
@@ -225,12 +251,14 @@
                   <type name="string"/>
                   <mandatory value="true"/>
                 </leaf>
+                <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
               </yin-schema>
             </musthave>
           </things>
           <nothings>
             <yin-schema path="/integrationtest/secondlist/listb/nothings">
-              <container />
+              <container/>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </nothings>
           <FIRSTOPTION>
@@ -241,6 +269,7 @@
                   <crux__text>choice</crux__text>
                 </crux__info>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </FIRSTOPTION>
           <SECONDOPTION>
@@ -248,6 +277,7 @@
               <leaf>
                 <type name="string"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </SECONDOPTION>
         </listb>
@@ -257,17 +287,20 @@
           <list>
             <key value="firstkey"/>
           </list>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
         <firstkey>
           <yin-schema path="/integrationtest/lista/firstkey">
             <leaf>
               <type name="string"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </firstkey>
         <secondlist>
           <yin-schema path="/integrationtest/lista/secondlist">
-            <uses />
+            <uses/>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </secondlist>
       </lista>
@@ -276,12 +309,14 @@
           <list>
             <key value="simplekey"/>
           </list>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
         <simplekey>
           <yin-schema path="/integrationtest/simplelist/simplekey">
             <leaf>
               <type name="string"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </simplekey>
         <nonleafkey>
@@ -289,19 +324,22 @@
             <leaf>
               <type name="uint32"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </nonleafkey>
       </simplelist>
       <resolver>
         <yin-schema path="/integrationtest/resolver">
           <container>
-          </container>
+      </container>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
         <leaf-a>
           <yin-schema path="/integrationtest/resolver/leaf-a">
             <leaf>
               <type name="uint32"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </leaf-a>
         <a>
@@ -309,13 +347,15 @@
             <leaf>
               <type name="string"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </a>
       </resolver>
       <morecomplex>
         <yin-schema path="/integrationtest/morecomplex">
           <container>
-          </container>
+      </container>
+          <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
         </yin-schema>
         <nonconfig>
           <yin-schema path="/integrationtest/morecomplex/nonconfig">
@@ -323,6 +363,7 @@
               <config value="false"/>
               <type name="string"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </nonconfig>
         <leaf2>
@@ -330,12 +371,14 @@
             <leaf>
               <type name="boolean"/>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </leaf2>
         <leaf3>
           <yin-schema path="/integrationtest/morecomplex/leaf3">
             <leaf>
-            </leaf>
+        </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </leaf3>
         <leaf4>
@@ -353,6 +396,7 @@
                 <type name="uint32"/>
               </type>
             </leaf>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
         </leaf4>
         <inner>
@@ -360,6 +404,7 @@
             <container>
               <presence value="true"/>
             </container>
+            <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
           </yin-schema>
           <leaf5>
             <yin-schema path="/integrationtest/morecomplex/inner/leaf5">
@@ -367,6 +412,7 @@
                 <type name="string"/>
                 <mandatory value="true"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </leaf5>
           <leaf6>
@@ -375,6 +421,7 @@
                 <type name="string"/>
                 <mandatory value="false"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </leaf6>
           <leaf7>
@@ -383,6 +430,7 @@
                 <type name="string"/>
                 <default value="this-is-a-default"/>
               </leaf>
+              <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
             </yin-schema>
           </leaf7>
         </inner>
@@ -391,29 +439,35 @@
     <type2>
       <yin-schema path="/type2">
         <typedef>
-        </typedef>
+    </typedef>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
     </type2>
     <type3>
       <yin-schema path="/type3">
         <typedef>
-        </typedef>
+    </typedef>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
     </type3>
     <type4>
       <yin-schema path="/type4">
         <typedef>
-        </typedef>
+    </typedef>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
     </type4>
     <type-a>
       <yin-schema path="/type-a">
         <typedef>
-        </typedef>
+    </typedef>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
     </type-a>
     <group-a>
-      <yin-schema path="/group-a"/>
+      <yin-schema path="/group-a">
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
+      </yin-schema>
     </group-a>
     <type1>
       <yin-schema path="/type1">
@@ -426,6 +480,7 @@
             </pattern>
           </type>
         </typedef>
+        <namespace>http://brewerslabng.mellon-collie.net/yang/integrationtest</namespace>
       </yin-schema>
     </type1>
   </inverted-schema>

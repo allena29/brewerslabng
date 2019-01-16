@@ -34,4 +34,4 @@ module_list=`grep '<module>' ../init-data/crux.xml | sed -e 's_.*<module>__' | s
 echo $module_list
 cd ../blng
 python Yang.py $module_list
-
+cat ../.cache/__crux-schema.xml | xmllint --format - >../crux-example.xml

@@ -79,11 +79,11 @@ class Resolver:
              - a leaf   -> then we need to ensure there is a valid quoted/escpaed/simple string following
              """
             if thing:
+
                 (schema, schema_simple_type) = self._get_schema_from_thing(thing[0])
                 if schema_simple_type == 'structure':
                     xpath = xpath + '/' + path_split[idx]
                 elif schema_simple_type == 'primitive':
-                    # value = self._ensure_remaining_path_is_a_properly_escaped_string(path_split, idx+1)
                     (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, idx+1)
                     xpath = xpath + '/' + path_split[idx]
                     self._validate_value(current_path, value)
@@ -94,26 +94,31 @@ class Resolver:
                     xpath = xpath + '/' + path_split[idx]
                     xpath = xpath + '['
                     keys = self._get_list_keys_from_schema(schema)
-                    key_idx = idx
+                    key_idx = idx + 1
                     for key_num in range(len(keys)):
                         (keyname, keyvalue) = keys[key_num]
-                        (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
-
+#                        (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+1)
+                        (value, string_start_idx, string_end_idx) = self._find_a_quoted_escaped_string(path_split, key_idx+0)
+                        #print('ERROR CHECK settting string_end_idx to %s for value %s' % (string_end_idx, value))
                         self._validate_value(current_path+'/' + keyname, value)
 
                         keys[key_num] = (keyname, value)
                         key_idx = string_end_idx + 1
+                    #    print('ERROR INSIDE LOOP got value, string_start, string_end', value, string_start_idx, string_end_idx)
                         if key_num > 0:
                             xpath = xpath + ','
                         xpath = xpath + keyname + "='" + value.replace(' ', '\\ ') + "'"
 
                         idx = idx + 1
                     xpath = xpath + ']'
-                    if string_end_idx == len(path_split):
+
+                    #print('BEFORE REROR %s %s' % (string_end_idx, len(path_split)))
+                    if string_end_idx + 1 == len(path_split):
                         return(xpath, 'listelement', keys)
-        # raise Error.BlngPathNotValid(path )
+
             idx = idx + 1
 
+    #    print('ERROR HANDLING:.... xpath: %s' % (xpath))
         raise Error.BlngUnableToResolveString(str(path_split))
 
     def _additional_validation_constraints(self, method, type, constraints, xpath, value):
@@ -150,7 +155,10 @@ class Resolver:
             in the case of a list this is the keys in the list that is returned.
          3: pattern - if yang has a pattern defined (NOT IMPLEMENTED!)
          """
-        schema = self.inverted_schema.xpath(xpath[1:]+'/yin-schema')[0]
+        schema = self.inverted_schema.xpath(xpath[1:]+'/yin-schema')
+        if len(schema) == 0:
+            raise Error.BlngPathHasNoSchema(xpath)
+        schema = schema[0]
         types_allowed = []
         for child in schema.getchildren():
             for grandchild in child.getchildren():
@@ -190,18 +198,25 @@ class Resolver:
         Given a list representing a space separate path, and the index leading up to a suspected
         value, determine if the remaining string is actually properly escaped and quoted (if so
         return the value along with the start and end positions.).
+
+        Value / Start Index / End Index
         """
-        if len(path_split) == start_idx + 1:
-            return (path_split[-1], start_idx + 1, start_idx + 1)
+        #print('FAQES: STARTING', path_split, 'len(path_split)', len(path_split), 'start_idx', start_idx)
+    #    if start_idx + 1 == len(path_split):
+        # This means the last value is the end.
+        # return (path_split[-1], start_idx + 1, start_idx + 1)
+        if start_idx == len(path_split):
+            raise Error.BlngValueNotEscpaedOrQuoted("Unquoted or Unescaped characters " + str(path_split))
 
         idx = 0
         end_idx = None
         quoted = False
         if path_split[start_idx][0] == '"':
             quoted = True
-
+        idx = start_idx
         while idx < len(path_split):
             tmp = path_split[idx]
+        #    print('FAXXX', idx, path_split, 'len(path_split)', len(path_split), 'start_idx', start_idx, 'tmp=', tmp)
             if quoted and idx == start_idx:
                 tmp = path_split[idx][1:]
             if quoted and tmp[-1] == '"':

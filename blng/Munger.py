@@ -152,18 +152,22 @@ class Munger:
         We only recurse for containers and lists
         """
         newxmldoc = etree.fromstring("""<inverted-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></inverted-schema>""")
-        self._inversion_recursor(xmldoc, newxmldoc)
+        namespace = None
+        self._inversion_recursor(xmldoc, newxmldoc, namespace)
 
         cruxxmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
         cruxxmldoc.append(newxmldoc)
         return cruxxmldoc
 
-    def _inversion_recursor(self, xmldoc, newxmldoc):
+    def _inversion_recursor(self, xmldoc, newxmldoc, namespace):
         for child in xmldoc.getchildren():
+            if child.tag == '{urn:ietf:params:xml:ns:yang:yin:1}namespace':
+                namespace = child.attrib['uri']
             if 'name' in child.attrib:
                 newnode = etree.Element(str(child.attrib['name']))
                 yin = etree.Element('yin-schema')
                 yin.append(etree.fromstring(etree.tostring(child)))
+                yin.attrib['yangns'] = namespace
                 newnode.append(yin)
                 newxmldoc.append(newnode)
 
@@ -172,7 +176,7 @@ class Munger:
                                  '{urn:ietf:params:xml:ns:yang:yin:1}grouping',
                                  '{urn:ietf:params:xml:ns:yang:yin:1}choice',
                                  '{urn:ietf:params:xml:ns:yang:yin:1}case'):
-                    self._inversion_recursor(child, newnode)
+                    self._inversion_recursor(child, newnode, namespace)
                 # else:
                 #     print(child, child.text, child.attrib.keys(), child.tag, "<<<<< inverstion recursor - skipping recursor")
             # else:
