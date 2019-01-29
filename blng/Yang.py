@@ -118,13 +118,15 @@ class Yang:
             raise ValueError("Unable to fetch list of supported CRUX CLI modules")
 
         self._process_modules(netconf, crux_modules[0])
-        self._munge_all_modules_into_single_schema()
+        self._combine_all_modules_into_single_schema(self.cli_modules)
 
-    def pretty(self, xmldoc):
+    @staticmethod
+    def pretty(xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
 
-    def strip_xmlns(self, xmlstr):
+    @staticmethod
+    def strip_xmlns(xmlstr):
         REGEX_COLON_TAGS = re.compile("<([^>]+:[^>]+)>")
         REGEX_XMLNS = re.compile('xmlns.*="[^"]+"')
         for replacement in REGEX_COLON_TAGS.findall(xmlstr):
@@ -134,7 +136,8 @@ class Yang:
         xmlstr = xmlstr.replace(' >', '>')
         return xmlstr
 
-    def _munge_all_modules_into_single_schema(self):
+    @staticmethod
+    def _combine_all_modules_into_single_schema(yang_modules=[]):
         combined_xmldoc = etree.fromstring("""<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-schema>""")
 
         pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
@@ -142,7 +145,7 @@ class Yang:
         combined_xmldoc.append(pathxml)
         combined_xmldoc.append(invertxml)
 
-        for ym in self.cli_modules:
+        for ym in yang_modules:
             with open('.cache/%s.crux.xml' % (ym)) as inverted_file:
                 xmldoc = etree.fromstring(inverted_file.read())
                 for child in xmldoc.getchildren():
@@ -154,7 +157,7 @@ class Yang:
                             invertxml.append(grandchild)
 
         with open('.cache/__crux-schema.xml', 'w') as file:
-            file.write(self.strip_xmlns(self.pretty(combined_xmldoc)))
+            file.write(Yang.strip_xmlns(Yang.pretty(combined_xmldoc)))
 
     def _process_modules(self, netconf, crux_modules):
         """
@@ -199,6 +202,7 @@ class Yang:
 
 
 if __name__ == '__main__':
+    modules = []
     for idx in range(len(sys.argv)-1):
         ym = sys.argv[idx+1]
 
@@ -206,3 +210,5 @@ if __name__ == '__main__':
         (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
         with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
             inverted_file.write(munger.pretty(crux_xmldoc))
+        modules.append(ym)
+    Yang._combine_all_modules_into_single_schema(modules)
