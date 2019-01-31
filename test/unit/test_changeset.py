@@ -85,8 +85,26 @@ class TestChangeSet(unittest.TestCase):
         </integrationtest>
 </data>
 """
-#        raise ValueError(TestChangeSet.pretty(xmldoc))
         self.assertEqual(expected_answer, TestChangeSet.pretty(xmldoc))
+
+    def test_create_xml_based_on_nested_lists(self):
+        self.subject._create_elements("/data/integrationtest/list-a[firstkey='primary']/listb[secondkey='secondary',thirdkey='tertiary']/nonkey", self.xmldoc)
+
+        expected_answer = """<data xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <integrationtest>
+    <simpleleaf>HELLO THERE!!!!</simpleleaf>
+    <list-a>
+      <firstkey>primary</firstkey>
+      <listb>
+        <secondkey>secondary</secondkey>
+        <thirdkey>tertiary</thirdkey>
+        <nonkey/>
+      </listb>
+    </list-a>
+  </integrationtest>
+</data>
+"""
+        self.assertEqual(expected_answer, TestChangeSet.pretty(self.xmldoc))
 
     # def test_extracting_xpath_key_values(self):
     #     self.subject = ChangeSet.ChangeSet(None)
