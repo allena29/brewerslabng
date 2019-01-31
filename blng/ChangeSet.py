@@ -1,4 +1,5 @@
 import re
+import logging
 from lxml import etree
 
 
@@ -25,15 +26,21 @@ class ChangeSet:
     def __init__(self, crux_schema):
         # self.schema = crux_schema
         self.dirty = False
+        format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.basicConfig(level=logging.DEBUG, format=format)
+        self.log = logging.getLogger('changeset')
 
         self.transaction = {}
 
     def begin_transaction(self, xmlstr):
         """
         A transaction starts by calling this method and the resulting of making a netconf get_config
-        response = netconf.get_config(source='running',
             path = '<integrationtest><simpleleaf/></integrationtest>'
-            filter = '< nc: filter xmlns: nc = "urn:ietf:params:xml:ns:netconf:base:1.0" > %s < /nc: filter >' % (path)).data_xml
+            filter = '<nc:filter xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">%s</nc:filter>' % (path)
+            response = self.netconf.get_config(source='running',filter=filter)
+
+            We begin the XML transaction with 'response.data_xml' which is a string representation of the XML
+            payload returned from the NETCONF server.
 
             <?xml version="1.0" encoding="UTF-8"?>
               <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -59,14 +66,24 @@ class ChangeSet:
         return xmldoc
 
     def modify(self, path, newvalue):
-        elements = self.transaction['xmldoc'].xpath('/data'+path)
+        """
+        Modify a path within the datastore, an XPATH expression should be provided as the first argument along
+        with the value required for that leaf.
+        List keys will be expanded and the leaves automatically created.
 
-        if len(elements) != 1:
-            ChangeSet._create_elements(path, self.transaction['xmldoc'])
+        modify("/integrationtest/simpleleaf", "bac")
+        modify("/integrationtest/simplelist[simplekey='sdf']/nonleafkey", "bac")
+        """
+
+        self.log.info('Modify path: %s value: %s', path, newvalue)
+        self._create_elements('/data' + path, self.transaction['xmldoc'])
+        elements = self.transaction['xmldoc'].xpath(path[1:])
+        if not len(elements) == 1:
+            raise ValueError('TODO:')
         elements[0].text = newvalue
+        self.log.info('In modify xmldoc%s\n%s', str(elements), str(etree.tostring(self.transaction['xmldoc'])))
 
-    @staticmethod
-    def _create_elements(path, xmldoc):
+    def _create_elements(self, path, xmldoc):
         """
         Given an XPATH ensure the nodes are present in the XMLDOC or else create them.
 
@@ -101,7 +118,7 @@ class ChangeSet:
         """
         REGEX_LIST_KEYS = re.compile("(.*?)\[(\w+=.*?,?)\]")
         REGEX_XPATH_KEY_VALUES = re.compile("(\w+)='(.*?)',?")
-
+        self.log.debug('Request to create nodes for: %s' % (path))
         previous_node = xmldoc
         path_components = path[1:].split('/')
         path_components.pop(0)
@@ -113,11 +130,11 @@ class ChangeSet:
             try:
                 elements = xmldoc.xpath(path_to_find)
             except etree.XPathEvalError:
+                self.log.debug('XPATH ERROR - %s - assumption this is ok to skip for composite keys', path_to_find)
                 # Note: trying to lookup integrationtest/container-and-lists/multi-key-list[A='aaaa',B='bbbb'] is giving us
                 # lxml.etree.XPathEvalError: Invalid predicate
                 # If we skip over this the following code which creates the XML elements works for us
                 elements = []
-            #    raise ValueError('Unable to xpath find\n' + path_to_find+'\n'+str(etree.tostring(xmldoc)))
             if len(elements) == 0:
                 xpath_keys = REGEX_LIST_KEYS.findall(this_path)
                 if len(xpath_keys):
@@ -136,71 +153,12 @@ class ChangeSet:
                     previous_node = node
             else:
                 previous_node = elements[0]
-        return 4
 
-    def _extract_xpath_keys_and_create_in_xmldoc(path, xmldoc):
-        """
-        Given an XPATH which may or may not contain keys and an XMLDOC we will create
-        elements in the tree corresponding to those XPATH keys.
-
-        self.REGEX_XPATH_KEYS.findall("/integrationtest/simplelist[simplekey='sdf']/nonleafkey")
-        ["simplekey='sdf'"]
-
-        self.REGEX_XPATH_KEY_VALUES.findall("simplekey='sdf'")
-        [('simplekey', 'sdf')]
-
-        TODO: this is where we are at... we are oassed ab XMLDOC but we aren't putting this in the right position.
-        TOOD: we also need to recurse a little bit as we assume that we could have multiple lists.
-        """
-        raise ValueError('Deprecate this'
-                         )
-        REGEX_XPATH_KEYS = re.compile("\[(\w+='.*?')\]")
-        REGEX_XPATH_KEY_VALUES = re.compile("(\w+)='(.*?)',?")
-
-        xpath_keys = []
-
-        idx = 0
-        xpath_keys_and_values = REGEX_XPATH_KEYS.findall(path)
-        for xpath_key_and_value in xpath_keys_and_values:
-
-            # we find here the path before the key - and then get the XMLDOC at that point.
-            this_key_idx = path.find(xpath_key_and_value, idx)
-            path_before_keys = '/data' + path[0:this_key_idx-1]
-            path_with_keys = path_before_keys + '[' + xpath_key_and_value + ']'
-            # raise ValueError('about to create %s' % (path_with_keys))
-            elements = xmldoc.xpath(path_with_keys)
-            if len(elements) != 1:
-                # Now we get the path before the keys
-                parent_element = xmldoc.xpath(path_before_keys)[0]
-                raise ValueError(parent_element)
-                for (xpath_key, xpath_value) in REGEX_XPATH_KEY_VALUES.findall(xpath_key_and_value):
-                    raise ValueError('about to create %s' % (xpath_key_and_value))
-
-        return xmldoc
+        self.log.info('Create Nodes Finished xmldoc\n%s', str(etree.tostring(xmldoc)))
 
     def frame_netconf_xml(self):
-
+        """
+        TODO
+        """
         xmlstr = str(etree.tostring(self.transaction['xmldoc'], pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
-
-#    """#
-#
-# In [7]: # But inevitably set's require xmlns
-#   ...: setpath = """ < integrationtest xmlns ="http: // brewerslabng.mellon-collie.net/yang/integrationt
-#   ...: est"><simpleleaf>HELLO THERE!!!!</simpleleaf></integrationtest>"""#
-#
-#In [8]:#
-#
-# In [8]: netconf.edit_config("""<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">""" + s
-#  ...: etpath + """</nc:config>""", target='running')
-# Out[8]: <nc:rpc-reply xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="urn:uuid:49dadd8d-00eb-470f-847b-86c827a891d1"><nc:ok/></nc:rpc-reply>
-#"""#
-#        pass#
-#
-#        """
-#        In [10]: path="<integrationtest/>"
-#
-# In [11]: netconf.get_config(source='running',filter="""<nc:filter xmlns:nc="urn:ietf:params:xml:ns:n
-     #...: etconf:base:1.0">%s</nc:filter>""" % (path))#
-# Out[11]: <nc:rpc-reply xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="urn:uuid:3325038b-4c46-4efc-96f8-5297946850cc"><data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"></data></nc:rpc-reply>
-# """

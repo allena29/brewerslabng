@@ -23,7 +23,7 @@ class TestChangeSet(unittest.TestCase):
         self.subject = ChangeSet.ChangeSet(self.schema)
         self.xmldoc = self.subject._get_xmldoc_without_xmlns(self.DEFAULT_XMLDOC)
 
-    def test_opening_transactions(self):
+    def testopening_transactions(self):
         self.subject.begin_transaction(self.DEFAULT_XMLDOC)
         self.subject.begin_transaction(self.DEFAULT_XMLDOC)
 
@@ -31,7 +31,7 @@ class TestChangeSet(unittest.TestCase):
         self.assertNotEqual(self.subject.transaction['originalxmldoc'], None)
         self.assertEqual(self.subject.transaction['keypaths'], {})
 
-    def test_create_xml_nodes_based_on_path_simple_string(self):
+    def testcreate_xml_nodes_based_on_path_simple_string(self):
         self.subject._create_elements('/data/integrationtest/resolver/leaf-a', self.xmldoc)
 
         expected_answer = """<data xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -44,7 +44,7 @@ class TestChangeSet(unittest.TestCase):
 </data>
 """
 
-    def test_create_xml_nodes_based_on_path_simple_list(self):
+    def testcreate_xml_nodes_based_on_path_simple_list(self):
         self.subject._create_elements("/data/integrationtest/simplelist[simplekey='ABC123']", self.xmldoc)
 
         expected_answer = """<data xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -58,7 +58,7 @@ class TestChangeSet(unittest.TestCase):
 """
         self.assertEqual(expected_answer, TestChangeSet.pretty(self.xmldoc))
 
-    def test_create_xml_nodes_based_on_path_composite_key_list(self):
+    def testcreate_xml_nodes_based_on_path_composite_key_list(self):
         """
         This is a more complex case of creating a list item where the list has slightly different
         list entries already existing - however they doin't entirely match the keys so in the
@@ -87,7 +87,7 @@ class TestChangeSet(unittest.TestCase):
 """
         self.assertEqual(expected_answer, TestChangeSet.pretty(xmldoc))
 
-    def test_create_xml_based_on_nested_lists(self):
+    def testcreate_xml_based_on_nested_lists(self):
         self.subject._create_elements("/data/integrationtest/list-a[firstkey='primary']/listb[secondkey='secondary',thirdkey='tertiary']/nonkey", self.xmldoc)
 
         expected_answer = """<data xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -106,7 +106,7 @@ class TestChangeSet(unittest.TestCase):
 """
         self.assertEqual(expected_answer, TestChangeSet.pretty(self.xmldoc))
 
-    # def test_extracting_xpath_key_values(self):
+    # def testextracting_xpath_key_values(self):
     #     self.subject = ChangeSet.ChangeSet(None)
     #
     #     xmldoc = self.subject._get_xmldoc_without_xmlns(self.DEFAULT_XMLDOC)
@@ -114,18 +114,16 @@ class TestChangeSet(unittest.TestCase):
     #     #self.subject._extract_xpath_keys_and_create_in_xmldoc("/sdf/sdf/sdfsdf[asdfsdf='sdfsdf',asdasd='sdfsdf2sdf']/dsfsdf/dsfsdf/[dsf='sdf']/sdf", xmldoc)
     #     self.subject._extract_xpath_keys_and_create_in_xmldoc("/integrationtest/simplelist[simplekey='dsfsdf']", xmldoc)
 
-    def test_setting_value_list(self):
+    def testsetting_value_list(self):
         self.subject = ChangeSet.ChangeSet(self.schema)
-        trans_id = self.subject.begin_transaction(
-            """<?xml version="1.0" encoding="UTF-8"?><data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"><integrationtest xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest"><simpleleaf>HELLO THERE!!!!</simpleleaf></integrationtest></data>"""
-        )
+        trans_id = self.subject.begin_transaction(self.DEFAULT_XMLDOC)
 
         self.subject.modify("/integrationtest/simpleleaf", "bac")
         self.subject.modify("/integrationtest/simplelist[simplekey='sdf']/nonleafkey", "bac")
         print(self.subject.frame_netconf_xml())
         # '/data/'+'/integrationtest/simpleleaf', 'bac')
 
-    def test_setting_value_simple_leaf(self):
+    def testsetting_value_simple_leaf(self):
         self.subject = ChangeSet.ChangeSet(self.schema)
         trans_id = self.subject.begin_transaction(
             """<?xml version="1.0" encoding="UTF-8"?><data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"><integrationtest xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest"><simpleleaf>HELLO THERE!!!!</simpleleaf></integrationtest></data>"""
