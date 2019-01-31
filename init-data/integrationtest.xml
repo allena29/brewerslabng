@@ -1,6 +1,7 @@
-<morecomplex xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
-  <inner>
-    <leaf5>fsf</leaf5>
-  </inner>
-</morecomplex>
-
+<integrationtest xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <morecomplex>
+    <inner>
+      <leaf5>fsf</leaf5>
+    </inner>
+  </morecomplex>
+</integrationtest>

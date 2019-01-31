@@ -109,7 +109,10 @@ class TestNetconfAssumptions(unittest.TestCase):
 
     def test_setting_list_with_composite_keys(self):
         """
+        If we reorder keys we get:
         ncclient.operations.rpc.RPCError: Invalid position of the key "A" in a list "multi-key-list".
+        If we miss a key we get:
+        ncclient.operations.rpc.RPCError: Missing required element "B" in "multi-key-list".
         """
         # Set /integrationtest/leaf-a
         setpath = """<integrationtest xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
