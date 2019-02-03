@@ -1,0 +1,10 @@
+#!/bin/bash
+
+P=`python -c 'import pyang; import os; p=str(os.path.dirname(pyang.__file__)).split("/"); print("/".join( p[0:-4]))' #print(p[0:p.rfind("/")])'`
+export PATH="$P/bin:$PATH"
+P=`python -c 'import pyang; import os; p=str(os.path.dirname(pyang.__file__)).split("/"); print("/".join( p[0:-2]))' #print(p[0:p.rfind("/")])'`
+export PYBINDPLUGIN=`/usr/bin/env python -c 'import pyangbind; import os; print ("{}/plugin".format(os.path.dirname(pyangbind.__file__)))'`
+export PYTHONPATH="$P/site_packages:$PATH"
+PWD=`pwd`
+pyang --plugindir $PYBINDPLUGIN -p $PWD/yang  $@
+
