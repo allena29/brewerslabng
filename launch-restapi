@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Launching REST API"
+
+pwd=`pwd`
+export PYTHONPATH="$pwd/core:$PYTHONPATH"
+
+echo "Creating binding..."
+tools/pyang -f pybind -o pyangbinding.py  yang/brewerslab.yang
+
+echo "Launching app..."
+python app.py
