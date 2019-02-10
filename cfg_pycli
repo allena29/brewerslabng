@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+
+"""
+This script provides an easy to use way of modifying configuration.
+"""
+
+import atexit
+import datetime
+from ptpython.repl import embed
+import json
+import hashlib
+import os
+import re
+import sys
+import uuid
+sys.path.append(os.getcwd()+'/blng')
+from blng.ConfHandler import ConfigHandler
+
+
+class CFG:
+
+    def __init__(self, cfg):
+        self.cfg_handler = ConfigHandler(cfg)
+
+    def __del__(self):
+        self.cfg_handler.__exit__(1, 2, 3)
+
+
+if len(sys.argv) < 2:
+    sys.stderr.write('Usage: %s <cfg>\n' % (sys.argv[0]))
+    sys.exit(1)
+
+
+CFG_HANDLER = CFG(sys.argv[1])
+CFG = CFG_HANDLER.cfg_handler
+cfg = CFG.new()
+if CFG.exists():
+    cfg = CFG.open()
+module = re.sub('^.*pyangbinding\.(\S+).*$', '\g<1>', repr(cfg))
+
+print("""
+The datastore can be reset to blank by CFG.new()
+The datastore can be reopened with CFG.open()
+The datastore can be locked with CFG.get_lock() - you must close the lock
+The datastore can be unlocked with CFG.discard_lock()
+The datastore can be checked with CFG.status()
+The datastore changes can be written wtih CFG.write()
+
+The configuration object cfg maps to the yang module %s
+
+To print configuration CFG.print(object)
+""" % (module))
+
+
+from ptpython.repl import embed
+
+
+def goodbye(CFG):
+    CFG.discard_lock()
+
+
+atexit.register(goodbye, CFG)
+embed(globals(), locals(), vi_mode=True)

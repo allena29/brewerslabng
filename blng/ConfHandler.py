@@ -4,7 +4,7 @@ import shutil
 import time
 import pyangbinding
 import pyangbind.lib.pybindJSON as pb_json
-# TODO: ideally this isn't hardcoded
+# TODO: make this less hadcoded
 from pyangbinding import brewerslab
 
 
@@ -36,15 +36,15 @@ class ConfigHandler:
 
         E.g.
 
-        conf_subdatastore = ConfHandler('sub-part-of-yang-module')
+        conf_datastore = ConfHandler('sub-part-of-yang-module')
         cfg = conf_datatsore.new()
-        cfg = conf_subdatastore.load()
+        cfg = conf_datastore.load()
         cfg.yang_leaf = "ABC"
-        conf_subdatastore.write()
+        conf_datastore.write()
 
         with conf_datatstore as cfg:
             # Now we have a lock on the sub-datiastore
-            # IMPORTANT: whenever we use the 'with conf_subdatastore' we will either be given
+            # IMPORTANT: whenever we use the 'with conf_datastore' we will either be given
             # a new object if nothing is saved on disk, or the latest version from the disk.
             cfg.just_a_test = 'abc'
             time.sleep(50)
@@ -56,30 +56,66 @@ class ConfigHandler:
         self.have_lock = False
         self.cfg = None
 
-    def __enter__(self):
-        for c in range(self.LOCK_WRITE_WAIT):
+    def exists(self):
+        if os.path.exists('cfg/%s.json' % (self.sub_module)):
+            return True
+        return False
+
+    def status(self):
+        if self._is_locked():
+            with open("cfg/%s.locked" % (self.sub_module)) as lock:
+                lock_info = lock.read()
+            print("Datastore locked: %s" % (lock_info))
+        else:
+            print("Datstore unlocked")
+
+        if self.exists():
+            status = os.stat("cfg/%s.json" % (self.sub_module))
+            print("Datstore size: %s modified: %s" % (status.st_size, time.ctime(status.st_mtime)))
+        else:
+            print("Datastore does not exist")
+
+    def _is_locked(self, wait_time=0, wait=1, throw_exception=False):
+        for c in range(wait):
             if os.path.exists("cfg/%s.locked" % (self.sub_module)):
-                time.sleep(self.LOCK_WAIT_TIME)
+                time.sleep(wait_time)
                 continue
             else:
-                with open("cfg/%s.locked" % (self.sub_module), "w") as lock_file:
-                    lock_file.flush()
+                return False
 
-                self.have_lock = True
-                if not self.cfg and not os.path.exists("cfg/%s.json" % (self.sub_module)):
-                    self.cfg = self.new()
-                else:
-                    self.cfg = pb_json.load("cfg/%s.json" % (self.sub_module), pyangbinding, self.YANG_MODULE)
-                    stat = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
-                    self.last_modified = stat
+        if throw_exception:
+            raise ConfigHandlerError("%s is locked" % (self.sub_module))
 
-                return self.cfg
-        raise ConfigHandlerError("%s is locked" % (self.sub_module))
+        return True
+
+    def get_lock(self, wait_time=0.0025, wait=5):
+        self._is_locked(wait_time, wait, True)
+
+        with open("cfg/%s.locked" % (self.sub_module), "w") as lock_file:
+            lock_file.write("Locked by %s at %s" % (str(self), time.ctime()))
+            lock_file.flush()
+        self.have_lock = True
+        return True
+
+    def discard_lock(self):
+        if self._is_locked():
+            os.unlink("cfg/%s.locked" % (self.sub_module))
+        self.have_lock = False
+
+    def __enter__(self):
+        self.get_lock(self.LOCK_WAIT_TIME, self.LOCK_WRITE_WAIT)
+
+        if not self.cfg and not os.path.exists("cfg/%s.json" % (self.sub_module)):
+            self.cfg = self.new()
+        else:
+            self.cfg = pb_json.load("cfg/%s.json" % (self.sub_module), pyangbinding, self.YANG_MODULE)
+            stat = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
+            self.last_modified = stat
+
+        return self
 
     def __exit__(self, a, b, c):
-        if os.path.exists("cfg/%s.locked" % (self.sub_module)):
-            self.have_lock = False
-            os.unlink("cfg/%s.locked" % (self.sub_module))
+        self.discard_lock()
 
     def new(self):
         """
@@ -100,25 +136,20 @@ class ConfigHandler:
         if self.last_modified > -1 and self.last_modified == stat:
             return self.cfg
 
-        for c in range(self.LOCK_WAIT):
-            if os.path.exists("cfg/%s.locked" % (self.sub_module)):
-                time.sleep(self.LOCK_WAIT_TIME)
-                continue
-            else:
-                if not os.path.exists("cfg/%s.json" % (self.sub_module)):
-                    raise ConfigHandlerError("%s does not exist" % (self.sub_module))
+        self._is_locked(wait_time=self.LOCK_WAIT_TIME, wait=self.LOCK_WAIT, throw_exception=True)
 
-                stat = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
-                self.cfg = pb_json.load("cfg/%s.json" % (self.sub_module), pyangbinding, self.YANG_MODULE)
-                stat2 = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
+        if not self.exists():
+            raise ConfigHandlerError("%s does not exist" % (self.sub_module))
 
-                if not stat == stat2:
-                    raise ConfigHandlerError("%s changed whilst we were reading it" % (self.sub_module))
+        stat = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
+        self.cfg = pb_json.load("cfg/%s.json" % (self.sub_module), pyangbinding, self.YANG_MODULE)
+        stat2 = os.stat("cfg/%s.json" % (self.sub_module)).st_mtime
 
-                self.last_modified = stat
-                return self.cfg
+        if not stat == stat2:
+            raise ConfigHandlerError("%s changed whilst we were reading it" % (self.sub_module))
 
-        raise ConfigHandlerError("%s is locked" % (self.sub_module))
+        self.last_modified = stat
+        return self.cfg
 
     def write(self, block_write_if_changed=True):
         """
@@ -160,3 +191,7 @@ class ConfigHandler:
     @staticmethod
     def to_json(cfg_object):
         return json.loads(pb_json.dumps(cfg_object))
+
+    @staticmethod
+    def print(cfg_object):
+        print(json.dumps(json.loads(pb_json.dumps(cfg_object)), indent=4))
