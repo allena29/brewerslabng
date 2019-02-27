@@ -28,7 +28,7 @@ get==1.0.2
 gunicorn==19.7.1
 httpie==0.9.9
 idna==2.6
-ipython==6.3.1
+ipython==7.3.0
 ipython-genutils==0.2.0
 isort==4.3.4
 itsdangerous==1.1.0
@@ -52,8 +52,8 @@ pexpect==4.5.0
 pickleshare==0.7.4
 pluggy==0.7.1
 post==1.0.1
-prompt-toolkit==2.0.6
-ptpython==2.0.3
+prompt-toolkit==2.0.9
+ptpython==2.0.4
 ptyprocess==0.5.2
 public==1.0.1
 pyang==1.7.4
