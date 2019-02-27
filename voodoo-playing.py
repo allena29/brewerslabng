@@ -14,7 +14,7 @@ class CruxVoodoo:
         for child in schema.getchildren():
             if child.tag == 'inverted-schema':
                 schema = child
-        return CruxVoodooNode(schema, xmldoc)
+        return CruxVoodooNode(schema, xmldoc, root=True)
 
 
 class BadVoodoo(Exception):
@@ -24,26 +24,55 @@ class BadVoodoo(Exception):
 
 class CruxVoodooNode:
 
-    def __init__(self, schema, xmldoc, curpath="/"):
-        print(self, schema, xmldoc,curpath)
+    def __init__(self, schema, xmldoc, curpath="/", value=None,root=False ):
         self.__dict__['_curpath'] = curpath
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
         self.__dict__['_type'] = 'wtf'
+        self.__dict__['_value'] = value
+        self.__dict__['_root'] = root
+        self.__dict__['_path'] = curpath
+        print('Init new cruxvood', self.__dict__)
+        # This is getting called qiute often (every str() or repr())
+        # It's probably not a problem right now because each time it's called we end up
+        # getting etree elements by memory reference
 
+    def voodoo(self):
+        print('This is some vooodoo magic sh!t')
+
+    def __repr__(self):
+        try:
+            return  self.__dict__['_value'].text
+        except:
+            return  None
+
+    def __str__(self):
+        try:
+            return  self.__dict__['_value'].text
+        except:
+            return  ''
 
     def __getattr__(self, attr):
         curpath = self.__dict__['_curpath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        path = curpath[1:] + '/' + attr
         print('Get attr ', self.__dict__['_curpath'] + '/'+ attr)
 
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
         if not len(this_value):
             print('Value not yet set')
+            return CruxVoodooNode(schema, xmldoc, path, value=None, root=False)
+
             return None
         elif len(this_value) == 1:
             print('value already set')
             print(this_value[0].text)
+
+            return CruxVoodooNode(schema, xmldoc, path, value=this_value[0], root=False)
+
+            self.__dict__['_value'] = this_value[0]
             return this_value[0]
         else:
             e=5/0
@@ -94,8 +123,11 @@ class CruxVoodooNode:
         print('Listcreate')
 
     def __dir__(self):
+        curpath = self.__dict__['_curpath']
+        schema = self.__dict__['_schema']
+        place = schema.xpath(curpath)
         children = []
-        for child in self.__dict__['__schema'].getchildren():
+        for child in place[0].getchildren():
             children.append(str(child.tag).replace('-', '_'))
         return children
 
@@ -104,8 +136,24 @@ root = session.get_root()
 
 print('Root', root)
 print('root.simpleleaf', root.simpleleaf)
-root.simpleleaf = 234
+if str(root.simpleleaf) == '':
+    print ("Uninitialised variable comes back as a blank string when using str()")
+else:
+    raise ValueError('str not working')
+root.simpleleaf = 123
 print('root.simpleleaf', root.simpleleaf)
+temp_var = root.simpleleaf
+root.simpleleaf = 'abc'
+print(temp_var)
+print(temp_var == 'abc')
+print(temp_var == 123)
+tempvar = root.simpleleaf 
 
+raise ValueError('TODO: determine if we are a primitive... if so return the actual value')
+raise ValueError("only if not a primitive should we return a voodoo object")
+if temp_var == 'abc':
+    print("all is ok we have temp_var as the last set value")
+else:
+    raise ValueError("This should be abc not 123")
 print(root._schema.xpath('//inverted-schema')[0].getchildren())
 
