@@ -44,6 +44,13 @@ class DataAccess:
             raise NotImplementedError("de-serialising a datastore for loading not thought about yet")
         self._xmldoc = etree.fromstring('<crux-vooodoo></crux-vooodoo>')
 
+    def _pretty(self, xmldoc):
+        xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
+        return str(xmlstr).replace('\\n', '\n')[2:-1]
+
+    def dumps(self):
+        return (self._pretty(self._xmldoc))
+
     def get_root(self):
         return CruxVoodooRoot(self._schema, self._xmldoc, root=True)
 
