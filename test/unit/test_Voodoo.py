@@ -17,6 +17,21 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_basic_list(self):
+        root = self._get_session()
+
+        listelement = root.simplelist.create('Shamanaid')
+        self.assertEqual(repr(listelement), 'VoodooListElement: /simplelist')
+
+        expected_hits = ['nonleafkey', 'simplekey']
+        self.assertEqual(dir(listelement), expected_hits)
+
+    def test_basic_dir(self):
+        root = self._get_session()
+
+        expected_hits = ['inner', 'leaf2', 'leaf3', 'leaf4', 'nonconfig']
+        self.assertEqual(dir(root.morecomplex), expected_hits)
+
     def test_basic_repr(self):
         root = self._get_session()
 

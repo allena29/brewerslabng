@@ -63,7 +63,9 @@ class BadVoodoo(Exception):
 
 class CruxVoodooBase:
 
-    def __init__(self, schema, xmldoc, curpath="/", value=None, root=False):
+    _voodoo_type = None
+
+    def __init__(self, schema, xmldoc, curpath="/", value=None, root=False, listelement=False):
         self.__dict__['_curpath'] = curpath
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
@@ -81,8 +83,14 @@ class CruxVoodooBase:
         # It's probably not a problem right now because each time it's called we end up
         # getting ee elements by memory reference
 
+        for dchlid in self.__dict__['_thisschema'].getchildren():
+            print('dir----child', dchlid.tag)
+
     def voodoo(self):
         print('This is some vooodoo magic sh!t')
+
+    def __name__(self):
+        return "Ting Tings - that's not my name"
 
     def __repr__(self):
         print('repr')
@@ -104,11 +112,8 @@ class CruxVoodooBase:
         path = curpath[1:] + '/' + attr
         print('Get attr ', curpath + '/' + attr)
 
-        this_schema = schema.xpath(curpath + '/' + attr)
-        if not len(this_schema):
-            raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
+        this_schema = self._getschema(curpath + '/' + attr)
 
-        print('Workout what we are from the scheam and insantiate the right kind of object')
         supported_types = {
             'leaf': None,
             'container': CruxVoodooContainer,
@@ -117,7 +122,7 @@ class CruxVoodooBase:
 
         supported_type_found = None
         yang_type = None
-        for schild in this_schema[0].getchildren():
+        for schild in this_schema.getchildren():
             if schild.tag == 'yin-schema':
                 for ychild in schild.getchildren():
                     yang_type = ychild.tag
@@ -164,15 +169,11 @@ class CruxVoodooBase:
         path = curpath[1:] + '/' + attr
         print('Get attr ', self.__dict__['_curpath'] + '/' + attr)
         print('Looking up in schema ' + curpath + '/' + attr)
-        this_schema = schema.xpath(curpath + '/' + attr)
-        if not len(this_schema):
-            raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
-        elif len(this_schema) > 1:
-            raise BadVoodoo("Too many hits for '%s' in the schema" % (curpath[1:] + '/' + attr))
+        this_schema = self._getschema(curpath + '/' + attr)
 
         # TODO:
         # validate against this_schema[0]
-        print('Schema to validate against...', this_schema[0])
+        print('Schema to validate against...', this_schema)
 
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
@@ -195,7 +196,7 @@ class CruxVoodooBase:
             c = 5/0
 
     def __dir__(self):
-        listing = ['abc']
+        listing = []
         for dchild in self.__dict__['_thisschema'].getchildren():
             if not dchild.tag == 'yin-schema':
                 listing.append(dchild.tag)
@@ -210,27 +211,32 @@ class CruxVoodooBase:
             raise BadVoodoo("Too many hits for '%s' in the schema" % (path))
         return this_schema[0]
 
+    def __repr__(self):
+        print(self._voodoo_type)
+        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_curpath'][1:]
+
 
 class CruxVoodooRoot(CruxVoodooBase):
+
+    _voodoo_type = 'Root'
 
     def __repr__(self):
         return 'VoodooRoot'
 
 
 class CruxVoodooLeaf(CruxVoodooBase):
-    pass
+
+    _voodoo_type = 'Leaf'
 
 
 class CruxVoodooContainer(CruxVoodooBase):
 
-    def __repr__(self):
-        return 'VoodooContainer: ' + self.__dict__['_curpath'][1:]
+    _voodoo_type = 'Container'
 
 
 class CruxVoodooPresenceContainer(CruxVoodooBase):
 
-    def __repr__(self):
-        return 'VoodooPresenceContainer: '
+    _voodoo_type = 'PresenceContainer'
 
     def exists(self):
         return True
@@ -238,16 +244,51 @@ class CruxVoodooPresenceContainer(CruxVoodooBase):
 
 class CruxVoodooList(CruxVoodooBase):
 
-    def __repr__(self):
-        return 'VoodooList: ' + self.__dict__['_curpath'][1:]
+    _voodoo_type = 'List'
+
+    """
+    List.
+
+    Note: this object maps to a yang based list which behaves more a-kin to a dictionary in python.
+    However, it is possible to have lists with composite keys in YANG.
+    TODO: expect these are just tuples.
+    """
 
     def __getitem__(self, key):
         print('Get Item', key)
 
     def create(self, *args):
+        """
+        Create a list element, if the element already exists return the existing node.
+
+        The user is responsible for ensuring that any mandatory node of sibling leaves are
+        populated according to the constraints of the YANG schema.
+        """
+        curpath = self.__dict__['_curpath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+
         for arg in args:
             print('arg', arg)
-        print('Listcreate')
+        curpath = self.__dict__['_curpath']
+        print('Listcreate on ', curpath)
+        this_schema = self._getschema(curpath)
+        for lschema in this_schema.getchildren():
+            print(lschema.tag)
+
+        # Two things (maybe more than 2)
+        # 1 need to return a node
+        # 2 need to add something into xmldoc
+        # 3 what about mandatory things... not taking responsibility for this yet.
+        # 4 make sure we have all keys
+        # 5 make sure the keys dont' exist yet
+
+        return CruxVoodooListElement(schema, xmldoc, curpath, value=None, root=False, listelement=True)
+
+
+class CruxVoodooListElement(CruxVoodooBase):
+
+    _voodoo_type = 'ListElement'
 
 
 """
