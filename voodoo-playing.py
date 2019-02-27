@@ -68,7 +68,11 @@ class CruxVoodooBase:
             raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
 
         print('Workout what we are from the scheam and insantiate the right kind of object')
-        supported_types = ['leaf', 'container']
+        supported_types = {
+            'leaf': CruxVoodooLeaf,
+            'container': CruxVoodooContainer
+        }
+
         supported_type_found = None
         yang_type = None
         for schild in this_schema[0].getchildren():
@@ -83,19 +87,27 @@ class CruxVoodooBase:
 
         if not yang_type:
             raise BadVoodoo("Unsupported type of node %s" % (yang_type))
+
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
         if not len(this_value):
             # Value not set **OR** value does not exist in the schema
-            print('Value not yet set')
-            return CruxVoodooBase(schema, xmldoc, curpath, value=None, root=False)
+            if yang_type == 'leaf':
+                print('Value not yet set - primtiive so just returning None')
+                return None
 
-            return None
+            print('Value not yet set')
+            return supported_types[yang_type](schema, xmldoc, curpath, value=None, root=False)
+
         elif len(this_value) == 1:
             print('value already set')
             print(this_value[0].text)
 
-            return CruxVoodooBase(schema, xmldoc, curpath, value=this_value[0], root=False)
+            if yang_type == 'leaf':
+                print(this_value[0].text, '<<<<< primitive')
+                return this_value[0].text
+
+            return supported_types[yang_type](schema, xmldoc, curpath, value=this_value[0], root=False)
 
             self.__dict__['_value'] = this_value[0]
             return this_value[0]
@@ -156,6 +168,27 @@ class CruxVoodooRoot(CruxVoodooBase):
         return 'VoodooRoot: '
 
 
+class CruxVoodooLeaf(CruxVoodooBase):
+
+    def __repr__(self):
+        return 'VoodooLeaf: '
+
+
+class CruxVoodooContainer(CruxVoodooBase):
+
+    def __repr__(self):
+        return 'VoodooContainer: '
+
+
+class CruxVoodooPresenceContainer(CruxVoodooBase):
+
+    def __repr__(self):
+        return 'VoodooPresenceContainer: '
+
+    def exists(self):
+        return True
+
+
 class CruxVoodooList(CruxVoodooBase):
 
     def __repr__(self):
@@ -175,7 +208,7 @@ root = session.get_root()
 
 print('Root', root)
 print('root.simpleleaf', root.simpleleaf)
-if str(root.simpleleaf) == '':
+if root.simpleleaf is None:
     print("Uninitialised variable comes back as a blank string when using str()")
 else:
     raise ValueError('str not working')
