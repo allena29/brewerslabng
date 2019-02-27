@@ -3,6 +3,8 @@
 
 """
 from lxml import etree
+
+
 class CruxVoodoo:
 
     def __init__(self):
@@ -22,9 +24,10 @@ class BadVoodoo(Exception):
     def __init__(self, message):
         super().__init__(message)
 
+
 class CruxVoodooNode:
 
-    def __init__(self, schema, xmldoc, curpath="/", value=None,root=False ):
+    def __init__(self, schema, xmldoc, curpath="/", value=None, root=False):
         self.__dict__['_curpath'] = curpath
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
@@ -41,61 +44,65 @@ class CruxVoodooNode:
         print('This is some vooodoo magic sh!t')
 
     def __repr__(self):
-        try:
-            return  self.__dict__['_value'].text
-        except:
-            return  None
+        print('repr')
+        return 'VoodooNode: '
 
     def __str__(self):
         try:
-            return  self.__dict__['_value'].text
+            return self.__dict__['_value'].text
         except:
-            return  ''
+            return ''
 
     def __getattr__(self, attr):
+        if attr in ('_ipython_canary_method_should_not_exist_', '_repr_mimebundle_'):
+            raise AttributeError('Go Away!')
+
         curpath = self.__dict__['_curpath']
         schema = self.__dict__['_schema']
         xmldoc = self.__dict__['_xmldoc']
         path = curpath[1:] + '/' + attr
-        print('Get attr ', self.__dict__['_curpath'] + '/'+ attr)
+        print('Get attr ', curpath + '/' + attr)
+
+        this_schema = schema.xpath(curpath + '/' + attr)
+        if not len(this_schema):
+            raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
 
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
         if not len(this_value):
+            # Value not set **OR** value does not exist in the schema
             print('Value not yet set')
-            return CruxVoodooNode(schema, xmldoc, path, value=None, root=False)
+            return CruxVoodooNode(schema, xmldoc, curpath, value=None, root=False)
 
             return None
         elif len(this_value) == 1:
             print('value already set')
             print(this_value[0].text)
 
-            return CruxVoodooNode(schema, xmldoc, path, value=this_value[0], root=False)
+            return CruxVoodooNode(schema, xmldoc, curpath, value=this_value[0], root=False)
 
             self.__dict__['_value'] = this_value[0]
             return this_value[0]
         else:
-            e=5/0
+            e = 5/0
 
     def __setattr__(self, attr, value):
         print('Set attr', self.__dict__['_curpath'] + '/' + attr + '>>>' + str(value))
-        
+
         curpath = self.__dict__['_curpath']
         schema = self.__dict__['_schema']
         path = curpath[1:] + '/' + attr
-        print('Get attr ', self.__dict__['_curpath'] + '/'+ attr)
-        print('Looking up in schema '+ curpath + '/' + attr)
+        print('Get attr ', self.__dict__['_curpath'] + '/' + attr)
+        print('Looking up in schema ' + curpath + '/' + attr)
         this_schema = schema.xpath(curpath + '/' + attr)
         if not len(this_schema):
             raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
         elif len(this_schema) > 1:
             raise BadVoodoo("Too many hits for '%s' in the schema" % (curpath[1:] + '/' + attr))
 
-
         # TODO:
         # validate against this_schema[0]
         print('Schema to validate against...', this_schema[0])
-
 
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
@@ -115,7 +122,7 @@ class CruxVoodooNode:
             return this_value[0]
             print('should be set here')
         else:
-            c=5/0
+            c = 5/0
 
     def create(self, *args):
         for arg in args:
@@ -131,13 +138,14 @@ class CruxVoodooNode:
             children.append(str(child.tag).replace('-', '_'))
         return children
 
+
 session = CruxVoodoo()
 root = session.get_root()
 
 print('Root', root)
 print('root.simpleleaf', root.simpleleaf)
 if str(root.simpleleaf) == '':
-    print ("Uninitialised variable comes back as a blank string when using str()")
+    print("Uninitialised variable comes back as a blank string when using str()")
 else:
     raise ValueError('str not working')
 root.simpleleaf = 123
@@ -147,13 +155,12 @@ root.simpleleaf = 'abc'
 print(temp_var)
 print(temp_var == 'abc')
 print(temp_var == 123)
-tempvar = root.simpleleaf 
+tempvar = root.simpleleaf
 
-raise ValueError('TODO: determine if we are a primitive... if so return the actual value')
-raise ValueError("only if not a primitive should we return a voodoo object")
-if temp_var == 'abc':
-    print("all is ok we have temp_var as the last set value")
-else:
-    raise ValueError("This should be abc not 123")
+#raise ValueError('TODO: determine if we are a primitive... if so return the actual value')
+#raise ValueError("onuuuy if not a primitive should we return a voodoo object")
+#if temp_var == 'abc':#
+#    print("all is ok we have temp_var as the last set value")
+# else:
+#    raise ValueError("This should be abc not 123")
 print(root._schema.xpath('//inverted-schema')[0].getchildren())
-
