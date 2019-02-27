@@ -17,6 +17,24 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_basic_xmldumps(self):
+        root = self._get_session()
+
+        # Act
+        turn_to_stone = root.morecomplex.leaf2 = "sing-and-dance-or-youll"
+        received_xml = self.subject.dumps()
+
+        # Assert
+        self.assertEqual("sing-and-dance-or-youll", turn_to_stone)
+
+        expected_xml = """<crux-vooodoo>
+  <morecomplex>
+    <leaf2>sing-and-dance-or-youll</leaf2>
+  </morecomplex>
+</crux-vooodoo>
+"""
+        self.assertEqual(expected_xml, received_xml)
+
     def test_basic_list(self):
         root = self._get_session()
 

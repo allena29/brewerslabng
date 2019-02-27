@@ -187,6 +187,10 @@ class CruxVoodooBase:
                 xmldoc.append(new_node)
                 return new_node
                 erint('Added brand new node because it happened to be at root and easy')
+            else:
+                new_node = self._find_longest_match_path(xmldoc, path)
+                new_node.text = str(value)
+
         elif len(this_value) == 1:
             this_value[0].attrib['old_value'] = this_value[0].text
             this_value[0].text = str(value)
@@ -194,6 +198,49 @@ class CruxVoodooBase:
             print('should be set here')
         else:
             c = 5/0
+
+    def _find_longest_match_path(self, xmldoc, path):
+        """
+        The in-memory objects with VooodooNodes work quite well for giving us somewhere to
+        set/get data. However, something transient in memory alone if pretty useless without
+        being able to serialise towards NETCONF/File.
+
+        This method works backwards to find the longest match we have in the xmldoc already.
+        """
+        found = None
+
+        # working path is expected to look like this ['', 'morecomplex', 'leaf2']
+        working_path = path.split('/')
+        for i in range(len(working_path)-1, 1, -1):
+            print('Using longest_match', i, '/'.join(working_path[:i]))
+            this_path = '/' + '/'.join(working_path[:i])
+            results = xmldoc.xpath(this_path)
+            if len(results) == 1:
+                found = (i, this_path, results[0])
+                break
+            elif len(results) > 1:
+                raise BadVoodoo('Longest match on %s found multiple hits (which may or may not be safe!)' % (this_path))
+
+        if found:
+            raise NotImplementError('Longest match stuff - now need to work forwards to populate what we need')
+
+        if not found:
+            print('More work to do', working_path[1:])
+
+            # working path is expected to look like this ['', 'morecomplex', 'leaf2']
+            # which is why we have gone for 1 - so the next loop can take either 1 (below)
+            # or int he case of a longer match above i
+            found = (1, '', xmldoc)
+
+        (right_most_index, SomeKindOfWarningWhichMightBeIgnored, parent_node) = found
+        for path_node in working_path[right_most_index:]:
+            print('Need to add %s' % (path_node))
+            node = etree.Element(path_node)
+            print(node, 'is going to get attached to ', parent_node)
+            parent_node.append(node)
+            parent_node = node
+
+        return parent_node
 
     def __dir__(self):
         listing = []
