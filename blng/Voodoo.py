@@ -71,6 +71,11 @@ class CruxVoodooBase:
         self.__dict__['_value'] = value
         self.__dict__['_root'] = root
         self.__dict__['_path'] = curpath
+        if not root:
+            self.__dict__['_thisschema'] = self._getschema(curpath)
+        if root:
+            self.__dict__['_thisschema'] = self.__dict__['_schema']
+
         print('Init new cruxvood', self.__dict__)
         # This is getting called qiute often (every str() or repr())
         # It's probably not a problem right now because each time it's called we end up
@@ -190,13 +195,20 @@ class CruxVoodooBase:
             c = 5/0
 
     def __dir__(self):
-        curpath = self.__dict__['_curpath']
+        listing = ['abc']
+        for dchild in self.__dict__['_thisschema'].getchildren():
+            if not dchild.tag == 'yin-schema':
+                listing.append(dchild.tag)
+        return listing
+
+    def _getschema(self, path):
         schema = self.__dict__['_schema']
-        place = schema.xpath(curpath)
-        children = []
-        for child in place[0].getchildren():
-            children.append(str(child.tag).replace('-', '_'))
-        return children
+        this_schema = schema.xpath(path)
+        if not len(this_schema):
+            raise BadVoodoo("Unable to find '%s' in the schema" % (path))
+        elif len(this_schema) > 1:
+            raise BadVoodoo("Too many hits for '%s' in the schema" % (path))
+        return this_schema[0]
 
 
 class CruxVoodooRoot(CruxVoodooBase):
