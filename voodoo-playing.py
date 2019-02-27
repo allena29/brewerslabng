@@ -16,7 +16,7 @@ class CruxVoodoo:
         for child in schema.getchildren():
             if child.tag == 'inverted-schema':
                 schema = child
-        return CruxVoodooNode(schema, xmldoc, root=True)
+        return CruxVoodooRoot(schema, xmldoc, root=True)
 
 
 class BadVoodoo(Exception):
@@ -25,7 +25,7 @@ class BadVoodoo(Exception):
         super().__init__(message)
 
 
-class CruxVoodooNode:
+class CruxVoodooBase:
 
     def __init__(self, schema, xmldoc, curpath="/", value=None, root=False):
         self.__dict__['_curpath'] = curpath
@@ -38,7 +38,7 @@ class CruxVoodooNode:
         print('Init new cruxvood', self.__dict__)
         # This is getting called qiute often (every str() or repr())
         # It's probably not a problem right now because each time it's called we end up
-        # getting etree elements by memory reference
+        # getting ee elements by memory reference
 
     def voodoo(self):
         print('This is some vooodoo magic sh!t')
@@ -67,19 +67,35 @@ class CruxVoodooNode:
         if not len(this_schema):
             raise BadVoodoo("Unable to find '%s' in the schema" % (curpath[1:] + '/' + attr))
 
+        print('Workout what we are from the scheam and insantiate the right kind of object')
+        supported_types = ['leaf', 'container']
+        supported_type_found = None
+        yang_type = None
+        for schild in this_schema[0].getchildren():
+            if schild.tag == 'yin-schema':
+                for ychild in schild.getchildren():
+                    yang_type = ychild.tag
+                    if str(ychild.tag) in supported_types:
+                        supported_type_found = ychild
+
+                    print(ychild.tag, "<<ychild ***************")
+                print(schild.tag, '<<<schema')
+
+        if not yang_type:
+            raise BadVoodoo("Unsupported type of node %s" % (yang_type))
         xmldoc = self.__dict__['_xmldoc']
         this_value = xmldoc.xpath(curpath + '/' + attr)
         if not len(this_value):
             # Value not set **OR** value does not exist in the schema
             print('Value not yet set')
-            return CruxVoodooNode(schema, xmldoc, curpath, value=None, root=False)
+            return CruxVoodooBase(schema, xmldoc, curpath, value=None, root=False)
 
             return None
         elif len(this_value) == 1:
             print('value already set')
             print(this_value[0].text)
 
-            return CruxVoodooNode(schema, xmldoc, curpath, value=this_value[0], root=False)
+            return CruxVoodooBase(schema, xmldoc, curpath, value=this_value[0], root=False)
 
             self.__dict__['_value'] = this_value[0]
             return this_value[0]
@@ -124,11 +140,6 @@ class CruxVoodooNode:
         else:
             c = 5/0
 
-    def create(self, *args):
-        for arg in args:
-            print('arg', arg)
-        print('Listcreate')
-
     def __dir__(self):
         curpath = self.__dict__['_curpath']
         schema = self.__dict__['_schema']
@@ -137,6 +148,26 @@ class CruxVoodooNode:
         for child in place[0].getchildren():
             children.append(str(child.tag).replace('-', '_'))
         return children
+
+
+class CruxVoodooRoot(CruxVoodooBase):
+
+    def __repr__(self):
+        return 'VoodooRoot: '
+
+
+class CruxVoodooList(CruxVoodooBase):
+
+    def __repr__(self):
+        return 'VoodooList: '
+
+    def __getitem__(self, key):
+        print('Get Item', key)
+
+    def create(self, *args):
+        for arg in args:
+            print('arg', arg)
+        print('Listcreate')
 
 
 session = CruxVoodoo()
@@ -164,3 +195,4 @@ tempvar = root.simpleleaf
 # else:
 #    raise ValueError("This should be abc not 123")
 print(root._schema.xpath('//inverted-schema')[0].getchildren())
+a = root.morecomplex.leaf3
