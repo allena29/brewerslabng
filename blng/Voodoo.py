@@ -1,22 +1,51 @@
 """
  ipython --profile testing -i voodoo-playing.py
-
 """
 from lxml import etree
 
 
-class CruxVoodoo:
+class DataAccess:
 
-    def __init__(self):
-        pass
+    """
+    This class (and the associated classes) provides a method to provide python-object access to the data.
+
+    The data schema is rendered from yang models (pyang yin) into a specific XML structure which provides
+    top-down navigation of the entire schema. This is the 'crux-schema.xml'.
+
+    Behind the scene two XML documents are maintained, one the schema and the second a 'running' datastore.
+
+    This data could be backed off to a NETCONF server, or serialised into local XML documents.
+
+    Basic Usage:
+
+        import blng.Voodoo
+        session = blng.Voodoo.DataAccess("crux-example.xml", datastore=None)
+        root = session.get_root()
+
+    Note:
+        ipython - disable jedi auto-completer for a better experience.
+    """
+
+    def __init__(self, crux_schema_file, datastore=None):
+        """
+        Initialise the datastore based on the provided schema.
+        """
+        self._schema = None
+
+        for child in etree.parse(crux_schema_file).getroot().getchildren():
+            print(child.tag)
+            if child.tag == 'inverted-schema':
+                self._schema = child
+
+        if not self._schema:
+            raise BadVoodoo("Unable to find the schema from the provided file ()" + crux_schema_file)
+
+        if datastore:
+            raise NotImplementedError("de-serialising a datastore for loading not thought about yet")
+        self._xmldoc = etree.fromstring('<crux-vooodoo></crux-vooodoo>')
 
     def get_root(self):
-        schema = etree.parse('crux-example.xml').getroot()
-        xmldoc = etree.fromstring('<vooodoo></vooodoo>')
-        for child in schema.getchildren():
-            if child.tag == 'inverted-schema':
-                schema = child
-        return CruxVoodooRoot(schema, xmldoc, root=True)
+        return CruxVoodooRoot(self._schema, self._xmldoc, root=True)
 
 
 class BadVoodoo(Exception):
@@ -69,8 +98,9 @@ class CruxVoodooBase:
 
         print('Workout what we are from the scheam and insantiate the right kind of object')
         supported_types = {
-            'leaf': CruxVoodooLeaf,
-            'container': CruxVoodooContainer
+            'leaf': None,
+            'container': CruxVoodooContainer,
+            'list': CruxVoodooList
         }
 
         supported_type_found = None
@@ -97,7 +127,7 @@ class CruxVoodooBase:
                 return None
 
             print('Value not yet set')
-            return supported_types[yang_type](schema, xmldoc, curpath, value=None, root=False)
+            return supported_types[yang_type](schema, xmldoc, curpath + '/' + attr, value=None, root=False)
 
         elif len(this_value) == 1:
             print('value already set')
@@ -107,7 +137,7 @@ class CruxVoodooBase:
                 print(this_value[0].text, '<<<<< primitive')
                 return this_value[0].text
 
-            return supported_types[yang_type](schema, xmldoc, curpath, value=this_value[0], root=False)
+            return supported_types[yang_type](schema, xmldoc, curpath + '/' + attr, value=this_value[0], root=False)
 
             self.__dict__['_value'] = this_value[0]
             return this_value[0]
@@ -165,19 +195,17 @@ class CruxVoodooBase:
 class CruxVoodooRoot(CruxVoodooBase):
 
     def __repr__(self):
-        return 'VoodooRoot: '
+        return 'VoodooRoot'
 
 
 class CruxVoodooLeaf(CruxVoodooBase):
-
-    def __repr__(self):
-        return 'VoodooLeaf: '
+    pass
 
 
 class CruxVoodooContainer(CruxVoodooBase):
 
     def __repr__(self):
-        return 'VoodooContainer: '
+        return 'VoodooContainer: ' + self.__dict__['_curpath'][1:]
 
 
 class CruxVoodooPresenceContainer(CruxVoodooBase):
@@ -192,7 +220,7 @@ class CruxVoodooPresenceContainer(CruxVoodooBase):
 class CruxVoodooList(CruxVoodooBase):
 
     def __repr__(self):
-        return 'VoodooList: '
+        return 'VoodooList: ' + self.__dict__['_curpath'][1:]
 
     def __getitem__(self, key):
         print('Get Item', key)
@@ -203,7 +231,8 @@ class CruxVoodooList(CruxVoodooBase):
         print('Listcreate')
 
 
-session = CruxVoodoo()
+"""
+ses"sion = CruxVoodoo()
 root = session.get_root()
 
 print('Root', root)
@@ -229,3 +258,4 @@ tempvar = root.simpleleaf
 #    raise ValueError("This should be abc not 123")
 print(root._schema.xpath('//inverted-schema')[0].getchildren())
 a = root.morecomplex.leaf3
+"""
