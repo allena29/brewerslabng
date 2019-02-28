@@ -17,6 +17,40 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_advanced_list_with_dump(self):
+        # note quite test driven but want to go to bed!
+
+        # list create()
+        # list create() without enough keys
+        # list create() with too many keys
+        # list create() then trying to change the key (not allowed)
+        # list Create() and then modifying non keys (allows)
+        # creating multiple list entries (different keys) shoudl be allowed
+        # actually get lists working
+        #
+        # session.dumps() after first list item create
+        # Out[1]: '<crux-vooodoo>\n  <simpleleaf>Hello World!</simpleleaf>\n  <simplelist>\n    <simplekey>firstkey</simplekey>\n  </simplelist>\n</crux-vooodoo>\n'
+        # GOOD
+        #
+        # session.dumps() after l.create('nextlistelement')
+        # Out[5]: '<crux-vooodoo>\n  <simpleleaf>Hello World!</simpleleaf>\n  <simplelist>\n    <simplekey old_value="firstkey">nextlistelement</simplekey>\n  </simplelist>\n</crux-vooodoo>\n'
+        # WRONG!!!!
+        # But it is nice to see the 'old_value' attribute come in place :-)
+        #
+        #
+
+        # Act
+        root = self._get_session()
+        listelement = root.simplelist.create('Shamanaid')
+        received_xml = self.subject.dumps()
+
+        # Assert
+        expected_xml = """<crux-vooodoo>
+        stuff for this list here
+</crux-vooodoo>
+"""
+        self.assertEqual(expected_xml, received_xml)
+
     def test_basic_xmldumps(self):
         root = self._get_session()
 
@@ -39,7 +73,7 @@ class TestVoodoo(unittest.TestCase):
         root = self._get_session()
 
         listelement = root.simplelist.create('Shamanaid')
-        self.assertEqual(repr(listelement), 'VoodooListElement: /simplelist')
+        self.assertEqual(repr(listelement), "VoodooListElement: /simplelist keys:('Shamanaid',)")
 
         expected_hits = ['nonleafkey', 'simplekey']
         self.assertEqual(dir(listelement), expected_hits)

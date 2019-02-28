@@ -65,7 +65,7 @@ class CruxVoodooBase:
 
     _voodoo_type = None
 
-    def __init__(self, schema, xmldoc, curpath="/", value=None, root=False, listelement=False):
+    def __init__(self, schema, xmldoc, curpath="/", value=None, root=False, listelement=None):
         self.__dict__['_curpath'] = curpath
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
@@ -85,6 +85,9 @@ class CruxVoodooBase:
 
         for dchlid in self.__dict__['_thisschema'].getchildren():
             print('dir----child', dchlid.tag)
+
+        if listelement:
+            self.__dict__['_mykeys'] = listelement
 
     def voodoo(self):
         print('This is some vooodoo magic sh!t')
@@ -181,6 +184,7 @@ class CruxVoodooBase:
             print('Value not yet set')
             # This actually could be pretty tricky...
             print('count of / = %s' % (path.count('/')))
+
             if path.count('/') == 1:
                 new_node = etree.Element(attr)
                 new_node.text = str(value)
@@ -192,6 +196,7 @@ class CruxVoodooBase:
                 new_node.text = str(value)
 
         elif len(this_value) == 1:
+
             this_value[0].attrib['old_value'] = this_value[0].text
             this_value[0].text = str(value)
             return this_value[0]
@@ -250,6 +255,11 @@ class CruxVoodooBase:
         return listing
 
     def _getschema(self, path):
+        """
+        Get information from the schema.
+
+        This will include leaves and yang elements including the addition 'yin-schema' element.
+        """
         schema = self.__dict__['_schema']
         this_schema = schema.xpath(path)
         if not len(this_schema):
@@ -314,14 +324,101 @@ class CruxVoodooList(CruxVoodooBase):
         curpath = self.__dict__['_curpath']
         schema = self.__dict__['_schema']
         xmldoc = self.__dict__['_xmldoc']
-
+        thisschema = self.__dict__['_thisschema']
         for arg in args:
             print('arg', arg)
         curpath = self.__dict__['_curpath']
-        print('Listcreate on ', curpath)
-        this_schema = self._getschema(curpath)
-        for lschema in this_schema.getchildren():
-            print(lschema.tag)
+
+        keys = []
+        # This is pretty shcoking
+        for x in thisschema.getchildren():
+            print(x.tag, 'sdfnsdf')
+            if x.tag == 'yin-schema':
+                for y in x.getchildren():
+                    for z in y.getchildren():
+                        print(z.tag, 'aa')
+                        if z.tag == 'key' and 'value' in z.attrib:
+                            keys = z.attrib['value'].split(' ')
+        """
+        This gives us
+              <yin-schema path="/simplelist">
+                <list>
+                  <key value="simplekey"/>
+                </list>
+              </yin-schema>
+
+        Or in a composite case
+                  <list>
+                    <key value="secondkey thirdkey"/>
+                  </list>
+        """
+
+        if not keys:
+            raise BadVoodoo('Trying to inspect schema for keys but did not find them. %s' % (curpath))
+
+        print('got keys', keys)
+
+        if not len(keys) == len(args):
+            raise BadVoodoo('Wrong Number of keys require %s got %s. keys defined: %s' % (len(keys), len(args), str(keys)))
+
+        """
+        TODO
+        TODO
+        TODO - put sett_attr equivalent here
+        TODO
+        TODO
+
+        Good news is that xpath lookup appears to work well
+
+            In [30]: xmldoc = etree.fromstring(""" < crux-vooodoo >
+                ...: < list >
+                ...: < a > sdf < /a >
+                ...: < b > abc < /b >
+                ...: < /list >
+                ...: < list >
+                ...: < a > 123 < /a >
+                ...: < b > abc < /b >
+                ...: < /list >
+                ...: < list >
+                ...: < a > sdf < /a >
+                ...: < b > xxx < /b >
+                ...: < /list >
+                ...: < list >
+                ...: < a > yyy < /a >
+                ...: < b > xxx < /b >
+                ...: < /list >
+                ...: < list >
+                ...: < a > ra < /a >
+                ...: < /list >
+                ...: < /crux-vooodoo > """)
+
+            In [31]: xmldoc.xpath("//list[a='sdf']")
+            Out[31]: [<Element list at 0x106ebfe08>, <Element list at 0x1064de408>]
+
+            In [32]: xmldoc.xpath("//list[b='abc']")
+            Out[32]: [<Element list at 0x106ebfe08>, <Element list at 0x106e5c288>]
+
+            In [33]: xmldoc.xpath("//list[a='ra']")
+            Out[33]: [<Element list at 0x1064f02c8>]
+
+            In [34]: xmldoc.xpath("//list[a='sdf'][b='abc']")
+            Out[34]: [<Element list at 0x106ebfe08>]
+
+            In [35]: xmldoc.xpath("//list[b='abc']")
+            Out[35]: [<Element list at 0x106ebfe08>, <Element list at 0x106e5c288>]
+
+
+        """
+
+      ai = 0
+       for key in keys:
+            print('about to delegate setattr for key %s' % (key))
+            this_value = xmldoc.xpath(curpath + '/' + attr)
+
+            print(curpath + '/' + key, ' -> ', args[ai])
+            # self.__setattr__()
+            # self.__setattr__(key, args[ai], key=True)
+            ai = ai+1
 
         # Two things (maybe more than 2)
         # 1 need to return a node
@@ -329,13 +426,17 @@ class CruxVoodooList(CruxVoodooBase):
         # 3 what about mandatory things... not taking responsibility for this yet.
         # 4 make sure we have all keys
         # 5 make sure the keys dont' exist yet
-
-        return CruxVoodooListElement(schema, xmldoc, curpath, value=None, root=False, listelement=True)
+        # 6 make sure list keys are never allowed to change - they are classes as primitives not something special.
+        return CruxVoodooListElement(schema, xmldoc, curpath, value=None, root=False, listelement=str(args))
 
 
 class CruxVoodooListElement(CruxVoodooBase):
 
     _voodoo_type = 'ListElement'
+
+    def __repr__(self):
+        print(self._voodoo_type)
+        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_curpath'][1:] + ' keys:' + self.__dict__['_mykeys']
 
 
 """
@@ -357,8 +458,8 @@ print(temp_var == 'abc')
 print(temp_var == 123)
 tempvar = root.simpleleaf
 
-#raise ValueError('TODO: determine if we are a primitive... if so return the actual value')
-#raise ValueError("onuuuy if not a primitive should we return a voodoo object")
+# raise ValueError('TODO: determine if we are a primitive... if so return the actual value')
+# raise ValueError("onuuuy if not a primitive should we return a voodoo object")
 #if temp_var == 'abc':#
 #    print("all is ok we have temp_var as the last set value")
 # else:
