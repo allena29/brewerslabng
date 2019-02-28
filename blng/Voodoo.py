@@ -1,6 +1,7 @@
 """
  ipython --profile testing -i voodoo-playing.py
 """
+import re
 from lxml import etree
 
 
@@ -82,9 +83,6 @@ class CruxVoodooBase:
         # This is getting called qiute often (every str() or repr())
         # It's probably not a problem right now because each time it's called we end up
         # getting ee elements by memory reference
-
-        for dchlid in self.__dict__['_thisschema'].getchildren():
-            print('dir----child', dchlid.tag)
 
         if listelement:
             self.__dict__['_mykeys'] = listelement
@@ -196,7 +194,8 @@ class CruxVoodooBase:
                 new_node.text = str(value)
 
         elif len(this_value) == 1:
-
+            if 'listkey' in this_value[0].attrib:
+                raise BadVoodoo('Changing a list key is not supported. ' + curpath[1:])
             this_value[0].attrib['old_value'] = this_value[0].text
             this_value[0].text = str(value)
             return this_value[0]
@@ -216,6 +215,7 @@ class CruxVoodooBase:
 
         # working path is expected to look like this ['', 'morecomplex', 'leaf2']
         working_path = path.split('/')
+        print("Come into find longest path", working_path)
         for i in range(len(working_path)-1, 1, -1):
             print('Using longest_match', i, '/'.join(working_path[:i]))
             this_path = '/' + '/'.join(working_path[:i])
@@ -225,9 +225,6 @@ class CruxVoodooBase:
                 break
             elif len(results) > 1:
                 raise BadVoodoo('Longest match on %s found multiple hits (which may or may not be safe!)' % (this_path))
-
-        if found:
-            raise NotImplementError('Longest match stuff - now need to work forwards to populate what we need')
 
         if not found:
             print('More work to do', working_path[1:])
@@ -240,10 +237,22 @@ class CruxVoodooBase:
         (right_most_index, SomeKindOfWarningWhichMightBeIgnored, parent_node) = found
         for path_node in working_path[right_most_index:]:
             print('Need to add %s' % (path_node))
+            path_keys = None
+            if '[' in path_node:
+                path_keys = path_node[path_node.find('['):]
+                path_node = path_node[:path_node.find('[')]
+                print('List keys present in the path node')
             node = etree.Element(path_node)
             print(node, 'is going to get attached to ', parent_node)
             parent_node.append(node)
             parent_node = node
+
+            if path_keys:
+                for (key, value) in re.findall("\[([^=]*)='([^']+)'\]", path_keys):
+                    key_node = etree.Element(key)
+                    key_node.attrib['listkey'] = 'yes'
+                    key_node.text = value
+                    node.append(key_node)
 
         return parent_node
 
@@ -370,7 +379,7 @@ class CruxVoodooList(CruxVoodooBase):
 
         Good news is that xpath lookup appears to work well
 
-            In [30]: xmldoc = etree.fromstring(""" < crux-vooodoo >
+            In [30]: xmldoc = etree.fromstring(''' < crux-vooodoo >
                 ...: < list >
                 ...: < a > sdf < /a >
                 ...: < b > abc < /b >
@@ -390,7 +399,7 @@ class CruxVoodooList(CruxVoodooBase):
                 ...: < list >
                 ...: < a > ra < /a >
                 ...: < /list >
-                ...: < /crux-vooodoo > """)
+                ...: < /crux-vooodoo > ''')
 
             In [31]: xmldoc.xpath("//list[a='sdf']")
             Out[31]: [<Element list at 0x106ebfe08>, <Element list at 0x1064de408>]
@@ -410,16 +419,51 @@ class CruxVoodooList(CruxVoodooBase):
 
         """
 
-      ai = 0
-       for key in keys:
-            print('about to delegate setattr for key %s' % (key))
+        """
             this_value = xmldoc.xpath(curpath + '/' + attr)
+            if len(this_value) == 0:
+                print('Value not yet set')
+                # This actually could be pretty tricky...
+                print('count of / = %s' % (path.count('/')))
+
+                if path.count('/') == 1:
+                    new_node = etree.Element(attr)
+                    new_node.text = str(value)
+                    xmldoc.append(new_node)
+                    return new_node
+                    erint('Added brand new node because it happened to be at root and easy')
+                else:
+                    new_node = self._find_longest_match_path(xmldoc, path)
+                    new_node.text = str(value)
+
+            elif len(this_value) == 1:
+
+                this_value[0].attrib['old_value'] = this_value[0].text
+                this_value[0].text = str(value)
+                return this_value[0]
+                print('should be set here')
+            else:
+                c = 5/0
+
+        """
+        path_to_list_element = curpath
+        ai = 0
+        for key in keys:
+            #this_value = xmldoc.xpath(curpath + '/' + attr)
 
             print(curpath + '/' + key, ' -> ', args[ai])
             # self.__setattr__()
             # self.__setattr__(key, args[ai], key=True)
+            path_to_list_element = path_to_list_element + "[" + key + "='" + args[ai] + "']"
             ai = ai+1
 
+        print("Find this xpath: ", path_to_list_element)
+        this_value = xmldoc.xpath(path_to_list_element)
+        if len(this_value) == 0:
+            print('Value not yet set')
+            new_node = self._find_longest_match_path(xmldoc, path_to_list_element[1:])
+        else:
+            print(this_value, '<<<<<<<<<<<<<<<<< already existed')
         # Two things (maybe more than 2)
         # 1 need to return a node
         # 2 need to add something into xmldoc
@@ -427,6 +471,8 @@ class CruxVoodooList(CruxVoodooBase):
         # 4 make sure we have all keys
         # 5 make sure the keys dont' exist yet
         # 6 make sure list keys are never allowed to change - they are classes as primitives not something special.
+        # 7 lists within lists
+        # 8 lists within container
         return CruxVoodooListElement(schema, xmldoc, curpath, value=None, root=False, listelement=str(args))
 
 

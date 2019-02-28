@@ -42,11 +42,21 @@ class TestVoodoo(unittest.TestCase):
         # Act
         root = self._get_session()
         listelement = root.simplelist.create('Shamanaid')
+        listelement.nonleafkey = 'sdf'
+        # Check the same list element can have the create method called a second name
+        listelement = root.simplelist.create('Shamanaid')
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            listelement.simplekey = 'change the value'
+        self.assertEqual(str(context.exception), 'Changing a list key is not supported. /simplelist')
         received_xml = self.subject.dumps()
 
         # Assert
         expected_xml = """<crux-vooodoo>
-        stuff for this list here
+  <simplelist>
+    <simplekey listkey="yes">Shamanaid</simplekey>
+    <nonleafkey>sdf</nonleafkey>
+  </simplelist>
 </crux-vooodoo>
 """
         self.assertEqual(expected_xml, received_xml)
