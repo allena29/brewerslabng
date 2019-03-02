@@ -99,7 +99,25 @@ class CruxVoodooBase:
 
     _voodoo_type = None
 
+    def _pretty(self, xmldoc):
+        xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
+        return str(xmlstr).replace('\\n', '\n')[2:-1]
+
     def __init__(self, schema, xmldoc, cache, curpath="/", value=None, root=False, listelement=None):
+        """
+        A CurxNode is used to represent 'containing' structures within the yang module, primitive
+        terminiating leaves are not CruxNodes.
+
+        Every CruxNode holds references to lxml etree instantiations of
+         - schema (crux-schema format)
+         - xmldoc (datasource)
+
+        Cache lookups to avoid expensive xpath lookups. (Potentially in the future we may want to
+        cache the objects themselves, as they get instantiated on every __getattr__).
+
+        """
+
+        print('CRUXVOODOO-INIT', curpath)
         self.__dict__['_curpath'] = curpath
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
@@ -108,10 +126,16 @@ class CruxVoodooBase:
         self.__dict__['_root'] = root
         self.__dict__['_path'] = curpath
         self.__dict__['_cache'] = cache
+        self.__dict__['_children'] = {}
+
         if not root:
             self.__dict__['_thisschema'] = self._getschema(curpath)
-        if root:
+        else:
             self.__dict__['_thisschema'] = self.__dict__['_schema']
+        for child in self.__dict__['_thisschema']:
+            if not child.tag == 'yin-schema':
+                print('  ... adding child', child.tag)
+                self.__dict__['_children'][child.tag] = child
 
         print('Init new cruxvood', self.__dict__)
         # This is getting called qiute often (every str() or repr())
@@ -149,8 +173,7 @@ class CruxVoodooBase:
 
         path = curpath[1:] + '/' + attr
         print('Get attr ', curpath + '/' + attr)
-
-        this_schema = self._getschema(curpath + '/' + attr)
+        this_schema = self._getschema('/' + path)
 
         supported_types = {
             'leaf': None,
@@ -173,10 +196,9 @@ class CruxVoodooBase:
         if not yang_type:
             raise BadVoodoo("Unsupported type of node %s" % (yang_type))
 
-        xmldoc = self.__dict__['_xmldoc']
-        this_value = xmldoc.xpath(curpath + '/' + attr)
-        if not len(this_value):
-            # Value not set **OR** value does not exist in the schema
+        this_value = self._getxmlnode('/' + path)
+
+        if not this_value:
             if yang_type == 'leaf':
                 print('Value not yet set - primtiive so just returning None')
                 return None
@@ -184,45 +206,47 @@ class CruxVoodooBase:
             print('Value not yet set')
             return supported_types[yang_type](schema, xmldoc, cache, curpath + '/' + attr, value=None, root=False)
 
-        elif len(this_value) == 1:
-            print('value already set')
-            print(this_value[0].text)
+        print('value already set')
 
-            if yang_type == 'leaf':
-                print(this_value[0].text, '<<<<< primitive')
-                return this_value[0].text
+        if yang_type == 'leaf':
+            return this_value[0].text
 
-            return supported_types[yang_type](schema, xmldoc, cache, curpath + '/' + attr, value=this_value[0], root=False)
+        return supported_types[yang_type](schema, xmldoc, cache, curpath + '/' + attr, value=this_value[0], root=False)
 
-            self.__dict__['_value'] = this_value[0]
-            return this_value[0]
-        else:
-            e = 5/0
+        # xmldoc = self.__dict__['_xmldoc']
+#        this_value = xmldoc.xpath(curpath + '/' + attr)
+#        if not len(this_value):#
+        # Value not set **OR** value does not exist in the schema
+        # if yang_type == 'leaf':
+        #        print('Value not yet set - primtiive so just returning None')
+    #            return None#
+#
+#            print('Value not yet set')#
+        # return supported_types[yang_type](schema, xmldoc, cache, curpath + '/' + attr, value=None, root=False)
+
+        # elif len(this_value) == 1:
+    #        print('value already set')
+#            print(this_value[0].text)#
+
+        #if yang_type == 'leaf':#
+        #        print(this_value[0].text, '<<<<< primitive')
+    #            return this_value[0].text#
+##
+#            return supported_types[yang_type](schema, xmldoc, cache, curpath + '/' + attr, value=this_value[0], root=False)
 
     def __setattr__(self, attr, value):
         # rint('Set attr', self.__dict__['_curpath'] + '/' + attr + '>>>' + str(value))
         #     0.005204200744628906 for 10000
         curpath = self.__dict__['_curpath']
-        # 0.008809089660644531 for 10000
-
         schema = self.__dict__['_schema']
-        # 0.010008096694946289 for 10000
-
         cache = self.__dict__['_cache']
         (keystore_cache, schema_cache) = cache
-
-        # 0.0076067447662353516 for 10000
 
         path = curpath[1:] + '/' + attr
         # print('set attr ', self.__dict__['_curpath'] + ' /' + attr)
         # print('Looking up in schema ' + curpath + '/' + attr)
-        if path in schema_cache.items:
-            this_schema = schema_cache.items[path]
-        else:
-            print('Non cache hit on schema', path)
-            this_schema = self._getschema('/' + path)
-            schema_cache.items[path] = this_schema
 
+        this_schema = self._getschema('/' + path)
         # TODO:
         # validate against this_schema[0]
         # print('Schema to validate against...', this_schema)
@@ -303,7 +327,16 @@ class CruxVoodooBase:
                 path_keys = path_node[path_node.find('['):]
                 path_node = path_node[:path_node.find('[')]
                 print('List keys present in the path node')
-            node = etree.Element(path_node)
+
+            print('SCHMEA OF THIS NODE', self.__dict__['_thisschema'].getchildren())
+            print('SCHMEA CHILDREN', self.__dict__['_children'])
+            if path_node in self.__dict__['_children']:
+                node = etree.Element(path_node)
+            elif path_node.replace('_', '-') in self.__dict__['_children']:
+                print('PATH NODE is in children **WITH** HYPHEN conversion', path_node)
+                node = etree.Element(path_node.replace('_', '-'))
+            else:
+                node = etree.Element(path_node)
             print(node, 'is going to get attached to ', parent_node)
             parent_node.append(node)
             parent_node = node
@@ -321,21 +354,51 @@ class CruxVoodooBase:
         listing = []
         for dchild in self.__dict__['_thisschema'].getchildren():
             if not dchild.tag == 'yin-schema':
-                listing.append(dchild.tag)
+                listing.append(dchild.tag.replace('-', '_'))
         return listing
+
+    def _getxmlnode(self, path):
+        """Get the xmlnode from the cache or by xpath lookup."""
+
+        xmldoc = self.__dict__['_xmldoc']
+        (keystore_cache, schema_cache) = self.__dict__['_cache']
+
+        if path in keystore_cache.items:
+            print('Using cached item for', path)
+            return keystore_cache.items[path]
+
+        this_value = xmldoc.xpath(path)
+        print('get_xmlnode', path, this_value)
+        if not this_value:
+            this_value = xmldoc.xpath(path.replace('_', '-'))
+
+        if len(this_value):
+            keystore_cache.items[path] = this_value[0]
+        return this_value
 
     def _getschema(self, path):
         """
-        Get information from the schema.
+        Get information from the schema, returning from the cache if we have previously accessed
+        it.
 
         This will include leaves and yang elements including the addition 'yin-schema' element.
         """
         schema = self.__dict__['_schema']
+        (keystore_cache, schema_cache) = self.__dict__['_cache']
+
+        if path in schema_cache.items:
+            this_schema = schema_cache.items[path]
+            return this_schema
+
+        print('get_schema', path)
         this_schema = schema.xpath(path)
+        if not len(this_schema) and path.count('_'):
+            this_schema = schema.xpath(path.replace('_', '-'))
         if not len(this_schema):
             raise BadVoodoo("Unable to find '%s' in the schema" % (path))
         elif len(this_schema) > 1:
             raise BadVoodoo("Too many hits for '%s' in the schema" % (path))
+        schema_cache.items[path] = this_schema[0]
         return this_schema[0]
 
     def __repr__(self):
@@ -522,6 +585,7 @@ class CruxVoodooList(CruxVoodooBase):
             ai = ai+1
 
         print("Find this xpath: ", path_to_list_element)
+
         this_value = xmldoc.xpath(path_to_list_element)
         if len(this_value) == 0:
             print('Value not yet set')

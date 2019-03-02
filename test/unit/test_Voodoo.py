@@ -65,16 +65,21 @@ class TestVoodoo(unittest.TestCase):
         root = self._get_session()
 
         # Act
-        turn_to_stone = root.morecomplex.leaf2 = "sing-and-dance-or-youll"
+        root.morecomplex.leaf2 = "sing-and-dance-or-youll"
+        leaf2_value = root.morecomplex.leaf2
+        root.hyphen_leaf = 'underscore_in_voodoo-should-be-hyphens-in-xmldoc'
+        hyphen_leaf_value = root.hyphen_leaf
+
         received_xml = self.subject.dumps()
 
         # Assert
-        self.assertEqual("sing-and-dance-or-youll", turn_to_stone)
-
+        self.assertEqual("sing-and-dance-or-youll", leaf2_value)
+        self.assertEqual("underscore_in_voodoo-should-be-hyphens-in-xmldoc", hyphen_leaf_value)
         expected_xml = """<crux-vooodoo>
   <morecomplex>
     <leaf2>sing-and-dance-or-youll</leaf2>
   </morecomplex>
+  <hyphen-leaf>underscore_in_voodoo-should-be-hyphens-in-xmldoc</hyphen-leaf>
 </crux-vooodoo>
 """
         self.assertEqual(expected_xml, received_xml)
