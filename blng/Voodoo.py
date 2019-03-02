@@ -43,18 +43,69 @@ class DataAccess:
 
         if datastore:
             raise NotImplementedError("de-serialising a datastore for loading not thought about yet")
-        self._xmldoc = etree.fromstring('<crux-vooodoo></crux-vooodoo>')
+        self._xmldoc = CruxVoodoBackendWrapper()
         self._cache = (CruxVoodooCache(), CruxVoodooCache())
+
+    def dumps(self):
+        return self._xmldoc.dumps()
+
+    def loads(self, input_string):
+        """
+        Load a new set of data into memory.
+
+        Note: this is pretty messy because the xmldoc and cache object references can be
+        splattered across lots of instantiated data.
+
+        i.e. we may have done
+
+        root = session.get_root()
+        x = root.morecomplex
+        x.leaf2 = '5'
+        GETATTR on  <Element crux-vooodoo at 0x104d7e888>  with CACHE  (<blng.Voodoo.CruxVoodooCache object at 0x104d6feb8>, <blng.Voodoo.CruxVoodooCache object at 0x1053d3e48>) against path  /morecomplex
+
+        Now if we update xmldoc on session we won't have the references on all the individual cruxnodes updated.
+        """
+
+        for x in self._xmldoc.getchildren():
+            print(x.tag)
+
+        self._xmldoc.loads(input_string)
+        (keystore_cache, schema_cache) = self._cache
+        keystore_cache.empty()
+
+    def get_root(self):
+        return CruxVoodooRoot(self._schema, self._xmldoc, self._cache, root=True)
+
+
+class CruxVoodoBackendWrapper:
+
+    def __init__(self):
+        self.xmldoc = etree.fromstring('<crux-vooodoo></crux-vooodoo>')
+
+    def xpath(self, *args, **kwargs):
+        return self.xmldoc.xpath(*args, **kwargs)
+
+    def append(self, *args, **kwargs):
+        return self.xmldoc.append(*args, **kwargs)
+
+    def getchildren(self, *args, **kwargs):
+        return self.xmldoc.getchildren(*args, **kwargs)
 
     def _pretty(self, xmldoc):
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
 
     def dumps(self):
-        return (self._pretty(self._xmldoc))
+        return self._pretty(self.xmldoc)
 
-    def get_root(self):
-        return CruxVoodooRoot(self._schema, self._xmldoc, self._cache, root=True)
+    def loads(self, xmlstr):
+        for child in self.xmldoc.getchildren():
+            self.xmldoc.remove(child)
+
+        new_xmldoc = etree.fromstring(xmlstr)
+
+        for child in new_xmldoc.getchildren():
+            self.xmldoc.append(child)
 
 
 class BadVoodoo(Exception):
@@ -90,9 +141,27 @@ class CruxVoodooCache:
     """
 
     def __init__(self):
+        """
+        Items are stored in the cached based upon the xpath of the string.
+
+        The cache object may be used for storing any key/value data, however here
+        we use two independent instances, one for caching the data xmldoc, and one
+        for caching the schema xmldoc.
+        """
         self.items = {}
-        for x in range(50):
-            self.items[str(x)] = 'junk'
+
+    def add_entry(self, path, cache_object):
+        """
+        Add an entry into the cache.
+
+        key = an XPATH path (e.g. /simpleleaf)
+        cache_object = An etree Element node from the XMLDOC.
+        """
+        print('CACHE ADD ENTRY', path, cache_object)
+        self.items[path] = cache_object
+
+    def empty(self):
+        self.items.clear()
 
 
 class CruxVoodooBase:
@@ -170,8 +239,8 @@ class CruxVoodooBase:
         xmldoc = self.__dict__['_xmldoc']
         cache = self.__dict__['_cache']
         (keystore_cache, schema_cache) = cache
-
         path = curpath[1:] + '/' + attr
+        print('GETATTR on ', xmldoc, ' with CACHE ', cache, 'against path ', path)
         print('Get attr ', curpath + '/' + attr)
         this_schema = self._getschema('/' + path)
 
@@ -274,7 +343,7 @@ class CruxVoodooBase:
             # else:
             new_node = self._find_longest_match_path(xmldoc, path)
             new_node.text = str(value)
-            keystore_cache.items[path] = new_node
+            keystore_cache.add_entry(path, new_node)
 
         elif len(this_value) == 1:
             if 'listkey' in this_value[0].attrib:
@@ -282,7 +351,7 @@ class CruxVoodooBase:
             this_value[0].attrib['old_value'] = this_value[0].text
             this_value[0].text = str(value)
 
-            keystore_cache.items[path] = this_value[0]
+            keystore_cache.add_entry(path, this_value[0])
             return this_value[0]
             print('should be set here')
         else:
@@ -373,7 +442,8 @@ class CruxVoodooBase:
             this_value = xmldoc.xpath(path.replace('_', '-'))
 
         if len(this_value):
-            keystore_cache.items[path] = this_value[0]
+            print('CACHE PATH GETXCMLDOE'+path)
+            keystore_cache.items[path[1:]] = this_value[0]
         return this_value
 
     def _getschema(self, path):

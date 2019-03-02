@@ -17,6 +17,45 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_deserialise(self):
+        serilaised_xml = """<crux-vooodoo>
+  <simpleleaf old_value="9998">9999</simpleleaf>
+  <morecomplex>
+    <leaf2>a</leaf2>
+  </morecomplex>
+  <simplelist>
+    <simplekey listkey="yes">firstkey</simplekey>
+  </simplelist>
+  <hyphen-leaf>abc123</hyphen-leaf>
+  <outsidelist>
+    <leafo listkey="yes">a</leafo>
+    <insidelist>
+      <leafi listkey="yes">A</leafi>
+    </insidelist>
+  </outsidelist>
+  <outsidelist>
+    <leafo listkey="yes">b</leafo>
+  </outsidelist>
+</crux-vooodoo>"""
+
+        root = self._get_session()
+        (keystore_cache, schema_cache) = self.subject._cache
+
+        root.simpleleaf = 'value_before_loading_serialised_data'
+        self.assertEqual(root.simpleleaf, 'value_before_loading_serialised_data')
+        self.assertEqual(list(keystore_cache.items.keys()), ['/simpleleaf'])
+
+        self.subject.loads(serilaised_xml)
+        self.assertEqual(list(keystore_cache.items.keys()), [])
+
+        for x in self.subject._xmldoc.getchildren():
+            print('.....', x.tag)
+        print(self.subject._xmldoc)
+        self.assertEqual(root.simpleleaf, '9999')
+        self.assertEqual(root.hyphen_leaf, 'abc123')
+
+        self.assertEqual(list(keystore_cache.items.keys()), ['/simpleleaf', '/hyphen_leaf'])
+
     def test_advanced_list_with_dump(self):
         # note quite test driven but want to go to bed!
 
