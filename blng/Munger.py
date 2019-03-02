@@ -59,7 +59,7 @@ class Munger:
         self.replacements = []
         self.xmldoc = xmldoc
 
-        self.pass1_parse_and_recurse('integrationtest', xmldoc)
+        self.pass1_parse_and_recurse(module, xmldoc)
         self.pass2_stitch_and_recurse(xmldoc)
         self.pass3(xmldoc)
         newxmldoc = self.pass4(xmldoc)
@@ -324,6 +324,10 @@ class Munger:
             # These things are handled via pass 1
             return self.handle_null
         elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}presence"):
+            return self.handle_null
+        elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}description"):
+            return self.handle_null
+        elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}extension"):
             return self.handle_null
 
         raise Error.BlngYangSchemaNotSupported(child.tag)

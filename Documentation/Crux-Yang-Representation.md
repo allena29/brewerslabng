@@ -1,5 +1,19 @@
 # CRUX Format
 
+## Example Compiling
+
+- Place all yang within a common directory (e.g. `yang/`)
+- Execute: `./cruxcompile "integrationtest"` which will populate the a cache directory with
+  - <yangmodule>.yin - literal pyang conversion into yin format.
+  - <yangmoudle>.txt - literal pyang conversion into ascii tree format (only for reference)
+  - <yangmodule>.crux.xml - the yang module converted into the invereted yang schema.
+  - \__crux-schema.xml - a combined schema of all yang modules provided to the compile script.
+
+
+## Example Data
+
+This is an example of `__crux-schema.xml` produced from the compile script.
+
 ```
 <crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <type-a>

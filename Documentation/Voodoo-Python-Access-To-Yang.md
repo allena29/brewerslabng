@@ -13,6 +13,7 @@ See.. [CRUX Format](Crux-Yang-Representation.md)
 ## TODO:
 
 - validation everywhere
-- uses are throwing a key erro
+- uses are throwing a key errors
+- we can assign a value to a container.
 - ensure 'hyphens' in yang are dealt with
-- cache dir?
+- cache crux objects as they are created  or instantiate every single time.

@@ -30,7 +30,30 @@ module integrationtest {
     }
   }
 
+  leaf hyphen-leaf {
+    type string;
+  }
+
+  list outsidelist {
+    key "leafo";
+
+    leaf leafo {
+      type string;
+    }
+
+    list insidelist {
+      key "leafi";
+
+      leaf leafi {
+        type string;
+      }
+    }
+  }
+
   container container-and-lists {
+    leaf just-a-key {
+      type string;
+    }
     list multi-key-list {
       key "A B";
 
