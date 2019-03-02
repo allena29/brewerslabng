@@ -48,9 +48,6 @@ class TestVoodoo(unittest.TestCase):
         self.subject.loads(serilaised_xml)
         self.assertEqual(list(keystore_cache.items.keys()), [])
 
-        for x in self.subject._xmldoc.getchildren():
-            print('.....', x.tag)
-        print(self.subject._xmldoc)
         self.assertEqual(root.simpleleaf, '9999')
         self.assertEqual(root.hyphen_leaf, 'abc123')
 
@@ -95,6 +92,24 @@ class TestVoodoo(unittest.TestCase):
   <simplelist>
     <simplekey listkey="yes">Shamanaid</simplekey>
     <nonleafkey>sdf</nonleafkey>
+  </simplelist>
+</crux-vooodoo>
+"""
+        self.assertEqual(expected_xml, received_xml)
+
+        listelement2 = root.simplelist.create('Prophet')
+        listelement2.nonleafkey = 'master'
+        received_xml = self.subject.dumps()
+
+        # Assert
+        expected_xml = """<crux-vooodoo>
+  <simplelist>
+    <simplekey listkey="yes">Shamanaid</simplekey>
+    <nonleafkey>sdf</nonleafkey>
+  </simplelist>
+  <simplelist>
+    <simplekey listkey="yes">Prophet</simplekey>
+    <nonleafkey>master</nonleafkey>
   </simplelist>
 </crux-vooodoo>
 """

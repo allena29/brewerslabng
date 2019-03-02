@@ -12,13 +12,14 @@ session = blng.Voodoo.DataAccess('crux-example.xml')
 # pr.disable()
 # pr.print_stats()
 
-
 #pr = cProfile.Profile()
 # pr.enable()
 root = session.get_root()
 # pr.disable()
 # pr.print_stats()
 
+
+"""
 
 #pr = cProfile.Profile()
 # pr.enable()
@@ -32,12 +33,7 @@ print(session.dumps())
 pr.disable()
 pr.print_stats()
 
-
 root.morecomplex.leaf2 = "a"
-s = root.simplelist
-le = s.create('firstkey')
-print(le)
-repr(le)
 
 import time
 n = 10000
@@ -73,4 +69,8 @@ xmldoc = session._xmldoc
 #c = end_time-start_time
 
 # print((a/b)*100)
-#
+
+"""
+listelement1 = root.simplelist.create('A')
+listelement1.nonleafkey = 'a'
+listelement2 = root.simplelist.create('B')
