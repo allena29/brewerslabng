@@ -105,6 +105,7 @@ In [11]: print(session.dumps())
 
 ## TODO:
 
+- wildcards - if we look for a deep child we get it much higher up at root.leaf5 is actually root.morecomplex.inner.leaf5
 - validation everywhere
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~

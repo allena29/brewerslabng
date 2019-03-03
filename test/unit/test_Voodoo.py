@@ -435,3 +435,10 @@ class TestVoodoo(unittest.TestCase):
         self._get_session()
 
         self.assertEqual(repr(self.root), "VoodooRoot")
+
+    def test_root_only_returns_root(self):
+        root = self._get_session()
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            x = root.platinum
+        self.assertEqual(str(context.exception), "platinum exists deep in the model but not at root")

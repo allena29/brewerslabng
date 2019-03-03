@@ -3,6 +3,11 @@
   <crux-paths>
     <path/>
     <path>/simpleleaf</path>
+    <path>/bronze</path>
+    <path>/bronze/silver</path>
+    <path>/bronze/silver/gold</path>
+    <path>/bronze/silver/gold/platinum</path>
+    <path>/bronze/silver/gold/platinum/deep</path>
     <path>/psychedelia</path>
     <path>/psychedelia/bands</path>
     <path>/psychedelia/bands/band</path>
@@ -85,6 +90,37 @@
         </leaf>
       </yin-schema>
     </simpleleaf>
+    <bronze>
+      <yin-schema path="/bronze">
+        <container>
+    </container>
+      </yin-schema>
+      <silver>
+        <yin-schema path="/bronze/silver">
+          <container>
+      </container>
+        </yin-schema>
+        <gold>
+          <yin-schema path="/bronze/silver/gold">
+            <container>
+        </container>
+          </yin-schema>
+          <platinum>
+            <yin-schema path="/bronze/silver/gold/platinum">
+              <container>
+          </container>
+            </yin-schema>
+            <deep>
+              <yin-schema path="/bronze/silver/gold/platinum/deep">
+                <leaf>
+                  <type name="string"/>
+                </leaf>
+              </yin-schema>
+            </deep>
+          </platinum>
+        </gold>
+      </silver>
+    </bronze>
     <psychedelia>
       <yin-schema path="/psychedelia">
         <container>

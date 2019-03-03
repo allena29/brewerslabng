@@ -10,6 +10,17 @@ module integrationtest {
     type string;
   }
 
+  container bronze {
+    container silver {
+      container gold {
+        container platinum {
+          leaf deep {
+            type string;
+          }
+        }
+      }
+    }
+  }
   container psychedelia {
     list bands {
       key band;
