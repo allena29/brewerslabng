@@ -545,6 +545,10 @@ class CruxVoodooList(CruxVoodooBase):
 
         path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args_as_list)
 
+        item = self._getxmlnode(path_to_list_element)
+        if len(item) == 0:
+            raise BadVoodoo("ListElement does not exist: " + path_to_list_element[1:])
+
         log.debug('get-listelement: %s', path_to_list_element)
         return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
                                      value=None, root=False, listelement=str(args), log=log,

@@ -44,6 +44,14 @@ class TestVoodoo(unittest.TestCase):
         self.assertEqual(self.subject.dumps(), expected_xml)
         self.assertEqual(repr(y), "VoodooListElement: /twokeylist[primary='a'][secondary='b']")
 
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.twokeylist['not-existing-key', 'b']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='not-existing-key'][secondary='b']")
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.twokeylist['a', 'non-existing-second-key']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='a'][secondary='non-existing-second-key']")
+
     def test_deserialise_and_serilaise_example_with_cache_checks(self):
         serilaised_xml = """<crux-vooodoo>
   <simpleleaf old_value="9998">9999</simpleleaf>
@@ -385,6 +393,10 @@ class TestVoodoo(unittest.TestCase):
 
         listelement = root.simplelist.create('Shamanaid')
         self.assertEqual(repr(listelement), "VoodooListElement: /simplelist[simplekey='Shamanaid']")
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.simplelist['not-existing-key']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /simplelist[simplekey='not-existing-key']")
 
         expected_hits = ['nonleafkey', 'simplekey']
         self.assertEqual(dir(listelement), expected_hits)

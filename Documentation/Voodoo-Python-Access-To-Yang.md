@@ -106,7 +106,7 @@ In [11]: print(session.dumps())
 ## TODO:
 
 - validation everywhere
-- get list items (we can get a list element without matching keys
+- ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
 - keys() needs to be implemented for lists.
 - delete list items
