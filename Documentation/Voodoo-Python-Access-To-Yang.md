@@ -7,46 +7,57 @@ See.. [CRUX Format](Crux-Yang-Representation.md)
 The example below shows a very basic overview of loading in an serialised XML payload, changing a value and then re-serialising the data.
 
 ```
->>>>>> import blng.Voodoo
->>>>>> session = blng.Voodoo.DataAccess('crux-example.xml')
->>>>>> root = session.get_root()
->>>>>> root
-VoodooRoot
 
->>>>>> print(root.morecomplex)
+In [1]: import blng.Voodoo
+
+In [2]: session = blng.Voodoo.DataAccess('crux-example.xml')
+/Users/adam/brewerslabng/blng/Voodoo.py:44: FutureWarning: The behavior of this method will change in future versions. Use specific 'len(elem)' or 'elem is not None' test instead.
+  if not self._schema:
+
+In [3]: root = session.get_root()
+
+In [4]: root
+Out[4]: VoodooRoot
+
+In [5]: root.morecomplex
 VoodooContainer: /morecomplex
 
+In [6]: root.morecomplex.show_children()
+inner
+leaf2
+leaf3
+leaf4
+nonconfig
 
->>>>>> root.morecomplex.show_children()
-VoodooContainer: /morecomplex
+In [7]: xmlstr = """<crux-vooodoo>
+   <simpleleaf old_value="9998">9999</simpleleaf>
+   <morecomplex>
+   <leaf2>a</leaf2>
+   </morecomplex>
+   <simplelist>
+   <simplekey listkey="yes">firstkey</simplekey>
+   </simplelist>
+   <hyphen-leaf>abc123</hyphen-leaf>
+   <outsidelist>
+   <leafo listkey="yes">a</leafo>
+   <insidelist>
+   <leafi listkey="yes">A</leafi>
+   </insidelist>
+   </outsidelist>
+   <outsidelist>
+   <leafo listkey="yes">b</leafo>
+   </outsidelist>
+   </crux-vooodoo>"""
 
->>>>>> xmlstr = """<crux-vooodoo>
-<simpleleaf old_value="9998">9999</simpleleaf>
-<morecomplex>
-<leaf2>a</leaf2>
-</morecomplex>
-<simplelist>
-<simplekey listkey="yes">firstkey</simplekey>
-</simplelist>
-<hyphen-leaf>abc123</hyphen-leaf>
-<outsidelist>
-<leafo listkey="yes">a</leafo>
-<insidelist>
-<leafi listkey="yes">A</leafi>
-</insidelist>
-</outsidelist>
-<outsidelist>
-<leafo listkey="yes">b</leafo>
-</outsidelist>
-</crux-vooodoo>"""
+In [8]: session.loads(xmlstr)
 
->>>>>> session.loads(xmlstr)
->>>>>> print(root.simpleleaf)
+In [9]: print(root.simpleleaf)
 9999
 
->>>>>> root.simpleleaf = '55'
->>>>>> print(session.dumps())
-<crux-vooodoo><simpleleaf old_value="9998">9999</simpleleaf>
+In [10]: root.simpleleaf = '55'
+
+In [11]: print(session.dumps())
+<crux-vooodoo><simpleleaf old_value="9999">55</simpleleaf>
 <morecomplex>
 <leaf2>a</leaf2>
 </morecomplex>
@@ -64,6 +75,7 @@ VoodooContainer: /morecomplex
 <leafo listkey="yes">b</leafo>
 </outsidelist>
 </crux-vooodoo>
+
 ```
 
 

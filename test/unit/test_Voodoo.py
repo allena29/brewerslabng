@@ -17,7 +17,7 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
-    def test_deserialise(self):
+    def test_deserialise_and_serilaise_example_with_cache_checks(self):
         serilaised_xml = """<crux-vooodoo>
   <simpleleaf old_value="9998">9999</simpleleaf>
   <morecomplex>
@@ -49,10 +49,80 @@ class TestVoodoo(unittest.TestCase):
         self.assertEqual(list(keystore_cache.items.keys()), [])
         self.assertEqual(root.morecomplex.leaf2, 'a')
 
-        print(root.hyphen_leaf, 'fuck this is not getting cched and things cached dont have //')
         self.assertEqual(root.simpleleaf, '9999')
         self.assertEqual(root.hyphen_leaf, 'abc123')
-        self.assertEqual(list(keystore_cache.items.keys()), ['//morecomplex', '//morecomplex/leaf2', '//hyphen_leaf', '//simpleleaf'])
+        self.assertEqual(list(keystore_cache.items.keys()), ['//morecomplex', '//morecomplex/leaf2', '//simpleleaf',  '//hyphen_leaf'])
+
+        root.simpleleaf = "value_after_deserialised_and_modified"
+
+        re_serilaised_xml = """<crux-vooodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
+  <morecomplex>
+    <leaf2>a</leaf2>
+  </morecomplex>
+  <simplelist>
+    <simplekey listkey="yes">firstkey</simplekey>
+  </simplelist>
+  <hyphen-leaf>abc123</hyphen-leaf>
+  <outsidelist>
+    <leafo listkey="yes">a</leafo>
+    <insidelist>
+      <leafi listkey="yes">A</leafi>
+    </insidelist>
+  </outsidelist>
+  <outsidelist>
+    <leafo listkey="yes">b</leafo>
+  </outsidelist>
+</crux-vooodoo>
+"""
+
+        self.assertEqual(self.subject.dumps(), re_serilaised_xml)
+
+    def test_deserialise_and_serilaise(self):
+        serilaised_xml = """<crux-vooodoo>
+  <simpleleaf old_value="9998">9999</simpleleaf>
+  <morecomplex>
+    <leaf2>a</leaf2>
+  </morecomplex>
+  <simplelist>
+    <simplekey listkey="yes">firstkey</simplekey>
+  </simplelist>
+  <hyphen-leaf>abc123</hyphen-leaf>
+  <outsidelist>
+    <leafo listkey="yes">a</leafo>
+    <insidelist>
+      <leafi listkey="yes">A</leafi>
+    </insidelist>
+  </outsidelist>
+  <outsidelist>
+    <leafo listkey="yes">b</leafo>
+  </outsidelist>
+</crux-vooodoo>"""
+
+        root = self._get_session()
+        self.subject.loads(serilaised_xml)
+        root.simpleleaf = "value_after_deserialised_and_modified"
+
+        re_serilaised_xml = """<crux-vooodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
+  <morecomplex>
+    <leaf2>a</leaf2>
+  </morecomplex>
+  <simplelist>
+    <simplekey listkey="yes">firstkey</simplekey>
+  </simplelist>
+  <hyphen-leaf>abc123</hyphen-leaf>
+  <outsidelist>
+    <leafo listkey="yes">a</leafo>
+    <insidelist>
+      <leafi listkey="yes">A</leafi>
+    </insidelist>
+  </outsidelist>
+  <outsidelist>
+    <leafo listkey="yes">b</leafo>
+  </outsidelist>
+</crux-vooodoo>
+"""
+        #raise ValueError(self.subject.dumps())
+        self.assertEqual(self.subject.dumps(), re_serilaised_xml)
 
     def test_advanced_list_with_dump(self):
         # note quite test driven but want to go to bed!
