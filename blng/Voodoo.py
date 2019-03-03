@@ -269,7 +269,7 @@ class CruxVoodooBase:
             raise BadVoodoo("Unsupported type of node %s" % (yang_type))
         this_value = self._getxmlnode(vpath)
 
-        if not this_value:
+        if len(this_value) == 0:
             if yang_type == 'leaf':
                 log.info('get-leaf %s <no-value>', vpath)
                 return None
@@ -409,11 +409,16 @@ class CruxVoodooBase:
         this_value = xmldoc.xpath(path)
         if not this_value:
             this_value = xmldoc.xpath(path.replace('_', '-'))
+            if len(this_value):
+                log.debug('_getxmlnode: %s <miss:%s|%s> <underscore_to_hyphen>', path.replace('_', '-'), this_value[0], str(this_value))
+                keystore_cache.items[path] = this_value[0]
+                return this_value
+
             log.debug('_getxmlnode: %s <miss:no-value>', path)
             return this_value
         if len(this_value):
             log.debug('_getxmlnode: %s <miss:%s|%s>', path, this_value[0], str(this_value))
-            keystore_cache.items[path[1:]] = this_value[0]
+            keystore_cache.items[path] = this_value[0]
 
         log.debug('_getxmlnode: %s <hit|%s>', path, this_value)
         return this_value

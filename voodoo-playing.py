@@ -1,27 +1,62 @@
 import cProfile
-#pr = cProfile.Profile()
+# pr = cProfile.Profile()
 # pr.enable()
 import blng.Voodoo
 # pr.disable()
 # pr.print_stats()
 
 
-#pr = cProfile.Profile()
+# pr = cProfile.Profile()
 # pr.enable()
 session = blng.Voodoo.DataAccess('crux-example.xml')
+vcache = session._keystorecache
+scache = session._schemacache
+schema = session._schema
+xmldoc = session._xmldoc
+
+xmlstr = """<crux-vooodoo>
+<simpleleaf old_value="9998">9999</simpleleaf>
+<morecomplex>
+<leaf2>a</leaf2>
+</morecomplex>
+<simplelist>
+<simplekey listkey="yes">firstkey</simplekey>
+</simplelist>
+<hyphen-leaf>abc123</hyphen-leaf>
+<outsidelist>
+<leafo listkey="yes">a</leafo>
+<insidelist>
+<leafi listkey="yes">A</leafi>
+</insidelist>
+</outsidelist>
+<outsidelist>
+<leafo listkey="yes">b</leafo>
+</outsidelist>
+</crux-vooodoo>"""
+
 # pr.disable()
 # pr.print_stats()
 
-#pr = cProfile.Profile()
+# pr = cProfile.Profile()
 # pr.enable()
 root = session.get_root()
 # pr.disable()
 # pr.print_stats()
 
 
-"""
+print("""
+session  (dumps(), loads())
+vache = Value Cache (indexed by xpath)
+scache = Schema Cache (indexed by xpath)
+schema = Schema XML DOC (Crux Format)
+xmldoc = Value XML DOC
+root = Voodo - root api
+xmlstr = xmlstring (output of dumps())
+""")
 
-#pr = cProfile.Profile()
+
+"""
+# pr = cProfile.Profile()
 # pr.enable()
 root.simpleleaf = 'Hello World!'
 # pr.disable()
@@ -48,33 +83,29 @@ a = end_time-start_time
 
 xmldoc = session._xmldoc
 
-#start_time = time.time()
+# start_time = time.time()
 # for x in range(n):
 #    e = xmldoc.xpath('//simpleleaf')[0] = str(x)
-#end_time = time.time()
+# end_time = time.time()
 
-#print((end_time-start_time), 'for', n)
+# print((end_time-start_time), 'for', n)
 # print((end_time-start_time)/n)
-#b = end_time-start_time
+# b = end_time-start_time
 
 
-#e = xmldoc.xpath('//simpleleaf')[0]
-#start_time = time.time()
+# e = xmldoc.xpath('//simpleleaf')[0]
+# start_time = time.time()
 # for x in range(n):
 #    e = str(x)
-#end_time = time.time()
+# end_time = time.time()
 
-#print((end_time-start_time), 'for', n)
+# print((end_time-start_time), 'for', n)
 # print((end_time-start_time)/n)
-#c = end_time-start_time
+# c = end_time-start_time
 
 # print((a/b)*100)
-
 """
-
-
-l = root.simplelist.create('sdf')
-print('-'*80)
-l.nonleafkey = 'sdf'
-print('='*80)
-print(session.dumps())
+session.loads(xmlstr)
+root.simpleleaf
+root.hyphen_leaf
+print(vcache.items)

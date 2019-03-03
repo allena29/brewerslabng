@@ -47,11 +47,12 @@ class TestVoodoo(unittest.TestCase):
 
         self.subject.loads(serilaised_xml)
         self.assertEqual(list(keystore_cache.items.keys()), [])
+        self.assertEqual(root.morecomplex.leaf2, 'a')
 
+        print(root.hyphen_leaf, 'fuck this is not getting cched and things cached dont have //')
         self.assertEqual(root.simpleleaf, '9999')
         self.assertEqual(root.hyphen_leaf, 'abc123')
-
-#        self.assertEqual(list(keystore_cache.items.keys()), ['/simpleleaf', '/hyphen_leaf'])
+        self.assertEqual(list(keystore_cache.items.keys()), ['//morecomplex', '//morecomplex/leaf2', '//hyphen_leaf', '//simpleleaf'])
 
     def test_advanced_list_with_dump(self):
         # note quite test driven but want to go to bed!
