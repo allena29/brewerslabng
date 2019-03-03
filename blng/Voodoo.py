@@ -536,9 +536,12 @@ class CruxVoodooList(CruxVoodooBase):
         spath = schemapath
         vpath = valuepath
 
-        args_as_list = []
-        for a in args:
-            args_as_list.append(a)
+        if isinstance(args, tuple):
+            args_as_list = []
+            for a in args:
+                args_as_list.append(a)
+        else:
+            args_as_list = [args]
 
         path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args_as_list)
 
@@ -602,6 +605,9 @@ class CruxVoodooList(CruxVoodooBase):
         return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
                                      value=None, root=False, listelement=str(args), log=log,
                                      parent=self)
+
+    def __dir__(self):
+        return []
 
 
 class CruxVoodooListElement(CruxVoodooBase):

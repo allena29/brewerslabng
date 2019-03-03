@@ -42,6 +42,7 @@ class TestVoodoo(unittest.TestCase):
 </crux-vooodoo>
 """
         self.assertEqual(self.subject.dumps(), expected_xml)
+        self.assertEqual(repr(y), "VoodooListElement: /twokeylist[primary='a'][secondary='b']")
 
     def test_deserialise_and_serilaise_example_with_cache_checks(self):
         serilaised_xml = """<crux-vooodoo>
@@ -387,6 +388,9 @@ class TestVoodoo(unittest.TestCase):
 
         expected_hits = ['nonleafkey', 'simplekey']
         self.assertEqual(dir(listelement), expected_hits)
+        self.assertEqual(dir(root.simplelist), [])
+        self.assertEqual(root.simplelist['Shamanaid'].simplekey, 'Shamanaid')
+        self.assertEqual(repr(root.simplelist['Shamanaid']), "VoodooListElement: /simplelist[simplekey='Shamanaid']")
 
     def test_basic_dir(self):
         root = self._get_session()
