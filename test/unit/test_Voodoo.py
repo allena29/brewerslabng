@@ -124,6 +124,33 @@ class TestVoodoo(unittest.TestCase):
         # raise ValueError(self.subject.dumps())
         self.assertEqual(self.subject.dumps(), re_serilaised_xml)
 
+    def test_parents(self):
+        root = self._get_session()
+        root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands._parent._parent.bands.create('Jesus and the Mary Chain')
+        root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands.create('Night Flowers')
+
+        expected_xml = """<crux-vooodoo>
+  <psychedelia>
+    <psychedelic_rock>
+      <noise_pop>
+        <bands>
+          <band listkey="yes">Jesus and the Mary Chain</band>
+        </bands>
+        <shoe_gaze>
+          <bands>
+            <band listkey="yes">Night Flowers</band>
+          </bands>
+        </shoe_gaze>
+      </noise_pop>
+    </psychedelic_rock>
+  </psychedelia>
+</crux-vooodoo>
+"""
+
+        self.assertEqual(self.subject.dumps(), expected_xml)
+        self.assertEqual(root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze._path, '/psychedelia/psychedelic_rock/noise_pop/shoe_gaze')
+        self.assertEqual(root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze._parent._path, '/psychedelia/psychedelic_rock/noise_pop')
+
     def test_list_within_list(self):
         root = self._get_session()
         a = root.simplelist.create('a')

@@ -177,7 +177,8 @@ class CruxVoodooBase:
         xmlstr = str(etree.tostring(xmldoc, pretty_print=True))
         return str(xmlstr).replace('\\n', '\n')[2:-1]
 
-    def __init__(self, schema, xmldoc, cache, schemapath, valuepath, value=None, root=False, listelement=None, log=None):
+    def __init__(self, schema, xmldoc, cache, schemapath, valuepath, value=None, root=False, listelement=None,
+                 log=None, parent=None):
         """
         A CurxNode is used to represent 'containing' structures within the yang module, primitive
         terminiating leaves are not CruxNodes.
@@ -193,6 +194,7 @@ class CruxVoodooBase:
         self.__dict__['_log'] = log
         self.__dict__['_schemapath'] = schemapath
         self.__dict__['_valuepath'] = valuepath
+        self.__dict__['_parent'] = parent
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
         self.__dict__['_type'] = 'wtf'
@@ -203,8 +205,10 @@ class CruxVoodooBase:
 
         log.info('initialise %s' % (valuepath))
         if not root:
+            self.__dict__['_path'] = valuepath[1:]
             self.__dict__['_thisschema'] = self._getschema(schemapath)
         else:
+            self.__dict__['_path'] = '/'
             self.__dict__['_thisschema'] = self.__dict__['_schema']
 
         for child in self.__dict__['_thisschema']:
@@ -278,14 +282,18 @@ class CruxVoodooBase:
                 return None
 
             log.info('get-leaf %s <node-no-value:%s>', vpath, yang_type)
-            return supported_types[yang_type](schema, xmldoc, cache, spath, vpath, value=None, root=False, log=log)
+            return supported_types[yang_type](schema, xmldoc, cache, spath, vpath,
+                                              value=None, root=False, log=log,
+                                              parent=self)
 
         if yang_type == 'leaf':
             log.info('get-leaf %s %s', vpath, this_value[0].text)
             return this_value[0].text
 
         log.info('get-leaf %s <node:%s>', vpath, yang_type)
-        return supported_types[yang_type](schema, xmldoc, cache, spath, vpath, value=this_value[0], root=False, log=log)
+        return supported_types[yang_type](schema, xmldoc, cache, spath, vpath,
+                                          value=this_value[0], root=False, log=log,
+                                          parent=self)
 
     def __setattr__(self, attr, value):
         log = self.__dict__['_log']
@@ -320,7 +328,6 @@ class CruxVoodooBase:
             keystore_cache.add_entry(vpath, this_value[0])
             return this_value[0]
         else:
-            print('MI', attr)
             c = 5/0
 
     def _find_longest_match_path(self, xmldoc, path):
@@ -336,11 +343,9 @@ class CruxVoodooBase:
 
         # working path is expected to look like this ['', 'morecomplex', 'leaf2']
         working_path = path[1:].split('/')
-        print(working_path, 'working_path')
         for i in range(len(working_path)-1, 1, -1):
-            print('*'*50)
             this_path = '/' + '/'.join(working_path[:i])
-            #results = xmldoc.xpath(this_path)
+            # results = xmldoc.xpath(this_path)
             results = self._getxmlnode(this_path)
             if len(results) == 1:
                 found = (i, this_path, results[0])
@@ -546,7 +551,9 @@ class CruxVoodooList(CruxVoodooBase):
             new_node = self._find_longest_match_path(xmldoc, path_to_list_element)
         else:
             log.debug('listcreate %s %s <old:exists>', vpath, str(args))
-        return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element, value=None, root=False, listelement=str(args), log=log)
+        return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
+                                     value=None, root=False, listelement=str(args), log=log,
+                                     parent=self)
 
 
 class CruxVoodooListElement(CruxVoodooBase):

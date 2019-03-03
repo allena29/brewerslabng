@@ -10,6 +10,53 @@ module integrationtest {
     type string;
   }
 
+  container psychedelia {
+    list bands {
+      key band;
+      leaf band {
+        type string;
+      }
+    }
+    container psychedelic-rock {
+      list bands {
+        key band;
+        leaf band {
+          type string;
+        }
+      }
+      container noise-pop {
+        list bands {
+          key band;
+          leaf band {
+            type string;
+          }
+        }
+        container shoe-gaze {
+          list bands {
+            key band;
+            leaf band {
+              type string;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  list twokeylist {
+    key "primary secondary";
+
+    leaf primary {
+      type boolean;
+    }
+    leaf secondary {
+      type boolean;
+    }
+    leaf tertiary {
+      type boolean;
+    }
+  }
+
   container simplecontainer {
     presence true;
   }

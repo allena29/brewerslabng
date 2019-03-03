@@ -3,6 +3,22 @@
   <crux-paths>
     <path/>
     <path>/simpleleaf</path>
+    <path>/psychedelia</path>
+    <path>/psychedelia/bands</path>
+    <path>/psychedelia/bands/band</path>
+    <path>/psychedelia/psychedelic-rock</path>
+    <path>/psychedelia/psychedelic-rock/bands</path>
+    <path>/psychedelia/psychedelic-rock/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/bands</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band</path>
+    <path>/twokeylist</path>
+    <path>/twokeylist/primary</path>
+    <path>/twokeylist/secondary</path>
+    <path>/twokeylist/tertiary</path>
     <path>/simplecontainer</path>
     <path>/simpleenum</path>
     <path>/patternstr</path>
@@ -60,6 +76,35 @@
     <path>/type2</path>
     <path>/type3</path>
     <path>/type4</path>
+    <path/>
+    <path>/crux-cli</path>
+    <path>/crux-cli/modules</path>
+    <path>/crux-cli/modules/module</path>
+    <path>/crux-cli/modules/namespace</path>
+    <path>/crux-cli/modules/revision</path>
+    <path>/crux-cli/modules/top-level-tags</path>
+    <path>/crux-cli/modules/top-level-tags/tag</path>
+    <path>/trigger</path>
+    <path>/info</path>
+    <path/>
+    <path>/tests</path>
+    <path>/tests/temperature</path>
+    <path>/tests/temperature/probes</path>
+    <path>/tests/temperature/probes/probeid</path>
+    <path>/tests/temperature/probes/run</path>
+    <path>/tests/temperature/probes/value</path>
+    <path/>
+    <path>/ds18b20-probe</path>
+    <path>/temperature-probe</path>
+    <path>/temperature</path>
+    <path/>
+    <path>/tests</path>
+    <path>/tests/tests</path>
+    <path>/tests/tests/temperature</path>
+    <path>/tests/tests/temperature/probes</path>
+    <path>/tests/tests/temperature/probes/probeid</path>
+    <path>/tests/tests/temperature/probes/run</path>
+    <path>/tests/tests/temperature/probes/value</path>
   </crux-paths>
   <inverted-schema>
     <simpleleaf>
@@ -69,6 +114,114 @@
         </leaf>
       </yin-schema>
     </simpleleaf>
+    <psychedelia>
+      <yin-schema path="/psychedelia">
+        <container>
+    </container>
+      </yin-schema>
+      <bands>
+        <yin-schema path="/psychedelia/bands">
+          <list>
+            <key value="band"/>
+          </list>
+        </yin-schema>
+        <band>
+          <yin-schema path="/psychedelia/bands/band">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </band>
+      </bands>
+      <psychedelic-rock>
+        <yin-schema path="/psychedelia/psychedelic-rock">
+          <container>
+      </container>
+        </yin-schema>
+        <bands>
+          <yin-schema path="/psychedelia/psychedelic-rock/bands">
+            <list>
+              <key value="band"/>
+            </list>
+          </yin-schema>
+          <band>
+            <yin-schema path="/psychedelia/psychedelic-rock/bands/band">
+              <leaf>
+                <type name="string"/>
+              </leaf>
+            </yin-schema>
+          </band>
+        </bands>
+        <noise-pop>
+          <yin-schema path="/psychedelia/psychedelic-rock/noise-pop">
+            <container>
+        </container>
+          </yin-schema>
+          <bands>
+            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands">
+              <list>
+                <key value="band"/>
+              </list>
+            </yin-schema>
+            <band>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands/band">
+                <leaf>
+                  <type name="string"/>
+                </leaf>
+              </yin-schema>
+            </band>
+          </bands>
+          <shoe-gaze>
+            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze">
+              <container>
+          </container>
+            </yin-schema>
+            <bands>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands">
+                <list>
+                  <key value="band"/>
+                </list>
+              </yin-schema>
+              <band>
+                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band">
+                  <leaf>
+                    <type name="string"/>
+                  </leaf>
+                </yin-schema>
+              </band>
+            </bands>
+          </shoe-gaze>
+        </noise-pop>
+      </psychedelic-rock>
+    </psychedelia>
+    <twokeylist>
+      <yin-schema path="/twokeylist">
+        <list>
+          <key value="primary secondary"/>
+        </list>
+      </yin-schema>
+      <primary>
+        <yin-schema path="/twokeylist/primary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </primary>
+      <secondary>
+        <yin-schema path="/twokeylist/secondary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </secondary>
+      <tertiary>
+        <yin-schema path="/twokeylist/tertiary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </tertiary>
+    </twokeylist>
     <simplecontainer>
       <yin-schema path="/simplecontainer">
         <container>
@@ -495,5 +648,180 @@
     </typedef>
       </yin-schema>
     </type4>
+    <crux-cli>
+      <yin-schema path="/crux-cli">
+        <container>
+    </container>
+      </yin-schema>
+      <modules>
+        <yin-schema path="/crux-cli/modules">
+          <list>
+            <key value="module"/>
+          </list>
+        </yin-schema>
+        <module>
+          <yin-schema path="/crux-cli/modules/module">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </module>
+        <namespace>
+          <yin-schema path="/crux-cli/modules/namespace">
+            <leaf>
+              <type name="string"/>
+              <mandatory value="true"/>
+            </leaf>
+          </yin-schema>
+        </namespace>
+        <revision>
+          <yin-schema path="/crux-cli/modules/revision">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </revision>
+        <top-level-tags>
+          <yin-schema path="/crux-cli/modules/top-level-tags">
+            <list>
+              <key value="tag"/>
+            </list>
+          </yin-schema>
+          <tag>
+            <yin-schema path="/crux-cli/modules/top-level-tags/tag">
+              <leaf>
+                <type name="string"/>
+              </leaf>
+            </yin-schema>
+          </tag>
+        </top-level-tags>
+      </modules>
+    </crux-cli>
+    <trigger>
+      <yin-schema path="/trigger">
+        <extension>
+    </extension>
+      </yin-schema>
+    </trigger>
+    <info>
+      <yin-schema path="/info">
+        <extension>
+    </extension>
+      </yin-schema>
+    </info>
+    <tests>
+      <yin-schema path="/tests">
+        <container>
+      </container>
+      </yin-schema>
+      <temperature>
+        <yin-schema path="/tests/temperature">
+          <container>
+        </container>
+        </yin-schema>
+        <probes>
+          <yin-schema path="/tests/temperature/probes">
+            <list>
+              <key value="probeid"/>
+            </list>
+          </yin-schema>
+          <probeid>
+            <yin-schema path="/tests/temperature/probes/probeid">
+              <leaf>
+                <type name="brewerslab-types__temperature-probe"/>
+              </leaf>
+            </yin-schema>
+          </probeid>
+          <run>
+            <yin-schema path="/tests/temperature/probes/run">
+              <leaf>
+                <type name="boolean"/>
+              </leaf>
+            </yin-schema>
+          </run>
+          <value>
+            <yin-schema path="/tests/temperature/probes/value">
+              <leaf>
+                <type name="brewerslab-types__temperature"/>
+              </leaf>
+            </yin-schema>
+          </value>
+        </probes>
+      </temperature>
+    </tests>
+    <ds18b20-probe>
+      <yin-schema path="/ds18b20-probe">
+        <typedef>
+          <type name="string">
+            <pattern value="28-[0-9a-f]{1,32}">
+              <error-message>
+                <value>Invalid DS18B20 probe id</value>
+              </error-message>
+            </pattern>
+          </type>
+        </typedef>
+      </yin-schema>
+    </ds18b20-probe>
+    <temperature-probe>
+      <yin-schema path="/temperature-probe">
+        <typedef>
+          <type name="union">
+            <type name="ds18b20-probe"/>
+          </type>
+        </typedef>
+      </yin-schema>
+    </temperature-probe>
+    <temperature>
+      <yin-schema path="/temperature">
+        <typedef>
+          <type name="decimal64">
+            <fraction-digits value="3"/>
+          </type>
+        </typedef>
+      </yin-schema>
+    </temperature>
+    <tests>
+      <yin-schema path="/tests"/>
+      <tests>
+        <yin-schema path="/tests/tests">
+          <container>
+      </container>
+        </yin-schema>
+        <temperature>
+          <yin-schema path="/tests/tests/temperature">
+            <container>
+        </container>
+          </yin-schema>
+          <probes>
+            <yin-schema path="/tests/tests/temperature/probes">
+              <list>
+                <key value="probeid"/>
+              </list>
+            </yin-schema>
+            <probeid>
+              <yin-schema path="/tests/tests/temperature/probes/probeid">
+                <leaf>
+                  <type name="brewerslab-types__temperature-probe"/>
+                </leaf>
+              </yin-schema>
+            </probeid>
+            <run>
+              <yin-schema path="/tests/tests/temperature/probes/run">
+                <leaf>
+                  <type name="boolean"/>
+                </leaf>
+              </yin-schema>
+            </run>
+            <value>
+              <yin-schema path="/tests/tests/temperature/probes/value">
+                <leaf>
+                  <type name="brewerslab-types__temperature"/>
+                </leaf>
+              </yin-schema>
+            </value>
+          </probes>
+        </temperature>
+      </tests>
+    </tests>
   </inverted-schema>
 </crux-schema>
