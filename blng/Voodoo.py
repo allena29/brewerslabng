@@ -218,9 +218,6 @@ class CruxVoodooBase:
         if listelement:
             self.__dict__['_mykeys'] = listelement
 
-    def voodoo(self):
-        print('This is some vooodoo magic sh!t')
-
     def __name__(self):
         return "Ting Tings - that's not my name"
 
@@ -232,6 +229,12 @@ class CruxVoodooBase:
             return self.__dict__['_value'].text
         except:
             return ''
+
+    def show_children(self):
+        children = self.__dir__()
+        children.sort()
+        for x in children:
+            print(x)
 
     def __getattr__(self, attr):
         if attr in ('_ipython_canary_method_should_not_exist_', '_repr_mimebundle_'):

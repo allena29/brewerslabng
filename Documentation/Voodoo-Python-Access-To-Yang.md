@@ -4,8 +4,72 @@ See.. [CRUX Format](Crux-Yang-Representation.md)
 
 ## Usage:
 
+The example below shows a very basic overview of loading in an serialised XML payload, changing a value and then re-serialising the data.
+
+```
+>>>>>> import blng.Voodoo
+>>>>>> session = blng.Voodoo.DataAccess('crux-example.xml')
+>>>>>> root = session.get_root()
+>>>>>> root
+VoodooRoot
+
+>>>>>> print(root.morecomplex)
+VoodooContainer: /morecomplex
+
+
+>>>>>> root.morecomplex.show_children()
+VoodooContainer: /morecomplex
+
+>>>>>> xmlstr = """<crux-vooodoo>
+<simpleleaf old_value="9998">9999</simpleleaf>
+<morecomplex>
+<leaf2>a</leaf2>
+</morecomplex>
+<simplelist>
+<simplekey listkey="yes">firstkey</simplekey>
+</simplelist>
+<hyphen-leaf>abc123</hyphen-leaf>
+<outsidelist>
+<leafo listkey="yes">a</leafo>
+<insidelist>
+<leafi listkey="yes">A</leafi>
+</insidelist>
+</outsidelist>
+<outsidelist>
+<leafo listkey="yes">b</leafo>
+</outsidelist>
+</crux-vooodoo>"""
+
+>>>>>> session.loads(xmlstr)
+>>>>>> print(root.simpleleaf)
+9999
+
+>>>>>> root.simpleleaf = '55'
+>>>>>> print(session.dumps())
+<crux-vooodoo><simpleleaf old_value="9998">9999</simpleleaf>
+<morecomplex>
+<leaf2>a</leaf2>
+</morecomplex>
+<simplelist>
+<simplekey listkey="yes">firstkey</simplekey>
+</simplelist>
+<hyphen-leaf>abc123</hyphen-leaf>
+<outsidelist>
+<leafo listkey="yes">a</leafo>
+<insidelist>
+<leafi listkey="yes">A</leafi>
+</insidelist>
+</outsidelist>
+<outsidelist>
+<leafo listkey="yes">b</leafo>
+</outsidelist>
+</crux-vooodoo>
+```
+
+
 
 ## Internal:
+
 
 
 
