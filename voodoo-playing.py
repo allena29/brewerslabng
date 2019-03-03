@@ -71,6 +71,10 @@ xmldoc = session._xmldoc
 # print((a/b)*100)
 
 """
-listelement1 = root.simplelist.create('A')
-listelement1.nonleafkey = 'a'
-listelement2 = root.simplelist.create('B')
+
+
+l = root.simplelist.create('sdf')
+print('-'*80)
+l.nonleafkey = 'sdf'
+print('='*80)
+print(session.dumps())

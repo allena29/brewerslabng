@@ -27,3 +27,5 @@ See.. [CRUX Format](Crux-Yang-Representation.md)
 - we can assign a value to a container.
 - ~~ensure 'hyphens' in yang are dealt with~~
 - cache crux objects as they are created  or instantiate every single time.
+- what about mandatory things... within a container/list-node (probably not realistic to force it)
+- ~~longest_path_match creates fails to catch list-keys~~
