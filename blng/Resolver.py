@@ -1,9 +1,7 @@
 import logging
-import os
 import re
 import sys
 sys.path.append("../")
-from blng import Common
 from blng import Error
 from lxml import etree
 
@@ -88,7 +86,7 @@ class Resolver:
                     xpath = xpath + '/' + path_split[idx]
                     self._validate_value(current_path, value)
 
-                    return (xpath, 'primitive',  value)
+                    return (xpath, 'primitive', value)
                 elif schema_simple_type == 'list':
                     keys = []
                     xpath = xpath + '/' + path_split[idx]

@@ -1,10 +1,8 @@
 import logging
 import os
-import re
 from lxml import etree
 import sys
 sys.path.append('../')
-from blng import Common
 from blng import Error
 
 

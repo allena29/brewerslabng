@@ -237,7 +237,7 @@ class CruxVoodooBase:
         return "Ting Tings - that's not my name"
 
     def __repr__(self):
-        return 'VoodooNode: '
+        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][1:]
 
     def __str__(self):
         try:
@@ -470,9 +470,6 @@ class CruxVoodooBase:
 
         schema_cache.add_entry(path, this_schema[0])
         return this_schema[0]
-
-    def __repr__(self):
-        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][1:]
 
 
 class CruxVoodooRoot(CruxVoodooBase):
