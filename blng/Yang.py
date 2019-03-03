@@ -196,3 +196,20 @@ class Yang:
         </nc:filter>""" % (filter)
         data_str = str(netconf.get_config(source=source, filter=filter_xml))
         return etree.fromstring(data_str.encode('UTF-8')).getchildren()[0]
+
+
+if __name__ == '__main__':
+    sys.path.append('blng')
+
+    y = Yang()
+
+    for ym in sys.argv[1:]:
+        print("   Munge %s" % (ym))
+        munger = Munger.Munger()
+        (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
+
+        with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
+            inverted_file.write(munger.pretty(crux_xmldoc))
+        y.cli_modules[ym] = ym
+
+    y._munge_all_modules_into_single_schema()

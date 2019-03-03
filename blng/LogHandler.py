@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import syslog
-import sys
 import time
 import logging
 
@@ -17,7 +16,7 @@ class LogHandler:
 
     def __init__(self, component):
         """
-        Logging 
+        Logging
             1 = always log to syslog and local logger
             2 = logger only
             3 = auto-reduce logging to syslog but always log to local logger

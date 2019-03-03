@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Usage: ./compile "brewerslab integrationtest"
+
+one=$1
+NEW_PYTHON_PATH="blng:$PYTHONPATH"
+
+
+yanglist=""
+timeyangchanged=`stat -f %m yang`
+timelastcompiled=`stat -f %m crux-example.xml`
+if [ $timelastcompiled -gt $timeyangchanged ]
+then
+	if [ -d .cache ]
+	then
+		echo "No changes in the yang - skipping compile"
+		exit 0
+	fi
+fi
+
+rm -fr .cache
+mkdir -p .cache
+
+set -euo pipefail
+IFS=$'\n\t'
+
+
+echo "Creating YIN files...."
+cd yang
+for file in *.yang
+do
+  yin=`echo $file | sed -e 's/.yang//'`
+  echo "   $file"
+  pyang -f yin $file >../.cache/$yin.yin
+  pyang -f tree $file >../.cache/$yin.txt
+  yanglist="$yin $yanglist"
+done
+
+echo "Converting to CRUX files...."
+cd ../
+
+if [ "$one" = "" ]
+then
+  yangmodules=$yanglist
+else
+  yangmodules=$1
+fi
+
+PYTHONPATH=$NEW_PYTHON_PATH python blng/Yang.py $yangmodules
+
+
+echo "Combining into single document"
+xmllint --format .cache/__crux-schema.xml >crux-example.xml
+echo "  OK"

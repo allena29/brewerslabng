@@ -1,9 +1,6 @@
 import socket
 import struct
 import hashlib
-import logging
-import syslog
-import sys
 import json
 
 import blng.LogHandler as LogHandler

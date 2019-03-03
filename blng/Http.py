@@ -50,7 +50,7 @@ class Http:
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
 
-            self.callback_GET(sel.path)
+            self.callback_GET(self.path)
 
         self.http_server.RequestHandlerClass.do_POST = do_POST
         self.http_server.RequestHandlerClass.do_GET = do_GET

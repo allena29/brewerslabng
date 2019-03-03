@@ -18,3 +18,4 @@ persist/
 yang/schema.xml
 .cache/
 covhtml/
+pyangbinding.py

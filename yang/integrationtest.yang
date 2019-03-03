@@ -10,6 +10,53 @@ module integrationtest {
     type string;
   }
 
+  container psychedelia {
+    list bands {
+      key band;
+      leaf band {
+        type string;
+      }
+    }
+    container psychedelic-rock {
+      list bands {
+        key band;
+        leaf band {
+          type string;
+        }
+      }
+      container noise-pop {
+        list bands {
+          key band;
+          leaf band {
+            type string;
+          }
+        }
+        container shoe-gaze {
+          list bands {
+            key band;
+            leaf band {
+              type string;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  list twokeylist {
+    key "primary secondary";
+
+    leaf primary {
+      type boolean;
+    }
+    leaf secondary {
+      type boolean;
+    }
+    leaf tertiary {
+      type boolean;
+    }
+  }
+
   container simplecontainer {
     presence true;
   }
@@ -30,7 +77,69 @@ module integrationtest {
     }
   }
 
+  leaf hyphen-leaf {
+    type string;
+  }
+
+  list outsidelist {
+    key "leafo";
+
+    leaf leafo {
+      type string;
+    }
+
+    list insidelist {
+      key "leafi";
+
+      leaf leafi {
+        type string;
+      }
+    }
+
+    list otherinsidelist {
+      key "otherlist1 otherlist2 otherlist3";
+      leaf otherlist1 {
+        type string;
+      }
+
+      leaf otherlist2 {
+        type string;
+      }
+
+      leaf otherlist3 {
+        type string;
+      }
+
+      leaf otherlist4 {
+        type string;
+      }
+
+      leaf otherlist5 {
+        type string;
+      }
+
+      leaf language {
+        type enumeration {
+          enum french;
+          enum german;
+          enum dutch;
+          enum swedish;
+          enum danish;
+          enum italian;
+          enum spanish;
+        }
+      }
+    }
+
+    leaf other {
+      type string;
+    }
+  }
+
   container container-and-lists {
+    leaf just-a-key {
+      type string;
+    }
     list multi-key-list {
       key "A B";
 

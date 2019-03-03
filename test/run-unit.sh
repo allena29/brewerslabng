@@ -1,3 +1,9 @@
 #!/bin/bash
 
-PYTHONPATH=common python -m unittest discover test/unit
+curdir=`pwd`
+NEW_PYTHON_PATH="$curdir/blng:$curdir/test/unit/:$PYTHONPATH"  
+
+set -euo pipefail
+IFS=$'\n\t'
+
+PYTHONPATH="$NEW_PYTHON_PATH" nose2 -s test/unit -t python --verbose --with-coverage --coverage-report html

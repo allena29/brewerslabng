@@ -1,18 +1,47 @@
+<?xml version="1.0"?>
 <crux-schema>
   <crux-paths>
     <path/>
-    <path>/tests</path>
-    <path>/tests/temperature</path>
-    <path>/tests/temperature/probes</path>
-    <path>/tests/temperature/probes/probeid</path>
-    <path>/tests/temperature/probes/run</path>
-    <path>/tests/temperature/probes/value</path>
-    <path/>
-    <path>/type-a</path>
-    <path>/type1</path>
-    <path>/type2</path>
-    <path>/type3</path>
-    <path>/type4</path>
+    <path>/simpleleaf</path>
+    <path>/psychedelia</path>
+    <path>/psychedelia/bands</path>
+    <path>/psychedelia/bands/band</path>
+    <path>/psychedelia/psychedelic-rock</path>
+    <path>/psychedelia/psychedelic-rock/bands</path>
+    <path>/psychedelia/psychedelic-rock/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/bands</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band</path>
+    <path>/twokeylist</path>
+    <path>/twokeylist/primary</path>
+    <path>/twokeylist/secondary</path>
+    <path>/twokeylist/tertiary</path>
+    <path>/simplecontainer</path>
+    <path>/simpleenum</path>
+    <path>/patternstr</path>
+    <path>/hyphen-leaf</path>
+    <path>/outsidelist</path>
+    <path>/outsidelist/leafo</path>
+    <path>/outsidelist/insidelist</path>
+    <path>/outsidelist/insidelist/leafi</path>
+    <path>/outsidelist/otherinsidelist</path>
+    <path>/outsidelist/otherinsidelist/otherlist1</path>
+    <path>/outsidelist/otherinsidelist/otherlist2</path>
+    <path>/outsidelist/otherinsidelist/otherlist3</path>
+    <path>/outsidelist/otherinsidelist/otherlist4</path>
+    <path>/outsidelist/otherinsidelist/otherlist5</path>
+    <path>/outsidelist/otherinsidelist/language</path>
+    <path>/outsidelist/other</path>
+    <path>/container-and-lists</path>
+    <path>/container-and-lists/just-a-key</path>
+    <path>/container-and-lists/multi-key-list</path>
+    <path>/container-and-lists/multi-key-list/A</path>
+    <path>/container-and-lists/multi-key-list/B</path>
+    <path>/container-and-lists/multi-key-list/inner</path>
+    <path>/container-and-lists/multi-key-list/inner/C</path>
     <path>/secondlist</path>
     <path>/secondlist/listb</path>
     <path>/secondlist/listb/secondkey</path>
@@ -24,23 +53,14 @@
     <path>/secondlist/listb/nothings</path>
     <path>/secondlist/listb/FIRSTOPTION</path>
     <path>/secondlist/listb/SECONDOPTION</path>
-    <path>/group-a</path>
-    <path>/simpleleaf</path>
-    <path>/simplecontainer</path>
-    <path>/simpleenum</path>
-    <path>/patternstr</path>
-    <path>/container-and-lists</path>
-    <path>/container-and-lists/multi-key-list</path>
-    <path>/container-and-lists/multi-key-list/A</path>
-    <path>/container-and-lists/multi-key-list/B</path>
-    <path>/container-and-lists/multi-key-list/inner</path>
-    <path>/container-and-lists/multi-key-list/inner/C</path>
     <path>/lista</path>
     <path>/lista/firstkey</path>
     <path>/lista/secondlist</path>
     <path>/simplelist</path>
     <path>/simplelist/simplekey</path>
     <path>/simplelist/nonleafkey</path>
+    <path>/type-a</path>
+    <path>/group-a</path>
     <path>/resolver</path>
     <path>/resolver/leaf-a</path>
     <path>/morecomplex</path>
@@ -52,85 +72,304 @@
     <path>/morecomplex/inner/leaf5</path>
     <path>/morecomplex/inner/leaf6</path>
     <path>/morecomplex/inner/leaf7</path>
+    <path>/type1</path>
+    <path>/type2</path>
+    <path>/type3</path>
+    <path>/type4</path>
   </crux-paths>
   <inverted-schema>
-    <tests>
-      <yin-schema path="/tests">
-        <container>
-        </container>
+    <simpleleaf>
+      <yin-schema path="/simpleleaf">
+        <leaf>
+          <type name="string"/>
+        </leaf>
       </yin-schema>
-      <temperature>
-        <yin-schema path="/tests/temperature">
-          <container>
-          </container>
+    </simpleleaf>
+    <psychedelia>
+      <yin-schema path="/psychedelia">
+        <container>
+    </container>
+      </yin-schema>
+      <bands>
+        <yin-schema path="/psychedelia/bands">
+          <list>
+            <key value="band"/>
+          </list>
         </yin-schema>
-        <probes>
-          <yin-schema path="/tests/temperature/probes">
+        <band>
+          <yin-schema path="/psychedelia/bands/band">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </band>
+      </bands>
+      <psychedelic-rock>
+        <yin-schema path="/psychedelia/psychedelic-rock">
+          <container>
+      </container>
+        </yin-schema>
+        <bands>
+          <yin-schema path="/psychedelia/psychedelic-rock/bands">
             <list>
-              <key value="probeid"/>
+              <key value="band"/>
             </list>
           </yin-schema>
-          <probeid>
-            <yin-schema path="/tests/temperature/probes/probeid">
+          <band>
+            <yin-schema path="/psychedelia/psychedelic-rock/bands/band">
               <leaf>
-                <type name="brewerslab-types__temperature-probe"/>
+                <type name="string"/>
               </leaf>
             </yin-schema>
-          </probeid>
-          <run>
-            <yin-schema path="/tests/temperature/probes/run">
-              <leaf>
-                <type name="boolean"/>
-              </leaf>
+          </band>
+        </bands>
+        <noise-pop>
+          <yin-schema path="/psychedelia/psychedelic-rock/noise-pop">
+            <container>
+        </container>
+          </yin-schema>
+          <bands>
+            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands">
+              <list>
+                <key value="band"/>
+              </list>
             </yin-schema>
-          </run>
-          <value>
-            <yin-schema path="/tests/temperature/probes/value">
-              <leaf>
-                <type name="brewerslab-types__temperature"/>
-              </leaf>
+            <band>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands/band">
+                <leaf>
+                  <type name="string"/>
+                </leaf>
+              </yin-schema>
+            </band>
+          </bands>
+          <shoe-gaze>
+            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze">
+              <container>
+          </container>
             </yin-schema>
-          </value>
-        </probes>
-      </temperature>
-    </tests>
-    <type-a>
-      <yin-schema path="/type-a">
-        <typedef>
-        </typedef>
+            <bands>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands">
+                <list>
+                  <key value="band"/>
+                </list>
+              </yin-schema>
+              <band>
+                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band">
+                  <leaf>
+                    <type name="string"/>
+                  </leaf>
+                </yin-schema>
+              </band>
+            </bands>
+          </shoe-gaze>
+        </noise-pop>
+      </psychedelic-rock>
+    </psychedelia>
+    <twokeylist>
+      <yin-schema path="/twokeylist">
+        <list>
+          <key value="primary secondary"/>
+        </list>
       </yin-schema>
-    </type-a>
-    <type1>
-      <yin-schema path="/type1">
-        <typedef>
+      <primary>
+        <yin-schema path="/twokeylist/primary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </primary>
+      <secondary>
+        <yin-schema path="/twokeylist/secondary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </secondary>
+      <tertiary>
+        <yin-schema path="/twokeylist/tertiary">
+          <leaf>
+            <type name="boolean"/>
+          </leaf>
+        </yin-schema>
+      </tertiary>
+    </twokeylist>
+    <simplecontainer>
+      <yin-schema path="/simplecontainer">
+        <container>
+          <presence value="true"/>
+        </container>
+      </yin-schema>
+    </simplecontainer>
+    <simpleenum>
+      <yin-schema path="/simpleenum">
+        <leaf>
+          <type name="enumeration">
+            <enum name="A">
+              <value value="1"/>
+            </enum>
+          </type>
+        </leaf>
+      </yin-schema>
+    </simpleenum>
+    <patternstr>
+      <yin-schema path="/patternstr">
+        <leaf>
           <type name="string">
-            <pattern value="brew[a-z]*">
+            <pattern value=".*Strasse">
               <error-message>
-                <value>String must start with brew</value>
+                <value>sdfsdf</value>
               </error-message>
             </pattern>
           </type>
-        </typedef>
+        </leaf>
       </yin-schema>
-    </type1>
-    <type2>
-      <yin-schema path="/type2">
-        <typedef>
-        </typedef>
+    </patternstr>
+    <hyphen-leaf>
+      <yin-schema path="/hyphen-leaf">
+        <leaf>
+          <type name="string"/>
+        </leaf>
       </yin-schema>
-    </type2>
-    <type3>
-      <yin-schema path="/type3">
-        <typedef>
-        </typedef>
+    </hyphen-leaf>
+    <outsidelist>
+      <yin-schema path="/outsidelist">
+        <list>
+          <key value="leafo"/>
+        </list>
       </yin-schema>
-    </type3>
-    <type4>
-      <yin-schema path="/type4">
-        <typedef>
-        </typedef>
+      <leafo>
+        <yin-schema path="/outsidelist/leafo">
+          <leaf>
+            <type name="string"/>
+          </leaf>
+        </yin-schema>
+      </leafo>
+      <insidelist>
+        <yin-schema path="/outsidelist/insidelist">
+          <list>
+            <key value="leafi"/>
+          </list>
+        </yin-schema>
+        <leafi>
+          <yin-schema path="/outsidelist/insidelist/leafi">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </leafi>
+      </insidelist>
+      <otherinsidelist>
+        <yin-schema path="/outsidelist/otherinsidelist">
+          <list>
+            <key value="otherlist1 otherlist2 otherlist3"/>
+          </list>
+        </yin-schema>
+        <otherlist1>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist1">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist1>
+        <otherlist2>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist2">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist2>
+        <otherlist3>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist3">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist3>
+        <otherlist4>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist4">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist4>
+        <otherlist5>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist5">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist5>
+        <language>
+          <yin-schema path="/outsidelist/otherinsidelist/language">
+            <leaf>
+              <type name="enumeration">
+                <enum name="french"/>
+                <enum name="german"/>
+                <enum name="dutch"/>
+                <enum name="swedish"/>
+                <enum name="danish"/>
+                <enum name="italian"/>
+                <enum name="spanish"/>
+              </type>
+            </leaf>
+          </yin-schema>
+        </language>
+      </otherinsidelist>
+      <other>
+        <yin-schema path="/outsidelist/other">
+          <leaf>
+            <type name="string"/>
+          </leaf>
+        </yin-schema>
+      </other>
+    </outsidelist>
+    <container-and-lists>
+      <yin-schema path="/container-and-lists">
+        <container>
+    </container>
       </yin-schema>
-    </type4>
+      <just-a-key>
+        <yin-schema path="/container-and-lists/just-a-key">
+          <leaf>
+            <type name="string"/>
+          </leaf>
+        </yin-schema>
+      </just-a-key>
+      <multi-key-list>
+        <yin-schema path="/container-and-lists/multi-key-list">
+          <list>
+            <key value="A B"/>
+          </list>
+        </yin-schema>
+        <A>
+          <yin-schema path="/container-and-lists/multi-key-list/A">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </A>
+        <B>
+          <yin-schema path="/container-and-lists/multi-key-list/B">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </B>
+        <inner>
+          <yin-schema path="/container-and-lists/multi-key-list/inner">
+            <container>
+        </container>
+          </yin-schema>
+          <C>
+            <yin-schema path="/container-and-lists/multi-key-list/inner/C">
+              <leaf>
+                <type name="string"/>
+              </leaf>
+            </yin-schema>
+          </C>
+        </inner>
+      </multi-key-list>
+    </container-and-lists>
     <secondlist>
       <yin-schema path="/secondlist"/>
       <listb>
@@ -163,7 +402,7 @@
         <things>
           <yin-schema path="/secondlist/listb/things">
             <container>
-            </container>
+        </container>
           </yin-schema>
           <thing>
             <yin-schema path="/secondlist/listb/things/thing">
@@ -183,16 +422,16 @@
         </things>
         <nothings>
           <yin-schema path="/secondlist/listb/nothings">
-            <container />
+            <container/>
           </yin-schema>
         </nothings>
         <FIRSTOPTION>
           <yin-schema path="/secondlist/listb/FIRSTOPTION">
             <leaf>
+              <type name="string"/>
               <crux__info>
                 <crux__text>choice</crux__text>
               </crux__info>
-              <type name="string"/>
             </leaf>
           </yin-schema>
         </FIRSTOPTION>
@@ -205,87 +444,6 @@
         </SECONDOPTION>
       </listb>
     </secondlist>
-    <group-a>
-      <yin-schema path="/group-a"/>
-    </group-a>
-    <simpleleaf>
-      <yin-schema path="/simpleleaf">
-        <leaf>
-          <type name="string"/>
-        </leaf>
-      </yin-schema>
-    </simpleleaf>
-    <simplecontainer>
-      <yin-schema path="/simplecontainer">
-        <container>
-          <presence value="true"/>
-        </container>
-      </yin-schema>
-    </simplecontainer>
-    <simpleenum>
-      <yin-schema path="/simpleenum">
-        <leaf>
-          <type name="enumeration">
-            <enum name="A">
-              <value value="1"/>
-            </enum>
-          </type>
-        </leaf>
-      </yin-schema>
-    </simpleenum>
-    <patternstr>
-      <yin-schema path="/patternstr">
-        <leaf>
-          <type name="string">
-            <pattern value=".*Strasse">
-              <error-message>
-                <value>sdfsdf</value>
-              </error-message>
-            </pattern>
-          </type>
-        </leaf>
-      </yin-schema>
-    </patternstr>
-    <container-and-lists>
-      <yin-schema path="/container-and-lists">
-        <container>
-        </container>
-      </yin-schema>
-      <multi-key-list>
-        <yin-schema path="/container-and-lists/multi-key-list">
-          <list>
-            <key value="A B"/>
-          </list>
-        </yin-schema>
-        <A>
-          <yin-schema path="/container-and-lists/multi-key-list/A">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </A>
-        <B>
-          <yin-schema path="/container-and-lists/multi-key-list/B">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </B>
-        <inner>
-          <yin-schema path="/container-and-lists/multi-key-list/inner">
-            <container>
-            </container>
-          </yin-schema>
-          <C>
-            <yin-schema path="/container-and-lists/multi-key-list/inner/C">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </C>
-        </inner>
-      </multi-key-list>
-    </container-and-lists>
     <lista>
       <yin-schema path="/lista">
         <list>
@@ -301,7 +459,7 @@
       </firstkey>
       <secondlist>
         <yin-schema path="/lista/secondlist">
-          <uses />
+          <uses/>
         </yin-schema>
       </secondlist>
     </lista>
@@ -326,10 +484,19 @@
         </yin-schema>
       </nonleafkey>
     </simplelist>
+    <type-a>
+      <yin-schema path="/type-a">
+        <typedef>
+    </typedef>
+      </yin-schema>
+    </type-a>
+    <group-a>
+      <yin-schema path="/group-a"/>
+    </group-a>
     <resolver>
       <yin-schema path="/resolver">
         <container>
-        </container>
+    </container>
       </yin-schema>
       <leaf-a>
         <yin-schema path="/resolver/leaf-a">
@@ -349,13 +516,13 @@
     <morecomplex>
       <yin-schema path="/morecomplex">
         <container>
-        </container>
+    </container>
       </yin-schema>
       <nonconfig>
         <yin-schema path="/morecomplex/nonconfig">
           <leaf>
-            <type name="string"/>
             <config value="false"/>
+            <type name="string"/>
           </leaf>
         </yin-schema>
       </nonconfig>
@@ -369,7 +536,7 @@
       <leaf3>
         <yin-schema path="/morecomplex/leaf3">
           <leaf>
-          </leaf>
+      </leaf>
         </yin-schema>
       </leaf3>
       <leaf4>
@@ -421,5 +588,36 @@
         </leaf7>
       </inner>
     </morecomplex>
+    <type1>
+      <yin-schema path="/type1">
+        <typedef>
+          <type name="string">
+            <pattern value="brew[a-z]*">
+              <error-message>
+                <value>String must start with brew</value>
+              </error-message>
+            </pattern>
+          </type>
+        </typedef>
+      </yin-schema>
+    </type1>
+    <type2>
+      <yin-schema path="/type2">
+        <typedef>
+    </typedef>
+      </yin-schema>
+    </type2>
+    <type3>
+      <yin-schema path="/type3">
+        <typedef>
+    </typedef>
+      </yin-schema>
+    </type3>
+    <type4>
+      <yin-schema path="/type4">
+        <typedef>
+    </typedef>
+      </yin-schema>
+    </type4>
   </inverted-schema>
 </crux-schema>
