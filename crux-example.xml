@@ -11,6 +11,14 @@
     <path>/outsidelist/leafo</path>
     <path>/outsidelist/insidelist</path>
     <path>/outsidelist/insidelist/leafi</path>
+    <path>/outsidelist/otherinsidelist</path>
+    <path>/outsidelist/otherinsidelist/otherlist1</path>
+    <path>/outsidelist/otherinsidelist/otherlist2</path>
+    <path>/outsidelist/otherinsidelist/otherlist3</path>
+    <path>/outsidelist/otherinsidelist/otherlist4</path>
+    <path>/outsidelist/otherinsidelist/otherlist5</path>
+    <path>/outsidelist/otherinsidelist/language</path>
+    <path>/outsidelist/other</path>
     <path>/container-and-lists</path>
     <path>/container-and-lists/just-a-key</path>
     <path>/container-and-lists/multi-key-list</path>
@@ -126,6 +134,70 @@
           </yin-schema>
         </leafi>
       </insidelist>
+      <otherinsidelist>
+        <yin-schema path="/outsidelist/otherinsidelist">
+          <list>
+            <key value="otherlist1 otherlist2 otherlist3"/>
+          </list>
+        </yin-schema>
+        <otherlist1>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist1">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist1>
+        <otherlist2>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist2">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist2>
+        <otherlist3>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist3">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist3>
+        <otherlist4>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist4">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist4>
+        <otherlist5>
+          <yin-schema path="/outsidelist/otherinsidelist/otherlist5">
+            <leaf>
+              <type name="string"/>
+            </leaf>
+          </yin-schema>
+        </otherlist5>
+        <language>
+          <yin-schema path="/outsidelist/otherinsidelist/language">
+            <leaf>
+              <type name="enumeration">
+                <enum name="french"/>
+                <enum name="german"/>
+                <enum name="dutch"/>
+                <enum name="swedish"/>
+                <enum name="danish"/>
+                <enum name="italian"/>
+                <enum name="spanish"/>
+              </type>
+            </leaf>
+          </yin-schema>
+        </language>
+      </otherinsidelist>
+      <other>
+        <yin-schema path="/outsidelist/other">
+          <leaf>
+            <type name="string"/>
+          </leaf>
+        </yin-schema>
+      </other>
     </outsidelist>
     <container-and-lists>
       <yin-schema path="/container-and-lists">

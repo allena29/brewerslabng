@@ -121,10 +121,137 @@ class TestVoodoo(unittest.TestCase):
   </outsidelist>
 </crux-vooodoo>
 """
-        #raise ValueError(self.subject.dumps())
+        # raise ValueError(self.subject.dumps())
         self.assertEqual(self.subject.dumps(), re_serilaised_xml)
 
-    def test_advanced_list_with_dump(self):
+    def test_list_within_list(self):
+        root = self._get_session()
+        a = root.simplelist.create('a')
+
+        for c in range(2):
+            root = self._get_session()
+
+            a = root.simplelist.create('a')
+            a.nonleafkey = 'b'
+            b = root.simplelist.create('b')
+            b.nonleafkey = 'bb'
+            A = root.outsidelist.create('AA')
+            B = root.outsidelist.create('BB')
+            B = root.outsidelist.create('BB')
+            B = root.outsidelist.create('BB')
+            B.insidelist.create('bbbbbb')
+            A = root.outsidelist.create('AA')
+            a = A.insidelist.create('aaaaa')
+            english = A.otherinsidelist.create('one', 'two', 'three')
+            english.otherlist4 = 'four'
+            french = A.otherinsidelist.create('un', 'deux', 'trois')
+            french.otherlist4 = 'quatre'
+            french.language = 'french'
+            italian = B.otherinsidelist.create('uno', 'due', 'tres')
+            italian.otherlist4 = 'quattro'
+            italian.language = 'italian'
+            spanish = B.otherinsidelist.create('uno', 'dos', 'tres')
+            spanish.otherlist4 = 'cuatro'
+            spanish.language = 'spanish'
+            spanish = A.otherinsidelist.create('uno', 'dos', 'tres')
+            spanish.otherlist4 = 'cuatro'
+            spanish.language = 'spanish'
+            german = B.otherinsidelist.create('eins', 'zwei', 'drei')
+            with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+                swedish = B.otherinsidelist.create('et', 'två', 'tre', 'fyra')
+            self.assertEqual(str(context.exception), "Wrong Number of keys require 3 got 4. keys defined: ['otherlist1', 'otherlist2', 'otherlist3']")
+
+            with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+                danish = A.otherinsidelist.create('et', 'to')
+                danish.language = 'danish'
+            self.assertEqual(str(context.exception), "Wrong Number of keys require 3 got 2. keys defined: ['otherlist1', 'otherlist2', 'otherlist3']")
+
+            dutch_part1 = A.otherinsidelist.create('een', 'twee', 'drie')
+            dutch_part1.otherlist4 = 'vier'
+            dutch_part1.language = 'dutch'
+            dutch_part2 = B.otherinsidelist.create('een', 'twee', 'drie')
+            dutch_part2.otherlist5 = 'vijf'
+            dutch_part2.language = 'dutch'
+
+        expected_xml = """<crux-vooodoo>
+  <simplelist>
+    <simplekey listkey="yes">a</simplekey>
+    <nonleafkey>b</nonleafkey>
+  </simplelist>
+  <simplelist>
+    <simplekey listkey="yes">b</simplekey>
+    <nonleafkey>bb</nonleafkey>
+  </simplelist>
+  <outsidelist>
+    <leafo listkey="yes">AA</leafo>
+    <insidelist>
+      <leafi listkey="yes">aaaaa</leafi>
+    </insidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">one</otherlist1>
+      <otherlist2 listkey="yes">two</otherlist2>
+      <otherlist3 listkey="yes">three</otherlist3>
+      <otherlist4>four</otherlist4>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">un</otherlist1>
+      <otherlist2 listkey="yes">deux</otherlist2>
+      <otherlist3 listkey="yes">trois</otherlist3>
+      <otherlist4>quatre</otherlist4>
+      <language>french</language>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">uno</otherlist1>
+      <otherlist2 listkey="yes">dos</otherlist2>
+      <otherlist3 listkey="yes">tres</otherlist3>
+      <otherlist4>cuatro</otherlist4>
+      <language>spanish</language>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">een</otherlist1>
+      <otherlist2 listkey="yes">twee</otherlist2>
+      <otherlist3 listkey="yes">drie</otherlist3>
+      <otherlist4>vier</otherlist4>
+      <language>dutch</language>
+    </otherinsidelist>
+  </outsidelist>
+  <outsidelist>
+    <leafo listkey="yes">BB</leafo>
+    <insidelist>
+      <leafi listkey="yes">bbbbbb</leafi>
+    </insidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">uno</otherlist1>
+      <otherlist2 listkey="yes">due</otherlist2>
+      <otherlist3 listkey="yes">tres</otherlist3>
+      <otherlist4>quattro</otherlist4>
+      <language>italian</language>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">uno</otherlist1>
+      <otherlist2 listkey="yes">dos</otherlist2>
+      <otherlist3 listkey="yes">tres</otherlist3>
+      <otherlist4>cuatro</otherlist4>
+      <language>spanish</language>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">eins</otherlist1>
+      <otherlist2 listkey="yes">zwei</otherlist2>
+      <otherlist3 listkey="yes">drei</otherlist3>
+    </otherinsidelist>
+    <otherinsidelist>
+      <otherlist1 listkey="yes">een</otherlist1>
+      <otherlist2 listkey="yes">twee</otherlist2>
+      <otherlist3 listkey="yes">drie</otherlist3>
+      <otherlist5>vijf</otherlist5>
+      <language>dutch</language>
+    </otherinsidelist>
+  </outsidelist>
+</crux-vooodoo>
+"""
+        self.assertEqual(self.subject.dumps(), expected_xml)
+
+    def test_list_with_dump(self):
         # note quite test driven but want to go to bed!
 
         # list create()
@@ -133,17 +260,6 @@ class TestVoodoo(unittest.TestCase):
         # list create() then trying to change the key (not allowed)
         # list Create() and then modifying non keys (allows)
         # creating multiple list entries (different keys) shoudl be allowed
-        # actually get lists working
-        #
-        # session.dumps() after first list item create
-        # Out[1]: '<crux-vooodoo>\n  <simpleleaf>Hello World!</simpleleaf>\n  <simplelist>\n    <simplekey>firstkey</simplekey>\n  </simplelist>\n</crux-vooodoo>\n'
-        # GOOD
-        #
-        # session.dumps() after l.create('nextlistelement')
-        # Out[5]: '<crux-vooodoo>\n  <simpleleaf>Hello World!</simpleleaf>\n  <simplelist>\n    <simplekey old_value="firstkey">nextlistelement</simplekey>\n  </simplelist>\n</crux-vooodoo>\n'
-        # WRONG!!!!
-        # But it is nice to see the 'old_value' attribute come in place :-)
-        #
         #
 
         # Act

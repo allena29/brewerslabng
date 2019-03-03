@@ -105,7 +105,3 @@ xmldoc = session._xmldoc
 
 # print((a/b)*100)
 """
-session.loads(xmlstr)
-root.simpleleaf
-root.hyphen_leaf
-print(vcache.items)

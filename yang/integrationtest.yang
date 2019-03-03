@@ -48,6 +48,45 @@ module integrationtest {
         type string;
       }
     }
+
+    list otherinsidelist {
+      key "otherlist1 otherlist2 otherlist3";
+      leaf otherlist1 {
+        type string;
+      }
+
+      leaf otherlist2 {
+        type string;
+      }
+
+      leaf otherlist3 {
+        type string;
+      }
+
+      leaf otherlist4 {
+        type string;
+      }
+
+      leaf otherlist5 {
+        type string;
+      }
+
+      leaf language {
+        type enumeration {
+          enum french;
+          enum german;
+          enum dutch;
+          enum swedish;
+          enum danish;
+          enum italian;
+          enum spanish;
+        }
+      }
+    }
+
+    leaf other {
+      type string;
+    }
   }
 
   container container-and-lists {
