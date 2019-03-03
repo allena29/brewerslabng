@@ -1,10 +1,28 @@
 #!/bin/bash
 
-#rm -fr .cache
+# Usage: ./compile "brewerslab integrationtest"
+
+one=$1
+NEW_PYTHON_PATH="blng:$PYTHONPATH"
+
+
+yanglist=""
+timeyangchanged=`stat -f %m yang`
+timelastcompiled=`stat -f %m crux-example.xml`
+if [ $timelastcompiled -gt $timeyangchanged ]
+then
+	if [ -d .cache ]
+	then
+		echo "No changes in the yang - skipping compile"
+		exit 0
+	fi
+fi
+
+rm -fr .cache
 mkdir -p .cache
 
-
-# Usage: ./compile "brewerslab integrationtest"
+set -euo pipefail
+IFS=$'\n\t'
 
 
 echo "Creating YIN files...."
@@ -20,16 +38,15 @@ done
 
 echo "Converting to CRUX files...."
 cd ../
-ls .cache/*
 
-if [ "$1" = "" ]
+if [ "$one" = "" ]
 then
   yangmodules=$yanglist
 else
   yangmodules=$1
 fi
 
-PYTHONPATH="blng:$PYTHONPATH" python blng/Yang.py $yangmodules
+PYTHONPATH=$NEW_PYTHON_PATH python blng/Yang.py $yangmodules
 
 
 echo "Combining into single document"

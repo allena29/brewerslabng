@@ -154,6 +154,14 @@ class CruxVoodooCache:
         self.log = log
         self.usage = usage
 
+    def is_path_cached(self, path):
+        if path in self.items:
+            return True
+        return False
+
+    def get_item_from_cache(self, path):
+        return self.items[path]
+
     def add_entry(self, path, cache_object):
         """
         Add an entry into the cache.
@@ -211,9 +219,7 @@ class CruxVoodooBase:
             self.__dict__['_path'] = '/'
             self.__dict__['_thisschema'] = self.__dict__['_schema']
 
-        for child in self.__dict__['_thisschema']:
-            if not child.tag == 'yin-schema':
-                self.__dict__['_children'][child.tag] = child
+        self._populate_children()
 
         # This is getting called qiute often (every str() or repr())
         # It's probably not a problem right now because each time it's called we end up
@@ -221,6 +227,11 @@ class CruxVoodooBase:
 
         if listelement:
             self.__dict__['_mykeys'] = listelement
+
+    def _populate_children(self):
+        for child in self.__dict__['_thisschema']:
+            if not child.tag == 'yin-schema':
+                self.__dict__['_children'][child.tag] = child
 
     def __name__(self):
         return "Ting Tings - that's not my name"
@@ -442,8 +453,8 @@ class CruxVoodooBase:
         log = self.__dict__['_log']
         (keystore_cache, schema_cache) = self.__dict__['_cache']
 
-        if path in schema_cache.items:
-            this_schema = schema_cache.items[path]
+        if schema_cache.is_path_cached(path):
+            this_schema = schema_cache.get_item_from_cache(path)
             log.debug('_getschema: %s <hit|%s>', path, str(this_schema))
             return this_schema
 
@@ -451,10 +462,11 @@ class CruxVoodooBase:
         if not len(this_schema) and path.count('_'):
             this_schema = schema.xpath(path.replace('_', '-'))
         if not len(this_schema):
-            log.debug('_getschema: %s <miss>', path)
-            raise BadVoodoo("Unable to find '%s' in the schema" % (path))
+            log.debug('_getschema: %s <miss:not-present>', path)
+            raise BadVoodoo("Unable to find '%s' in the schema" % (path[1:]))
         elif len(this_schema) > 1:
-            raise BadVoodoo("Too many hits for '%s' in the schema" % (path))
+            log.error('_getschema: %s <miss:too-many-hits> except schema to always give 1 or 0 results.', path)
+            raise BadVoodoo("Too many hits for '%s' in the schema" % (path[1:]))
 
         schema_cache.add_entry(path, this_schema[0])
         return this_schema[0]
