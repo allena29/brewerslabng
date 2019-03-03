@@ -523,16 +523,7 @@ class CruxVoodooList(CruxVoodooBase):
     TODO: expect these are just tuples.
     """
 
-    def __getitem__(self, key):
-        print('Get Item', key)
-
-    def create(self, *args):
-        """
-        Create a list element, if the element already exists return the existing node.
-
-        The user is responsible for ensuring that any mandatory node of sibling leaves are
-        populated according to the constraints of the YANG schema.
-        """
+    def __getitem__(self, args):
         log = self.__dict__['_log']
         schemapath = self.__dict__['_schemapath']
         valuepath = self.__dict__['_valuepath']
@@ -545,6 +536,18 @@ class CruxVoodooList(CruxVoodooBase):
         spath = schemapath
         vpath = valuepath
 
+        args_as_list = []
+        for a in args:
+            args_as_list.append(a)
+
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args_as_list)
+
+        log.debug('get-listelement: %s', path_to_list_element)
+        return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
+                                     value=None, root=False, listelement=str(args), log=log,
+                                     parent=self)
+
+    def _add_keys_to_path(self, thisschema, spath, vpath, args):
         keys = []
         # This is pretty shcoking
         for x in thisschema.getchildren():
@@ -565,6 +568,29 @@ class CruxVoodooList(CruxVoodooBase):
         for key in keys:
             path_to_list_element = path_to_list_element + "[" + key + "='" + args[ai] + "']"
             ai = ai+1
+
+        return path_to_list_element
+
+    def create(self, *args):
+        """
+        Create a list element, if the element already exists return the existing node.
+
+        The user is responsible for ensuring that any mandatory node of sibling leaves are
+        populated according to the constraints of the YANG schema.
+        """
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
+
+        spath = schemapath
+        vpath = valuepath
+
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
 
         this_value = xmldoc.xpath(path_to_list_element)
         if len(this_value) == 0:

@@ -2,6 +2,10 @@
 
 all: crux-compile lint unittest
 
+everything:
+	rm -fr .cache
+	make all
+
 crux-compile:
 	bash ./cruxcompile "integrationtest" 
 

@@ -17,6 +17,32 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_accessing_list_elements(self):
+        root = self._get_session()
+
+        x = root.twokeylist.create('a', 'b')
+        y = root.twokeylist['a', 'b']
+        y.tertiary = '3'
+        x = root.twokeylist.create('a', 'b')
+        x = root.twokeylist.create('A', 'B')
+        root.twokeylist.create('A', 'B').tertiary = 'sdf'
+
+        self.assertEqual(y.tertiary, '3')
+        expected_xml = """<crux-vooodoo>
+  <twokeylist>
+    <primary listkey="yes">a</primary>
+    <secondary listkey="yes">b</secondary>
+    <tertiary>3</tertiary>
+  </twokeylist>
+  <twokeylist>
+    <primary listkey="yes">A</primary>
+    <secondary listkey="yes">B</secondary>
+    <tertiary>sdf</tertiary>
+  </twokeylist>
+</crux-vooodoo>
+"""
+        self.assertEqual(self.subject.dumps(), expected_xml)
+
     def test_deserialise_and_serilaise_example_with_cache_checks(self):
         serilaised_xml = """<crux-vooodoo>
   <simpleleaf old_value="9998">9999</simpleleaf>
