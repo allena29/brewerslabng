@@ -8,6 +8,10 @@ The example below shows a very basic overview of loading in an serialised XML pa
 
 To explore how the API access works the [Integration Test Yang File](yang/integrationtest.yang) can be used with ipython [see configuration notes for ipython tab-completion of second level objects](ipython/README.md).
 
+See a screen cast demo of an early version: [https://asciinema.org/a/231374](https://asciinema.org/a/231374)
+
+Play in a webbrower: [https://repl.it/@allena29/SomeVoodooMag](https://repl.it/@allena29/SomeVoodooMag)
+
 
 ```
 In [1]: import blng.Voodoo
@@ -102,14 +106,17 @@ In [11]: print(session.dumps())
 ## TODO:
 
 - validation everywhere
+- get list items (we can get a list element without matching keys
+- get list items for single key lists fails (args is split on the single string)
+- keys() needs to be implemented for lists.
 - delete list items
 - manage enums as 'indexed-values' with lookup to the literal value.
 - \__dir__ on a list should only show create object, list elements should show the keys/children.
-- the following list case fails
-  - a=root.outsidelist.create('a')
-  - A=a.insidelist.create('A')
-  - b=root.outsidelist.create('b')
-  - B=b.insidelist.create('B') # fails on longest match
+- ~~the following list case fails~~
+  - ~~a=root.outsidelist.create('a')~~
+  - ~~A=a.insidelist.create('A')~~
+  - ~~b=root.outsidelist.create('b')~~
+  - ~~B=b.insidelist.create('B') # fails on longest match~~
 - underscore not translated in the created document.
   - e.g. `root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands.create('Night Flowers')`
 - uses are throwing a key errors

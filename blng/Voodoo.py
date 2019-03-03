@@ -41,7 +41,7 @@ class DataAccess:
             if child.tag == 'inverted-schema':
                 self._schema = child
 
-        if not self._schema:
+        if self._schema is None:
             raise BadVoodoo("Unable to find the schema from the provided file ()" + crux_schema_file)
 
         if datastore:
