@@ -348,6 +348,11 @@ class CruxVoodooBase:
         being able to serialise towards NETCONF/File.
 
         This method works backwards to find the longest match we have in the xmldoc already.
+
+        This method really implements two passes, if we are looking for something on root
+        (i.e. /some) then we only need only need to create it. This method is making a very
+        big assumption at this stage that it will not be called if the path does in fact exist.
+
         """
         log = self.__dict__['_log']
         found = None
@@ -415,31 +420,35 @@ class CruxVoodooBase:
         """
         Get the xmlnode from the cache or by xpath lookup.
 
-        This returns a list of elements.
+        This returns a list of elements, if the element does not exist in the xmldoc
+        an empty list is returned. The assumption is the caller will validate the
+        schema using _getschema which will raise BadVoodoo if the structure of the
+        model does not exist.
         """
         xmldoc = self.__dict__['_xmldoc']
         log = self.__dict__['_log']
         (keystore_cache, schema_cache) = self.__dict__['_cache']
 
-        if path in keystore_cache.items:
-            log.debug('_getxmlnode: %s <hit|%s>', path, str(keystore_cache.items[path]))
-            return [keystore_cache.items[path]]
+        if keystore_cache.is_path_cached(path):
+            answer = [keystore_cache.get_item_from_cache(path)]
+            log.debug('_getxmlnode: %s <hit|%s>', path, str(answer))
+            return answer
 
         this_value = xmldoc.xpath(path)
         if not this_value:
             this_value = xmldoc.xpath(path.replace('_', '-'))
             if len(this_value):
                 log.debug('_getxmlnode: %s <miss:%s|%s> <underscore_to_hyphen>', path.replace('_', '-'), this_value[0], str(this_value))
-                keystore_cache.items[path] = this_value[0]
+                keystore_cache.add_entry(path, this_value[0])
                 return this_value
 
             log.debug('_getxmlnode: %s <miss:no-value>', path)
             return this_value
         if len(this_value):
             log.debug('_getxmlnode: %s <miss:%s|%s>', path, this_value[0], str(this_value))
-            keystore_cache.items[path] = this_value[0]
+            keystore_cache.add_entry(path, this_value[0])
 
-        log.debug('_getxmlnode: %s <hit|%s>', path, this_value)
+        log.debug('_getxmlnode: %s <hit|%s>', path, this_value[0])
         return this_value
 
     def _getschema(self, path):
@@ -461,6 +470,9 @@ class CruxVoodooBase:
         this_schema = schema.xpath(path)
         if not len(this_schema) and path.count('_'):
             this_schema = schema.xpath(path.replace('_', '-'))
+            schema_cache.add_entry(path, this_schema[0])
+            log.debug('_getschema: %s <miss:%s> <underscore_to_hyphen>', path.replace('_', '-'), str(this_schema[0]))
+            return this_schema[0]
         if not len(this_schema):
             log.debug('_getschema: %s <miss:not-present>', path)
             raise BadVoodoo("Unable to find '%s' in the schema" % (path[1:]))
@@ -469,6 +481,7 @@ class CruxVoodooBase:
             raise BadVoodoo("Too many hits for '%s' in the schema" % (path[1:]))
 
         schema_cache.add_entry(path, this_schema[0])
+        log.debug('_getschema: %s <miss:%s>', path.replace('_', '-'), str(this_schema[0]))
         return this_schema[0]
 
 
