@@ -6,6 +6,30 @@ import re
 from lxml import etree
 
 
+class LogWrap():
+
+    ENABLED = True
+    ENABLED_INFO = True
+    ENABLED_DEBUG = False
+
+    def __init__(self):
+        format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
+        logging.basicConfig(level=logging.DEBUG, format=format)
+        self.log = logging.getLogger('voodoo')
+
+    def info(self, *args):
+        if self.ENABLED and self.ENABLED_INFO:
+            self.log.info(args)
+
+    def error(self, *args):
+        if self.ENABLED:
+            self.log.error(args)
+
+    def debug(self, *args):
+        if self.ENABLED and self.ENABLED_DEBUG:
+            self.log.debug(args)
+
+
 class DataAccess:
 
     """
@@ -33,9 +57,8 @@ class DataAccess:
         Initialise the datastore based on the provided schema.
         """
         self._schema = None
-        format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
-        logging.basicConfig(level=logging.DEBUG, format=format)
-        self.log = logging.getLogger('voodoo')
+
+        self.log = LogWrap()
 
         for child in etree.parse(crux_schema_file).getroot().getchildren():
             if child.tag == 'inverted-schema':
