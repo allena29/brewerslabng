@@ -6,8 +6,10 @@ See.. [CRUX Format](Crux-Yang-Representation.md)
 
 The example below shows a very basic overview of loading in an serialised XML payload, changing a value and then re-serialising the data.
 
-```
+To explore how the API access works the [Integration Test Yang File](yang/integrationtest.yang) can be used with ipython [see configuration notes for ipython tab-completion of second level objects](ipython/README.md).
 
+
+```
 In [1]: import blng.Voodoo
 
 In [2]: session = blng.Voodoo.DataAccess('crux-example.xml')
@@ -79,26 +81,37 @@ In [11]: print(session.dumps())
 ```
 
 
+## Node operations:
 
-## Internal:
+ - `._parent` except on the root object this will provide the parent object
+ - `._path` provides the path of the object.
+
+### List
+
+ - `.create()` create a list item, providing each list key in the order defined in the yang module (e.g. `root.twokeylist.create('a','b')`)
+
 
 
 
 
 ## Constraints:
 
- - YANG nodes containing a hyphen are converted to underscores in the python access, however it is not supported for a yang leaf to have both hyphens and underscores.
+ - YANG nodes containing a hyphen are converted to underscores in the python access, however it is not supported for a yang leaf to have both hyphens and underscores. **NOTE: regression this is not supported - the voodoo api works, however the nodes in the serialised document retain the underscore.**
 
 
 ## TODO:
 
 - validation everywhere
+- delete list items
+- manage enums as 'indexed-values' with lookup to the literal value.
 - \__dir__ on a list should only show create object, list elements should show the keys/children.
 - the following list case fails
   - a=root.outsidelist.create('a')
   - A=a.insidelist.create('A')
   - b=root.outsidelist.create('b')
   - B=b.insidelist.create('B') # fails on longest match
+- underscore not translated in the created document.
+  - e.g. `root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands.create('Night Flowers')`
 - uses are throwing a key errors
 - we can assign a value to a container.
 - ~~ensure 'hyphens' in yang are dealt with~~
