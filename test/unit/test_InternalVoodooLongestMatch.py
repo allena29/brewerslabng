@@ -63,7 +63,7 @@ class TestVoodooInternals(unittest.TestCase):
         root.__dict__['_getxmlnode_side_effects'] = []
         root.__dict__['_getxmlnode_side_effects_index'] = 0
 
-        path = '//some'
+        path = '/voodoo/some'
 
         result = root._find_longest_match_path(self._xmldoc, path)
 
@@ -80,7 +80,7 @@ class TestVoodooInternals(unittest.TestCase):
         root.__dict__['_getxmlnode_side_effects'] = [[], [], [], []]
         root.__dict__['_getxmlnode_side_effects_index'] = 0
 
-        path = '//some/path/to/find/deep'
+        path = '/voodoo/some/path/to/find/deep'
 
         """
         We expect the longest match will look for
@@ -119,7 +119,7 @@ class TestVoodooInternals(unittest.TestCase):
 
         root.__dict__['_getxmlnode_side_effects_index'] = 0
 
-        path = '//some/path/to/find/deep'
+        path = '/voodoo/some/path/to/find/deep'
 
         """
         We expect the longest match will look for
@@ -153,7 +153,7 @@ class TestVoodooInternals(unittest.TestCase):
 
         root.__dict__['_getxmlnode_side_effects_index'] = 0
 
-        path = "//some/path/to/find/deep[key='sdf']"
+        path = "/voodoo/some/path/to/find/deep[key='sdf']"
 
         """
         We expect the longest match will look for
@@ -191,7 +191,7 @@ class TestVoodooInternals(unittest.TestCase):
 
         root.__dict__['_getxmlnode_side_effects_index'] = 0
 
-        path = "//some/path/to/find/deep[key='sdf'][key2='abc']"
+        path = "/voodoo/some/path/to/find/deep[key='sdf'][key2='abc']"
 
         """
         We expect the longest match will look for

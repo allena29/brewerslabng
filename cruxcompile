@@ -51,4 +51,5 @@ PYTHONPATH=$NEW_PYTHON_PATH python blng/Yang.py $yangmodules
 
 echo "Combining into single document"
 xmllint --format .cache/__crux-schema.xml >crux-example.xml
+cp .cache/integrationtest.txt crux-example.txt
 echo "  OK"

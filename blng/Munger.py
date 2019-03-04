@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from lxml import etree
 import sys
 sys.path.append('../')
@@ -302,6 +303,16 @@ class Munger:
 
     def handle_null(self, child=None, grandchild_id=-1):
         pass
+
+    def strip_xmlns(self, xmlstr):
+        REGEX_COLON_TAGS = re.compile("<([^>]+:[^>]+)>")
+        REGEX_XMLNS = re.compile('xmlns.*="[^"]+"')
+        for replacement in REGEX_COLON_TAGS.findall(xmlstr):
+            xmlstr = xmlstr.replace(replacement, replacement.replace(':', '__'))
+        for xmlns in REGEX_XMLNS.findall(xmlstr):
+            xmlstr = xmlstr.replace(xmlns, '')
+        xmlstr = xmlstr.replace(' >', '>')
+        return xmlstr
 
     def _lookup_method(self, child):
         if child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}leaf":

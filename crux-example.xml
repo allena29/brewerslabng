@@ -3,18 +3,31 @@
   <crux-paths>
     <path/>
     <path>/simpleleaf</path>
+    <path>/bronze</path>
+    <path>/bronze/silver</path>
+    <path>/bronze/silver/gold</path>
+    <path>/bronze/silver/gold/platinum</path>
+    <path>/bronze/silver/gold/platinum/deep</path>
     <path>/psychedelia</path>
     <path>/psychedelia/bands</path>
     <path>/psychedelia/bands/band</path>
+    <path>/psychedelia/bands/favourite</path>
     <path>/psychedelia/psychedelic-rock</path>
     <path>/psychedelia/psychedelic-rock/bands</path>
     <path>/psychedelia/psychedelic-rock/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/bands/favourite</path>
     <path>/psychedelia/psychedelic-rock/noise-pop</path>
     <path>/psychedelia/psychedelic-rock/noise-pop/bands</path>
     <path>/psychedelia/psychedelic-rock/noise-pop/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/bands/favourite</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite</path>
     <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze</path>
     <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands</path>
     <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band</path>
+    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite</path>
     <path>/twokeylist</path>
     <path>/twokeylist/primary</path>
     <path>/twokeylist/secondary</path>
@@ -85,6 +98,37 @@
         </leaf>
       </yin-schema>
     </simpleleaf>
+    <bronze>
+      <yin-schema path="/bronze">
+        <container>
+    </container>
+      </yin-schema>
+      <silver>
+        <yin-schema path="/bronze/silver">
+          <container>
+      </container>
+        </yin-schema>
+        <gold>
+          <yin-schema path="/bronze/silver/gold">
+            <container>
+        </container>
+          </yin-schema>
+          <platinum>
+            <yin-schema path="/bronze/silver/gold/platinum">
+              <container>
+          </container>
+            </yin-schema>
+            <deep>
+              <yin-schema path="/bronze/silver/gold/platinum/deep">
+                <leaf>
+                  <type name="string"/>
+                </leaf>
+              </yin-schema>
+            </deep>
+          </platinum>
+        </gold>
+      </silver>
+    </bronze>
     <psychedelia>
       <yin-schema path="/psychedelia">
         <container>
@@ -103,6 +147,13 @@
             </leaf>
           </yin-schema>
         </band>
+        <favourite>
+          <yin-schema path="/psychedelia/bands/favourite">
+            <leaf>
+              <type name="boolean"/>
+            </leaf>
+          </yin-schema>
+        </favourite>
       </bands>
       <psychedelic-rock>
         <yin-schema path="/psychedelia/psychedelic-rock">
@@ -122,6 +173,13 @@
               </leaf>
             </yin-schema>
           </band>
+          <favourite>
+            <yin-schema path="/psychedelia/psychedelic-rock/bands/favourite">
+              <leaf>
+                <type name="boolean"/>
+              </leaf>
+            </yin-schema>
+          </favourite>
         </bands>
         <noise-pop>
           <yin-schema path="/psychedelia/psychedelic-rock/noise-pop">
@@ -141,7 +199,41 @@
                 </leaf>
               </yin-schema>
             </band>
+            <favourite>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands/favourite">
+                <leaf>
+                  <type name="boolean"/>
+                </leaf>
+              </yin-schema>
+            </favourite>
           </bands>
+          <dream-pop>
+            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop">
+              <container>
+          </container>
+            </yin-schema>
+            <bands>
+              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands">
+                <list>
+                  <key value="band"/>
+                </list>
+              </yin-schema>
+              <band>
+                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band">
+                  <leaf>
+                    <type name="string"/>
+                  </leaf>
+                </yin-schema>
+              </band>
+              <favourite>
+                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite">
+                  <leaf>
+                    <type name="boolean"/>
+                  </leaf>
+                </yin-schema>
+              </favourite>
+            </bands>
+          </dream-pop>
           <shoe-gaze>
             <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze">
               <container>
@@ -160,6 +252,13 @@
                   </leaf>
                 </yin-schema>
               </band>
+              <favourite>
+                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite">
+                  <leaf>
+                    <type name="boolean"/>
+                  </leaf>
+                </yin-schema>
+              </favourite>
             </bands>
           </shoe-gaze>
         </noise-pop>

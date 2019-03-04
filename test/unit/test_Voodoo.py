@@ -28,7 +28,7 @@ class TestVoodoo(unittest.TestCase):
         root.twokeylist.create('A', 'B').tertiary = 'sdf'
 
         self.assertEqual(y.tertiary, '3')
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <twokeylist>
     <primary listkey="yes">a</primary>
     <secondary listkey="yes">b</secondary>
@@ -39,12 +39,21 @@ class TestVoodoo(unittest.TestCase):
     <secondary listkey="yes">B</secondary>
     <tertiary>sdf</tertiary>
   </twokeylist>
-</crux-vooodoo>
+</voodoo>
 """
         self.assertEqual(self.subject.dumps(), expected_xml)
+        self.assertEqual(repr(y), "VoodooListElement: /twokeylist[primary='a'][secondary='b']")
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.twokeylist['not-existing-key', 'b']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='not-existing-key'][secondary='b']")
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.twokeylist['a', 'non-existing-second-key']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='a'][secondary='non-existing-second-key']")
 
     def test_deserialise_and_serilaise_example_with_cache_checks(self):
-        serilaised_xml = """<crux-vooodoo>
+        serilaised_xml = """<voodoo>
   <simpleleaf old_value="9998">9999</simpleleaf>
   <morecomplex>
     <leaf2>a</leaf2>
@@ -62,14 +71,14 @@ class TestVoodoo(unittest.TestCase):
   <outsidelist>
     <leafo listkey="yes">b</leafo>
   </outsidelist>
-</crux-vooodoo>"""
+</voodoo>"""
 
         root = self._get_session()
         (keystore_cache, schema_cache) = self.subject._cache
 
         root.simpleleaf = 'value_before_loading_serialised_data'
         self.assertEqual(root.simpleleaf, 'value_before_loading_serialised_data')
-        self.assertEqual(list(keystore_cache.items.keys()), ['//simpleleaf'])
+        self.assertEqual(list(keystore_cache.items.keys()), ['/voodoo/simpleleaf'])
 
         self.subject.loads(serilaised_xml)
         self.assertEqual(list(keystore_cache.items.keys()), [])
@@ -77,11 +86,12 @@ class TestVoodoo(unittest.TestCase):
 
         self.assertEqual(root.simpleleaf, '9999')
         self.assertEqual(root.hyphen_leaf, 'abc123')
-        self.assertEqual(list(keystore_cache.items.keys()), ['//morecomplex', '//morecomplex/leaf2', '//simpleleaf',  '//hyphen_leaf'])
+        self.assertEqual(list(keystore_cache.items.keys()), ['/voodoo/morecomplex',
+                                                             '/voodoo/morecomplex/leaf2', '/voodoo/simpleleaf',  '/voodoo/hyphen_leaf'])
 
         root.simpleleaf = "value_after_deserialised_and_modified"
 
-        re_serilaised_xml = """<crux-vooodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
+        re_serilaised_xml = """<voodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
   <morecomplex>
     <leaf2>a</leaf2>
   </morecomplex>
@@ -98,13 +108,13 @@ class TestVoodoo(unittest.TestCase):
   <outsidelist>
     <leafo listkey="yes">b</leafo>
   </outsidelist>
-</crux-vooodoo>
+</voodoo>
 """
 
         self.assertEqual(self.subject.dumps(), re_serilaised_xml)
 
     def test_deserialise_and_serilaise(self):
-        serilaised_xml = """<crux-vooodoo>
+        serilaised_xml = """<voodoo>
   <simpleleaf old_value="9998">9999</simpleleaf>
   <morecomplex>
     <leaf2>a</leaf2>
@@ -122,13 +132,14 @@ class TestVoodoo(unittest.TestCase):
   <outsidelist>
     <leafo listkey="yes">b</leafo>
   </outsidelist>
-</crux-vooodoo>"""
+</voodoo>"""
 
         root = self._get_session()
         self.subject.loads(serilaised_xml)
         root.simpleleaf = "value_after_deserialised_and_modified"
-
-        re_serilaised_xml = """<crux-vooodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
+# + is what we have extra in the test
+# - is what was recevied extra in the running out
+        re_serilaised_xml = """<voodoo><simpleleaf old_value="9999">value_after_deserialised_and_modified</simpleleaf>
   <morecomplex>
     <leaf2>a</leaf2>
   </morecomplex>
@@ -145,7 +156,7 @@ class TestVoodoo(unittest.TestCase):
   <outsidelist>
     <leafo listkey="yes">b</leafo>
   </outsidelist>
-</crux-vooodoo>
+</voodoo>
 """
         # raise ValueError(self.subject.dumps())
         self.assertEqual(self.subject.dumps(), re_serilaised_xml)
@@ -153,24 +164,30 @@ class TestVoodoo(unittest.TestCase):
     def test_parents(self):
         root = self._get_session()
         root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands._parent._parent.bands.create('Jesus and the Mary Chain')
-        root.psychedelia.psychedelic_rock.noise_pop.shoe_gaze.bands.create('Night Flowers')
+        root.psychedelia.psychedelic_rock.noise_pop.dream_pop.bands.create('Night Flowers')
+        root.psychedelia.psychedelic_rock.noise_pop.dream_pop.bands.create('Mazzy Star')
+        root.psychedelia.psychedelic_rock.noise_pop.dream_pop.bands['Mazzy Star']._parent['Night Flowers'].favourite = 'True'
 
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <psychedelia>
     <psychedelic_rock>
       <noise_pop>
         <bands>
           <band listkey="yes">Jesus and the Mary Chain</band>
         </bands>
-        <shoe_gaze>
+        <dream_pop>
           <bands>
             <band listkey="yes">Night Flowers</band>
+            <favourite>True</favourite>
           </bands>
-        </shoe_gaze>
+          <bands>
+            <band listkey="yes">Mazzy Star</band>
+          </bands>
+        </dream_pop>
       </noise_pop>
     </psychedelic_rock>
   </psychedelia>
-</crux-vooodoo>
+</voodoo>
 """
 
         self.assertEqual(self.subject.dumps(), expected_xml)
@@ -226,7 +243,7 @@ class TestVoodoo(unittest.TestCase):
             dutch_part2.otherlist5 = 'vijf'
             dutch_part2.language = 'dutch'
 
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <simplelist>
     <simplekey listkey="yes">a</simplekey>
     <nonleafkey>b</nonleafkey>
@@ -300,8 +317,9 @@ class TestVoodoo(unittest.TestCase):
       <language>dutch</language>
     </otherinsidelist>
   </outsidelist>
-</crux-vooodoo>
+</voodoo>
 """
+
         self.assertEqual(self.subject.dumps(), expected_xml)
 
     def test_list_with_dump(self):
@@ -329,12 +347,12 @@ class TestVoodoo(unittest.TestCase):
         received_xml = self.subject.dumps()
 
         # Assert
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <simplelist>
     <simplekey listkey="yes">Shamanaid</simplekey>
     <nonleafkey>sdf</nonleafkey>
   </simplelist>
-</crux-vooodoo>
+</voodoo>
 """
         self.assertEqual(expected_xml, received_xml)
 
@@ -343,7 +361,7 @@ class TestVoodoo(unittest.TestCase):
         received_xml = self.subject.dumps()
 
         # Assert
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <simplelist>
     <simplekey listkey="yes">Shamanaid</simplekey>
     <nonleafkey>sdf</nonleafkey>
@@ -352,7 +370,7 @@ class TestVoodoo(unittest.TestCase):
     <simplekey listkey="yes">Prophet</simplekey>
     <nonleafkey>master</nonleafkey>
   </simplelist>
-</crux-vooodoo>
+</voodoo>
 """
         self.assertEqual(expected_xml, received_xml)
 
@@ -370,12 +388,12 @@ class TestVoodoo(unittest.TestCase):
         # Assert
         self.assertEqual("sing-and-dance-or-youll", leaf2_value)
         self.assertEqual("underscore_in_voodoo-should-be-hyphens-in-xmldoc", hyphen_leaf_value)
-        expected_xml = """<crux-vooodoo>
+        expected_xml = """<voodoo>
   <morecomplex>
     <leaf2>sing-and-dance-or-youll</leaf2>
   </morecomplex>
   <hyphen-leaf>underscore_in_voodoo-should-be-hyphens-in-xmldoc</hyphen-leaf>
-</crux-vooodoo>
+</voodoo>
 """
         self.assertEqual(expected_xml, received_xml)
 
@@ -385,8 +403,15 @@ class TestVoodoo(unittest.TestCase):
         listelement = root.simplelist.create('Shamanaid')
         self.assertEqual(repr(listelement), "VoodooListElement: /simplelist[simplekey='Shamanaid']")
 
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            a = root.simplelist['not-existing-key']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /simplelist[simplekey='not-existing-key']")
+
         expected_hits = ['nonleafkey', 'simplekey']
         self.assertEqual(dir(listelement), expected_hits)
+        self.assertEqual(dir(root.simplelist), [])
+        self.assertEqual(root.simplelist['Shamanaid'].simplekey, 'Shamanaid')
+        self.assertEqual(repr(root.simplelist['Shamanaid']), "VoodooListElement: /simplelist[simplekey='Shamanaid']")
 
     def test_basic_dir(self):
         root = self._get_session()
@@ -419,3 +444,10 @@ class TestVoodoo(unittest.TestCase):
         self._get_session()
 
         self.assertEqual(repr(self.root), "VoodooRoot")
+
+    def test_root_only_returns_root(self):
+        root = self._get_session()
+
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            x = root.platinum
+        self.assertEqual(str(context.exception), "Unable to find '/platinum' in the schema")
