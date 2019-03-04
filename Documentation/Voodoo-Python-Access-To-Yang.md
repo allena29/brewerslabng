@@ -110,7 +110,9 @@ In [11]: print(session.dumps())
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
 - keys() needs to be implemented for lists.
-- delete list items
+- ~~list iteration~~
+- ~~delete list items~~
+  - with less crude emptying of cache
 - listelements are never ever cached
 - len for list items
 - manage enums as 'indexed-values' with lookup to the literal value.
@@ -128,3 +130,4 @@ In [11]: print(session.dumps())
 - cache crux objects as they are created  or instantiate every single time.
 - what about mandatory things... within a container/list-node (probably not realistic to force it)
 - ~~longest_path_match creates fails to catch list-keys~~
+- Multithread access to data very unpredictable

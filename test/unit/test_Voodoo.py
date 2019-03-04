@@ -17,6 +17,66 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_list_delete_element(self):
+        # BUild
+        root = self._get_session()
+
+        one = root.twokeylist.create('a1', 'b1')
+        two = root.twokeylist.create('a2', 'b2')
+        three = root.twokeylist.create('a3', 'b3')
+
+        ELEPHANT = root.simplelist.create('elephant')
+        CAMEL = root.simplelist.create('camel')
+        ZOMBIE = root.simplelist.create('zombie')
+        GHOUL = root.simplelist.create('ghoul')
+
+        for listelement in root.twokeylist:
+            listelement.tertiary = listelement.primary + listelement.secondary
+
+        self.assertEqual(root.simplelist['zombie']._path, "/simplelist[simplekey='zombie']")
+        self.assertEqual(root.simplelist['ghoul'].simplekey, "ghoul")
+
+        # Action
+        del root.simplelist['zombie']
+
+        # Test that this does not actually remove the item from the list
+        # it should delete the reference to the list element only
+        listelement = root.twokeylist['a2', 'b2']
+        del listelement
+        self.assertEqual(root.twokeylist['a2', 'b2'].tertiary, 'a2b2')
+
+        del root.twokeylist['a2', 'b2']
+        with self.assertRaises(blng.Voodoo.BadVoodoo) as context:
+            x = root.twokeylist['a2', 'b2']
+        self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='a2'][secondary='b2']")
+
+        # Assert
+
+        expected_xml = """<voodoo>
+  <twokeylist>
+    <primary listkey="yes">a1</primary>
+    <secondary listkey="yes">b1</secondary>
+    <tertiary>a1b1</tertiary>
+  </twokeylist>
+  <twokeylist>
+    <primary listkey="yes">a3</primary>
+    <secondary listkey="yes">b3</secondary>
+    <tertiary>a3b3</tertiary>
+  </twokeylist>
+  <simplelist>
+    <simplekey listkey="yes">elephant</simplekey>
+  </simplelist>
+  <simplelist>
+    <simplekey listkey="yes">camel</simplekey>
+  </simplelist>
+  <simplelist>
+    <simplekey listkey="yes">ghoul</simplekey>
+  </simplelist>
+</voodoo>
+"""
+
+        self.assertEqual(self.subject.dumps(), expected_xml)
+
     def test_list_iteration(self):
         root = self._get_session()
 
