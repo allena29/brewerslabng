@@ -27,12 +27,18 @@ module integrationtest {
       leaf band {
         type string;
       }
+      leaf favourite {
+        type boolean;
+      }
     }
     container psychedelic-rock {
       list bands {
         key band;
         leaf band {
           type string;
+        }
+        leaf favourite {
+          type boolean;
         }
       }
       container noise-pop {
@@ -41,12 +47,31 @@ module integrationtest {
           leaf band {
             type string;
           }
+          leaf favourite {
+            type boolean;
+          }
+        }
+
+        container dream-pop {
+          list bands {
+            key band;
+            leaf band {
+              type string;
+            }
+            leaf favourite {
+              type boolean;
+            }
+          }
+
         }
         container shoe-gaze {
           list bands {
             key band;
             leaf band {
               type string;
+            }
+            leaf favourite {
+              type boolean;
             }
           }
         }

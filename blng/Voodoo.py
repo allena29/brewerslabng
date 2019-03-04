@@ -10,7 +10,7 @@ class LogWrap():
 
     ENABLED = True
     ENABLED_INFO = True
-    ENABLED_DEBUG = False
+    ENABLED_DEBUG = True
 
     def __init__(self):
         format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
@@ -63,6 +63,10 @@ class DataAccess:
         for child in etree.parse(crux_schema_file).getroot().getchildren():
             if child.tag == 'inverted-schema':
                 self._schema = child
+                print(etree.tostring(self._schema))
+                self._schema = etree.Element('vooschema')
+                for grandchild in child.getchildren():
+                    self._schema.append(grandchild)
 
         if self._schema is None:
             raise BadVoodoo("Unable to find the schema from the provided file ()" + crux_schema_file)
@@ -99,13 +103,13 @@ class DataAccess:
         keystore_cache.empty()
 
     def get_root(self):
-        return CruxVoodooRoot(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
+        return CruxVoodooRoot(self._schema, self._xmldoc, self._cache, '/vooschema', '/voodoo', root=True, log=self.log)
 
 
 class CruxVoodoBackendWrapper:
 
     def __init__(self):
-        self.xmldoc = etree.fromstring('<crux-vooodoo></crux-vooodoo>')
+        self.xmldoc = etree.fromstring('<voodoo></voodoo>')
 
     def xpath(self, *args, **kwargs):
         return self.xmldoc.xpath(*args, **kwargs)
@@ -236,7 +240,7 @@ class CruxVoodooBase:
 
         log.info('initialise %s' % (valuepath))
         if not root:
-            self.__dict__['_path'] = valuepath[1:]
+            self.__dict__['_path'] = valuepath[7:]
             self.__dict__['_thisschema'] = self._getschema(schemapath)
         else:
             self.__dict__['_path'] = '/'
@@ -260,7 +264,7 @@ class CruxVoodooBase:
         return "Ting Tings - that's not my name"
 
     def __repr__(self):
-        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][1:]
+        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][7:]
 
     def __str__(self):
         try:
@@ -353,7 +357,7 @@ class CruxVoodooBase:
 
         elif len(this_value) == 1:
             if 'listkey' in this_value[0].attrib:
-                raise BadVoodoo('Changing a list key is not supported. ' + vpath[1:])
+                raise BadVoodoo('Changing a list key is not supported. ' + vpath[7:])
 
             log.info('set %s %s <old-value:%s>', vpath, value, this_value[0].text)
             this_value[0].attrib['old_value'] = this_value[0].text
@@ -381,9 +385,10 @@ class CruxVoodooBase:
         found = None
 
         # working path is expected to look like this ['', 'morecomplex', 'leaf2']
-        working_path = path[1:].split('/')
+        working_path = path[7:].split('/')
         for i in range(len(working_path)-1, 1, -1):
             this_path = '/' + '/'.join(working_path[:i])
+            print('XXXXXX', this_path)
             # results = xmldoc.xpath(this_path)
             results = self._getxmlnode(this_path)
             if len(results) == 1:
@@ -493,15 +498,17 @@ class CruxVoodooBase:
         this_schema = schema.xpath(path)
         if not len(this_schema) and path.count('_'):
             this_schema = schema.xpath(path.replace('_', '-'))
+            if len(this_schema) == 0:
+                raise BadVoodoo("Unable to find '%s' in the schema" % (path[10:]))
             schema_cache.add_entry(path, this_schema[0])
             log.debug('_getschema: %s <miss:%s> <underscore_to_hyphen>', path.replace('_', '-'), str(this_schema[0]))
             return this_schema[0]
         if not len(this_schema):
             log.debug('_getschema: %s <miss:not-present>', path)
-            raise BadVoodoo("Unable to find '%s' in the schema" % (path[1:]))
+            raise BadVoodoo("Unable to find '%s' in the schema" % (path[10:]))
         elif len(this_schema) > 1:
             log.error('_getschema: %s <miss:too-many-hits> except schema to always give 1 or 0 results.', path)
-            raise BadVoodoo("Too many hits for '%s' in the schema" % (path[1:]))
+            raise BadVoodoo("Too many hits for '%s' in the schema" % (path[10:]))
 
         schema_cache.add_entry(path, this_schema[0])
         log.debug('_getschema: %s <miss:%s>', path.replace('_', '-'), str(this_schema[0]))
@@ -570,7 +577,7 @@ class CruxVoodooList(CruxVoodooBase):
 
         item = self._getxmlnode(path_to_list_element)
         if len(item) == 0:
-            raise BadVoodoo("ListElement does not exist: " + path_to_list_element[1:])
+            raise BadVoodoo("ListElement does not exist: " + path_to_list_element[7:])
 
         log.debug('get-listelement: %s', path_to_list_element)
         return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
@@ -642,4 +649,4 @@ class CruxVoodooListElement(CruxVoodooBase):
     _voodoo_type = 'ListElement'
 
     def __repr__(self):
-        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][1:]
+        return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][7:]

@@ -36,7 +36,7 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//morecomplex'
+        path = '/vooschema/morecomplex'
 
         self.schema_cache.is_path_cached.side_effect = [False]
         self._schema.xpath.side_effect = [[]]
@@ -55,7 +55,7 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//morecomplex'
+        path = '/vooschema/morecomplex'
 
         self.schema_cache.is_path_cached.side_effect = [False]
         schema_element = Mock()
@@ -74,7 +74,7 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//morecomplex'
+        path = '/vooschema/morecomplex'
 
         self.schema_cache.is_path_cached.side_effect = [True]
         schema_element = Mock()
@@ -94,8 +94,8 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//container_and_lists'
-        path_adjusted = '//container-and-lists'
+        path = '/vooschema/container_and_lists'
+        path_adjusted = '/vooschema/container-and-lists'
 
         self.schema_cache.is_path_cached.side_effect = [False]
         schema_element = Mock()
@@ -115,7 +115,7 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//morecomplex'
+        path = '/voodoo/morecomplex'
 
         self.keystore_cache.is_path_cached.side_effect = [False]
         schema_element = Mock()
@@ -134,8 +134,8 @@ class TestVoodooInternals(unittest.TestCase):
         # Build
         root = CruxVoodooRootExtended(self._schema, self._xmldoc, self._cache, '/', '/', root=True, log=self.log)
 
-        path = '//more_complex'
-        path_adjusted = '//more-complex'
+        path = '/voodoo/more_complex'
+        path_adjusted = '/voodoo/more-complex'
 
         self.keystore_cache.is_path_cached.side_effect = [False]
         schema_element = Mock()
