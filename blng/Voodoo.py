@@ -1,5 +1,14 @@
 """
- ipython --profile testing -i voodoo-playing.py
+
+The following may be out of date - but they give
+ See: https://repl.it/@allena29/crux-schema - very basic integration of crux-schema and voodoomagic
+ See: https://repl.it/@allena29/SomeVoodooMag - more advanced  usage of voodoomagic
+
+See:
+   https://github.com/allena29/brewerslabng/
+
+(in paritcular branches named with 'voodoo' in their name may be the most useful.
+
 """
 import logging
 import re
@@ -52,24 +61,36 @@ class DataAccess:
         ipython - disable jedi auto-completer for a better experience.
     """
 
-    def __init__(self, crux_schema_file, datastore=None):
+    def __init__(self, crux_schema, datastore=None, load_schema_from_file=True):
         """
         Initialise the datastore based on the provided schema.
+
+        The crux_schema is mandatory but can be provided as a string if the
+        argument load_schema_from_file is set to False.
+
+        If the string/file provided to crux_schema cannot be parsed by lxml then
+        it is game over. There is an assumption that the XML node provided will
+        have been recently converted into crux-schema format (at this stage there
+        is no versioning).
+
         """
         self._schema = None
-
         self.log = LogWrap()
 
-        for child in etree.parse(crux_schema_file).getroot().getchildren():
+        if load_schema_from_file:
+            schema_to_load = etree.parse(crux_schema).getroot()
+        else:
+            schema_to_load = etree.fromstring(crux_schema)
+
+        for child in schema_to_load.getchildren():
             if child.tag == 'inverted-schema':
                 self._schema = child
-                print(etree.tostring(self._schema))
                 self._schema = etree.Element('vooschema')
                 for grandchild in child.getchildren():
                     self._schema.append(grandchild)
 
         if self._schema is None:
-            raise BadVoodoo("Unable to find the schema from the provided file ()" + crux_schema_file)
+            raise BadVoodoo("Unable to find the schema")
 
         if datastore:
             raise NotImplementedError("de-serialising a datastore for loading not thought about yet")
@@ -388,7 +409,6 @@ class CruxVoodooBase:
         working_path = path[7:].split('/')
         for i in range(len(working_path)-1, 1, -1):
             this_path = '/' + '/'.join(working_path[:i])
-            print('XXXXXX', this_path)
             # results = xmldoc.xpath(this_path)
             results = self._getxmlnode(this_path)
             if len(results) == 1:
