@@ -17,6 +17,49 @@ class TestVoodoo(unittest.TestCase):
         self.root = self.subject.get_root()
         return self.root
 
+    def test_list_iteration(self):
+        root = self._get_session()
+
+        one = root.twokeylist.create('a1', 'b1')
+        two = root.twokeylist.create('a2', 'b2')
+
+        for listelement in root.twokeylist:
+            listelement.tertiary = listelement.primary + listelement.secondary
+
+        for listelement in root.simplelist:
+            self.fail('This list was empty so we should not have iterated around it')
+
+        # This has two list elements
+        i = 0
+        for listelement in root.twokeylist:
+            i = i + 1
+        self.assertEqual(i, 2)
+
+        one = root.simplelist.create('1111')
+        for listelement in root.simplelist:
+            listelement.nonleafkey = 'first-set'
+            listelement.nonleafkey = listelement.simplekey
+
+        expected_xml = """<voodoo>
+  <twokeylist>
+    <primary listkey="yes">a1</primary>
+    <secondary listkey="yes">b1</secondary>
+    <tertiary>a1b1</tertiary>
+  </twokeylist>
+  <twokeylist>
+    <primary listkey="yes">a2</primary>
+    <secondary listkey="yes">b2</secondary>
+    <tertiary>a2b2</tertiary>
+  </twokeylist>
+  <simplelist>
+    <simplekey listkey="yes">1111</simplekey>
+    <nonleafkey old_value="first-set">1111</nonleafkey>
+  </simplelist>
+</voodoo>
+"""
+
+        self.assertEqual(self.subject.dumps(), expected_xml)
+
     def test_accessing_list_elements(self):
         root = self._get_session()
 

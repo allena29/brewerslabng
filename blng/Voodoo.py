@@ -593,6 +593,7 @@ class CruxVoodooList(CruxVoodooBase):
         else:
             args_as_list = [args]
 
+        # TODO: no cache support on get of list itmes
         path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args_as_list)
 
         item = self._getxmlnode(path_to_list_element)
@@ -662,6 +663,53 @@ class CruxVoodooList(CruxVoodooBase):
 
     def __dir__(self):
         return []
+
+    def __iter__(self):
+        return CruxVoodooListIterator(self, self.__dict__['_schema'], self.__dict__['_xmldoc'],
+                                      self.__dict__['_cache'], self.__dict__['_schemapath'],
+                                      self.__dict__['_valuepath'], self.__dict__['_log'])
+
+
+class CruxVoodooListIterator:
+
+    def __init__(self, crux_list, schema, xmldoc, cache, schemapath, valuepath, log):
+        # TODO: should we try use getxmlnode (which avoids multiple item results from xpath)
+        # or just use xpath directly (without caching). Caching could get in the way because
+        # we could add/remove items.
+        self._schema = schema
+        self._xmldoc = xmldoc
+        self._cache = cache
+        self._schemapath = schemapath
+        self._valuepath = valuepath
+        self._cruxlist = self
+        self._log = log
+
+        self._cruxitems = crux_list.__dict__['_xmldoc'].xpath('/voodoo' + crux_list.__dict__['_path'])
+        self._idx = 0
+
+    def __next__(self):
+        if self._idx == len(self._cruxitems):
+            raise StopIteration
+
+        (keystore_cache, schema_cache) = self._cache
+        log = self._log
+
+        self._idx = self._idx + 1
+        item = self._cruxitems[self._idx - 1]
+        print('Need to find keys to add to the node', item)
+
+        path_keys = ""
+        for child in item.getchildren():
+            if 'listkey' in child.attrib and child.attrib['listkey'] == 'yes':
+                path_keys = path_keys + "[" + child.tag + "='" + child.text + "']"
+
+        path_to_list_element = self._valuepath + path_keys
+
+        # TODO: no cache support on iter  of list itmes
+
+        return CruxVoodooListElement(self._schema, self._xmldoc, self. _cache, self._schemapath, path_to_list_element,
+                                     value=None, root=False, listelement='args-cosmetic-todo', log=self._log,
+                                     parent=self._cruxlist)
 
 
 class CruxVoodooListElement(CruxVoodooBase):

@@ -111,6 +111,8 @@ In [11]: print(session.dumps())
 - ~~get list items for single key lists fails (args is split on the single string)~~
 - keys() needs to be implemented for lists.
 - delete list items
+- listelements are never ever cached
+- len for list items
 - manage enums as 'indexed-values' with lookup to the literal value.
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
