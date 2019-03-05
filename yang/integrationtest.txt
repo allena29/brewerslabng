@@ -1,9 +1,52 @@
 module: integrationtest
   +--rw simpleleaf?            string
+  +--rw bronze
+  |  +--rw silver
+  |     +--rw gold
+  |        +--rw platinum
+  |           +--rw deep?   string
+  +--rw psychedelia
+  |  +--rw bands* [band]
+  |  |  +--rw band         string
+  |  |  +--rw favourite?   boolean
+  |  +--rw psychedelic-rock
+  |     +--rw bands* [band]
+  |     |  +--rw band         string
+  |     |  +--rw favourite?   boolean
+  |     +--rw noise-pop
+  |        +--rw bands* [band]
+  |        |  +--rw band         string
+  |        |  +--rw favourite?   boolean
+  |        +--rw dream-pop
+  |        |  +--rw bands* [band]
+  |        |     +--rw band         string
+  |        |     +--rw favourite?   boolean
+  |        +--rw shoe-gaze
+  |           +--rw bands* [band]
+  |              +--rw band         string
+  |              +--rw favourite?   boolean
+  +--rw twokeylist* [primary secondary]
+  |  +--rw primary      boolean
+  |  +--rw secondary    boolean
+  |  +--rw tertiary?    boolean
   +--rw simplecontainer!
   +--rw simpleenum?            enumeration
   +--rw patternstr?            string
+  +--rw hyphen-leaf?           string
+  +--rw outsidelist* [leafo]
+  |  +--rw leafo              string
+  |  +--rw insidelist* [leafi]
+  |  |  +--rw leafi    string
+  |  +--rw otherinsidelist* [otherlist1 otherlist2 otherlist3]
+  |  |  +--rw otherlist1    string
+  |  |  +--rw otherlist2    string
+  |  |  +--rw otherlist3    string
+  |  |  +--rw otherlist4?   string
+  |  |  +--rw otherlist5?   string
+  |  |  +--rw language?     enumeration
+  |  +--rw other?             string
   +--rw container-and-lists
+  |  +--rw just-a-key?       string
   |  +--rw multi-key-list* [A B]
   |     +--rw A        string
   |     +--rw B        string
