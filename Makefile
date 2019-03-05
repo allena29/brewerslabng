@@ -8,10 +8,10 @@ everything:
 
 crux-compile:
 	touch yang
-	bash ./cruxcompile "integrationtest"
+	bash ./cruxcompile
 
 crux-recompile:
-	bash ./cruxcompile "integrationtest"
+	bash ./cruxcompile
 
 unittest:
 	test/run-unit.sh

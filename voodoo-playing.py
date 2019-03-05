@@ -43,6 +43,20 @@ root = session.get_root()
 # pr.disable()
 # pr.print_stats()
 
+pr = None
+
+
+def start_profile():
+    global pr
+    pr = cProfile.Profile()
+    pr.enable()
+
+
+def stop_profile():
+    global pr
+    pr.disable()
+    pr.print_stats()
+
 
 print("""
 session  (dumps(), loads())
@@ -52,6 +66,13 @@ schema = Schema XML DOC (Crux Format)
 xmldoc = Value XML DOC
 root = Voodo - root api
 xmlstr = xmlstring (output of dumps())
+
+Example Profiling (not within ipython):
+start_profile()
+# DO STUFF
+stop_profile()
+
+
 """)
 
 

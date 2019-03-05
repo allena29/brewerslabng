@@ -203,13 +203,15 @@ if __name__ == '__main__':
 
     y = Yang()
 
-    for ym in sys.argv[1:]:
-        print("   Munge %s" % (ym))
-        munger = Munger.Munger()
-        (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
+    yms = sys.argv[1]
+    for ym in yms.split(' '):
+        if not ym == '':
+            print("   Munge %s" % (ym))
+            munger = Munger.Munger()
+            (yin_xmldoc, crux_xmldoc) = munger.munge(ym, munger.load_file(ym))
 
-        with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
-            inverted_file.write(munger.pretty(crux_xmldoc))
-        y.cli_modules[ym] = ym
+            with open('.cache/%s.crux.xml' % (ym), 'w') as inverted_file:
+                inverted_file.write(munger.pretty(crux_xmldoc))
+            y.cli_modules[ym] = ym
 
     y._munge_all_modules_into_single_schema()
