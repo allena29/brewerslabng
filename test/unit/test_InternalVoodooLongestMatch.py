@@ -16,7 +16,6 @@ class CruxVoodooRootExtended(blng.Voodoo.CruxVoodooRoot):
         This is a workaround using side_effects from Mock is triggering __getattr__
         and __setattr__ from the VoodooNode.
         """
-        print('_getxmlnode of ', self, 'called for path', path)
         self.__dict__['_getxmlnode_side_effects_index'] = self.__dict__['_getxmlnode_side_effects_index'] + 1
         return self.__dict__['_getxmlnode_side_effects'][self.__dict__['_getxmlnode_side_effects_index'] - 1]
 
@@ -26,22 +25,13 @@ class CruxVoodooRootExtended(blng.Voodoo.CruxVoodooRoot):
         pass
 
 
-class TestLog:
-
-    def debug(self, *args, **kwargs):
-        print('DEBUG', args, kwargs)
-
-    def info(self, *args, **kwargs):
-        print('INFO', args, kwargs)
-
-
 class TestVoodooInternals(unittest.TestCase):
 
     def setUp(self):
         self.maxDiff = 400000
 
         self.log = Mock()
-        self.log = TestLog()
+        #self.log = TestLog()
         # for child in etree.parse("crux-example.xml").getroot().getchildren():
         #    if child.tag == 'inverted-schema':
         #        self._schema = child

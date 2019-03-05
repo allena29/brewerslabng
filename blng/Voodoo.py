@@ -713,11 +713,9 @@ class CruxVoodooList(CruxVoodooBase):
 
         list_key_names = self._get_list_key_names(thisschema)
         list_key_values = self._get_list_key_values(args)
-        print(list_key_names, '<list key names')
 
         found_list_element = None
         for child in the_list.getchildren():
-            print(child.tag, 'child......')
             full_match = True
             # Assumption is that lxml will always give us list-keys in order
             key_id = 0
@@ -780,7 +778,6 @@ class CruxVoodooListIterator:
 
         self._idx = self._idx + 1
         item = self._cruxitems[self._idx - 1]
-        print('Need to find keys to add to the node', item)
 
         path_keys = ""
         for child in item.getchildren():
