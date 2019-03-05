@@ -30,6 +30,8 @@ class TestVoodoo(unittest.TestCase):
         ZOMBIE = root.simplelist.create('zombie')
         GHOUL = root.simplelist.create('ghoul')
 
+        self.assertEqual(len(root.simplelist), 4)
+
         for listelement in root.twokeylist:
             listelement.tertiary = listelement.primary + listelement.secondary
 
@@ -51,6 +53,7 @@ class TestVoodoo(unittest.TestCase):
         self.assertEqual(str(context.exception), "ListElement does not exist: /twokeylist[primary='a2'][secondary='b2']")
 
         # Assert
+        self.assertEqual(len(root.simplelist), 3)
 
         expected_xml = """<voodoo>
   <twokeylist>

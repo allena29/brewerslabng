@@ -647,6 +647,11 @@ class CruxVoodooList(CruxVoodooBase):
 
         return keys
 
+    def __len__(self):
+        path = self.__dict__['_path']
+        xmldoc = self.__dict__['_xmldoc']
+        return len(xmldoc.xpath('/voodoo' + path))
+
     def create(self, *args):
         """
         Create a list element, if the element already exists return the existing node.

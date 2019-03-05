@@ -114,7 +114,7 @@ In [11]: print(session.dumps())
 - ~~delete list items~~
   - with less crude emptying of cache
 - listelements are never ever cached
-- len for list items
+- ~~len for list items~~
 - manage enums as 'indexed-values' with lookup to the literal value.
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
