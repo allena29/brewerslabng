@@ -36,6 +36,8 @@ class TestVoodoo(unittest.TestCase):
         self.assertEqual(len(root.simplelist), 4)
         self.assertTrue('zombie' in root.simplelist)
         self.assertFalse('zombie' not in root.simplelist)
+        self.assertEqual(['elephant', 'camel', 'zombie', 'ghoul'], root.simplelist.keys())
+        self.assertEqual([['a1', 'b1'], ['a2', 'b2'], ['a3', 'b3']], root.twokeylist.keys())
 
         for listelement in root.twokeylist:
             listelement.tertiary = listelement.primary + listelement.secondary
@@ -68,6 +70,8 @@ class TestVoodoo(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(root.simplelist), 3)
+        self.assertEqual(['elephant', 'camel', 'ghoul'], root.simplelist.keys())
+        self.assertEqual([['a1', 'b1'],  ['a3', 'b3']], root.twokeylist.keys())
 
         expected_xml = """<voodoo>
   <twokeylist>

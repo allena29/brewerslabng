@@ -657,6 +657,40 @@ class CruxVoodooList(CruxVoodooListBase):
         xmldoc = self.__dict__['_xmldoc']
         return len(xmldoc.xpath('/voodoo' + path))
 
+    def keys(self):
+        """
+        Return List keys.
+        """
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
+
+        our_keys = []
+        # TOOD: find a more etree native way of implementing this
+        list_key_names = self._get_list_key_names(thisschema)
+
+        for child in xmldoc.xpath(valuepath):
+            key_id = 0
+            grand_child_id = 0
+            for grandchild in child.getchildren():
+                if key_id < len(list_key_names) and grandchild.tag == list_key_names[key_id]:
+                    if len(list_key_names) > 1:
+                        if key_id == 0:
+                            our_keys.append([])
+                        our_keys[-1].append(grandchild.text)
+                    else:
+                        our_keys.append(grandchild.text)
+
+                    grand_child_id = grand_child_id + 1
+                    key_id = key_id + 1
+
+        return our_keys
+
     def create(self, *args):
         """
         Create a list element, if the element already exists return the existing node.

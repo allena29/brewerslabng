@@ -109,7 +109,7 @@ In [11]: print(session.dumps())
 - validation everywhere
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
-- keys() needs to be implemented for lists.
+- ~~keys() needs to be implemented for lists.~~
 - ~~list iteration~~
 - ~~delete list items~~
   - with less crude emptying of cache
