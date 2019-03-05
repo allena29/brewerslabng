@@ -61,7 +61,7 @@ class DataAccess:
         ipython - disable jedi auto-completer for a better experience.
     """
 
-    def __init__(self, crux_schema, datastore=None, load_schema_from_file=True):
+    def __init__(self, crux_schema, datastore=None, load_schema_from_file=True, log_enabled=False):
         """
         Initialise the datastore based on the provided schema.
 
@@ -76,6 +76,7 @@ class DataAccess:
         """
         self._schema = None
         self.log = LogWrap()
+        self.log.ENABLED = log_enabled
 
         if load_schema_from_file:
             schema_to_load = etree.parse(crux_schema).getroot()
