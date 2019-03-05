@@ -304,6 +304,10 @@ class Munger:
     def handle_null(self, child=None, grandchild_id=-1):
         pass
 
+    def handle_drop_from_newxmldoc(self, child=None, grandchild=-1):
+        parent = child.getparent()
+        parent.remove(child)
+
     def strip_xmlns(self, xmlstr):
         REGEX_COLON_TAGS = re.compile("<([^>]+:[^>]+)>")
         REGEX_XMLNS = re.compile('xmlns.*="[^"]+"')
@@ -337,6 +341,8 @@ class Munger:
         elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}description"):
             return self.handle_null
         elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}extension"):
+            return self.handle_drop_from_newxmldoc
+        elif child.tag in ("{http://brewerslabng.mellon-collie.net/yang/crux}hide"):
             return self.handle_null
 
         raise Error.BlngYangSchemaNotSupported(child.tag)

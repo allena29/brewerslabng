@@ -97,9 +97,6 @@
     <path>/crux-cli/modules/revision</path>
     <path>/crux-cli/modules/top-level-tags</path>
     <path>/crux-cli/modules/top-level-tags/tag</path>
-    <path>/trigger</path>
-    <path>/hide</path>
-    <path>/info</path>
     <path/>
     <path>/tests</path>
     <path>/tests/temperature</path>
@@ -807,24 +804,6 @@
         </top-level-tags>
       </modules>
     </crux-cli>
-    <trigger>
-      <yin-schema path="/trigger">
-        <extension>
-    </extension>
-      </yin-schema>
-    </trigger>
-    <hide>
-      <yin-schema path="/hide">
-        <extension>
-    </extension>
-      </yin-schema>
-    </hide>
-    <info>
-      <yin-schema path="/info">
-        <extension>
-    </extension>
-      </yin-schema>
-    </info>
     <tests>
       <yin-schema path="/tests">
         <container>
