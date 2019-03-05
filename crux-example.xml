@@ -98,6 +98,7 @@
     <path>/crux-cli/modules/top-level-tags</path>
     <path>/crux-cli/modules/top-level-tags/tag</path>
     <path>/trigger</path>
+    <path>/hide</path>
     <path>/info</path>
     <path/>
     <path>/tests</path>
@@ -106,14 +107,11 @@
     <path>/tests/temperature/probes/probeid</path>
     <path>/tests/temperature/probes/run</path>
     <path>/tests/temperature/probes/value</path>
-    <path>/ingredients</path>
-    <path>/ingredients/hops</path>
-    <path>/ingredients/hops/item</path>
-    <path>/ingredients/hops/qty</path>
     <path/>
     <path>/ds18b20-probe</path>
     <path>/temperature-probe</path>
     <path>/temperature</path>
+    <path>/percent-dot1</path>
     <path/>
     <path>/tests</path>
     <path>/tests/tests</path>
@@ -123,11 +121,14 @@
     <path>/tests/tests/temperature/probes/run</path>
     <path>/tests/tests/temperature/probes/value</path>
     <path/>
-    <path>/stores</path>
-    <path>/stores/ingredients</path>
-    <path>/stores/ingredients/hops</path>
-    <path>/stores/ingredients/hops/item</path>
-    <path>/stores/ingredients/hops/qty</path>
+    <path>/TODO-stores</path>
+    <path/>
+    <path>/definitions</path>
+    <path>/definitions/hops</path>
+    <path>/definitions/hops/item</path>
+    <path>/definitions/hops/alpha-acid</path>
+    <path>/definitions/hops/bittering</path>
+    <path>/definitions/hops/aroma</path>
   </crux-paths>
   <inverted-schema>
     <simpleleaf>
@@ -812,6 +813,12 @@
     </extension>
       </yin-schema>
     </trigger>
+    <hide>
+      <yin-schema path="/hide">
+        <extension>
+    </extension>
+      </yin-schema>
+    </hide>
     <info>
       <yin-schema path="/info">
         <extension>
@@ -858,33 +865,6 @@
         </probes>
       </temperature>
     </tests>
-    <ingredients>
-      <yin-schema path="/ingredients">
-        <container>
-      </container>
-      </yin-schema>
-      <hops>
-        <yin-schema path="/ingredients/hops">
-          <list>
-            <key value="item"/>
-          </list>
-        </yin-schema>
-        <item>
-          <yin-schema path="/ingredients/hops/item">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </item>
-        <qty>
-          <yin-schema path="/ingredients/hops/qty">
-            <leaf>
-              <type name="uint32"/>
-            </leaf>
-          </yin-schema>
-        </qty>
-      </hops>
-    </ingredients>
     <ds18b20-probe>
       <yin-schema path="/ds18b20-probe">
         <typedef>
@@ -916,6 +896,16 @@
         </typedef>
       </yin-schema>
     </temperature>
+    <percent-dot1>
+      <yin-schema path="/percent-dot1">
+        <typedef>
+          <type name="decimal64">
+            <fraction-digits value="1"/>
+            <range value="0..100"/>
+          </type>
+        </typedef>
+      </yin-schema>
+    </percent-dot1>
     <tests>
       <yin-schema path="/tests"/>
       <tests>
@@ -959,35 +949,51 @@
         </temperature>
       </tests>
     </tests>
-    <stores>
-      <yin-schema path="/stores"/>
-      <ingredients>
-        <yin-schema path="/stores/ingredients">
-          <container>
-      </container>
+    <TODO-stores>
+      <yin-schema path="/TODO-stores">
+        <container/>
+      </yin-schema>
+    </TODO-stores>
+    <definitions>
+      <yin-schema path="/definitions">
+        <container>
+    </container>
+      </yin-schema>
+      <hops>
+        <yin-schema path="/definitions/hops">
+          <list>
+            <key value="item"/>
+          </list>
         </yin-schema>
-        <hops>
-          <yin-schema path="/stores/ingredients/hops">
-            <list>
-              <key value="item"/>
-            </list>
+        <item>
+          <yin-schema path="/definitions/hops/item">
+            <leaf>
+              <type name="string"/>
+            </leaf>
           </yin-schema>
-          <item>
-            <yin-schema path="/stores/ingredients/hops/item">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </item>
-          <qty>
-            <yin-schema path="/stores/ingredients/hops/qty">
-              <leaf>
-                <type name="uint32"/>
-              </leaf>
-            </yin-schema>
-          </qty>
-        </hops>
-      </ingredients>
-    </stores>
+        </item>
+        <alpha-acid>
+          <yin-schema path="/definitions/hops/alpha-acid">
+            <leaf>
+              <type name="brewerslab-types__percent-dot1"/>
+            </leaf>
+          </yin-schema>
+        </alpha-acid>
+        <bittering>
+          <yin-schema path="/definitions/hops/bittering">
+            <leaf>
+              <type name="boolean"/>
+            </leaf>
+          </yin-schema>
+        </bittering>
+        <aroma>
+          <yin-schema path="/definitions/hops/aroma">
+            <leaf>
+              <type name="boolean"/>
+            </leaf>
+          </yin-schema>
+        </aroma>
+      </hops>
+    </definitions>
   </inverted-schema>
 </crux-schema>

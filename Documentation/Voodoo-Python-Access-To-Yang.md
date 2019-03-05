@@ -117,6 +117,8 @@ In [11]: print(session.dumps())
 - ~~len for list items~~
 - ~~x in list and x not in list~~
 - manage enums as 'indexed-values' with lookup to the literal value.
+- groupings appear in the command line completion (e.g. root.stores - the root cause here is the crux schema as we have thiis     <group-a><yin-schema path="/group-a"/></group-a>
+- crux_cli appears in the schema - as do extensions we need to hide things.
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
   - ~~a=root.outsidelist.create('a')~~

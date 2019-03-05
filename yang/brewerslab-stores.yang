@@ -1,0 +1,13 @@
+module brewerslab-stores {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/stores";
+  prefix "brewlabng-stores";
+
+  import brewerslab-types {
+    prefix brewerslab-types;
+  }
+
+  container TODO-stores{
+  }
+
+}

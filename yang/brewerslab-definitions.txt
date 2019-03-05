@@ -1,0 +1,7 @@
+module: brewerslab-definitions
+  +--rw definitions
+     +--rw hops* [item]
+        +--rw item          string
+        +--rw alpha-acid?   brewerslab-types:percent-dot1
+        +--rw bittering?    boolean
+        +--rw aroma?        boolean
