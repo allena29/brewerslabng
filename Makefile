@@ -1,13 +1,17 @@
 .PHONY: unittest
 
-all: crux-compile lint unittest
+all: crux-recompile lint unittest
 
 everything:
 	rm -fr .cache
 	make all
 
 crux-compile:
-	bash ./cruxcompile "integrationtest" 
+	touch yang
+	bash ./cruxcompile "integrationtest"
+
+crux-recompiel:
+	bash ./cruxcompile "integrationtest"
 
 unittest:
 	test/run-unit.sh
