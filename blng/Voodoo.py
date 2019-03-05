@@ -103,6 +103,13 @@ class DataAccess:
     def dumps(self):
         return self._xmldoc.dumps()
 
+    def load(self, input_file):
+        """Load a new set of data into memory from an XML file on disk."""
+        with open(input_file, 'r') as file_handle:
+            self._xmldoc.loads(file_handle.read())
+        (keystore_cache, schema_cache) = self._cache
+        keystore_cache.empty()
+
     def loads(self, input_string):
         """
         Load a new set of data into memory.
