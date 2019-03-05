@@ -10,7 +10,7 @@ crux-compile:
 	touch yang
 	bash ./cruxcompile "integrationtest"
 
-crux-recompiel:
+crux-recompile:
 	bash ./cruxcompile "integrationtest"
 
 unittest:

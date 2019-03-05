@@ -25,12 +25,17 @@ class TestVoodoo(unittest.TestCase):
         two = root.twokeylist.create('a2', 'b2')
         three = root.twokeylist.create('a3', 'b3')
 
+        self.assertTrue(('a1', 'b1') in root.twokeylist)
+        self.assertTrue(('x1', 'b1') not in root.twokeylist)
+
         ELEPHANT = root.simplelist.create('elephant')
         CAMEL = root.simplelist.create('camel')
         ZOMBIE = root.simplelist.create('zombie')
         GHOUL = root.simplelist.create('ghoul')
 
         self.assertEqual(len(root.simplelist), 4)
+        self.assertTrue('zombie' in root.simplelist)
+        self.assertFalse('zombie' not in root.simplelist)
 
         for listelement in root.twokeylist:
             listelement.tertiary = listelement.primary + listelement.secondary
@@ -40,6 +45,15 @@ class TestVoodoo(unittest.TestCase):
 
         # Action
         del root.simplelist['zombie']
+
+        self.assertTrue('zombie' not in root.simplelist)
+        self.assertFalse('elephant' not in root.simplelist)
+        self.assertFalse('camel' not in root.simplelist)
+        self.assertFalse('ghoul' not in root.simplelist)
+        self.assertFalse('zombie' in root.simplelist)
+        self.assertTrue('elephant' in root.simplelist)
+        self.assertTrue('camel' in root.simplelist)
+        self.assertTrue('ghoul' in root.simplelist)
 
         # Test that this does not actually remove the item from the list
         # it should delete the reference to the list element only

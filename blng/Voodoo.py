@@ -561,42 +561,9 @@ class CruxVoodooPresenceContainer(CruxVoodooBase):
         return True
 
 
-class CruxVoodooList(CruxVoodooBase):
+class CruxVoodooListBase(CruxVoodooBase):
 
-    _voodoo_type = 'List'
-
-    """
-    List.
-
-    Note: this object maps to a yang based list which behaves more a-kin to a dictionary in python.
-    However, it is possible to have lists with composite keys in YANG.
-    TODO: expect these are just tuples.
-    """
-
-    def __getitem__(self, args):
-        log = self.__dict__['_log']
-        schemapath = self.__dict__['_schemapath']
-        valuepath = self.__dict__['_valuepath']
-        schema = self.__dict__['_schema']
-        xmldoc = self.__dict__['_xmldoc']
-        thisschema = self.__dict__['_thisschema']
-        cache = self.__dict__['_cache']
-        (keystore_cache, schema_cache) = cache
-
-        spath = schemapath
-        vpath = valuepath
-
-        # TODO: no cache support on get of list itmes
-        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
-
-        item = self._getxmlnode(path_to_list_element)
-        if len(item) == 0:
-            raise BadVoodoo("ListElement does not exist: " + path_to_list_element[7:])
-
-        log.debug('get-listelement: %s', path_to_list_element)
-        return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
-                                     value=None, root=False, listelement=str(args), log=log,
-                                     parent=self)
+    """Common helper methods for List and ListElement"""
 
     def _add_keys_to_path(self, thisschema, spath, vpath, args_tuple_or_string):
         """
@@ -646,6 +613,44 @@ class CruxVoodooList(CruxVoodooBase):
                             keys = z.attrib['value'].split(' ')
 
         return keys
+
+
+class CruxVoodooList(CruxVoodooListBase):
+
+    _voodoo_type = 'List'
+
+    """
+    List.
+
+    Note: this object maps to a yang based list which behaves more a-kin to a dictionary in python.
+    However, it is possible to have lists with composite keys in YANG.
+    TODO: expect these are just tuples.
+    """
+
+    def __getitem__(self, args):
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
+
+        spath = schemapath
+        vpath = valuepath
+
+        # TODO: no cache support on get of list itmes
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
+
+        item = self._getxmlnode(path_to_list_element)
+        if len(item) == 0:
+            raise BadVoodoo("ListElement does not exist: " + path_to_list_element[7:])
+
+        log.debug('get-listelement: %s', path_to_list_element)
+        return CruxVoodooListElement(schema, xmldoc, cache, spath, path_to_list_element,
+                                     value=None, root=False, listelement=str(args), log=log,
+                                     parent=self)
 
     def __len__(self):
         path = self.__dict__['_path']
@@ -768,7 +773,7 @@ class CruxVoodooListIterator:
         self._cache = cache
         self._schemapath = schemapath
         self._valuepath = valuepath
-        self._cruxlist = self
+        self._cruxlist = crux_list
         self._log = log
 
         self._cruxitems = crux_list.__dict__['_xmldoc'].xpath('/voodoo' + crux_list.__dict__['_path'])
@@ -798,9 +803,40 @@ class CruxVoodooListIterator:
                                      parent=self._cruxlist)
 
 
-class CruxVoodooListElement(CruxVoodooBase):
+class CruxVoodooListElement(CruxVoodooListBase):
 
     _voodoo_type = 'ListElement'
+
+    def __eq__(self, args):
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
+        # Normally we call this function with spath and vpath
+        # however in this case vpath contains the keys of this paritcular listelement
+        # wehereas we want to test with the keys formed from the incoming args
+        # e.g. spath = /vooschema/simplelist
+        #      vpath = /vooschema/simplelist[simplekey='a']   <-- for first list key
+        #      vpath = /vooschema/simplelist[simplekey='b']   <-- for second key
+        # If we want to test to make sure 'c' not in root.simplelist then we will have args
+        # coming in as 'c' so spath + args is the right path to check
+        spath = schemapath
+        vpath = '/voodoo' + valuepath[7:]
+
+        # TODO: no cache support on get of list itmes
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
+
+        item = self._getxmlnode(path_to_list_element)
+        if len(item) == 0:
+            log.debug('x-in-list: %s <no>', path_to_list_element)
+            return False
+
+        log.debug('x-in-list: %s <yes>', path_to_list_element)
+        return True
 
     def __repr__(self):
         return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][7:]
