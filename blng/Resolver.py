@@ -254,7 +254,7 @@ class Resolver:
                         schema_simple_type = 'primitive'
                     if grandchild.tag == 'list':
                         schema_simple_type = 'list'
-        if not schema:
+        if schema is None:
             raise ValueError('missing schema')
         return (schema, schema_simple_type)
 

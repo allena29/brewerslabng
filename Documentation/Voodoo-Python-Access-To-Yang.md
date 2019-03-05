@@ -109,8 +109,13 @@ In [11]: print(session.dumps())
 - validation everywhere
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
-- keys() needs to be implemented for lists.
-- delete list items
+- ~~keys() needs to be implemented for lists.~~
+- ~~list iteration~~
+- ~~delete list items~~
+  - with less crude emptying of cache
+- listelements are never ever cached
+- ~~len for list items~~
+- ~~x in list and x not in list~~
 - manage enums as 'indexed-values' with lookup to the literal value.
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
@@ -126,3 +131,5 @@ In [11]: print(session.dumps())
 - cache crux objects as they are created  or instantiate every single time.
 - what about mandatory things... within a container/list-node (probably not realistic to force it)
 - ~~longest_path_match creates fails to catch list-keys~~
+- Multithread access to data very unpredictable
+- think about converting __dict__ to __slot__

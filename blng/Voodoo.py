@@ -561,7 +561,61 @@ class CruxVoodooPresenceContainer(CruxVoodooBase):
         return True
 
 
-class CruxVoodooList(CruxVoodooBase):
+class CruxVoodooListBase(CruxVoodooBase):
+
+    """Common helper methods for List and ListElement"""
+
+    def _add_keys_to_path(self, thisschema, spath, vpath, args_tuple_or_string):
+        """
+        This method takes in schema, path details and arguments
+        and will return the xpath to the list element.
+        """
+
+        args = self._get_list_key_values(args_tuple_or_string)
+        keys = self._get_list_key_names(thisschema)
+
+        if not keys:
+            raise BadVoodoo('Trying to inspect schema for keys but did not find them. %s' % (spath))
+
+        if not len(keys) == len(args):
+            raise BadVoodoo('Wrong Number of keys require %s got %s. keys defined: %s' % (len(keys), len(args), str(keys)))
+
+        path_to_list_element = vpath
+        ai = 0
+        for key in keys:
+            path_to_list_element = path_to_list_element + "[" + key + "='" + args[ai] + "']"
+            ai = ai+1
+
+        return path_to_list_element
+
+    def _get_list_key_values(self, args_tuple_or_string):
+        """Return list key values as a string"""
+
+        if isinstance(args_tuple_or_string, tuple):
+            args = []
+            for a in args_tuple_or_string:
+                args.append(a)
+        else:
+            args = [args_tuple_or_string]
+
+        return args
+
+    def _get_list_key_names(self, thisschema):
+        """Return an ordered list of the key names"""
+
+        keys = []
+        # This is pretty shcoking
+        for x in thisschema.getchildren():
+            if x.tag == 'yin-schema':
+                for y in x.getchildren():
+                    for z in y.getchildren():
+                        if z.tag == 'key' and 'value' in z.attrib:
+                            keys = z.attrib['value'].split(' ')
+
+        return keys
+
+
+class CruxVoodooList(CruxVoodooListBase):
 
     _voodoo_type = 'List'
 
@@ -586,14 +640,8 @@ class CruxVoodooList(CruxVoodooBase):
         spath = schemapath
         vpath = valuepath
 
-        if isinstance(args, tuple):
-            args_as_list = []
-            for a in args:
-                args_as_list.append(a)
-        else:
-            args_as_list = [args]
-
-        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args_as_list)
+        # TODO: no cache support on get of list itmes
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
 
         item = self._getxmlnode(path_to_list_element)
         if len(item) == 0:
@@ -604,29 +652,44 @@ class CruxVoodooList(CruxVoodooBase):
                                      value=None, root=False, listelement=str(args), log=log,
                                      parent=self)
 
-    def _add_keys_to_path(self, thisschema, spath, vpath, args):
-        keys = []
-        # This is pretty shcoking
-        for x in thisschema.getchildren():
-            if x.tag == 'yin-schema':
-                for y in x.getchildren():
-                    for z in y.getchildren():
-                        if z.tag == 'key' and 'value' in z.attrib:
-                            keys = z.attrib['value'].split(' ')
+    def __len__(self):
+        path = self.__dict__['_path']
+        xmldoc = self.__dict__['_xmldoc']
+        return len(xmldoc.xpath('/voodoo' + path))
 
-        if not keys:
-            raise BadVoodoo('Trying to inspect schema for keys but did not find them. %s' % (spath))
+    def keys(self):
+        """
+        Return List keys.
+        """
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
 
-        if not len(keys) == len(args):
-            raise BadVoodoo('Wrong Number of keys require %s got %s. keys defined: %s' % (len(keys), len(args), str(keys)))
+        our_keys = []
+        # TOOD: find a more etree native way of implementing this
+        list_key_names = self._get_list_key_names(thisschema)
 
-        path_to_list_element = vpath
-        ai = 0
-        for key in keys:
-            path_to_list_element = path_to_list_element + "[" + key + "='" + args[ai] + "']"
-            ai = ai+1
+        for child in xmldoc.xpath(valuepath):
+            key_id = 0
+            grand_child_id = 0
+            for grandchild in child.getchildren():
+                if key_id < len(list_key_names) and grandchild.tag == list_key_names[key_id]:
+                    if len(list_key_names) > 1:
+                        if key_id == 0:
+                            our_keys.append([])
+                        our_keys[-1].append(grandchild.text)
+                    else:
+                        our_keys.append(grandchild.text)
 
-        return path_to_list_element
+                    grand_child_id = grand_child_id + 1
+                    key_id = key_id + 1
+
+        return our_keys
 
     def create(self, *args):
         """
@@ -663,10 +726,151 @@ class CruxVoodooList(CruxVoodooBase):
     def __dir__(self):
         return []
 
+    def __iter__(self):
+        return CruxVoodooListIterator(self, self.__dict__['_schema'], self.__dict__['_xmldoc'],
+                                      self.__dict__['_cache'], self.__dict__['_schemapath'],
+                                      self.__dict__['_valuepath'], self.__dict__['_log'])
 
-class CruxVoodooListElement(CruxVoodooBase):
+    def __delitem__(self, args):
+        # TODO
+        log = self.__dict__['_log']
+        cache = self.__dict__['_cache']
+        spath = self.__dict__['_schemapath']
+        vpath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        (keystore_cache, schema_cache) = cache
+
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
+
+        log.debug('del-listitem %s', path_to_list_element)
+
+        list_items = self._getxmlnode(path_to_list_element)
+        if len(list_items) == 0:
+            raise BadVoodoo('Cannot delete list element because it does not exist. %s' % (path_to_list_element[7:]))
+        elif len(list_items) > 1:
+            i = 5/0
+
+        the_list = list_items[0].getparent()
+        # TOOD: find a more etree native way of implementing this
+
+        list_key_names = self._get_list_key_names(thisschema)
+        list_key_values = self._get_list_key_values(args)
+
+        found_list_element = None
+        for child in the_list.getchildren():
+            full_match = True
+            # Assumption is that lxml will always give us list-keys in order
+            key_id = 0
+            grand_child_id = 0
+            for grandchild in child.getchildren():
+                log.debug('GRANDCHILD', grandchild.tag)
+                if grand_child_id == len(list_key_names):
+                    log.debug('inspected all the keys already %s', grandchild.tag)
+                    if full_match:
+                        found_list_element = child
+                        break
+                    continue
+                if grandchild.tag == list_key_names[key_id] and grandchild.text == list_key_values[key_id]:
+                    log.debug(' - MATCHED because %s == %s (idx %s) or %s == %s', grandchild.tag,
+                              list_key_names[key_id], key_id, grandchild.text, list_key_values[key_id])
+                    grand_child_id = grand_child_id + 1
+                    key_id = key_id + 1
+
+                else:
+                    full_match = False
+                    log.debug(' - not matched because %s != %s (idx %s) or %s != %s', grandchild.tag,
+                              list_key_names[key_id], key_id, grandchild.text, list_key_values[key_id])
+                    grand_child_id = grand_child_id + 1
+                    key_id = key_id + 1
+                    continue
+
+            log.debug('%s fullmatch ', full_match)
+            if full_match:
+                found_list_element = child
+                break
+        log.debug('FOUND list elemment ???', found_list_element)
+        the_list.remove(found_list_element)
+        log.debug('Clearing the keystore cache!')
+        keystore_cache.empty()
+
+
+class CruxVoodooListIterator:
+
+    def __init__(self, crux_list, schema, xmldoc, cache, schemapath, valuepath, log):
+        # TODO: should we try use getxmlnode (which avoids multiple item results from xpath)
+        # or just use xpath directly (without caching). Caching could get in the way because
+        # we could add/remove items.
+        self._schema = schema
+        self._xmldoc = xmldoc
+        self._cache = cache
+        self._schemapath = schemapath
+        self._valuepath = valuepath
+        self._cruxlist = crux_list
+        self._log = log
+
+        self._cruxitems = crux_list.__dict__['_xmldoc'].xpath('/voodoo' + crux_list.__dict__['_path'])
+        self._idx = 0
+
+    def __next__(self):
+        if self._idx == len(self._cruxitems):
+            raise StopIteration
+
+        (keystore_cache, schema_cache) = self._cache
+        log = self._log
+
+        self._idx = self._idx + 1
+        item = self._cruxitems[self._idx - 1]
+
+        path_keys = ""
+        for child in item.getchildren():
+            if 'listkey' in child.attrib and child.attrib['listkey'] == 'yes':
+                path_keys = path_keys + "[" + child.tag + "='" + child.text + "']"
+
+        path_to_list_element = self._valuepath + path_keys
+
+        # TODO: no cache support on iter  of list itmes
+
+        return CruxVoodooListElement(self._schema, self._xmldoc, self. _cache, self._schemapath, path_to_list_element,
+                                     value=None, root=False, listelement='args-cosmetic-todo', log=self._log,
+                                     parent=self._cruxlist)
+
+
+class CruxVoodooListElement(CruxVoodooListBase):
 
     _voodoo_type = 'ListElement'
+
+    def __eq__(self, args):
+        log = self.__dict__['_log']
+        schemapath = self.__dict__['_schemapath']
+        valuepath = self.__dict__['_valuepath']
+        schema = self.__dict__['_schema']
+        xmldoc = self.__dict__['_xmldoc']
+        thisschema = self.__dict__['_thisschema']
+        cache = self.__dict__['_cache']
+        (keystore_cache, schema_cache) = cache
+        # Normally we call this function with spath and vpath
+        # however in this case vpath contains the keys of this paritcular listelement
+        # wehereas we want to test with the keys formed from the incoming args
+        # e.g. spath = /vooschema/simplelist
+        #      vpath = /vooschema/simplelist[simplekey='a']   <-- for first list key
+        #      vpath = /vooschema/simplelist[simplekey='b']   <-- for second key
+        # If we want to test to make sure 'c' not in root.simplelist then we will have args
+        # coming in as 'c' so spath + args is the right path to check
+        spath = schemapath
+        vpath = '/voodoo' + valuepath[7:]
+
+        # TODO: no cache support on get of list itmes
+        path_to_list_element = self._add_keys_to_path(thisschema, spath, vpath, args)
+
+        item = self._getxmlnode(path_to_list_element)
+        if len(item) == 0:
+            log.debug('x-in-list: %s <no>', path_to_list_element)
+            return False
+
+        log.debug('x-in-list: %s <yes>', path_to_list_element)
+        return True
 
     def __repr__(self):
         return 'Voodoo'+self._voodoo_type+': ' + self.__dict__['_valuepath'][7:]
