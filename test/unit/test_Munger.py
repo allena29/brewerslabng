@@ -33,6 +33,12 @@ class TestCruxMunger(unittest.TestCase):
         self.subject.replacements = []
         self.subject.grouping_map = {}
 
+    def test_crux(self):
+        """Test extension's are dropped from the result."""
+        xmldoc, newxmldoc = self.subject.munge("crux", self._loadXmlDoc(resources.SCHEMA_CRUX))
+        received_answer2 = self.subject.pretty(newxmldoc)
+        self.assertEqual(answers.SCHEMA_CRUX_EXPECTED, received_answer2)
+
     def test_simple_types(self):
         """Test very basic primitive types"""
         xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_PRIMITIVE))

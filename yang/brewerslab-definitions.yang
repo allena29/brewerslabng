@@ -1,0 +1,37 @@
+module brewerslab-definitions {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/definitions";
+  prefix "brewlabng-stores";
+
+  import crux {
+    prefix crux;
+  }
+  import brewerslab-types {
+    prefix brewerslab-types;
+  }
+
+  container definitions {
+    list hops {
+      key item;
+
+      leaf item {
+        type string;
+        crux:info "The hop";
+      }
+
+      leaf alpha-acid {
+        type brewerslab-types:percent-dot1;
+      }
+
+      leaf bittering {
+        type boolean;
+      }
+
+      leaf aroma {
+        type boolean;
+      }
+
+    }
+  }
+
+}

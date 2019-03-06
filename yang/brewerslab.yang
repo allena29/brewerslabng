@@ -11,6 +11,11 @@ module brewerslab {
     prefix brewerslab-teststub;
   }
 
+  import brewerslab-stores {
+    prefix brewerslab-stores;
+  }
+
   uses brewerslab-teststub:tests;
 
+  
 }

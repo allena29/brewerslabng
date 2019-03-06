@@ -1,5 +1,70 @@
 class answers:
 
+    SCHEMA_CRUX_EXPECTED = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+  <inverted-schema>
+    <crux-cli>
+      <yin-schema path="/crux-cli">
+        <container xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="crux-cli">
+    </container>
+      </yin-schema>
+      <modules>
+        <yin-schema path="/crux-cli/modules">
+          <list xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="modules">
+      <key value="module"/>
+      </list>
+        </yin-schema>
+        <module>
+          <yin-schema path="/crux-cli/modules/module">
+            <leaf xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="module">
+        <type name="string"/>
+        </leaf>
+          </yin-schema>
+        </module>
+        <namespace>
+          <yin-schema path="/crux-cli/modules/namespace">
+            <leaf xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="namespace">
+        <type name="string"/>
+        <mandatory value="true"/>
+        </leaf>
+          </yin-schema>
+        </namespace>
+        <revision>
+          <yin-schema path="/crux-cli/modules/revision">
+            <leaf xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="revision">
+        <type name="string"/>
+        </leaf>
+          </yin-schema>
+        </revision>
+        <top-level-tags>
+          <yin-schema path="/crux-cli/modules/top-level-tags">
+            <list xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="top-level-tags">
+        <key value="tag"/>
+        </list>
+          </yin-schema>
+          <tag>
+            <yin-schema path="/crux-cli/modules/top-level-tags/tag">
+              <leaf xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="tag">
+          <type name="string"/>
+        </leaf>
+            </yin-schema>
+          </tag>
+        </top-level-tags>
+      </modules>
+    </crux-cli>
+  </inverted-schema>
+  <crux-paths>
+    <path></path>
+    <path>/crux-cli</path>
+    <path>/crux-cli/modules</path>
+    <path>/crux-cli/modules/module</path>
+    <path>/crux-cli/modules/namespace</path>
+    <path>/crux-cli/modules/revision</path>
+    <path>/crux-cli/modules/top-level-tags</path>
+    <path>/crux-cli/modules/top-level-tags/tag</path>
+  </crux-paths>
+</crux-schema>
+"""
+
     SCHEMA_TYPES_EXPECTED1 = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
   <namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
   <prefix value="integrationtest"/>
@@ -143,9 +208,6 @@ class answers:
 
     SCHEMA_GROUPING_EXPECTED2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
-    <group-a>
-      <yin-schema path="/group-a"/>
-    </group-a>
     <resolver>
       <yin-schema path="/resolver">
         <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
@@ -162,7 +224,6 @@ class answers:
   </inverted-schema>
   <crux-paths>
     <path></path>
-    <path>/group-a</path>
     <path>/resolver</path>
   </crux-paths>
 </crux-schema>

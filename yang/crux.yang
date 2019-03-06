@@ -1,11 +1,13 @@
 module crux {
 
   namespace "http://brewerslabng.mellon-collie.net/yang/crux";
-  prefix crux; 
+  prefix crux;
 
   description "Common things which might be useful all over the place";
 
   container crux-cli {
+    crux:hide true;
+    
     list modules {
 
       description "Defines a list of modules which are publicly available for configuration";
@@ -45,7 +47,13 @@ module crux {
     description "Use to specify if data at a certain node should trigger an expensive
     processing/validation operation - or if the data should just be persisted to the
     datastore.";
+    argument boolean {
+      yin-element true;
+    }
+  }
 
+  extension hide {
+    description "Hide this element from consumers of the crux schema.";
     argument boolean {
       yin-element true;
     }
