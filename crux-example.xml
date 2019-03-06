@@ -55,17 +55,6 @@
     <path>/container-and-lists/multi-key-list/B</path>
     <path>/container-and-lists/multi-key-list/inner</path>
     <path>/container-and-lists/multi-key-list/inner/C</path>
-    <path>/secondlist</path>
-    <path>/secondlist/listb</path>
-    <path>/secondlist/listb/secondkey</path>
-    <path>/secondlist/listb/thirdkey</path>
-    <path>/secondlist/listb/nonkey</path>
-    <path>/secondlist/listb/things</path>
-    <path>/secondlist/listb/things/thing</path>
-    <path>/secondlist/listb/things/musthave</path>
-    <path>/secondlist/listb/nothings</path>
-    <path>/secondlist/listb/FIRSTOPTION</path>
-    <path>/secondlist/listb/SECONDOPTION</path>
     <path>/lista</path>
     <path>/lista/firstkey</path>
     <path>/lista/secondlist</path>
@@ -73,7 +62,6 @@
     <path>/simplelist/simplekey</path>
     <path>/simplelist/nonleafkey</path>
     <path>/type-a</path>
-    <path>/group-a</path>
     <path>/resolver</path>
     <path>/resolver/leaf-a</path>
     <path>/morecomplex</path>
@@ -110,13 +98,6 @@
     <path>/temperature</path>
     <path>/percent-dot1</path>
     <path/>
-    <path>/tests</path>
-    <path>/tests/tests</path>
-    <path>/tests/tests/temperature</path>
-    <path>/tests/tests/temperature/probes</path>
-    <path>/tests/tests/temperature/probes/probeid</path>
-    <path>/tests/tests/temperature/probes/run</path>
-    <path>/tests/tests/temperature/probes/value</path>
     <path/>
     <path>/TODO-stores</path>
     <path/>
@@ -506,80 +487,6 @@
         </inner>
       </multi-key-list>
     </container-and-lists>
-    <secondlist>
-      <yin-schema path="/secondlist"/>
-      <listb>
-        <yin-schema path="/secondlist/listb">
-          <list>
-            <key value="secondkey thirdkey"/>
-          </list>
-        </yin-schema>
-        <secondkey>
-          <yin-schema path="/secondlist/listb/secondkey">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </secondkey>
-        <thirdkey>
-          <yin-schema path="/secondlist/listb/thirdkey">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </thirdkey>
-        <nonkey>
-          <yin-schema path="/secondlist/listb/nonkey">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </nonkey>
-        <things>
-          <yin-schema path="/secondlist/listb/things">
-            <container>
-        </container>
-          </yin-schema>
-          <thing>
-            <yin-schema path="/secondlist/listb/things/thing">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </thing>
-          <musthave>
-            <yin-schema path="/secondlist/listb/things/musthave">
-              <leaf>
-                <type name="string"/>
-                <mandatory value="true"/>
-              </leaf>
-            </yin-schema>
-          </musthave>
-        </things>
-        <nothings>
-          <yin-schema path="/secondlist/listb/nothings">
-            <container/>
-          </yin-schema>
-        </nothings>
-        <FIRSTOPTION>
-          <yin-schema path="/secondlist/listb/FIRSTOPTION">
-            <leaf>
-              <type name="string"/>
-              <crux__info>
-                <crux__text>choice</crux__text>
-              </crux__info>
-            </leaf>
-          </yin-schema>
-        </FIRSTOPTION>
-        <SECONDOPTION>
-          <yin-schema path="/secondlist/listb/SECONDOPTION">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </SECONDOPTION>
-      </listb>
-    </secondlist>
     <lista>
       <yin-schema path="/lista">
         <list>
@@ -626,9 +533,6 @@
     </typedef>
       </yin-schema>
     </type-a>
-    <group-a>
-      <yin-schema path="/group-a"/>
-    </group-a>
     <resolver>
       <yin-schema path="/resolver">
         <container>
@@ -885,49 +789,6 @@
         </typedef>
       </yin-schema>
     </percent-dot1>
-    <tests>
-      <yin-schema path="/tests"/>
-      <tests>
-        <yin-schema path="/tests/tests">
-          <container>
-      </container>
-        </yin-schema>
-        <temperature>
-          <yin-schema path="/tests/tests/temperature">
-            <container>
-        </container>
-          </yin-schema>
-          <probes>
-            <yin-schema path="/tests/tests/temperature/probes">
-              <list>
-                <key value="probeid"/>
-              </list>
-            </yin-schema>
-            <probeid>
-              <yin-schema path="/tests/tests/temperature/probes/probeid">
-                <leaf>
-                  <type name="brewerslab-types__temperature-probe"/>
-                </leaf>
-              </yin-schema>
-            </probeid>
-            <run>
-              <yin-schema path="/tests/tests/temperature/probes/run">
-                <leaf>
-                  <type name="boolean"/>
-                </leaf>
-              </yin-schema>
-            </run>
-            <value>
-              <yin-schema path="/tests/tests/temperature/probes/value">
-                <leaf>
-                  <type name="brewerslab-types__temperature"/>
-                </leaf>
-              </yin-schema>
-            </value>
-          </probes>
-        </temperature>
-      </tests>
-    </tests>
     <TODO-stores>
       <yin-schema path="/TODO-stores">
         <container/>

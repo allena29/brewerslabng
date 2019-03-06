@@ -62,11 +62,84 @@ class Munger:
         self.pass2_stitch_and_recurse(xmldoc)
         self.pass3(xmldoc)
         newxmldoc = self.pass4(xmldoc)
+        # from this point forwards we deal with the inverted document.
+        """
+        Somewhere we need to deal with two issues:
+
+        1) groupings, secondlist (used by lista)  and group-a (used by resolver)
+
+          grouping group-a {
+            leaf a {
+              type string;
+            }
+
+          appears without any children
+          In the schema it looks like this and appears as nodes in vooodoo/crux-paths.
+          <group-a>
+            <yin-schema path="/group-a"/>
+          </group-a>
+
+
+         2_ An grouping not used anywhere looks like this in the schema and appears
+         as nodes in vooodoo/crux-paths.
+         <unused-grouping>
+           <yin-schema path="/unused-grouping"/>
+           <unused-grouping-leaf>
+             <yin-schema path="/unused-grouping/unused-grouping-leaf">
+               <leaf>
+                 <type name="string"/>
+               </leaf>
+             </yin-schema>
+           </unused-grouping-leaf>
+         </unused-grouping>
+
+        We can't just remove things which don't have yin-schema children  becuase when we import
+        across yang files that is true too...
+        <tests>
+          <yin-schema path="/tests"/>
+          <tests>
+            <yin-schema path="/tests/tests">
+              <container>
+          </container>
+
+         However this here is also wrong. as it should be tests/.
+
+        So after all that maybe the first approach was right and it just looked wrong that secondlist
+        disappeared from the answer.
+        It of course should have done because second-list is the group as long as /lista/listb work then
+        everything is fine.
+        """
+
         self.pass5(newxmldoc)
         self.pass6(newxmldoc)
+        self.final_pass(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
 
     def pass6(self, newxmldoc):
+        """
+        Based on the signature of
+                       <yin-schema path="/unused-grouping"/>
+        having no children we assume that we should remove the parent from the
+        grandparent.
+
+        TODO: extend to handle the crux:hide extension too.
+        """
+
+        self.objects_to_remove = []
+        self.pass6_recursor(newxmldoc)
+        for object_to_remove in self.objects_to_remove:
+            parent = object_to_remove.getparent()
+            grandparent = parent.getparent()
+            grandparent.remove(parent)
+
+    def pass6_recursor(self, obj):
+        for child in obj.getchildren():
+            if child.tag == "yin-schema" and len(child.getchildren()) == 0:
+                self.objects_to_remove.append(child)
+            else:
+                self.pass6_recursor(child)
+
+    def final_pass(self, newxmldoc):
         """
         This works throuhg the YANG module to add paths as an attribute into each yin-schema
         node. e.g. <yin-schema path="/simpleleaf">

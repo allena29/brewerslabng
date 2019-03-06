@@ -208,9 +208,6 @@ class answers:
 
     SCHEMA_GROUPING_EXPECTED2 = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
-    <group-a>
-      <yin-schema path="/group-a"/>
-    </group-a>
     <resolver>
       <yin-schema path="/resolver">
         <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="resolver">
@@ -227,7 +224,6 @@ class answers:
   </inverted-schema>
   <crux-paths>
     <path></path>
-    <path>/group-a</path>
     <path>/resolver</path>
   </crux-paths>
 </crux-schema>

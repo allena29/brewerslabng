@@ -117,7 +117,11 @@ In [11]: print(session.dumps())
 - ~~len for list items~~
 - ~~x in list and x not in list~~
 - manage enums as 'indexed-values' with lookup to the literal value.
-- groupings appear in the command line completion (e.g. root.stores - the root cause here is the crux schema as we have thiis     <group-a><yin-schema path="/group-a"/></group-a>
+- ~~groupings appear in the command line completion (e.g. root.stores - the root cause here is the crux schema as we have thiis     <group-a><yin-schema path="/group-a"/></group-a>.~~
+   - ~~there is something wrong with the way groupings work, they get stitched into crux even if they are never used
+     grouping WTF { leaf wtfx {type string;}} will appear even though there is no uses for WTF. Post-processing this
+     in Munger is not the answer.~~
+
 - crux_cli appears in the schema - as do ~~extensions we need to hide things.~~
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
