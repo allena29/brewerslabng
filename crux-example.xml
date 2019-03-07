@@ -3,6 +3,9 @@
   <crux-paths>
     <path/>
     <path>/simpleleaf</path>
+    <path>/dirty-secret</path>
+    <path>/thing-to-leafref-against</path>
+    <path>/thing-that-is-leafref</path>
     <path>/bronze</path>
     <path>/bronze/silver</path>
     <path>/bronze/silver/gold</path>
@@ -116,6 +119,29 @@
         </leaf>
       </yin-schema>
     </simpleleaf>
+    <dirty-secret>
+      <yin-schema hide="yes" path="/dirty-secret">
+        <leaf>
+          <type name="string"/>
+        </leaf>
+      </yin-schema>
+    </dirty-secret>
+    <thing-to-leafref-against>
+      <yin-schema path="/thing-to-leafref-against">
+        <leaf>
+          <type name="string"/>
+        </leaf>
+      </yin-schema>
+    </thing-to-leafref-against>
+    <thing-that-is-leafref>
+      <yin-schema info="Should be constratined to the leaf ref" path="/thing-that-is-leafref">
+        <leaf>
+          <type name="leafref">
+            <path value="../thing-to-leafref-against"/>
+          </type>
+        </leaf>
+      </yin-schema>
+    </thing-that-is-leafref>
     <bronze>
       <yin-schema path="/bronze">
         <container>
@@ -520,7 +546,7 @@
         </yin-schema>
       </simplekey>
       <nonleafkey>
-        <yin-schema path="/simplelist/nonleafkey">
+        <yin-schema info="A non-leaf key" path="/simplelist/nonleafkey">
           <leaf>
             <type name="uint32"/>
           </leaf>
@@ -559,7 +585,7 @@
     </container>
       </yin-schema>
       <nonconfig>
-        <yin-schema path="/morecomplex/nonconfig">
+        <yin-schema info="A non-configuration node" path="/morecomplex/nonconfig">
           <leaf>
             <config value="false"/>
             <type name="string"/>
@@ -567,20 +593,20 @@
         </yin-schema>
       </nonconfig>
       <leaf2>
-        <yin-schema path="/morecomplex/leaf2">
+        <yin-schema info="must be 1 or 0 dont sit on the fence" path="/morecomplex/leaf2">
           <leaf>
             <type name="boolean"/>
           </leaf>
         </yin-schema>
       </leaf2>
       <leaf3>
-        <yin-schema path="/morecomplex/leaf3">
+        <yin-schema info="Should allow a string starting with brew - but no spaces" path="/morecomplex/leaf3">
           <leaf>
       </leaf>
         </yin-schema>
       </leaf3>
       <leaf4>
-        <yin-schema path="/morecomplex/leaf4">
+        <yin-schema info="Should allow A, B, C or a uint32" path="/morecomplex/leaf4">
           <leaf>
             <crux__info>
               <crux__text>Should allow A, B, C or a uint32</crux__text>
@@ -660,7 +686,7 @@
       </yin-schema>
     </type4>
     <crux-cli>
-      <yin-schema path="/crux-cli">
+      <yin-schema hide="yes" path="/crux-cli">
         <container>
     </container>
       </yin-schema>
@@ -806,7 +832,7 @@
           </list>
         </yin-schema>
         <item>
-          <yin-schema path="/definitions/hops/item">
+          <yin-schema info="The hop" path="/definitions/hops/item">
             <leaf>
               <type name="string"/>
             </leaf>

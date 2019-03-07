@@ -1,5 +1,8 @@
 module: integrationtest
-  +--rw simpleleaf?            string
+  +--rw simpleleaf?                 string
+  +--rw dirty-secret?               string
+  +--rw thing-to-leafref-against?   string
+  +--rw thing-that-is-leafref?      -> ../thing-to-leafref-against
   +--rw bronze
   |  +--rw silver
   |     +--rw gold
@@ -30,9 +33,9 @@ module: integrationtest
   |  +--rw secondary    boolean
   |  +--rw tertiary?    boolean
   +--rw simplecontainer!
-  +--rw simpleenum?            enumeration
-  +--rw patternstr?            string
-  +--rw hyphen-leaf?           string
+  +--rw simpleenum?                 enumeration
+  +--rw patternstr?                 string
+  +--rw hyphen-leaf?                string
   +--rw outsidelist* [leafo]
   |  +--rw leafo              string
   |  +--rw insidelist* [leafi]

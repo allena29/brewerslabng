@@ -10,6 +10,22 @@ module integrationtest {
     type string;
   }
 
+  leaf dirty-secret {
+    type string;
+    crux:hide true;
+  }
+  
+  leaf thing-to-leafref-against {
+    type string;
+  }
+
+  leaf thing-that-is-leafref {
+    crux:info "Should be constratined to the leaf ref";
+    description "We won't support crazy expressions, just somewhere to influence the CLI";
+    type leafref {
+      path "../thing-to-leafref-against";
+    }
+  }
   grouping unused-grouping {
     leaf unused-grouping-leaf {
       type string;

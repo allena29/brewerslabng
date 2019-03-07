@@ -150,7 +150,6 @@ class Munger:
         pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
         for path in paths:
             if not path == '/':
-
                 node = etree.Element('path')
                 node.text = path
                 pathxml.append(node)
@@ -196,7 +195,18 @@ class Munger:
             elif child.tag == "yin-schema":
                 for grandchild in child.getchildren():
                     keep_grandchildren = False
+
                     for great_grandchild in grandchild.getchildren():
+                        if great_grandchild.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}info":
+                            crux_child = great_grandchild.getchildren()
+                            if len(crux_child):
+                                child.attrib['info'] = crux_child[0].text
+                        if great_grandchild.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}hide":
+                            if great_grandchild.getchildren()[0].text == 'true':
+                                child.attrib['hide'] = 'yes'
+                            else:
+                                child.attrib['hide'] = 'no'
+
                         if great_grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type" and great_grandchild.attrib['name'] == 'union':
                             keep_grandchildren = True
 
@@ -319,6 +329,8 @@ class Munger:
     def handle_type(self, sprog, sprog_id, parent):
         type = sprog.attrib['name']
         if type in ('string', 'boolean', 'uint8', 'uint16', 'uint32', 'enumeration'):
+            pass
+        elif type == 'leafref':
             pass
         # stranger means the typedef itelf
         elif ':' not in type and '%s:%s' % (self.our_prefix, type) in self.typedef_map:
