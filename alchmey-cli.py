@@ -43,11 +43,12 @@ class alchemy_voodoo_wrapper(Completer, Validator):
     ]
 
     def __init__(self, init_voodoo_object):
+        self.log = blng.Voodoo.LogWrap()
         self.CURRENT_CONTEXT = init_voodoo_object
         self.allowed_commands = self.OPER_ALLOWED_COMMANDS
         self.mode = 0
-
-        self.completer_working_on = []
+        self.cache = blng.Voodoo.CruxVoodooCache(self.log)
+        self.path_we_are_working_on = []
 
     def bottom_toolbar(self):
         return HTML(self.CURRENT_CONTEXT._path)
@@ -63,17 +64,27 @@ class alchemy_voodoo_wrapper(Completer, Validator):
         So far index has been 0
         """
 
+        if self.cache.is_path_cached(document.text):
+            a = 5/0
+
+        if len(self.path_we_are_working_on) == 0:
+            for valid_command in self.allowed_commands:
+                print('__VALID__', valid_command, '__DOCTEXT__', document.text)
+            print()
+
         yield Completion('', start_position=0)
 
     def validate(self, document):
-        raise ValidationError(message='boo')
+        #raise ValidationError(message='boo')
+        pass
 
 
 alchemy = alchemy_voodoo_wrapper(root)
 
 try:
-
-    text = prompt('> ', bottom_toolbar=alchemy.bottom_toolbar, completer=alchemy, validator=alchemy)
+    #  bottom_toolbar=alchemy.bottom_toolbar
+    # get rid of bottom for now,
+    text = prompt('> ', completer=alchemy, validator=alchemy)
     iprint('we got', text)
 except KeyboardInterrupt:
     pass
