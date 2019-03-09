@@ -123,7 +123,9 @@ class alchemy_voodoo_wrapper(Validator, Completer):
     ]
 
     CONF_ALLOWED_COMMANDS = [
-        (0, 'exit')
+        (0, 'exit'),
+        (2, 'set '),
+        (2, 'show ')
         # would expect set etc here to be more dynamically added in becuase what we last did and where
         # the user thinks they are in the navigation is important here.
     ]
@@ -134,10 +136,13 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.allowed_commands = self.OPER_ALLOWED_COMMANDS
         self.mode = 0
         self.cache = blng.Voodoo.CruxVoodooCache(self.log)
-        self.path_we_are_working_on = []
         self._last_command_failure = None
         self.log = LogWrap()
         self.OUR_PROMPT = self.OPER_OUR_PROMPT
+
+        self.effective_root = ''
+        self.effective_root_obj = init_voodoo_object
+        self.root = init_voodoo_object
 
     def bottom_toolbar(self):
         return HTML(self.CURRENT_CONTEXT._path)
@@ -147,29 +152,46 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         Note: we always must yield
         #Completion(), index#
         #
-        #So far start_position is 0 (non-negative allows us to delete stuff)
+        # So far start_position is 0 (non-negative allows us to delete stuff)
         """
 
+        command = document.text
         if self.cache.is_path_cached(document.text):
             a = 5/0
 
-        if len(self.path_we_are_working_on) == 0:
-            for (hide, valid_command) in self.allowed_commands:
-                #print('__VALID__', valid_command, '__DOCTEXT__',document.text)#
-                if not hide and document.text == valid_command[:len(document.text)]:
-                    yield Completion(valid_command, -len(document.text))
-                    # Note: this method is part of a generator class, which means we can
-                    # yield as many times as we like but the execution takes a break until
-                    # the caller invokes next()
-                    # yield Completion('abxxxx', 0)
-                    # for c in range(12):
-                    #    yield Completion('result'+str(c), 0)
-#
-        #    print()
+        for (hide, valid_command) in self.allowed_commands:
+            #print('__VALID__', valid_command, '__DOCTEXT__',document.text)#
+            if hide == 0 and document.text == valid_command[:len(document.text)]:
+                yield Completion(valid_command, -len(document.text))
+                # Note: this method is part of a generator class, which means we can
+                # yield as many times as we like but the execution takes a break until
+                # the caller invokes next()
+                # yield Completion('abxxxx', 0)
+                # for c in range(12):
+                #    yield Completion('result'+str(c), 0)
+
+            # Really needd to work out what the best thing to do is here.
+            # hide == 2 is a special case of auto complete
+            # based on effective_root_obj
+
+            if hide == 2:  # and document.text == valid_command[:len(document.text)]:
+                # pretty sure voodo needs some kind of path based lookup to get access
+                # to data.
+                command_split = command.split(' ')
+                command_length = len(valid_command)-1
+                our_first_portion = command_split[0]
+
+                # Need a way of debugging completer without using the terminal...
+                if our_first_portion == valid_command[:len(our_first_portion)]:
+                    self.log.debug('True: %s == %s', our_first_portion, valid_command[:len(our_first_portion)])
+                    children = self.effective_root_obj.__dir__()
+                    for child in children:
+                        # self.log.debug('Adding auto complete (type2) %s%s', valid_command, str(child))
+                        yield Completion(valid_command + str(child), -len(document.text))
+                else:
+                    self.log.debug('False: %s == %s', our_first_portion, valid_command[:len(our_first_portion)])
 
     def validate(self, document):
-        if self.mode == 0 and self.path_we_are_working_on == 0:
-            pass
         pass
 
     def get_time(self):
@@ -190,6 +212,26 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.log.debug('_validated_oper_command FALSE: %s', command)
 
     def _validated_conf_command(self, command):
+        """
+        Assumption is that any command ending in a space needs additional handling to ensure
+        it matches the root object.
+        Any command not ending in a space is a 'command' command and can be processed as is
+        without futher input.
+
+        a 'command command' is exit which is listed as 'exit' in the CONF_ALLOWED_COMMANDS dict
+        not 'command command' is 'set ' which needs more stuff.
+
+        There will be hybrids (e.g. show)
+        show can be either show\n or show thing\n or show thing more precise\n
+
+        TODO:
+        need a good think about 'set'
+        do we render the children of set when we move into conf mode????
+
+        keep in mind that one day we will have 'edit path' which will change where we consider root
+        to be.
+        """
+
         if (1, command) in self.CONF_ALLOWED_COMMANDS or (0, command) in self.CONF_ALLOWED_COMMANDS:
             self._last_command = command
             self._last_command_mode = 1
@@ -201,9 +243,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
     def _do_oper_command(self, command):
         self.log.debug('_do_oper_command: %s', command)
         if command == 'configure' or command == 'conf' or command == 'conf t':
-            self.log.debug('We have gone into conf mode')
-            self.mode = 1
-            self.OUR_PROMPT = self.CONF_OUR_PROMPT
+            self._switch_to_conf_mode()
         elif command == 'exit':
             self.log.debug('Exit frmo Oper Mode is the same as just saying exit everything')
             sys.exit(0)
@@ -214,6 +254,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             self.log.debug('We have gone out of conf mode: # TODO: what about hanging changes in the transaction - this needs a confirm')
             self.mode = 0
             self.OUR_PROMPT = self.OPER_OUR_PROMPT
+            self.allowed_commands = self.OPER_ALLOWED_COMMANDS
 
     def do(self, command):
         if self.mode == 0:
@@ -222,6 +263,12 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         else:
             if self._validated_conf_command(command):
                 self._do_conf_command(command)
+
+    def _switch_to_conf_mode(self):
+        self.log.debug('We have gone into conf mode with effective_root: %s', self.effective_root)
+        self.mode = 1
+        self.OUR_PROMPT = self.CONF_OUR_PROMPT
+        self.allowed_commands = self.CONF_ALLOWED_COMMANDS
 
 
 if __name__ == '__main__':
