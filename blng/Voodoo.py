@@ -261,7 +261,7 @@ class CruxVoodooBase:
         self.__dict__['_parent'] = parent
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
-        self.__dict__['_type'] = 'wtf'
+        self.__dict__['_type'] = self._voodoo_type
         self.__dict__['_value'] = value
         self.__dict__['_root'] = root
         self.__dict__['_cache'] = cache

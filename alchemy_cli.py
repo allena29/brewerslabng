@@ -144,6 +144,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
         self.effective_root = ''
         self.effective_root_obj = init_voodoo_object
+        self._complete_terminated = -1
         self.root = init_voodoo_object
 
     def _get_bottom_bar(self):
@@ -166,8 +167,12 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             return self._handle_completion_for_command(command)
 
     def _handle_completion_for_command_with_path(self, last_complete_command, last_portion, command):
-        if self._complete_terminated:
+        if self._complete_terminated >= len(command):
+            self.log.debug('we have used backspace... cleaning up flag termianted flag ')
             return
+        else:
+            self._complete_terminated = -1
+
         if self.cache.is_path_cached(last_complete_command):
             for valid_command in self.cache.get_item_from_cache(last_complete_command):
                 yield Completion(valid_command, -len(command))
@@ -181,13 +186,15 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             for child in children:
                 if child[:len(last_portion)] == last_portion:
                     if last_complete_command[:3] == 'set':
-                        self._complete_terminated = False
+                        self._complete_terminated = -1
 
                         yield Completion(str(child + ' '), -(len(command)-len(last_complete_command))+1)
                     else:
                         if str(child) == last_portion:
-                            self._complete_terminated = True
-                            self.log.debug('SET TERMINATED FLAG')
+                            child_obj = getattr(self._complete_obj, child)
+                            if not hasattr(child_obj, '_path'):
+                                self._complete_terminated = len(command)
+                                self.log.debug('SET TERMINATED FLAG to length %s', len(command))
                         else:
                             self._complete_terminated = False
                         yield Completion(str(child), -(len(command)-len(last_complete_command))+1)
@@ -195,7 +202,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
     def _handle_completion_for_command(self, command):
         self.log.debug('_handle_completion_for_command ... %s', command)
         self.log.debug('RESETTING FLAGS FOR AUTOCOMPLETE')
-        self._complete_terminated = False
+        self._complete_terminated = -1
         self._complete_obj = self.effective_root_obj
         for valid_command in [v for hide, v in self.allowed_commands if hide != 1]:
             command_split = command.split(' ')
@@ -205,7 +212,9 @@ class alchemy_voodoo_wrapper(Validator, Completer):
                 yield Completion(valid_command, -len(command)-1)
 
     def validate(self, document):
-        pass
+        command = document.text
+        if self._complete_terminated > 0:
+            raise ValidationError(message='Stop typing!', cursor_position=len(command)-1)
 
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -309,7 +318,9 @@ if __name__ == '__main__':
                     line = file_handle.readline()
         while 1:
             text = prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
-                          validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt())
+                          validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
+                          validate_while_typing=True)
+
             alchemy.do(text)
             alchemy.log.debug('We Got: %s', text)
     except KeyboardInterrupt:
