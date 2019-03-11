@@ -304,11 +304,11 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
 if __name__ == '__main__':
 
-    alchemy = alchemy_voodoo_wrapper(root)
-
+    ctrl_c_count = 0
     try:
         #  bottom_toolbar=alchemy.bottom_toolbar
         # get rid of bottom for now,
+        alchemy = alchemy_voodoo_wrapper(root)
 
         if os.path.exists('cli.startup') and len(sys.argv) == 1:
             with open('cli.startup') as file_handle:
@@ -327,13 +327,18 @@ if __name__ == '__main__':
                     line = file_handle.readline()
 
         while 1:
-            text = alchemy.OUR_SESSION.prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
-                                              validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
-                                              validate_while_typing=True)
+            try:
+                text = alchemy.OUR_SESSION.prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
+                                                  validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
+                                                  validate_while_typing=True)
 
-            alchemy.do(text)
-            alchemy.log.debug('We Got: %s', text)
-    except KeyboardInterrupt:
-        pass
+                alchemy.do(text)
+                alchemy.log.debug('We Got: %s', text)
+
+                ctrl_c_count = 0
+            except KeyboardInterrupt:
+                ctrl_c_count = ctrl_c_count + 1
+                if ctrl_c_count == 2:
+                    sys.exit(0)
     except EOFError:
         pass
