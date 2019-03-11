@@ -13,6 +13,12 @@
     <thing-that-is-used-for-when cruxpath="/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
     <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
     <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
+    <quad cruxpath="/quad" cruxtype="container">
+      <leafinquad cruxpath="/quad/leafinquad" cruxtype="presence-container"/>
+    </quad>
+    <quarter cruxpath="/quarter" cruxtype="container">
+      <leafinquarter cruxpath="/quarter/leafinquarter" cruxtype="presence-container"/>
+    </quarter>
     <bronze cruxpath="/bronze" cruxtype="container">
       <silver cruxpath="/bronze/silver" cruxtype="container">
         <gold cruxpath="/bronze/silver/gold" cruxtype="container">

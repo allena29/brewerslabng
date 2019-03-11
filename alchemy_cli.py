@@ -145,9 +145,10 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self._last_command_failure = None
         self.OUR_PROMPT = self.OPER_OUR_PROMPT
 
-        self.effective_root = ''
+        self.effective_root = ''        # lost track of this think it is now effectively _complete_obj
         self.effective_root_obj = init_voodoo_object
         self._complete_terminated = -1
+        self._complete_obj = self.effective_root_obj
         self.root = init_voodoo_object
 
         self.OPER_SESSION = PromptSession()
@@ -174,37 +175,54 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             return self._handle_completion_for_command(command)
 
     def _handle_completion_for_command_with_path(self, last_complete_command, last_portion, command):
-        if self._complete_terminated >= len(command):
-            self.log.debug('we have used backspace... cleaning up flag termianted flag ')
-            return
-        else:
-            self._complete_terminated = -1
+        """
+        With the example 'show sim' typed in.
+
+        last_complete_command = (i.e. command.split(' ')[:-1])
+                                (e.g. show)
+        last_porition =         (i.e. command.split(' ')[-1]
+                                (e.g. sim)
+        command =               full command
+                                (e.g. show sim)
+
+        The flag '_compelte_terminated' is set if there isn't any further input that makes sense. It is set
+        to the length of the command that triggered the decision to say no more input.
+
+        The object '_complete_obj' should relate to the right-most child object to inspect for elements.
+
+        TODO: think about list elements
+        TODO: cache stuff
+        """
+    #    if len(command) < self._complete_terminated:
+    #        self._complete_terminated = -1
 
         if self.cache.is_path_cached(last_complete_command):
             for valid_command in self.cache.get_item_from_cache(last_complete_command):
                 yield Completion(valid_command, -len(command))
         else:
             # TODO: cache needs to come here.
-            self.log.debug('_handle_completion_with_path: %s ... %s', last_complete_command, last_portion)
+            self.log.debug('_hcwp: LCC:%s_LP:%s_C:%s_ (%s/%s)', last_complete_command, last_portion, command, self._complete_terminated, len(command))
             # self.log.debug('Length of command %s = %s', len(command), command)
             # self.log.debug('Length of last_complete_command %s = %s', len(last_complete_command), last_complete_command)
             #   yield Completion(' TODO: get children', -(len(command)-len(last_complete_command)))
             children = self._complete_obj.__dir__()
             for child in children:
                 if child[:len(last_portion)] == last_portion:
-                    if last_complete_command[:3] == 'set':
-                        self._complete_terminated = -1
 
-                        yield Completion(str(child + ' '), -(len(command)-len(last_complete_command))+1)
-                    else:
-                        if str(child) == last_portion:
-                            child_obj = getattr(self._complete_obj, child)
-                            if not hasattr(child_obj, '_path'):
-                                self._complete_terminated = len(command)
-                                self.log.debug('SET TERMINATED FLAG to length %s', len(command))
+                    self.log.debug('... potential child: %s __%s__=__%s__', child, str(child), last_portion)
+                    if str(child) == last_portion:
+                        child_obj = getattr(self._complete_obj, child)
+                        self.log.debug('match here %s', hasattr(child_obj, '_path'))
+                        if not hasattr(child_obj, '_path') and not last_complete_command[:3] == 'set':
+                            self.log.debug('we have matched a child which does not have a _path (i.e. its a leaf')
+                            self._complete_terminated = len(command)
+                            self.log.debug('SET TERMINATED FLAG to length %s', len(command))
                         else:
-                            self._complete_terminated = False
-                        yield Completion(str(child), -(len(command)-len(last_complete_command))+1)
+                            self.log.debug('Set child obj to.... %s', child_obj._path)
+                            self._complete_obj = child_obj
+                            self._complete_terminated = -1
+
+                    yield Completion(str(child), -(len(command)-len(last_complete_command))+1)
 
     def _handle_completion_for_command(self, command):
         self.log.debug('_handle_completion_for_command ... %s', command)
@@ -220,6 +238,10 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
     def validate(self, document):
         command = document.text
+        self.log.debug('validate %s %s/%s', command, len(command), self._complete_terminated)
+        if len(command) < self._complete_terminated:
+            self._complete_terminated = -1
+
         if self._complete_terminated > 0:
             raise ValidationError(message='Stop typing!', cursor_position=len(command)-1)
 

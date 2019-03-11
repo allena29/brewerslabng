@@ -67,6 +67,17 @@ module integrationtest {
       type string;
     }
   }
+
+  container quad {
+    container leafinquad {
+      presence true;
+    }
+  }
+  container quarter {
+    container leafinquarter {
+      presence true;
+    }
+  }
   container bronze {
     container silver {
       container gold {

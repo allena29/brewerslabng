@@ -149,3 +149,17 @@ In [11]: print(session.dumps())
 - when not implemented
 - choice not supported  - it doesn't render very well `<FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>` and `<SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>` must one must disable the other.
 - unions not well supported - it doesn't render very well `<leaf4 cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>`
+
+## CLI Alchemy
+
+Use `logsink.py` to see debugging.
+
+- Move logic for finding our place in the path outside of the completion function.
+- using cursor keys/tab completion doesn't change child object - so autocomplete is stale (i.e. `                         self._complete_obj = child_obj` doesn't trigger
+- `show quad<backspace><backspace>rter` shows stale auto completes.
+- `set bronze bronze silver gold bronze silver platinum` gives stale auto completes.
+- `show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong.
+- Need to recognise list items and expand keys
+- Need to present configuration with a 'show' command in a pretty format.
+- Need to think about save/load
+- Need to confirm exit out of conf mode with unsaved changes.

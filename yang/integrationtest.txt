@@ -10,6 +10,10 @@ module: integrationtest
   +--rw thing-that-is-used-for-when?   enumeration
   +--rw thing-to-leafref-against?      string
   +--rw thing-that-is-leafref?         -> ../thing-to-leafref-against
+  +--rw quad
+  |  +--rw leafinquad!
+  +--rw quarter
+  |  +--rw leafinquarter!
   +--rw bronze
   |  +--rw silver
   |     +--rw gold

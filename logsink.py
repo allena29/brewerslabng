@@ -10,5 +10,5 @@ sock.bind((IP, PORT))
 
 while True:
     data, addr = sock.recvfrom(1024)
-    print(data[:80])
-    time.sleep(0.025)
+    print(data[:100])
+    time.sleep(0.015)
