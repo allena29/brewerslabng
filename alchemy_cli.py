@@ -2,6 +2,9 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit import PromptSession
+
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
 import time
@@ -147,6 +150,10 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self._complete_terminated = -1
         self.root = init_voodoo_object
 
+        self.OPER_SESSION = PromptSession()
+        self.CONF_SESSION = PromptSession()
+        self.OUR_SESSION = self.OPER_SESSION
+
     def _get_bottom_bar(self):
         return HTML(self.CURRENT_CONTEXT._path)
 
@@ -277,6 +284,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             self.mode = 0
             self.OUR_PROMPT = self.OPER_OUR_PROMPT
             self.allowed_commands = self.OPER_ALLOWED_COMMANDS
+            self.OUR_SESSION = self.OPER_SESSION
 
     def do(self, command):
         if self.mode == 0:
@@ -291,6 +299,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.mode = 1
         self.OUR_PROMPT = self.CONF_OUR_PROMPT
         self.allowed_commands = self.CONF_ALLOWED_COMMANDS
+        self.OUR_SESSION = self.CONF_SESSION
 
 
 if __name__ == '__main__':
@@ -316,10 +325,11 @@ if __name__ == '__main__':
                         alchemy.mode = 1
                         alchemy.do(line[2:-1])
                     line = file_handle.readline()
+
         while 1:
-            text = prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
-                          validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
-                          validate_while_typing=True)
+            text = alchemy.OUR_SESSION.prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
+                                              validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
+                                              validate_while_typing=True)
 
             alchemy.do(text)
             alchemy.log.debug('We Got: %s', text)
