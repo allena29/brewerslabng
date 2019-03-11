@@ -119,13 +119,16 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         (0, 'configure'),  # This is a terminating command
         (1, 'conf'),  # This is a terminating command too - but it's an alise we don't want to show in auto-complete
         (1, 'conf t'),  # likewise
-        (0, 'exit')
+        (0, 'exit'),
+        (1, '')  # let the user press enter
     ]
 
     CONF_ALLOWED_COMMANDS = [
         (0, 'exit'),
         (2, 'set '),
-        (2, 'show ')
+        (3, 'show '),
+        (3, 'delete '),
+        (1, '')  # let the user press enter
         # would expect set etc here to be more dynamically added in becuase what we last did and where
         # the user thinks they are in the navigation is important here.
     ]
@@ -143,7 +146,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.effective_root_obj = init_voodoo_object
         self.root = init_voodoo_object
 
-    def bottom_toolbar(self):
+    def _get_bottom_bar(self):
         return HTML(self.CURRENT_CONTEXT._path)
 
     def get_completions(self, document, complete_event):
@@ -155,60 +158,51 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         """
 
         command = document.text
-        self.log.debug('command.text in auto complete %s', command)
-        for (hide, valid_command) in self.allowed_commands:
-            #print('__VALID__', valid_command, '__DOCTEXT__',document.text)#
-            if hide == 0 and document.text == valid_command[:len(document.text)]:
-                yield Completion(valid_command, -len(document.text))
-                # Note: this method is part of a generator class, which means we can
-                # yield as many times as we like but the execution takes a break until
-                # the caller invokes next()
-                # yield Completion('abxxxx', 0)
-                # for c in range(12):
-                #    yield Completion('result'+str(c), 0)
+        if ' ' in command:
+            last_complete_command = command[:command.rfind(' ')]
+            last_portion = command[command.rfind(' ')+1:]
+            return self._handle_completion_for_command_with_path(last_complete_command, last_portion, command)
+        else:
+            return self._handle_completion_for_command(command)
 
-            # Really needd to work out what the best thing to do is here.
-            # hide == 2 is a special case of auto complete
-            # based on effective_root_obj
+    def _handle_completion_for_command_with_path(self, last_complete_command, last_portion, command):
+        if self._complete_terminated:
+            return
+        if self.cache.is_path_cached(last_complete_command):
+            for valid_command in self.cache.get_item_from_cache(last_complete_command):
+                yield Completion(valid_command, -len(command))
+        else:
+            # TODO: cache needs to come here.
+            self.log.debug('_handle_completion_with_path: %s ... %s', last_complete_command, last_portion)
+            # self.log.debug('Length of command %s = %s', len(command), command)
+            # self.log.debug('Length of last_complete_command %s = %s', len(last_complete_command), last_complete_command)
+            #   yield Completion(' TODO: get children', -(len(command)-len(last_complete_command)))
+            children = self._complete_obj.__dir__()
+            for child in children:
+                if child[:len(last_portion)] == last_portion:
+                    if last_complete_command[:3] == 'set':
+                        self._complete_terminated = False
 
-            if hide == 2 or hide == 3:  # and document.text == valid_command[:len(document.text)]:
-                # pretty sure voodo needs some kind of path based lookup to get access
-                # to data.
-                if command.count(' ') == 0:
+                        yield Completion(str(child + ' '), -(len(command)-len(last_complete_command))+1)
+                    else:
+                        if str(child) == last_portion:
+                            self._complete_terminated = True
+                            self.log.debug('SET TERMINATED FLAG')
+                        else:
+                            self._complete_terminated = False
+                        yield Completion(str(child), -(len(command)-len(last_complete_command))+1)
 
-                    command_split = command.split(' ')
-                    command_length = len(valid_command)-1
-                    our_first_portion = command_split[0]
-                    self.log.debug('debug auto complete type 2 no spaces %s = %s', our_first_portion, valid_command[:len(our_first_portion)])
-
-                    if our_first_portion == valid_command[:len(our_first_portion)]:
-                        yield Completion(valid_command, -len(document.text))
-                if not self.cache.is_path_cached(command):
-                    self.log.debug('CACHE-MISS: %s', command)
-                    self.cache.add_entry(command, [])
-
-                for completion in self.cache.get_item_from_cache(command):
-                    yield Completion(compleition, -len(document.text))
-
-                """
-                Old way of doing things before docks thoughts.
-                Don't like this approach because it implies we have show XXXX for everything.
-                i.e. typing sh<TAB> completes to show simpleleaf which might not be what we wnat.
-
-                command_split = command.split(' ')
-                command_length = len(valid_command)-1
-                our_first_portion = command_split[0]
-
-                # Need a way of debugging completer without using the terminal...
-                if our_first_portion == valid_command[:len(our_first_portion)]:
-                    self.log.debug('True: %s == %s', our_first_portion, valid_command[:len(our_first_portion)])
-                    children = self.effective_root_obj.__dir__()
-                    for child in children:
-                        # self.log.debug('Adding auto complete (type2) %s%s', valid_command, str(child))
-                        yield Completion(valid_command + str(child), -len(document.text))
-                else:
-                    self.log.debug('False: %s == %s', our_first_portion, valid_command[:len(our_first_portion)])
-                """
+    def _handle_completion_for_command(self, command):
+        self.log.debug('_handle_completion_for_command ... %s', command)
+        self.log.debug('RESETTING FLAGS FOR AUTOCOMPLETE')
+        self._complete_terminated = False
+        self._complete_obj = self.effective_root_obj
+        for valid_command in [v for hide, v in self.allowed_commands if hide != 1]:
+            command_split = command.split(' ')
+            command_length = len(valid_command)-1
+            our_first_portion = command_split[0]
+            if our_first_portion == valid_command[:len(our_first_portion)]:
+                yield Completion(valid_command, -len(command)-1)
 
     def validate(self, document):
         pass
@@ -314,9 +308,10 @@ if __name__ == '__main__':
                         alchemy.do(line[2:-1])
                     line = file_handle.readline()
         while 1:
-            text = prompt(alchemy.OUR_PROMPT, completer=alchemy, validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt())
+            text = prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
+                          validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt())
             alchemy.do(text)
-            print('we got:', text)
+            alchemy.log.debug('We Got: %s', text)
     except KeyboardInterrupt:
         pass
     except EOFError:
