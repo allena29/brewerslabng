@@ -131,13 +131,12 @@ class alchemy_voodoo_wrapper(Validator, Completer):
     ]
 
     def __init__(self, init_voodoo_object):
-        self.log = blng.Voodoo.LogWrap()
+        self.log = LogWrap()
         self.CURRENT_CONTEXT = init_voodoo_object
         self.allowed_commands = self.OPER_ALLOWED_COMMANDS
         self.mode = 0
         self.cache = blng.Voodoo.CruxVoodooCache(self.log)
         self._last_command_failure = None
-        self.log = LogWrap()
         self.OUR_PROMPT = self.OPER_OUR_PROMPT
 
         self.effective_root = ''
@@ -156,9 +155,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         """
 
         command = document.text
-        if self.cache.is_path_cached(document.text):
-            a = 5/0
-
+        self.log.debug('command.text in auto complete %s', command)
         for (hide, valid_command) in self.allowed_commands:
             #print('__VALID__', valid_command, '__DOCTEXT__',document.text)#
             if hide == 0 and document.text == valid_command[:len(document.text)]:
@@ -174,9 +171,30 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             # hide == 2 is a special case of auto complete
             # based on effective_root_obj
 
-            if hide == 2:  # and document.text == valid_command[:len(document.text)]:
+            if hide == 2 or hide == 3:  # and document.text == valid_command[:len(document.text)]:
                 # pretty sure voodo needs some kind of path based lookup to get access
                 # to data.
+                if command.count(' ') == 0:
+
+                    command_split = command.split(' ')
+                    command_length = len(valid_command)-1
+                    our_first_portion = command_split[0]
+                    self.log.debug('debug auto complete type 2 no spaces %s = %s', our_first_portion, valid_command[:len(our_first_portion)])
+
+                    if our_first_portion == valid_command[:len(our_first_portion)]:
+                        yield Completion(valid_command, -len(document.text))
+                if not self.cache.is_path_cached(command):
+                    self.log.debug('CACHE-MISS: %s', command)
+                    self.cache.add_entry(command, [])
+
+                for completion in self.cache.get_item_from_cache(command):
+                    yield Completion(compleition, -len(document.text))
+
+                """
+                Old way of doing things before docks thoughts.
+                Don't like this approach because it implies we have show XXXX for everything.
+                i.e. typing sh<TAB> completes to show simpleleaf which might not be what we wnat.
+
                 command_split = command.split(' ')
                 command_length = len(valid_command)-1
                 our_first_portion = command_split[0]
@@ -190,6 +208,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
                         yield Completion(valid_command + str(child), -len(document.text))
                 else:
                     self.log.debug('False: %s == %s', our_first_portion, valid_command[:len(our_first_portion)])
+                """
 
     def validate(self, document):
         pass
