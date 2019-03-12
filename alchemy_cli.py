@@ -4,6 +4,7 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit import PromptSession
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
@@ -352,7 +353,8 @@ if __name__ == '__main__':
             try:
                 text = alchemy.OUR_SESSION.prompt(alchemy.OUR_PROMPT, bottom_toolbar=alchemy._get_bottom_bar(), completer=alchemy,
                                                   validator=alchemy, style=alchemy.STYLE, rprompt=alchemy._get_right_prompt(),
-                                                  validate_while_typing=True)
+                                                  validate_while_typing=True, complete_while_typing=True,
+                                                  auto_suggest=AutoSuggestFromHistory())
 
                 alchemy.do(text)
                 alchemy.log.debug('We Got: %s', text)
