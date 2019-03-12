@@ -14,7 +14,43 @@ module integrationtest {
     type string;
     crux:hide true;
   }
-  
+
+  leaf default {
+    type string;
+    default "stausquo";
+  }
+
+  container whencontainer {
+    leaf then {
+      type string;
+      default "thendefault";
+    }
+    when "../default='statusquo'";
+  }
+
+  leaf thing-that-is-lit-up-for-C {
+    type string;
+    when "../thing-that-is-used-for-when='C'";
+  }
+
+  leaf thing-that-is-lit-up-for-B {
+    type string;
+    when "../thing-that-is-used-for-when='B'";
+  }
+
+  leaf thing-that-is-lit-up-for-A {
+    type string;
+    when "../thing-that-is-used-for-when='A'";
+  }
+
+  leaf thing-that-is-used-for-when {
+    type enumeration {
+      enum A;
+      enum B;
+      enum C;
+    }
+  }
+
   leaf thing-to-leafref-against {
     type string;
   }

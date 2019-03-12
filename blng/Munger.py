@@ -209,6 +209,8 @@ class Munger:
 
                         if great_grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type" and great_grandchild.attrib['name'] == 'union':
                             keep_grandchildren = True
+                        if great_grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}when":
+                            keep_grandchildren = True
 
                     if keep_grandchildren is False:
                         for great_grandchild in grandchild.getchildren():
@@ -363,6 +365,8 @@ class Munger:
             grandchild = grandchildren[grandchild_id]
             if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type":
                 self.handle_type(grandchild, grandchild_id, child)
+            if grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}when":
+                pass
 
     def handle_list(self, child, grandchild_id=-1):
         pass
@@ -422,6 +426,8 @@ class Munger:
             # These things are handled via pass 1
             return self.handle_null
         elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}presence"):
+            return self.handle_null
+        elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}when"):
             return self.handle_null
         elif child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}description"):
             return self.handle_null

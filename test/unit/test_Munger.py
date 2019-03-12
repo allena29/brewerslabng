@@ -74,6 +74,12 @@ class TestCruxMunger(unittest.TestCase):
         self.assertEqual(answers.SCHEMA_CHOICE_EXPECTED1, received_answer)
         self.assertEqual(answers.SCHEMA_CHOICE_EXPECTED2, received_answer2)
 
+    def test_when_and_leafref(self):
+        """Test inclusion of when conditions"""
+        xmldoc, newxmldoc = self.subject.munge("integrationtest", self._loadXmlDoc(resources.SCHEMA_WHEN_LEAFREF))
+        received_answer2 = self.subject.pretty(newxmldoc)
+        self.assertEqual(answers.SCHEMA_CRUX_WHEN_LEAFREF, received_answer2)
+
     def test_pass1(self):
         # Build
         xmldoc = self._loadXmlDoc(resources.SCHEMA_1)

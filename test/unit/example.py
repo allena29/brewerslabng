@@ -479,3 +479,38 @@ when we can effectively isolate the intereting parts of the datastore.</text>
   </choice>
 </module>
 """
+
+    SCHEMA_WHEN_LEAFREF = """<module xmlns="urn:ietf:params:xml:ns:yang:yin:1" xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="integrationtest">
+<namespace uri="http://brewerslabng.mellon-collie.net/yang/integrationtest"/>
+<prefix value="integrationtest"/>
+  <leaf name="default">
+    <type name="string"/>
+    <default value="stausquo"/>
+  </leaf>
+  <container name="whencontainer">
+    <leaf name="then">
+      <type name="string"/>
+      <default value="thendefault"/>
+    </leaf>
+    <when condition="../default='statusquo'"/>
+  </container>
+  <leaf name="thing-that-is-lit-up-for-C">
+    <type name="string"/>
+    <when condition="../thing-that-is-used-for-when='C'"/>
+  </leaf>
+    <leaf name="thing-to-leafref-against">
+      <type name="string"/>
+    </leaf>
+    <leaf name="thing-that-is-leafref">
+      <crux:info>
+        <crux:text>Should be constratined to the leaf ref</crux:text>
+      </crux:info>
+      <description>
+        <text>We won't support crazy expressions, just somewhere to influence the CLI</text>
+      </description>
+      <type name="leafref">
+        <path value="../thing-to-leafref-against"/>
+      </type>
+    </leaf>
+</module>
+"""

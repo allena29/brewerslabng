@@ -1,7 +1,7 @@
 module brewerslab-definitions {
 
   namespace "http://brewerslabng.mellon-collie.net/yang/definitions";
-  prefix "brewlabng-stores";
+  prefix "brewlabng-definitions";
 
   import crux {
     prefix crux;

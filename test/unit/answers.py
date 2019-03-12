@@ -1,5 +1,69 @@
 class answers:
-
+    SCHEMA_CRUX_WHEN_LEAFREF = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
+  <inverted-schema>
+    <default>
+      <yin-schema path="/default">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="default">
+    <type name="string"/>
+    <default value="stausquo"/>
+  </leaf>
+      </yin-schema>
+    </default>
+    <whencontainer>
+      <yin-schema path="/whencontainer">
+        <container xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="whencontainer">
+    <leaf name="then">
+      <type name="string"/>
+      <default value="thendefault"/>
+    </leaf>
+    <when condition="../default=\\'statusquo\\'"/>
+  </container>
+      </yin-schema>
+      <then>
+        <yin-schema path="/whencontainer/then">
+          <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="then">
+      <type name="string"/>
+      <default value="thendefault"/>
+    </leaf>
+        </yin-schema>
+      </then>
+    </whencontainer>
+    <thing-that-is-lit-up-for-C>
+      <yin-schema path="/thing-that-is-lit-up-for-C">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="thing-that-is-lit-up-for-C">
+    <type name="string"/>
+    <when condition="../thing-that-is-used-for-when=\\'C\\'"/>
+  </leaf>
+      </yin-schema>
+    </thing-that-is-lit-up-for-C>
+    <thing-to-leafref-against>
+      <yin-schema path="/thing-to-leafref-against">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="thing-to-leafref-against">
+      <type name="string"/>
+    </leaf>
+      </yin-schema>
+    </thing-to-leafref-against>
+    <thing-that-is-leafref>
+      <yin-schema info="Should be constratined to the leaf ref" path="/thing-that-is-leafref">
+        <leaf xmlns:integrationtest="http://brewerslabng.mellon-collie.net/yang/integrationtest" xmlns:crux="http://brewerslabng.mellon-collie.net/yang/crux" name="thing-that-is-leafref">
+      <type name="leafref">
+        <path value="../thing-to-leafref-against"/>
+      </type>
+    </leaf>
+      </yin-schema>
+    </thing-that-is-leafref>
+  </inverted-schema>
+  <crux-paths>
+    <path></path>
+    <path>/default</path>
+    <path>/whencontainer</path>
+    <path>/whencontainer/then</path>
+    <path>/thing-that-is-lit-up-for-C</path>
+    <path>/thing-to-leafref-against</path>
+    <path>/thing-that-is-leafref</path>
+  </crux-paths>
+</crux-schema>
+"""
     SCHEMA_CRUX_EXPECTED = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
   <inverted-schema>
     <crux-cli>

@@ -4,6 +4,13 @@
     <path/>
     <path>/simpleleaf</path>
     <path>/dirty-secret</path>
+    <path>/default</path>
+    <path>/whencontainer</path>
+    <path>/whencontainer/then</path>
+    <path>/thing-that-is-lit-up-for-C</path>
+    <path>/thing-that-is-lit-up-for-B</path>
+    <path>/thing-that-is-lit-up-for-A</path>
+    <path>/thing-that-is-used-for-when</path>
     <path>/thing-to-leafref-against</path>
     <path>/thing-that-is-leafref</path>
     <path>/bronze</path>
@@ -126,6 +133,68 @@
         </leaf>
       </yin-schema>
     </dirty-secret>
+    <default>
+      <yin-schema path="/default">
+        <leaf>
+          <type name="string"/>
+          <default value="stausquo"/>
+        </leaf>
+      </yin-schema>
+    </default>
+    <whencontainer>
+      <yin-schema path="/whencontainer">
+        <container>
+          <leaf name="then">
+            <type name="string"/>
+            <default value="thendefault"/>
+          </leaf>
+          <when condition="../default=\\\'statusquo\\\'"/>
+        </container>
+      </yin-schema>
+      <then>
+        <yin-schema path="/whencontainer/then">
+          <leaf>
+            <type name="string"/>
+            <default value="thendefault"/>
+          </leaf>
+        </yin-schema>
+      </then>
+    </whencontainer>
+    <thing-that-is-lit-up-for-C>
+      <yin-schema path="/thing-that-is-lit-up-for-C">
+        <leaf>
+          <type name="string"/>
+          <when condition="../thing-that-is-used-for-when=\\\'C\\\'"/>
+        </leaf>
+      </yin-schema>
+    </thing-that-is-lit-up-for-C>
+    <thing-that-is-lit-up-for-B>
+      <yin-schema path="/thing-that-is-lit-up-for-B">
+        <leaf>
+          <type name="string"/>
+          <when condition="../thing-that-is-used-for-when=\\\'B\\\'"/>
+        </leaf>
+      </yin-schema>
+    </thing-that-is-lit-up-for-B>
+    <thing-that-is-lit-up-for-A>
+      <yin-schema path="/thing-that-is-lit-up-for-A">
+        <leaf>
+          <type name="string"/>
+          <when condition="../thing-that-is-used-for-when=\\\'A\\\'"/>
+        </leaf>
+      </yin-schema>
+    </thing-that-is-lit-up-for-A>
+    <thing-that-is-used-for-when>
+      <yin-schema path="/thing-that-is-used-for-when">
+        <leaf>
+          <type name="enumeration">
+            <enum name="A"/>
+            <enum name="B"/>
+            <enum name="C"/>
+          </type>
+        </leaf>
+      </yin-schema>
+    </thing-that-is-used-for-when>
     <thing-to-leafref-against>
       <yin-schema path="/thing-to-leafref-against">
         <leaf>
