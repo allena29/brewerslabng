@@ -12,34 +12,34 @@ class TestCruxResolver(unittest.TestCase):
     def setUp(self):
         self.subject = Resolver.Resolver(open("crux-example.xml"))
 
-    def test_find_command(self):
+    def thinking_about_deprecating_find_command(self):
         (command, everythingelse) = self.subject._find_command('set abc')
 
         self.assertEqual(command, 'set')
         self.assertEqual(everythingelse, 'abc')
 
-    def test_resolve_xpath_simple_path_at_top_level(self):
+    def thinking_about_deprecating_resolve_xpath_simple_path_at_top_level(self):
         (path, pathtype, value) = self.subject._find_xpath('simpleleaf thevalue')
 
         self.assertEqual(path, '/simpleleaf')
         self.assertEqual(pathtype, 'primitive')
         self.assertEqual(value, 'thevalue')
 
-    def test_resolve_xpath_simple_path_at_top_level_in_a_container(self):
+    def thinking_about_deprecating_resolve_xpath_simple_path_at_top_level_in_a_container(self):
         (path, pathtype, value) = self.subject._find_xpath('resolver leaf-a 242')
 
         self.assertEqual(path, '/resolver/leaf-a')
         self.assertEqual(pathtype, 'primitive')
         self.assertEqual(value, '242')
 
-    def test_resolve_xpath_simple_list(self):
+    def thinking_about_deprecating_resolve_xpath_simple_list(self):
         (path, pathtype, value) = self.subject._find_xpath('simplelist THEKEY')
 
         self.assertEqual(path, "/simplelist[simplekey='THEKEY']")
         self.assertEqual(pathtype, 'listelement')
         self.assertEqual(value, [('simplekey', 'THEKEY')])
 
-    def test_resolve_xpath_containers_and_lsits(self):
+    def thinking_about_deprecating_resolve_xpath_containers_and_lsits(self):
         (path, pathtype, value) = self.subject._find_xpath('container-and-lists multi-key-list antelope bear')
 
         self.assertEqual(path, "/container-and-lists/multi-key-list[A='antelope',B='bear']")
@@ -58,19 +58,19 @@ class TestCruxResolver(unittest.TestCase):
         self.assertEqual(str(context.exception),
                          """The path ['container-and-lists', 'multi-key-list', 'antelope', 'bear', 'inner', 'cow'] could not be resolved against the current schema.""")
 
-    def test__ensure_remaining_path_is_a_properly_escaped_string_not_properly_quoted(self):
+    def thinking_about_deprecating__ensure_remaining_path_is_a_properly_escaped_string_not_properly_quoted(self):
         with self.assertRaises(Error.BlngValueNotEscpaedOrQuoted) as context:
             self.subject._find_a_quoted_escaped_string(['key', '"value', 'thing'], 1)
 
         self.assertEqual(str(context.exception), """Unquoted or Unescaped characters ['key', '"value', 'thing'] value not properly escaped or quoted""")
 
-    def test__ensure_remaining_path_is_a_properly_escaped_string_not_properly_quoted_too_many_quotes(self):
+    def thinking_about_deprecating__ensure_remaining_path_is_a_properly_escaped_string_not_properly_quoted_too_many_quotes(self):
         with self.assertRaises(Error.BlngValueNotEscpaedOrQuoted) as context:
             self.subject._find_a_quoted_escaped_string(['key', '"value', 'thin"g'], 1)
 
         self.assertEqual(str(context.exception), """Unquoted or Unescaped characters ['key', '"value', 'thin"g'] value not properly escaped or quoted""")
 
-    def test__find_a_quoted_escaped_string(self):
+    def test_find_a_quoted_escaped_string(self):
         value = self.subject._find_a_quoted_escaped_string(['key', 'value'], 1)
         self.assertEqual(value, ('value', 2, 2))
 
@@ -83,7 +83,7 @@ class TestCruxResolver(unittest.TestCase):
         value = self.subject._find_a_quoted_escaped_string(['key', 'value\\', 'ex"tra\\', 'thing'], 1)
         self.assertEqual(value, ('value ex"tra thing', 1, 3))
 
-    def test_find_types_allowed(self):
+    def thinking_about_deprecating_find_types_allowed(self):
         types = self.subject._find_types_allowed('/simpleleaf')
         self.assertEqual([('type', 'string', None)], types)
 

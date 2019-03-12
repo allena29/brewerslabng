@@ -548,7 +548,7 @@ class TestVoodoo(unittest.TestCase):
 
         node = root.morecomplex
         self.assertEqual(repr(node), "VoodooContainer: /morecomplex")
-        self.assertEqual(repr(node.inner), "VoodooContainer: /morecomplex/inner")
+        self.assertEqual(repr(node.inner), "VoodooPresenceContainer: /morecomplex/inner")
 
         node = root.morecomplex.leaf2
         node = "x123"

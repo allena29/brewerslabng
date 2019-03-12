@@ -112,8 +112,64 @@ class Munger:
 
         self.pass5(newxmldoc)
         self.pass6(newxmldoc)
-        self.final_pass(newxmldoc)
+        self.pass7(newxmldoc)
+        self.pass8(newxmldoc)
+        self.pass9(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
+
+    def pass9(self, newxmldoc):
+        yinschemas = newxmldoc.xpath('//yin-schema')
+        for y in yinschemas:
+            parent = y.getparent()
+            parent.remove(y)
+
+    def pass8(self, newxmldoc):
+        """
+        Now we collapse down yinschema into attributes on the top-levl
+        """
+        remove = []
+
+        for child in newxmldoc.getchildren():
+            if child.tag == "yin-schema":
+                parent = child.getparent()
+                remove.append(child)
+                for grandchild in child.getchildren():
+                    enum_value_count = 0
+                    # print('ZZZZ', grandchild.tag)
+                    if grandchild.tag in '{urn:ietf:params:xml:ns:yang:yin:1}list':
+                        parent.attrib['cruxtype'] = grandchild.tag.replace('{urn:ietf:params:xml:ns:yang:yin:1}', '')
+                        for greatgrandchild in grandchild.getchildren():
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}key':
+                                parent.attrib['cruxkey'] = greatgrandchild.attrib['value']
+
+                    if grandchild.tag in ('{urn:ietf:params:xml:ns:yang:yin:1}leaf',
+                                          '{urn:ietf:params:xml:ns:yang:yin:1}container'):
+                        parent.attrib['cruxtype'] = grandchild.tag.replace('{urn:ietf:params:xml:ns:yang:yin:1}', '')
+                        for greatgrandchild in grandchild.getchildren():
+                            # print('ZZZZZZZZ', greatgrandchild.tag)
+                            if grandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}leaf' and greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}type':
+                                parent.attrib['cruxleaftype'] = greatgrandchild.attrib['name']
+                                for greatgreatgrandchild in greatgrandchild.getchildren():
+                                    if greatgreatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}enum':
+                                        parent.attrib['cruxenum' + str(enum_value_count)] = greatgreatgrandchild.attrib['name']
+                                        enum_value_count = enum_value_count + 1
+                                    if greatgreatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}path':
+                                        parent.attrib['cruxleafref'] = greatgreatgrandchild.attrib['value']
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}default':
+                                parent.attrib['cruxdefault'] = greatgrandchild.attrib['value']
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}mandatory' and greatgrandchild.attrib['value'] == 'true':
+                                parent.attrib['cruxmandatory'] = 'yes'
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}config' and greatgrandchild.attrib['value'] == 'false':
+                                parent.attrib['cruxconfig'] = 'no'
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}presence':
+                                parent.attrib['cruxtype'] = 'presence-container'
+                            if greatgrandchild.tag == '{urn:ietf:params:xml:ns:yang:yin:1}when':
+                                parent.attrib['cruxcondition'] = greatgrandchild.attrib['condition']
+
+                            if enum_value_count > 0:
+                                parent.attrib['cruxenum'] = str(enum_value_count)
+            else:
+                self.pass8(child)
 
     def pass6(self, newxmldoc):
         """
@@ -121,7 +177,7 @@ class Munger:
                        <yin-schema path="/unused-grouping"/>
         having no children we assume that we should remove the parent from the
         grandparent.
-
+        TODO: we seem to keep something like typedefs
         TODO: extend to handle the crux:hide extension too.
         """
 
@@ -139,7 +195,7 @@ class Munger:
             else:
                 self.pass6_recursor(child)
 
-    def final_pass(self, newxmldoc):
+    def pass7(self, newxmldoc):
         """
         This works throuhg the YANG module to add paths as an attribute into each yin-schema
         node. e.g. <yin-schema path="/simpleleaf">
@@ -162,7 +218,8 @@ class Munger:
                 this_path = '/'.join(pathlist)[15:]
                 for grandchild in child.getchildren():
                     if grandchild.tag == 'yin-schema':
-                        grandchild.attrib['path'] = this_path
+                        # grandchild.attrib['path'] = this_path
+                        child.attrib['cruxpath'] = this_path
                 paths[this_path] = 1
                 self._path_recursor(child, pathlist, paths)
                 pathlist.pop()

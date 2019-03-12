@@ -103,6 +103,11 @@ In [11]: print(session.dumps())
  - YANG nodes containing a hyphen are converted to underscores in the python access, however it is not supported for a yang leaf to have both hyphens and underscores. **NOTE: regression this is not supported - the voodoo api works, however the nodes in the serialised document retain the underscore.**
 
 
+## Munger:
+
+
+
+
 ## TODO:
 
 - wildcards - if we look for a deep child we get it much higher up at root.leaf5 is actually root.morecomplex.inner.leaf5
@@ -139,3 +144,7 @@ In [11]: print(session.dumps())
 - ~~longest_path_match creates fails to catch list-keys~~
 - Multithread access to data very unpredictable
 - think about converting __dict__ to __slot__
+- typedef's are rednered in the model `type-a` these won't get crux path
+- leafref not implemented
+- when not implemented
+- choice not supported  - it doesn't render very well `<FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>` and `<SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>` must one must disable the other.
