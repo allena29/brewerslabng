@@ -8,7 +8,7 @@ class answers:
     </whencontainer>
     <thing-that-is-lit-up-for-C cruxpath="/thing-that-is-lit-up-for-C" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\'C\\'"/>
     <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
-    <thing-that-is-leafref cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
+    <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
   </inverted-schema>
 </crux-schema>
 """

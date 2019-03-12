@@ -38,6 +38,11 @@ class resources:
   <leaf name="simpleleaf">
     <type name="string"/>
   </leaf>
+  <container name="hidecontainer">
+        <crux:hide>
+          <crux:boolean>true</crux:boolean>
+        </crux:hide>
+  </container>
   <container name="simplecontainer">
     <presence value="true"/>
   </container>

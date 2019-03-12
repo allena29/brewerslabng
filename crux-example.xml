@@ -3,7 +3,6 @@
   <crux-paths/>
   <inverted-schema>
     <simpleleaf cruxpath="/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
-    <dirty-secret cruxpath="/dirty-secret" cruxtype="leaf" cruxleaftype="string"/>
     <default cruxpath="/default" cruxtype="leaf" cruxleaftype="string" cruxdefault="stausquo"/>
     <whencontainer cruxpath="/whencontainer" cruxtype="container" cruxcondition="../default=\\\'statusquo\\\'">
       <then cruxpath="/whencontainer/then" cruxtype="leaf" cruxleaftype="string" cruxdefault="thendefault"/>
@@ -13,7 +12,7 @@
     <thing-that-is-lit-up-for-A cruxpath="/thing-that-is-lit-up-for-A" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'A\\\'"/>
     <thing-that-is-used-for-when cruxpath="/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
     <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
-    <thing-that-is-leafref cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
+    <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
     <bronze cruxpath="/bronze" cruxtype="container">
       <silver cruxpath="/bronze/silver" cruxtype="container">
         <gold cruxpath="/bronze/silver/gold" cruxtype="container">
@@ -92,33 +91,23 @@
     </lista>
     <simplelist cruxpath="/simplelist" cruxtype="list" cruxkey="simplekey">
       <simplekey cruxpath="/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
-      <nonleafkey cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
+      <nonleafkey cruxinfo="A non-leaf key" cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
     </simplelist>
     <resolver cruxpath="/resolver" cruxtype="container">
       <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
       <a cruxtype="leaf" cruxleaftype="string"/>
     </resolver>
     <morecomplex cruxpath="/morecomplex" cruxtype="container">
-      <nonconfig cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
-      <leaf2 cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
-      <leaf3 cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
-      <leaf4 cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
+      <nonconfig cruxinfo="A non-configuration node" cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
+      <leaf2 cruxinfo="must be 1 or 0 dont sit on the fence" cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
+      <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
+      <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
       <inner cruxpath="/morecomplex/inner" cruxtype="presence-container">
         <leaf5 cruxpath="/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
         <leaf6 cruxpath="/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>
         <leaf7 cruxpath="/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
       </inner>
     </morecomplex>
-    <crux-cli cruxpath="/crux-cli" cruxtype="container">
-      <modules cruxpath="/crux-cli/modules" cruxtype="list" cruxkey="module">
-        <module cruxpath="/crux-cli/modules/module" cruxtype="leaf" cruxleaftype="string"/>
-        <namespace cruxpath="/crux-cli/modules/namespace" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
-        <revision cruxpath="/crux-cli/modules/revision" cruxtype="leaf" cruxleaftype="string"/>
-        <top-level-tags cruxpath="/crux-cli/modules/top-level-tags" cruxtype="list" cruxkey="tag">
-          <tag cruxpath="/crux-cli/modules/top-level-tags/tag" cruxtype="leaf" cruxleaftype="string"/>
-        </top-level-tags>
-      </modules>
-    </crux-cli>
     <tests cruxpath="/tests" cruxtype="container">
       <temperature cruxpath="/tests/temperature" cruxtype="container">
         <probes cruxpath="/tests/temperature/probes" cruxtype="list" cruxkey="probeid">
@@ -131,7 +120,7 @@
     <TODO-stores cruxpath="/TODO-stores" cruxtype="container"/>
     <definitions cruxpath="/definitions" cruxtype="container">
       <hops cruxpath="/definitions/hops" cruxtype="list" cruxkey="item">
-        <item cruxpath="/definitions/hops/item" cruxtype="leaf" cruxleaftype="string"/>
+        <item cruxinfo="The hop" cruxpath="/definitions/hops/item" cruxtype="leaf" cruxleaftype="string"/>
         <alpha-acid cruxpath="/definitions/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
         <bittering cruxpath="/definitions/hops/bittering" cruxtype="leaf" cruxleaftype="boolean"/>
         <aroma cruxpath="/definitions/hops/aroma" cruxtype="leaf" cruxleaftype="boolean"/>

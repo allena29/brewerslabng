@@ -127,7 +127,7 @@ In [11]: print(session.dumps())
      grouping WTF { leaf wtfx {type string;}} will appear even though there is no uses for WTF. Post-processing this
      in Munger is not the answer.~~
 
-- crux_cli appears in the schema - as do ~~extensions we need to hide things.~~
+- ~~crux_cli appears in the schema - ~~ as do ~~extensions we need to hide things.~~
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
   - ~~a=root.outsidelist.create('a')~~
@@ -144,7 +144,7 @@ In [11]: print(session.dumps())
 - ~~longest_path_match creates fails to catch list-keys~~
 - Multithread access to data very unpredictable
 - think about converting __dict__ to __slot__
-- typedef's are rednered in the model `type-a` these won't get crux path
+- ~typedef's are rednered in the model `type-a` these won't get crux path~
 - leafref not implemented
 - when not implemented
 - choice not supported  - it doesn't render very well `<FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>` and `<SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>` must one must disable the other.

@@ -17,10 +17,8 @@ class Munger:
     The Yang module should ensure we have all of the YIN schemas available, chasing through imports.
 
     Once the munger has combined the YIN Module is inverted.
-        <leaf name="name-of-leaf">        we have    <name-of-leaf>
-           <type name="string"/>                        <yin-schema>
-                                                            <type name="string"/>
-                                                        </yin-schema>
+        <leaf name="name-of-leaf">        we have    <name-of-leaf cruxpath="/name-of-leaf" cruxtype="leaf" cruxleaftype="string">
+           <type name="string"/>
         </leaf>                                      </name-of-leaf>
 
     This module only ever acts on a single YIN module at any time - however it should be simple for something
@@ -30,9 +28,6 @@ class Munger:
         <crux-schema>
             <inverted-schema>
             </inverted-schema>
-            <crux-paths>
-                <path>/name-of-leaf</path>
-            </crux-paths>
         </crux>
     """
 
@@ -63,57 +58,12 @@ class Munger:
         self.pass3(xmldoc)
         newxmldoc = self.pass4(xmldoc)
         # from this point forwards we deal with the inverted document.
-        """
-        Somewhere we need to deal with two issues:
-
-        1) groupings, secondlist (used by lista)  and group-a (used by resolver)
-
-          grouping group-a {
-            leaf a {
-              type string;
-            }
-
-          appears without any children
-          In the schema it looks like this and appears as nodes in vooodoo/crux-paths.
-          <group-a>
-            <yin-schema path="/group-a"/>
-          </group-a>
-
-
-         2_ An grouping not used anywhere looks like this in the schema and appears
-         as nodes in vooodoo/crux-paths.
-         <unused-grouping>
-           <yin-schema path="/unused-grouping"/>
-           <unused-grouping-leaf>
-             <yin-schema path="/unused-grouping/unused-grouping-leaf">
-               <leaf>
-                 <type name="string"/>
-               </leaf>
-             </yin-schema>
-           </unused-grouping-leaf>
-         </unused-grouping>
-
-        We can't just remove things which don't have yin-schema children  becuase when we import
-        across yang files that is true too...
-        <tests>
-          <yin-schema path="/tests"/>
-          <tests>
-            <yin-schema path="/tests/tests">
-              <container>
-          </container>
-
-         However this here is also wrong. as it should be tests/.
-
-        So after all that maybe the first approach was right and it just looked wrong that secondlist
-        disappeared from the answer.
-        It of course should have done because second-list is the group as long as /lista/listb work then
-        everything is fine.
-        """
-
         self.pass5(newxmldoc)
         self.pass6(newxmldoc)
         self.pass7(newxmldoc)
+        # now we process to copy from yin-schema into the actual nodes
         self.pass8(newxmldoc)
+        # now we remove yin-scheams
         self.pass9(newxmldoc)
         self.pass10(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
@@ -122,6 +72,8 @@ class Munger:
         """
         If there are any nodes which don't have a cruxtype they are assumed
         redundant and then removed.
+
+        In addition we can get rid of cruxhide
         """
         self.objects_to_remove = []
         self.pass10_recurse(newxmldoc)
@@ -132,9 +84,10 @@ class Munger:
 
     def pass10_recurse(self, newxmldoc):
         for child in newxmldoc.getchildren():
-            print('xxxxx', child.tag)
             if child.tag in ('{urn:ietf:params:xml:ns:yang:yin:1}inverted-schema'):
                 self.pass10_recurse(child)
+            elif 'cruxhide' in child.attrib and child.attrib['cruxhide'] == 'yes':
+                self.objects_to_remove.append(child)
             elif 'cruxtype' not in child.attrib:
                 self.objects_to_remove.append(child)
                 self.pass10_recurse(child)
@@ -281,12 +234,12 @@ class Munger:
                         if great_grandchild.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}info":
                             crux_child = great_grandchild.getchildren()
                             if len(crux_child):
-                                child.attrib['info'] = crux_child[0].text
+                                parent = child.getparent()
+                                parent.attrib['cruxinfo'] = crux_child[0].text
                         if great_grandchild.tag == "{http://brewerslabng.mellon-collie.net/yang/crux}hide":
                             if great_grandchild.getchildren()[0].text == 'true':
-                                child.attrib['hide'] = 'yes'
-                            else:
-                                child.attrib['hide'] = 'no'
+                                parent = child.getparent()
+                                parent.attrib['cruxhide'] = 'yes'
 
                         if great_grandchild.tag == "{urn:ietf:params:xml:ns:yang:yin:1}type" and great_grandchild.attrib['name'] == 'union':
                             keep_grandchildren = True

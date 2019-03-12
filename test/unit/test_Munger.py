@@ -105,4 +105,4 @@ class TestCruxMunger(unittest.TestCase):
 
         # Asserts here nee to be sensible based on the thing.i
         expected_replacement_list = []
-        self.assertEqual(self.subject._lookup_method.call_count, 14)
+        self.assertEqual(self.subject._lookup_method.call_count, 15)
