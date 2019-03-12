@@ -1,123 +1,6 @@
 <?xml version="1.0"?>
 <crux-schema>
-  <crux-paths>
-    <path/>
-    <path>/simpleleaf</path>
-    <path>/dirty-secret</path>
-    <path>/default</path>
-    <path>/whencontainer</path>
-    <path>/whencontainer/then</path>
-    <path>/thing-that-is-lit-up-for-C</path>
-    <path>/thing-that-is-lit-up-for-B</path>
-    <path>/thing-that-is-lit-up-for-A</path>
-    <path>/thing-that-is-used-for-when</path>
-    <path>/thing-to-leafref-against</path>
-    <path>/thing-that-is-leafref</path>
-    <path>/bronze</path>
-    <path>/bronze/silver</path>
-    <path>/bronze/silver/gold</path>
-    <path>/bronze/silver/gold/platinum</path>
-    <path>/bronze/silver/gold/platinum/deep</path>
-    <path>/psychedelia</path>
-    <path>/psychedelia/bands</path>
-    <path>/psychedelia/bands/band</path>
-    <path>/psychedelia/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock</path>
-    <path>/psychedelia/psychedelic-rock/bands</path>
-    <path>/psychedelia/psychedelic-rock/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite</path>
-    <path>/twokeylist</path>
-    <path>/twokeylist/primary</path>
-    <path>/twokeylist/secondary</path>
-    <path>/twokeylist/tertiary</path>
-    <path>/simplecontainer</path>
-    <path>/simpleenum</path>
-    <path>/patternstr</path>
-    <path>/hyphen-leaf</path>
-    <path>/outsidelist</path>
-    <path>/outsidelist/leafo</path>
-    <path>/outsidelist/insidelist</path>
-    <path>/outsidelist/insidelist/leafi</path>
-    <path>/outsidelist/otherinsidelist</path>
-    <path>/outsidelist/otherinsidelist/otherlist1</path>
-    <path>/outsidelist/otherinsidelist/otherlist2</path>
-    <path>/outsidelist/otherinsidelist/otherlist3</path>
-    <path>/outsidelist/otherinsidelist/otherlist4</path>
-    <path>/outsidelist/otherinsidelist/otherlist5</path>
-    <path>/outsidelist/otherinsidelist/language</path>
-    <path>/outsidelist/other</path>
-    <path>/container-and-lists</path>
-    <path>/container-and-lists/just-a-key</path>
-    <path>/container-and-lists/multi-key-list</path>
-    <path>/container-and-lists/multi-key-list/A</path>
-    <path>/container-and-lists/multi-key-list/B</path>
-    <path>/container-and-lists/multi-key-list/inner</path>
-    <path>/container-and-lists/multi-key-list/inner/C</path>
-    <path>/lista</path>
-    <path>/lista/firstkey</path>
-    <path>/lista/secondlist</path>
-    <path>/simplelist</path>
-    <path>/simplelist/simplekey</path>
-    <path>/simplelist/nonleafkey</path>
-    <path>/type-a</path>
-    <path>/resolver</path>
-    <path>/resolver/leaf-a</path>
-    <path>/morecomplex</path>
-    <path>/morecomplex/nonconfig</path>
-    <path>/morecomplex/leaf2</path>
-    <path>/morecomplex/leaf3</path>
-    <path>/morecomplex/leaf4</path>
-    <path>/morecomplex/inner</path>
-    <path>/morecomplex/inner/leaf5</path>
-    <path>/morecomplex/inner/leaf6</path>
-    <path>/morecomplex/inner/leaf7</path>
-    <path>/type1</path>
-    <path>/type2</path>
-    <path>/type3</path>
-    <path>/type4</path>
-    <path/>
-    <path>/crux-cli</path>
-    <path>/crux-cli/modules</path>
-    <path>/crux-cli/modules/module</path>
-    <path>/crux-cli/modules/namespace</path>
-    <path>/crux-cli/modules/revision</path>
-    <path>/crux-cli/modules/top-level-tags</path>
-    <path>/crux-cli/modules/top-level-tags/tag</path>
-    <path/>
-    <path>/tests</path>
-    <path>/tests/temperature</path>
-    <path>/tests/temperature/probes</path>
-    <path>/tests/temperature/probes/probeid</path>
-    <path>/tests/temperature/probes/run</path>
-    <path>/tests/temperature/probes/value</path>
-    <path/>
-    <path>/ds18b20-probe</path>
-    <path>/temperature-probe</path>
-    <path>/temperature</path>
-    <path>/percent-dot1</path>
-    <path/>
-    <path/>
-    <path>/TODO-stores</path>
-    <path/>
-    <path>/definitions</path>
-    <path>/definitions/hops</path>
-    <path>/definitions/hops/item</path>
-    <path>/definitions/hops/alpha-acid</path>
-    <path>/definitions/hops/bittering</path>
-    <path>/definitions/hops/aroma</path>
-  </crux-paths>
+  <crux-paths/>
   <inverted-schema>
     <simpleleaf cruxpath="/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
     <dirty-secret cruxpath="/dirty-secret" cruxtype="leaf" cruxleaftype="string"/>
@@ -206,13 +89,11 @@
     </container-and-lists>
     <lista cruxpath="/lista" cruxtype="list" cruxkey="firstkey">
       <firstkey cruxpath="/lista/firstkey" cruxtype="leaf" cruxleaftype="string"/>
-      <secondlist cruxpath="/lista/secondlist"/>
     </lista>
     <simplelist cruxpath="/simplelist" cruxtype="list" cruxkey="simplekey">
       <simplekey cruxpath="/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
       <nonleafkey cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
     </simplelist>
-    <type-a cruxpath="/type-a"/>
     <resolver cruxpath="/resolver" cruxtype="container">
       <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
       <a cruxtype="leaf" cruxleaftype="string"/>
@@ -228,10 +109,6 @@
         <leaf7 cruxpath="/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
       </inner>
     </morecomplex>
-    <type1 cruxpath="/type1"/>
-    <type2 cruxpath="/type2"/>
-    <type3 cruxpath="/type3"/>
-    <type4 cruxpath="/type4"/>
     <crux-cli cruxpath="/crux-cli" cruxtype="container">
       <modules cruxpath="/crux-cli/modules" cruxtype="list" cruxkey="module">
         <module cruxpath="/crux-cli/modules/module" cruxtype="leaf" cruxleaftype="string"/>
@@ -251,10 +128,6 @@
         </probes>
       </temperature>
     </tests>
-    <ds18b20-probe cruxpath="/ds18b20-probe"/>
-    <temperature-probe cruxpath="/temperature-probe"/>
-    <temperature cruxpath="/temperature"/>
-    <percent-dot1 cruxpath="/percent-dot1"/>
     <TODO-stores cruxpath="/TODO-stores" cruxtype="container"/>
     <definitions cruxpath="/definitions" cruxtype="container">
       <hops cruxpath="/definitions/hops" cruxtype="list" cruxkey="item">

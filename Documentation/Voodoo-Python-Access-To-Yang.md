@@ -148,3 +148,4 @@ In [11]: print(session.dumps())
 - leafref not implemented
 - when not implemented
 - choice not supported  - it doesn't render very well `<FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>` and `<SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>` must one must disable the other.
+- unions not well supported - it doesn't render very well `<leaf4 cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>`

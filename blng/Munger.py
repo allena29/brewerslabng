@@ -115,7 +115,31 @@ class Munger:
         self.pass7(newxmldoc)
         self.pass8(newxmldoc)
         self.pass9(newxmldoc)
+        self.pass10(newxmldoc)
         return (xmldoc, newxmldoc)  # , newxmldoc
+
+    def pass10(self, newxmldoc):
+        """
+        If there are any nodes which don't have a cruxtype they are assumed
+        redundant and then removed.
+        """
+        self.objects_to_remove = []
+        self.pass10_recurse(newxmldoc)
+
+        for child in self.objects_to_remove:
+            parent = child.getparent()
+            parent.remove(child)
+
+    def pass10_recurse(self, newxmldoc):
+        for child in newxmldoc.getchildren():
+            print('xxxxx', child.tag)
+            if child.tag in ('{urn:ietf:params:xml:ns:yang:yin:1}inverted-schema'):
+                self.pass10_recurse(child)
+            elif 'cruxtype' not in child.attrib:
+                self.objects_to_remove.append(child)
+                self.pass10_recurse(child)
+            else:
+                self.pass10_recurse(child)
 
     def pass9(self, newxmldoc):
         yinschemas = newxmldoc.xpath('//yin-schema')
@@ -203,13 +227,13 @@ class Munger:
         pathlist = []
         paths = {}
         self._path_recursor(newxmldoc, pathlist, paths)
-        pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
-        for path in paths:
-            if not path == '/':
-                node = etree.Element('path')
-                node.text = path
-                pathxml.append(node)
-        newxmldoc.append(pathxml)
+        # pathxml = etree.fromstring("""<crux-paths xmlns="urn:ietf:params:xml:ns:yang:yin:1"></crux-paths>""")
+        # for path in paths:
+        #    if not path == '/':
+        #        node = etree.Element('path')
+        #        node.text = path
+        #        pathxml.append(node)
+        # newxmldoc.append(pathxml)
 
     def _path_recursor(self, newxmldoc, pathlist, paths):
         for child in newxmldoc.getchildren():

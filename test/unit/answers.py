@@ -10,15 +10,6 @@ class answers:
     <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
     <thing-that-is-leafref cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/default</path>
-    <path>/whencontainer</path>
-    <path>/whencontainer/then</path>
-    <path>/thing-that-is-lit-up-for-C</path>
-    <path>/thing-to-leafref-against</path>
-    <path>/thing-that-is-leafref</path>
-  </crux-paths>
 </crux-schema>
 """
     SCHEMA_CRUX_EXPECTED = """<crux-schema xmlns="urn:ietf:params:xml:ns:yang:yin:1">
@@ -34,16 +25,6 @@ class answers:
       </modules>
     </crux-cli>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/crux-cli</path>
-    <path>/crux-cli/modules</path>
-    <path>/crux-cli/modules/module</path>
-    <path>/crux-cli/modules/namespace</path>
-    <path>/crux-cli/modules/revision</path>
-    <path>/crux-cli/modules/top-level-tags</path>
-    <path>/crux-cli/modules/top-level-tags/tag</path>
-  </crux-paths>
 </crux-schema>
 """
 
@@ -61,18 +42,6 @@ class answers:
       </inner>
     </morecomplex>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/simpleleaf</path>
-    <path>/simplecontainer</path>
-    <path>/morecomplex</path>
-    <path>/morecomplex/nonconfig</path>
-    <path>/morecomplex/leaf2</path>
-    <path>/morecomplex/inner</path>
-    <path>/morecomplex/inner/leaf5</path>
-    <path>/morecomplex/inner/leaf6</path>
-    <path>/morecomplex/inner/leaf7</path>
-  </crux-paths>
 </crux-schema>
 """
 
@@ -82,10 +51,6 @@ class answers:
       <a cruxtype="leaf" cruxleaftype="string"/>
     </resolver>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/resolver</path>
-  </crux-paths>
 </crux-schema>
 """
 
@@ -119,12 +84,6 @@ class answers:
       </yin-schema>
     </uuuuuuuu>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/type2</path>
-    <path>/type3</path>
-    <path>/uuuuuuuu</path>
-  </crux-paths>
 </crux-schema>
 """
 
@@ -133,10 +92,5 @@ class answers:
     <FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>
     <SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>
   </inverted-schema>
-  <crux-paths>
-    <path></path>
-    <path>/FIRSTOPTION</path>
-    <path>/SECONDOPTION</path>
-  </crux-paths>
 </crux-schema>
 """
