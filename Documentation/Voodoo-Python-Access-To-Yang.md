@@ -112,6 +112,7 @@ In [11]: print(session.dumps())
 
 - wildcards - if we look for a deep child we get it much higher up at root.leaf5 is actually root.morecomplex.inner.leaf5
 - validation everywhere
+- todo, think about space separate keys they could be tough because we wouldn't be able to do simplistic separations based on space.
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
 - ~~keys() needs to be implemented for lists.~~
@@ -155,11 +156,14 @@ In [11]: print(session.dumps())
 Use `logsink.py` to see debugging.
 
 - Move logic for finding our place in the path outside of the completion function.
+- Need to implement some kind of list to support picking up older `_completer_obj as we back space. Right now we just bleach _completer_obj
+- backspace now resets the complete_obj to None which makes some of
 - using cursor keys/tab completion doesn't change child object - so autocomplete is stale (i.e. `                         self._complete_obj = child_obj` doesn't trigger
 - `show quad<backspace><backspace>rter` shows stale auto completes.
 - `set bronze bronze silver gold bronze silver platinum` gives stale auto completes.
-- `show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong.
+- `show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong. (although now we do get a 'not a valid choice')
 - Need to recognise list items and expand keys
 - Need to present configuration with a 'show' command in a pretty format.
 - Need to think about save/load
 - Need to confirm exit out of conf mode with unsaved changes.
+- Need to return results for tab complete in a sensible order.

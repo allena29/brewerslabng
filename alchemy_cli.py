@@ -150,6 +150,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.effective_root_obj = init_voodoo_object
         self._complete_terminated = -1
         self._complete_obj = self.effective_root_obj
+        self._complete_command = ""
         self.root = init_voodoo_object
 
         self.OPER_SESSION = PromptSession()
@@ -202,11 +203,13 @@ class alchemy_voodoo_wrapper(Validator, Completer):
                 yield Completion(valid_command, -len(command))
         else:
             # TODO: cache needs to come here.
-            self.log.debug('_hcwp: LCC:%s_LP:%s_C:%s_ (%s/%s)', last_complete_command, last_portion, command, self._complete_terminated, len(command))
+            self.log.debug('_hcwp: LCC:%s_LP:%s_C:%s_ (%s/%s) _cc:%s', last_complete_command, last_portion,
+                           command, self._complete_terminated, len(command), self._complete_command)
             # self.log.debug('Length of command %s = %s', len(command), command)
             # self.log.debug('Length of last_complete_command %s = %s', len(last_complete_command), last_complete_command)
             #   yield Completion(' TODO: get children', -(len(command)-len(last_complete_command)))
             children = self._complete_obj.__dir__()
+            children.sort()
             for child in children:
                 if child[:len(last_portion)] == last_portion:
 
@@ -220,6 +223,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
                             self.log.debug('SET TERMINATED FLAG to length %s', len(command))
                         else:
                             self.log.debug('Set child obj to.... %s', child_obj._path)
+                            self._complete_command = last_complete_command
                             self._complete_obj = child_obj
                             self._complete_terminated = -1
 
@@ -238,13 +242,51 @@ class alchemy_voodoo_wrapper(Validator, Completer):
                 yield Completion(valid_command, -len(command)-1)
 
     def validate(self, document):
+        """
+        Example:
+            'show simpleleaf '
+              - _complete_terminated is set to 15 (length of command)
+                 (the very first thing this method does is reset complete_termianted to -1
+                 if the new len(command) is < complete_termianted)
+
+            'show bronze sx'
+             - complete_command = show bronze       (this is set by auto complete code)
+             - this_new_portion (right to left until a space) = 's'
+             - _complete_obj.__dir__() (set by auto complete code)
+             - we iterate around to find valid options and thorugh a 'not valid text-try again'
+
+             'show bronze silver gold platinum deep <tab>'
+               - This is broken because we set complete_obj to None as part of the auto complete code.
+
+
+        TODO: need to handle free for text for set commands.
+             b"INFO: 1552436545.953624 DEBUG validate working out if s belongs to child objects ['silver']         "
+        """
         command = document.text
         self.log.debug('validate %s %s/%s', command, len(command), self._complete_terminated)
         if len(command) < self._complete_terminated:
             self._complete_terminated = -1
 
+        if self._complete_command + ' ' == command:
+            self.log.debug('!!!RESET complete command as we have used backspace too much')
+            self._complete_obj = None
+            raise ValidationError(message='TODO - this breaks auto complete')
+
         if self._complete_terminated > 0:
+            self._complete_obj = None
+            # TODO THIS IS BROKEN BECAUSE THIS CAN BE DIR'd
             raise ValidationError(message='Stop typing!', cursor_position=len(command)-1)
+
+        this_new_portion = command[command.rfind(' ')+1:]
+        self.log.debug('validate working out if %s belongs to child objects %s', this_new_portion, str(self._complete_obj.__dir__()))
+        ok = False
+        for option in self._complete_obj.__dir__():
+            #        self.log.debug('v _%s_ == _%s_', option[:len(this_new_portion)], this_new_portion)
+            if option[:len(this_new_portion)] == this_new_portion:
+                ok = True
+                break
+        if not ok:
+            raise ValidationError(message='not valid text- try again')
 
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
