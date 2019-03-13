@@ -1,838 +1,135 @@
 <?xml version="1.0"?>
 <crux-schema>
-  <crux-paths>
-    <path/>
-    <path>/simpleleaf</path>
-    <path>/bronze</path>
-    <path>/bronze/silver</path>
-    <path>/bronze/silver/gold</path>
-    <path>/bronze/silver/gold/platinum</path>
-    <path>/bronze/silver/gold/platinum/deep</path>
-    <path>/psychedelia</path>
-    <path>/psychedelia/bands</path>
-    <path>/psychedelia/bands/band</path>
-    <path>/psychedelia/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock</path>
-    <path>/psychedelia/psychedelic-rock/bands</path>
-    <path>/psychedelia/psychedelic-rock/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band</path>
-    <path>/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite</path>
-    <path>/twokeylist</path>
-    <path>/twokeylist/primary</path>
-    <path>/twokeylist/secondary</path>
-    <path>/twokeylist/tertiary</path>
-    <path>/simplecontainer</path>
-    <path>/simpleenum</path>
-    <path>/patternstr</path>
-    <path>/hyphen-leaf</path>
-    <path>/outsidelist</path>
-    <path>/outsidelist/leafo</path>
-    <path>/outsidelist/insidelist</path>
-    <path>/outsidelist/insidelist/leafi</path>
-    <path>/outsidelist/otherinsidelist</path>
-    <path>/outsidelist/otherinsidelist/otherlist1</path>
-    <path>/outsidelist/otherinsidelist/otherlist2</path>
-    <path>/outsidelist/otherinsidelist/otherlist3</path>
-    <path>/outsidelist/otherinsidelist/otherlist4</path>
-    <path>/outsidelist/otherinsidelist/otherlist5</path>
-    <path>/outsidelist/otherinsidelist/language</path>
-    <path>/outsidelist/other</path>
-    <path>/container-and-lists</path>
-    <path>/container-and-lists/just-a-key</path>
-    <path>/container-and-lists/multi-key-list</path>
-    <path>/container-and-lists/multi-key-list/A</path>
-    <path>/container-and-lists/multi-key-list/B</path>
-    <path>/container-and-lists/multi-key-list/inner</path>
-    <path>/container-and-lists/multi-key-list/inner/C</path>
-    <path>/lista</path>
-    <path>/lista/firstkey</path>
-    <path>/lista/secondlist</path>
-    <path>/simplelist</path>
-    <path>/simplelist/simplekey</path>
-    <path>/simplelist/nonleafkey</path>
-    <path>/type-a</path>
-    <path>/resolver</path>
-    <path>/resolver/leaf-a</path>
-    <path>/morecomplex</path>
-    <path>/morecomplex/nonconfig</path>
-    <path>/morecomplex/leaf2</path>
-    <path>/morecomplex/leaf3</path>
-    <path>/morecomplex/leaf4</path>
-    <path>/morecomplex/inner</path>
-    <path>/morecomplex/inner/leaf5</path>
-    <path>/morecomplex/inner/leaf6</path>
-    <path>/morecomplex/inner/leaf7</path>
-    <path>/type1</path>
-    <path>/type2</path>
-    <path>/type3</path>
-    <path>/type4</path>
-    <path/>
-    <path>/crux-cli</path>
-    <path>/crux-cli/modules</path>
-    <path>/crux-cli/modules/module</path>
-    <path>/crux-cli/modules/namespace</path>
-    <path>/crux-cli/modules/revision</path>
-    <path>/crux-cli/modules/top-level-tags</path>
-    <path>/crux-cli/modules/top-level-tags/tag</path>
-    <path/>
-    <path>/tests</path>
-    <path>/tests/temperature</path>
-    <path>/tests/temperature/probes</path>
-    <path>/tests/temperature/probes/probeid</path>
-    <path>/tests/temperature/probes/run</path>
-    <path>/tests/temperature/probes/value</path>
-    <path/>
-    <path>/ds18b20-probe</path>
-    <path>/temperature-probe</path>
-    <path>/temperature</path>
-    <path>/percent-dot1</path>
-    <path/>
-    <path/>
-    <path>/TODO-stores</path>
-    <path/>
-    <path>/definitions</path>
-    <path>/definitions/hops</path>
-    <path>/definitions/hops/item</path>
-    <path>/definitions/hops/alpha-acid</path>
-    <path>/definitions/hops/bittering</path>
-    <path>/definitions/hops/aroma</path>
-  </crux-paths>
+  <crux-paths/>
   <inverted-schema>
-    <simpleleaf>
-      <yin-schema path="/simpleleaf">
-        <leaf>
-          <type name="string"/>
-        </leaf>
-      </yin-schema>
-    </simpleleaf>
-    <bronze>
-      <yin-schema path="/bronze">
-        <container>
-    </container>
-      </yin-schema>
-      <silver>
-        <yin-schema path="/bronze/silver">
-          <container>
-      </container>
-        </yin-schema>
-        <gold>
-          <yin-schema path="/bronze/silver/gold">
-            <container>
-        </container>
-          </yin-schema>
-          <platinum>
-            <yin-schema path="/bronze/silver/gold/platinum">
-              <container>
-          </container>
-            </yin-schema>
-            <deep>
-              <yin-schema path="/bronze/silver/gold/platinum/deep">
-                <leaf>
-                  <type name="string"/>
-                </leaf>
-              </yin-schema>
-            </deep>
+    <simpleleaf cruxpath="/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
+    <default cruxpath="/default" cruxtype="leaf" cruxleaftype="string" cruxdefault="stausquo"/>
+    <whencontainer cruxpath="/whencontainer" cruxtype="container" cruxcondition="../default=\\\'statusquo\\\'">
+      <then cruxpath="/whencontainer/then" cruxtype="leaf" cruxleaftype="string" cruxdefault="thendefault"/>
+    </whencontainer>
+    <thing-that-is-lit-up-for-C cruxpath="/thing-that-is-lit-up-for-C" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'C\\\'"/>
+    <thing-that-is-lit-up-for-B cruxpath="/thing-that-is-lit-up-for-B" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'B\\\'"/>
+    <thing-that-is-lit-up-for-A cruxpath="/thing-that-is-lit-up-for-A" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'A\\\'"/>
+    <thing-that-is-used-for-when cruxpath="/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
+    <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
+    <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
+    <quad cruxpath="/quad" cruxtype="container">
+      <leafinquad cruxpath="/quad/leafinquad" cruxtype="presence-container"/>
+    </quad>
+    <quarter cruxpath="/quarter" cruxtype="container">
+      <leafinquarter cruxpath="/quarter/leafinquarter" cruxtype="presence-container"/>
+    </quarter>
+    <bronze cruxpath="/bronze" cruxtype="container">
+      <silver cruxpath="/bronze/silver" cruxtype="container">
+        <gold cruxpath="/bronze/silver/gold" cruxtype="container">
+          <platinum cruxpath="/bronze/silver/gold/platinum" cruxtype="container">
+            <deep cruxpath="/bronze/silver/gold/platinum/deep" cruxtype="leaf" cruxleaftype="string"/>
           </platinum>
         </gold>
       </silver>
     </bronze>
-    <psychedelia>
-      <yin-schema path="/psychedelia">
-        <container>
-    </container>
-      </yin-schema>
-      <bands>
-        <yin-schema path="/psychedelia/bands">
-          <list>
-            <key value="band"/>
-          </list>
-        </yin-schema>
-        <band>
-          <yin-schema path="/psychedelia/bands/band">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </band>
-        <favourite>
-          <yin-schema path="/psychedelia/bands/favourite">
-            <leaf>
-              <type name="boolean"/>
-            </leaf>
-          </yin-schema>
-        </favourite>
+    <psychedelia cruxpath="/psychedelia" cruxtype="container">
+      <bands cruxpath="/psychedelia/bands" cruxtype="list" cruxkey="band">
+        <band cruxpath="/psychedelia/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+        <favourite cruxpath="/psychedelia/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
       </bands>
-      <psychedelic-rock>
-        <yin-schema path="/psychedelia/psychedelic-rock">
-          <container>
-      </container>
-        </yin-schema>
-        <bands>
-          <yin-schema path="/psychedelia/psychedelic-rock/bands">
-            <list>
-              <key value="band"/>
-            </list>
-          </yin-schema>
-          <band>
-            <yin-schema path="/psychedelia/psychedelic-rock/bands/band">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </band>
-          <favourite>
-            <yin-schema path="/psychedelia/psychedelic-rock/bands/favourite">
-              <leaf>
-                <type name="boolean"/>
-              </leaf>
-            </yin-schema>
-          </favourite>
+      <psychedelic-rock cruxpath="/psychedelia/psychedelic-rock" cruxtype="container">
+        <bands cruxpath="/psychedelia/psychedelic-rock/bands" cruxtype="list" cruxkey="band">
+          <band cruxpath="/psychedelia/psychedelic-rock/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+          <favourite cruxpath="/psychedelia/psychedelic-rock/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
         </bands>
-        <noise-pop>
-          <yin-schema path="/psychedelia/psychedelic-rock/noise-pop">
-            <container>
-        </container>
-          </yin-schema>
-          <bands>
-            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands">
-              <list>
-                <key value="band"/>
-              </list>
-            </yin-schema>
-            <band>
-              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands/band">
-                <leaf>
-                  <type name="string"/>
-                </leaf>
-              </yin-schema>
-            </band>
-            <favourite>
-              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/bands/favourite">
-                <leaf>
-                  <type name="boolean"/>
-                </leaf>
-              </yin-schema>
-            </favourite>
+        <noise-pop cruxpath="/psychedelia/psychedelic-rock/noise-pop" cruxtype="container">
+          <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands" cruxtype="list" cruxkey="band">
+            <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+            <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
           </bands>
-          <dream-pop>
-            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop">
-              <container>
-          </container>
-            </yin-schema>
-            <bands>
-              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands">
-                <list>
-                  <key value="band"/>
-                </list>
-              </yin-schema>
-              <band>
-                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band">
-                  <leaf>
-                    <type name="string"/>
-                  </leaf>
-                </yin-schema>
-              </band>
-              <favourite>
-                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite">
-                  <leaf>
-                    <type name="boolean"/>
-                  </leaf>
-                </yin-schema>
-              </favourite>
+          <dream-pop cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop" cruxtype="container">
+            <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands" cruxtype="list" cruxkey="band">
+              <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+              <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
             </bands>
           </dream-pop>
-          <shoe-gaze>
-            <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze">
-              <container>
-          </container>
-            </yin-schema>
-            <bands>
-              <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands">
-                <list>
-                  <key value="band"/>
-                </list>
-              </yin-schema>
-              <band>
-                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band">
-                  <leaf>
-                    <type name="string"/>
-                  </leaf>
-                </yin-schema>
-              </band>
-              <favourite>
-                <yin-schema path="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite">
-                  <leaf>
-                    <type name="boolean"/>
-                  </leaf>
-                </yin-schema>
-              </favourite>
+          <shoe-gaze cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze" cruxtype="container">
+            <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands" cruxtype="list" cruxkey="band">
+              <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+              <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
             </bands>
           </shoe-gaze>
         </noise-pop>
       </psychedelic-rock>
     </psychedelia>
-    <twokeylist>
-      <yin-schema path="/twokeylist">
-        <list>
-          <key value="primary secondary"/>
-        </list>
-      </yin-schema>
-      <primary>
-        <yin-schema path="/twokeylist/primary">
-          <leaf>
-            <type name="boolean"/>
-          </leaf>
-        </yin-schema>
-      </primary>
-      <secondary>
-        <yin-schema path="/twokeylist/secondary">
-          <leaf>
-            <type name="boolean"/>
-          </leaf>
-        </yin-schema>
-      </secondary>
-      <tertiary>
-        <yin-schema path="/twokeylist/tertiary">
-          <leaf>
-            <type name="boolean"/>
-          </leaf>
-        </yin-schema>
-      </tertiary>
+    <twokeylist cruxpath="/twokeylist" cruxtype="list" cruxkey="primary secondary">
+      <primary cruxpath="/twokeylist/primary" cruxtype="leaf" cruxleaftype="boolean"/>
+      <secondary cruxpath="/twokeylist/secondary" cruxtype="leaf" cruxleaftype="boolean"/>
+      <tertiary cruxpath="/twokeylist/tertiary" cruxtype="leaf" cruxleaftype="boolean"/>
     </twokeylist>
-    <simplecontainer>
-      <yin-schema path="/simplecontainer">
-        <container>
-          <presence value="true"/>
-        </container>
-      </yin-schema>
-    </simplecontainer>
-    <simpleenum>
-      <yin-schema path="/simpleenum">
-        <leaf>
-          <type name="enumeration">
-            <enum name="A">
-              <value value="1"/>
-            </enum>
-          </type>
-        </leaf>
-      </yin-schema>
-    </simpleenum>
-    <patternstr>
-      <yin-schema path="/patternstr">
-        <leaf>
-          <type name="string">
-            <pattern value=".*Strasse">
-              <error-message>
-                <value>sdfsdf</value>
-              </error-message>
-            </pattern>
-          </type>
-        </leaf>
-      </yin-schema>
-    </patternstr>
-    <hyphen-leaf>
-      <yin-schema path="/hyphen-leaf">
-        <leaf>
-          <type name="string"/>
-        </leaf>
-      </yin-schema>
-    </hyphen-leaf>
-    <outsidelist>
-      <yin-schema path="/outsidelist">
-        <list>
-          <key value="leafo"/>
-        </list>
-      </yin-schema>
-      <leafo>
-        <yin-schema path="/outsidelist/leafo">
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </leafo>
-      <insidelist>
-        <yin-schema path="/outsidelist/insidelist">
-          <list>
-            <key value="leafi"/>
-          </list>
-        </yin-schema>
-        <leafi>
-          <yin-schema path="/outsidelist/insidelist/leafi">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </leafi>
+    <simplecontainer cruxpath="/simplecontainer" cruxtype="presence-container"/>
+    <simpleenum cruxpath="/simpleenum" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum="1"/>
+    <patternstr cruxpath="/patternstr" cruxtype="leaf" cruxleaftype="string"/>
+    <hyphen-leaf cruxpath="/hyphen-leaf" cruxtype="leaf" cruxleaftype="string"/>
+    <outsidelist cruxpath="/outsidelist" cruxtype="list" cruxkey="leafo">
+      <leafo cruxpath="/outsidelist/leafo" cruxtype="leaf" cruxleaftype="string"/>
+      <insidelist cruxpath="/outsidelist/insidelist" cruxtype="list" cruxkey="leafi">
+        <leafi cruxpath="/outsidelist/insidelist/leafi" cruxtype="leaf" cruxleaftype="string"/>
       </insidelist>
-      <otherinsidelist>
-        <yin-schema path="/outsidelist/otherinsidelist">
-          <list>
-            <key value="otherlist1 otherlist2 otherlist3"/>
-          </list>
-        </yin-schema>
-        <otherlist1>
-          <yin-schema path="/outsidelist/otherinsidelist/otherlist1">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </otherlist1>
-        <otherlist2>
-          <yin-schema path="/outsidelist/otherinsidelist/otherlist2">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </otherlist2>
-        <otherlist3>
-          <yin-schema path="/outsidelist/otherinsidelist/otherlist3">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </otherlist3>
-        <otherlist4>
-          <yin-schema path="/outsidelist/otherinsidelist/otherlist4">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </otherlist4>
-        <otherlist5>
-          <yin-schema path="/outsidelist/otherinsidelist/otherlist5">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </otherlist5>
-        <language>
-          <yin-schema path="/outsidelist/otherinsidelist/language">
-            <leaf>
-              <type name="enumeration">
-                <enum name="french"/>
-                <enum name="german"/>
-                <enum name="dutch"/>
-                <enum name="swedish"/>
-                <enum name="danish"/>
-                <enum name="italian"/>
-                <enum name="spanish"/>
-              </type>
-            </leaf>
-          </yin-schema>
-        </language>
+      <otherinsidelist cruxpath="/outsidelist/otherinsidelist" cruxtype="list" cruxkey="otherlist1 otherlist2 otherlist3">
+        <otherlist1 cruxpath="/outsidelist/otherinsidelist/otherlist1" cruxtype="leaf" cruxleaftype="string"/>
+        <otherlist2 cruxpath="/outsidelist/otherinsidelist/otherlist2" cruxtype="leaf" cruxleaftype="string"/>
+        <otherlist3 cruxpath="/outsidelist/otherinsidelist/otherlist3" cruxtype="leaf" cruxleaftype="string"/>
+        <otherlist4 cruxpath="/outsidelist/otherinsidelist/otherlist4" cruxtype="leaf" cruxleaftype="string"/>
+        <otherlist5 cruxpath="/outsidelist/otherinsidelist/otherlist5" cruxtype="leaf" cruxleaftype="string"/>
+        <language cruxpath="/outsidelist/otherinsidelist/language" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="french" cruxenum1="german" cruxenum2="dutch" cruxenum3="swedish" cruxenum4="danish" cruxenum5="italian" cruxenum6="spanish" cruxenum="7"/>
       </otherinsidelist>
-      <other>
-        <yin-schema path="/outsidelist/other">
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </other>
+      <other cruxpath="/outsidelist/other" cruxtype="leaf" cruxleaftype="string"/>
     </outsidelist>
-    <container-and-lists>
-      <yin-schema path="/container-and-lists">
-        <container>
-    </container>
-      </yin-schema>
-      <just-a-key>
-        <yin-schema path="/container-and-lists/just-a-key">
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </just-a-key>
-      <multi-key-list>
-        <yin-schema path="/container-and-lists/multi-key-list">
-          <list>
-            <key value="A B"/>
-          </list>
-        </yin-schema>
-        <A>
-          <yin-schema path="/container-and-lists/multi-key-list/A">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </A>
-        <B>
-          <yin-schema path="/container-and-lists/multi-key-list/B">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </B>
-        <inner>
-          <yin-schema path="/container-and-lists/multi-key-list/inner">
-            <container>
-        </container>
-          </yin-schema>
-          <C>
-            <yin-schema path="/container-and-lists/multi-key-list/inner/C">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </C>
+    <container-and-lists cruxpath="/container-and-lists" cruxtype="container">
+      <just-a-key cruxpath="/container-and-lists/just-a-key" cruxtype="leaf" cruxleaftype="string"/>
+      <multi-key-list cruxpath="/container-and-lists/multi-key-list" cruxtype="list" cruxkey="A B">
+        <A cruxpath="/container-and-lists/multi-key-list/A" cruxtype="leaf" cruxleaftype="string"/>
+        <B cruxpath="/container-and-lists/multi-key-list/B" cruxtype="leaf" cruxleaftype="string"/>
+        <inner cruxpath="/container-and-lists/multi-key-list/inner" cruxtype="container">
+          <C cruxpath="/container-and-lists/multi-key-list/inner/C" cruxtype="leaf" cruxleaftype="string"/>
         </inner>
       </multi-key-list>
     </container-and-lists>
-    <lista>
-      <yin-schema path="/lista">
-        <list>
-          <key value="firstkey"/>
-        </list>
-      </yin-schema>
-      <firstkey>
-        <yin-schema path="/lista/firstkey">
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </firstkey>
-      <secondlist>
-        <yin-schema path="/lista/secondlist">
-          <uses/>
-        </yin-schema>
-      </secondlist>
+    <lista cruxpath="/lista" cruxtype="list" cruxkey="firstkey">
+      <firstkey cruxpath="/lista/firstkey" cruxtype="leaf" cruxleaftype="string"/>
     </lista>
-    <simplelist>
-      <yin-schema path="/simplelist">
-        <list>
-          <key value="simplekey"/>
-        </list>
-      </yin-schema>
-      <simplekey>
-        <yin-schema path="/simplelist/simplekey">
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </simplekey>
-      <nonleafkey>
-        <yin-schema path="/simplelist/nonleafkey">
-          <leaf>
-            <type name="uint32"/>
-          </leaf>
-        </yin-schema>
-      </nonleafkey>
+    <simplelist cruxpath="/simplelist" cruxtype="list" cruxkey="simplekey">
+      <simplekey cruxpath="/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
+      <nonleafkey cruxinfo="A non-leaf key" cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
     </simplelist>
-    <type-a>
-      <yin-schema path="/type-a">
-        <typedef>
-    </typedef>
-      </yin-schema>
-    </type-a>
-    <resolver>
-      <yin-schema path="/resolver">
-        <container>
-    </container>
-      </yin-schema>
-      <leaf-a>
-        <yin-schema path="/resolver/leaf-a">
-          <leaf>
-            <type name="uint32"/>
-          </leaf>
-        </yin-schema>
-      </leaf-a>
-      <a>
-        <yin-schema>
-          <leaf>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </a>
+    <resolver cruxpath="/resolver" cruxtype="container">
+      <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
+      <a cruxtype="leaf" cruxleaftype="string"/>
     </resolver>
-    <morecomplex>
-      <yin-schema path="/morecomplex">
-        <container>
-    </container>
-      </yin-schema>
-      <nonconfig>
-        <yin-schema path="/morecomplex/nonconfig">
-          <leaf>
-            <config value="false"/>
-            <type name="string"/>
-          </leaf>
-        </yin-schema>
-      </nonconfig>
-      <leaf2>
-        <yin-schema path="/morecomplex/leaf2">
-          <leaf>
-            <type name="boolean"/>
-          </leaf>
-        </yin-schema>
-      </leaf2>
-      <leaf3>
-        <yin-schema path="/morecomplex/leaf3">
-          <leaf>
-      </leaf>
-        </yin-schema>
-      </leaf3>
-      <leaf4>
-        <yin-schema path="/morecomplex/leaf4">
-          <leaf>
-            <crux__info>
-              <crux__text>Should allow A, B, C or a uint32</crux__text>
-            </crux__info>
-            <type name="union">
-              <type name="enumeration">
-                <enum name="A"/>
-                <enum name="B"/>
-                <enum name="C"/>
-              </type>
-              <type name="uint32"/>
-            </type>
-          </leaf>
-        </yin-schema>
-      </leaf4>
-      <inner>
-        <yin-schema path="/morecomplex/inner">
-          <container>
-            <presence value="true"/>
-          </container>
-        </yin-schema>
-        <leaf5>
-          <yin-schema path="/morecomplex/inner/leaf5">
-            <leaf>
-              <type name="string"/>
-              <mandatory value="true"/>
-            </leaf>
-          </yin-schema>
-        </leaf5>
-        <leaf6>
-          <yin-schema path="/morecomplex/inner/leaf6">
-            <leaf>
-              <type name="string"/>
-              <mandatory value="false"/>
-            </leaf>
-          </yin-schema>
-        </leaf6>
-        <leaf7>
-          <yin-schema path="/morecomplex/inner/leaf7">
-            <leaf>
-              <type name="string"/>
-              <default value="this-is-a-default"/>
-            </leaf>
-          </yin-schema>
-        </leaf7>
+    <morecomplex cruxpath="/morecomplex" cruxtype="container">
+      <nonconfig cruxinfo="A non-configuration node" cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
+      <leaf2 cruxinfo="must be 1 or 0 dont sit on the fence" cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
+      <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
+      <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
+      <inner cruxpath="/morecomplex/inner" cruxtype="presence-container">
+        <leaf5 cruxpath="/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
+        <leaf6 cruxpath="/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>
+        <leaf7 cruxpath="/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
       </inner>
     </morecomplex>
-    <type1>
-      <yin-schema path="/type1">
-        <typedef>
-          <type name="string">
-            <pattern value="brew[a-z]*">
-              <error-message>
-                <value>String must start with brew</value>
-              </error-message>
-            </pattern>
-          </type>
-        </typedef>
-      </yin-schema>
-    </type1>
-    <type2>
-      <yin-schema path="/type2">
-        <typedef>
-    </typedef>
-      </yin-schema>
-    </type2>
-    <type3>
-      <yin-schema path="/type3">
-        <typedef>
-    </typedef>
-      </yin-schema>
-    </type3>
-    <type4>
-      <yin-schema path="/type4">
-        <typedef>
-    </typedef>
-      </yin-schema>
-    </type4>
-    <crux-cli>
-      <yin-schema path="/crux-cli">
-        <container>
-    </container>
-      </yin-schema>
-      <modules>
-        <yin-schema path="/crux-cli/modules">
-          <list>
-            <key value="module"/>
-          </list>
-        </yin-schema>
-        <module>
-          <yin-schema path="/crux-cli/modules/module">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </module>
-        <namespace>
-          <yin-schema path="/crux-cli/modules/namespace">
-            <leaf>
-              <type name="string"/>
-              <mandatory value="true"/>
-            </leaf>
-          </yin-schema>
-        </namespace>
-        <revision>
-          <yin-schema path="/crux-cli/modules/revision">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </revision>
-        <top-level-tags>
-          <yin-schema path="/crux-cli/modules/top-level-tags">
-            <list>
-              <key value="tag"/>
-            </list>
-          </yin-schema>
-          <tag>
-            <yin-schema path="/crux-cli/modules/top-level-tags/tag">
-              <leaf>
-                <type name="string"/>
-              </leaf>
-            </yin-schema>
-          </tag>
-        </top-level-tags>
-      </modules>
-    </crux-cli>
-    <tests>
-      <yin-schema path="/tests">
-        <container>
-      </container>
-      </yin-schema>
-      <temperature>
-        <yin-schema path="/tests/temperature">
-          <container>
-        </container>
-        </yin-schema>
-        <probes>
-          <yin-schema path="/tests/temperature/probes">
-            <list>
-              <key value="probeid"/>
-            </list>
-          </yin-schema>
-          <probeid>
-            <yin-schema path="/tests/temperature/probes/probeid">
-              <leaf>
-                <type name="brewerslab-types__temperature-probe"/>
-              </leaf>
-            </yin-schema>
-          </probeid>
-          <run>
-            <yin-schema path="/tests/temperature/probes/run">
-              <leaf>
-                <type name="boolean"/>
-              </leaf>
-            </yin-schema>
-          </run>
-          <value>
-            <yin-schema path="/tests/temperature/probes/value">
-              <leaf>
-                <type name="brewerslab-types__temperature"/>
-              </leaf>
-            </yin-schema>
-          </value>
+    <tests cruxpath="/tests" cruxtype="container">
+      <temperature cruxpath="/tests/temperature" cruxtype="container">
+        <probes cruxpath="/tests/temperature/probes" cruxtype="list" cruxkey="probeid">
+          <probeid cruxpath="/tests/temperature/probes/probeid" cruxtype="leaf" cruxleaftype="brewerslab-types__temperature-probe"/>
+          <run cruxpath="/tests/temperature/probes/run" cruxtype="leaf" cruxleaftype="boolean"/>
+          <value cruxpath="/tests/temperature/probes/value" cruxtype="leaf" cruxleaftype="brewerslab-types__temperature"/>
         </probes>
       </temperature>
     </tests>
-    <ds18b20-probe>
-      <yin-schema path="/ds18b20-probe">
-        <typedef>
-          <type name="string">
-            <pattern value="28-[0-9a-f]{1,32}">
-              <error-message>
-                <value>Invalid DS18B20 probe id</value>
-              </error-message>
-            </pattern>
-          </type>
-        </typedef>
-      </yin-schema>
-    </ds18b20-probe>
-    <temperature-probe>
-      <yin-schema path="/temperature-probe">
-        <typedef>
-          <type name="union">
-            <type name="ds18b20-probe"/>
-          </type>
-        </typedef>
-      </yin-schema>
-    </temperature-probe>
-    <temperature>
-      <yin-schema path="/temperature">
-        <typedef>
-          <type name="decimal64">
-            <fraction-digits value="3"/>
-          </type>
-        </typedef>
-      </yin-schema>
-    </temperature>
-    <percent-dot1>
-      <yin-schema path="/percent-dot1">
-        <typedef>
-          <type name="decimal64">
-            <fraction-digits value="1"/>
-            <range value="0..100"/>
-          </type>
-        </typedef>
-      </yin-schema>
-    </percent-dot1>
-    <TODO-stores>
-      <yin-schema path="/TODO-stores">
-        <container/>
-      </yin-schema>
-    </TODO-stores>
-    <definitions>
-      <yin-schema path="/definitions">
-        <container>
-    </container>
-      </yin-schema>
-      <hops>
-        <yin-schema path="/definitions/hops">
-          <list>
-            <key value="item"/>
-          </list>
-        </yin-schema>
-        <item>
-          <yin-schema path="/definitions/hops/item">
-            <leaf>
-              <type name="string"/>
-            </leaf>
-          </yin-schema>
-        </item>
-        <alpha-acid>
-          <yin-schema path="/definitions/hops/alpha-acid">
-            <leaf>
-              <type name="brewerslab-types__percent-dot1"/>
-            </leaf>
-          </yin-schema>
-        </alpha-acid>
-        <bittering>
-          <yin-schema path="/definitions/hops/bittering">
-            <leaf>
-              <type name="boolean"/>
-            </leaf>
-          </yin-schema>
-        </bittering>
-        <aroma>
-          <yin-schema path="/definitions/hops/aroma">
-            <leaf>
-              <type name="boolean"/>
-            </leaf>
-          </yin-schema>
-        </aroma>
+    <TODO-stores cruxpath="/TODO-stores" cruxtype="container"/>
+    <definitions cruxpath="/definitions" cruxtype="container">
+      <hops cruxpath="/definitions/hops" cruxtype="list" cruxkey="item">
+        <item cruxinfo="The hop" cruxpath="/definitions/hops/item" cruxtype="leaf" cruxleaftype="string"/>
+        <alpha-acid cruxpath="/definitions/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+        <bittering cruxpath="/definitions/hops/bittering" cruxtype="leaf" cruxleaftype="boolean"/>
+        <aroma cruxpath="/definitions/hops/aroma" cruxtype="leaf" cruxleaftype="boolean"/>
       </hops>
     </definitions>
   </inverted-schema>

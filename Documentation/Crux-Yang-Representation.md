@@ -12,6 +12,53 @@
 
 ## Example Data
 
+See [crux-example.xml](crux-example.xml) for a more complete example based on [yang/integrationtest.yang](yang/integrationtest.yang) - this is a small example.
+
+```
+<?xml version="1.0"?>
+<crux-schema>
+  <crux-paths/>
+  <inverted-schema>
+    <bronze cruxpath="/bronze" cruxtype="container">
+      <silver cruxpath="/bronze/silver" cruxtype="container">
+        <gold cruxpath="/bronze/silver/gold" cruxtype="container">
+          <platinum cruxpath="/bronze/silver/gold/platinum" cruxtype="container">
+            <deep cruxpath="/bronze/silver/gold/platinum/deep" cruxtype="leaf" cruxleaftype="string"/>
+          </platinum>
+        </gold>
+      </silver>
+    </bronze>
+    <simplecontainer cruxpath="/simplecontainer" cruxtype="presence-container"/>
+    <lista cruxpath="/lista" cruxtype="list" cruxkey="firstkey">
+      <firstkey cruxpath="/lista/firstkey" cruxtype="leaf" cruxleaftype="string"/>
+      <secondlist cruxpath="/lista/secondlist"/>
+    </lista>
+    <simplelist cruxpath="/simplelist" cruxtype="list" cruxkey="simplekey">
+      <simplekey cruxpath="/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
+      <nonleafkey cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
+    </simplelist>
+    <type-a cruxpath="/type-a"/>
+    <resolver cruxpath="/resolver" cruxtype="container">
+      <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
+      <a cruxtype="leaf" cruxleaftype="string"/>
+    </resolver>
+    <morecomplex cruxpath="/morecomplex" cruxtype="container">
+      <nonconfig cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
+      <leaf2 cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
+      <leaf3 cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
+      <leaf4 cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
+      <inner cruxpath="/morecomplex/inner" cruxtype="presence-container">
+        <leaf5 cruxpath="/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
+        <leaf6 cruxpath="/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>
+        <leaf7 cruxpath="/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
+      </inner>
+    </morecomplex>
+  </inverted-schema>
+</crux-schema>
+```
+
+## Example Data (OLD VERSION - yin-schema nodes)
+
 This is an example of `__crux-schema.xml` produced from the compile script.
 
 ```

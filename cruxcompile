@@ -18,7 +18,7 @@ then
 	fi
 fi
 
-rm -fr .cache
+#rm -fr .cache
 mkdir -p .cache
 
 set -euo pipefail
@@ -29,10 +29,23 @@ echo "Creating YIN files...."
 cd yang
 for file in *.yang
 do
-  yin=`echo $file | sed -e 's/.yang//'`
-  echo "   $file"
-  pyang -f yin $file >../.cache/$yin.yin
-  pyang -f tree $file >$yin.txt
+  yin=`echo $file | sed -e 's/.yang$//'`
+
+  timeyangchanged=`stat -f %m $file`
+  if [ -f ../.cache/$yin.yin ]
+  then
+    timelastcompiled=`stat -f %m ../.cache/$yin.yin`
+  else
+    timelastcompiled=0
+  fi
+  if [ $timelastcompiled -gt $timeyangchanged ]
+  then
+    echo " ($file) using cached version"
+  else
+    echo "   $file"
+    pyang -f yin $file >../.cache/$yin.yin
+    pyang -f tree $file >$yin.txt
+  fi
   yanglist="$yin $yanglist"
 done
 
@@ -46,9 +59,15 @@ else
   yangmodules=$1
 fi
 
-PYTHONPATH=$NEW_PYTHON_PATH python blng/Yang.py $yangmodules
+timeyangchanged=`stat -f %m .cache`
+timelastcompiled=`stat -f %m crux-example.xml`
+if [ $timelastcompiled -lt $timeyangchanged ]
+then
+  PYTHONPATH=$NEW_PYTHON_PATH python blng/Yang.py $yangmodules
 
-
-echo "Combining into single document"
-xmllint --format .cache/__crux-schema.xml >crux-example.xml
+  echo "Combining into single document"
+  xmllint --format .cache/__crux-schema.xml >crux-example.xml
+else
+  echo "  Using cached version"
+fi
 echo "  OK"

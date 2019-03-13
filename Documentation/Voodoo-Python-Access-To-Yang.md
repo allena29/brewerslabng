@@ -103,10 +103,16 @@ In [11]: print(session.dumps())
  - YANG nodes containing a hyphen are converted to underscores in the python access, however it is not supported for a yang leaf to have both hyphens and underscores. **NOTE: regression this is not supported - the voodoo api works, however the nodes in the serialised document retain the underscore.**
 
 
+## Munger:
+
+
+
+
 ## TODO:
 
 - wildcards - if we look for a deep child we get it much higher up at root.leaf5 is actually root.morecomplex.inner.leaf5
 - validation everywhere
+- todo, think about space separate keys they could be tough because we wouldn't be able to do simplistic separations based on space.
 - ~~get list items (we can get a list element without matching keys~~
 - ~~get list items for single key lists fails (args is split on the single string)~~
 - ~~keys() needs to be implemented for lists.~~
@@ -122,7 +128,7 @@ In [11]: print(session.dumps())
      grouping WTF { leaf wtfx {type string;}} will appear even though there is no uses for WTF. Post-processing this
      in Munger is not the answer.~~
 
-- crux_cli appears in the schema - as do ~~extensions we need to hide things.~~
+- ~~crux_cli appears in the schema - ~~ as do ~~extensions we need to hide things.~~
 - ~~\__dir__ on a list should only show create object, list elements should show the keys/children.~~
 - ~~the following list case fails~~
   - ~~a=root.outsidelist.create('a')~~
@@ -139,3 +145,31 @@ In [11]: print(session.dumps())
 - ~~longest_path_match creates fails to catch list-keys~~
 - Multithread access to data very unpredictable
 - think about converting __dict__ to __slot__
+- ~typedef's are rednered in the model `type-a` these won't get crux path~
+- leafref not implemented
+- when not implemented
+- choice not supported  - it doesn't render very well `<FIRSTOPTION cruxpath="/FIRSTOPTION" cruxtype="leaf" cruxleaftype="string"/>` and `<SECONDOPTION cruxpath="/SECONDOPTION" cruxtype="leaf" cruxleaftype="string"/>` must one must disable the other.
+- unions not well supported - it doesn't render very well `<leaf4 cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>`
+
+## CLI Alchemy
+
+Use `logsink.py` to see debugging.
+
+- Move logic for finding our place in the path outside of the completion function.
+- Need to implement some kind of list to support picking up older `_completer_obj as we back space. Right now we just bleach _completer_obj
+- ~~backspace now resets the complete_obj to None which makes some of~~
+- `Produced when we type  show bronze silver silver g` try/except as a lazy workaround
+- ~~Pasting in `set bronze bronze silver gold bronze silver platinum` results in a traceback.~~
+- Need to recognise list items and expand keys
+- Need to present configuration with a 'show' command in a pretty format.
+- Need to think about save/load
+- Need to confirm exit out of conf mode with unsaved changes.
+- Need to return results for tab complete in a sensible order.
+- Fix `completions_hack = self.current_completion_cmdstring[-2]`
+- Typing `show bronze silver gold platinum` followed by `show bronze` fails (validator claims this is garbage) - probably relates to the above.
+
+### Potentially Old issues
+- ~~using cursor keys/tab completion doesn't change child object - so autocomplete is stale (i.e. ` self.\_complete_obj = child_obj` doesn't trigger~~ *Note: this is fix by not appending a space*
+- ~~`show quad<backspace><backspace>rter` shows stale auto completes.~~
+- ~~`set bronze bronze silver gold bronze silver platinum` gives stale auto completes.~~
+- ~~`show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong. (although now we do get a 'not a valid choice')~~

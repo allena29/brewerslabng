@@ -261,7 +261,7 @@ class CruxVoodooBase:
         self.__dict__['_parent'] = parent
         self.__dict__['_xmldoc'] = xmldoc
         self.__dict__['_schema'] = schema
-        self.__dict__['_type'] = 'wtf'
+        self.__dict__['_type'] = self._voodoo_type
         self.__dict__['_value'] = value
         self.__dict__['_root'] = root
         self.__dict__['_cache'] = cache
@@ -327,17 +327,19 @@ class CruxVoodooBase:
         supported_types = {
             'leaf': None,
             'container': CruxVoodooContainer,
+            'presence-container': CruxVoodooPresenceContainer,
             'list': CruxVoodooList
         }
 
         supported_type_found = None
         yang_type = None
-        for schild in this_schema.getchildren():
-            if schild.tag == 'yin-schema':
-                for ychild in schild.getchildren():
-                    yang_type = ychild.tag
-                    if str(ychild.tag) in supported_types:
-                        supported_type_found = ychild
+        yang_type = this_schema.attrib['cruxtype']
+        # for schild in this_schema.getchildren():
+        #    if schild.tag == 'yin-schema':
+        #        for ychild in schild.getchildren():
+        #            yang_type = ychild.tag
+        #            if str(ychild.tag) in supported_types:
+        #                supported_type_found = ychild
 
         if not yang_type:
             raise BadVoodoo("Unsupported type of node %s" % (yang_type))
@@ -611,15 +613,7 @@ class CruxVoodooListBase(CruxVoodooBase):
     def _get_list_key_names(self, thisschema):
         """Return an ordered list of the key names"""
 
-        keys = []
-        # This is pretty shcoking
-        for x in thisschema.getchildren():
-            if x.tag == 'yin-schema':
-                for y in x.getchildren():
-                    for z in y.getchildren():
-                        if z.tag == 'key' and 'value' in z.attrib:
-                            keys = z.attrib['value'].split(' ')
-
+        keys = thisschema.attrib['cruxkey'].split(' ')
         return keys
 
 
