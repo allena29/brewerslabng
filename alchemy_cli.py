@@ -157,136 +157,153 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.CONF_SESSION = PromptSession()
         self.OUR_SESSION = self.OPER_SESSION
 
+        self.current = []
+        self.current_completion_cmdstring = []
+        self.current_completion_obj = [None, self.effective_root_obj]
+
     def _get_bottom_bar(self):
         return HTML(self.CURRENT_CONTEXT._path)
 
     def get_completions(self, document, complete_event):
         """
-        Note: we always must yield
-        #Completion(), index#
-        #
-        # So far start_position is 0 (non-negative allows us to delete stuff)
+        either YeildCompletion(text, characters to delete)
+        or raise StopITeration
         """
+        if not self.valid:
+            raise StopIteration
 
-        command = document.text
-        if ' ' in command:
-            last_complete_command = command[:command.rfind(' ')]
-            last_portion = command[command.rfind(' ')+1:]
-            return self._handle_completion_for_command_with_path(last_complete_command, last_portion, command)
-        else:
-            return self._handle_completion_for_command(command)
+        if self.valid:
+            for option in self.current_completion_cmdstring[len(self.current)-1]:
+                if option[:len(self.current_portion)] == self.current_portion:
+                    yield Completion(option, -len(self.current_portion))
+                #    self.log.debug('completion called %s (%s)', document.text, self.current_portion)
 
-    def _handle_completion_for_command_with_path(self, last_complete_command, last_portion, command):
-        """
-        With the example 'show sim' typed in.
-
-        last_complete_command = (i.e. command.split(' ')[:-1])
-                                (e.g. show)
-        last_porition =         (i.e. command.split(' ')[-1]
-                                (e.g. sim)
-        command =               full command
-                                (e.g. show sim)
-
-        The flag '_compelte_terminated' is set if there isn't any further input that makes sense. It is set
-        to the length of the command that triggered the decision to say no more input.
-
-        The object '_complete_obj' should relate to the right-most child object to inspect for elements.
-
-        TODO: think about list elements
-        TODO: cache stuff
-        """
-    #    if len(command) < self._complete_terminated:
-    #        self._complete_terminated = -1
-
-        if self.cache.is_path_cached(last_complete_command):
-            for valid_command in self.cache.get_item_from_cache(last_complete_command):
-                yield Completion(valid_command, -len(command))
-        else:
-            # TODO: cache needs to come here.
-            self.log.debug('_hcwp: LCC:%s_LP:%s_C:%s_ (%s/%s) _cc:%s', last_complete_command, last_portion,
-                           command, self._complete_terminated, len(command), self._complete_command)
-            # self.log.debug('Length of command %s = %s', len(command), command)
-            # self.log.debug('Length of last_complete_command %s = %s', len(last_complete_command), last_complete_command)
-            #   yield Completion(' TODO: get children', -(len(command)-len(last_complete_command)))
-            children = self._complete_obj.__dir__()
-            children.sort()
-            for child in children:
-                if child[:len(last_portion)] == last_portion:
-
-                    self.log.debug('... potential child: %s __%s__=__%s__', child, str(child), last_portion)
-                    if str(child) == last_portion:
-                        child_obj = getattr(self._complete_obj, child)
-                        self.log.debug('match here %s', hasattr(child_obj, '_path'))
-                        if not hasattr(child_obj, '_path') and not last_complete_command[:3] == 'set':
-                            self.log.debug('we have matched a child which does not have a _path (i.e. its a leaf')
-                            self._complete_terminated = len(command)
-                            self.log.debug('SET TERMINATED FLAG to length %s', len(command))
-                        else:
-                            self.log.debug('Set child obj to.... %s', child_obj._path)
-                            self._complete_command = last_complete_command
-                            self._complete_obj = child_obj
-                            self._complete_terminated = -1
-
-                    yield Completion(str(child), -(len(command)-len(last_complete_command))+1)
-
-    def _handle_completion_for_command(self, command):
-        self.log.debug('_handle_completion_for_command ... %s', command)
-        self.log.debug('RESETTING FLAGS FOR AUTOCOMPLETE')
-        self._complete_terminated = -1
-        self._complete_obj = self.effective_root_obj
-        for valid_command in [v for hide, v in self.allowed_commands if hide != 1]:
-            command_split = command.split(' ')
-            command_length = len(valid_command)-1
-            our_first_portion = command_split[0]
-            if our_first_portion == valid_command[:len(our_first_portion)]:
-                yield Completion(valid_command, -len(command)-1)
+        raise StopIteration
 
     def validate(self, document):
         """
-        Example:
-            'show simpleleaf '
-              - _complete_terminated is set to 15 (length of command)
-                 (the very first thing this method does is reset complete_termianted to -1
-                 if the new len(command) is < complete_termianted)
+        validation gets called first and blocks before get_completions() is run.
 
-            'show bronze sx'
-             - complete_command = show bronze       (this is set by auto complete code)
-             - this_new_portion (right to left until a space) = 's'
-             - _complete_obj.__dir__() (set by auto complete code)
-             - we iterate around to find valid options and thorugh a 'not valid text-try again'
+        current         - stores a space separated string for the current command getting validated.
+        self.current    - stores the last successfully validated command.
 
-             'show bronze silver gold platinum deep <tab>'
-               - This is broken because we set complete_obj to None as part of the auto complete code.
-
-
-        TODO: need to handle free for text for set commands.
-             b"INFO: 1552436545.953624 DEBUG validate working out if s belongs to child objects ['silver']         "
         """
-        command = document.text
-        self.log.debug('validate %s %s/%s', command, len(command), self._complete_terminated)
-        if len(command) < self._complete_terminated:
-            self._complete_terminated = -1
+        current = self._split_with_quoted_escaped_strings(document.text)
 
-        if self._complete_command + ' ' == command:
-            self.log.debug('!!!RESET complete command as we have used backspace too much')
-            self._complete_obj = None
-            raise ValidationError(message='TODO - this breaks auto complete')
+        if len(current) < len(self.current):
+            self.log.debug('We have used the backspace to remove an element')
 
-        if self._complete_terminated > 0:
-            self._complete_obj = None
-            # TODO THIS IS BROKEN BECAUSE THIS CAN BE DIR'd
-            raise ValidationError(message='Stop typing!', cursor_position=len(command)-1)
+        if not self._build_completion_objects(current):
+            # this will trigger on space after tab completion
+            raise ValidationError(message="Invalid node")
 
-        this_new_portion = command[command.rfind(' ')+1:]
-        self.log.debug('validate working out if %s belongs to child objects %s', this_new_portion, str(self._complete_obj.__dir__()))
+        last_portion = current[-1]
         ok = False
-        for option in self._complete_obj.__dir__():
-            #        self.log.debug('v _%s_ == _%s_', option[:len(this_new_portion)], this_new_portion)
-            if option[:len(this_new_portion)] == this_new_portion:
+        for option in self.current_completion_cmdstring[-1]:
+            if option[:len(last_portion)] == last_portion:
                 ok = True
-                break
+
         if not ok:
-            raise ValidationError(message='not valid text- try again')
+            raise ValidationError(message='This is garbage')
+#        self.log.debug('we are sorting out element %s', current[-1])
+        self.valid = False
+
+        self.log.debug('validation called - %s', str(current))
+        self.log.debug('previous validation called - %s', str(current))
+
+        self.current_portion = current[-1]
+        self.current = current
+        self.valid = True
+
+    def _build_completion_objects(self, current, purge=False):
+        """
+        The aim of this method is to porvide two lists
+            self.current_completion_cmdstring = []
+            self.current_completion_obj = []
+
+        The cmdstring is a quick an easy thing to iterate around of validations.
+        We provide the next element we expect to be required.
+        The cmdstring object should be a CruxNode.
+
+        An example of current_completion_cmdstring :
+            b"INFO: 1552513330.792348 DEBUG BCS  ['delete ', 'exit', 'set ', 'show ']
+            b"INFO: 1552513330.792407 DEBUG BCS  ['TODO_stores', 'bronze', 'container_and_lists', ...]
+            b"INFO: 1552513330.7924302 DEBUG BCS  ['silver']
+            b"INFO: 1552513330.792449 DEBUG BCS  ['gold']
+            b"INFO: 1552513330.792466 DEBUG BCS  ['platinum']
+        An example of current_completion_obj after typing brewer@localhost% show bronze silver gold platinum d:
+            b'INFO: 1552513421.53766 DEBUG BCO  None
+            b'INFO: 1552513421.5376809 DEBUG BCO  VoodooRoot
+            b'INFO: 1552513421.537706 DEBUG BCO  VoodooContainer: /bronze
+            b'INFO: 1552513421.5377321 DEBUG BCO  VoodooContainer: /bronze/silver
+            b'INFO: 1552513421.537754 DEBUG BCO  VoodooContainer: /bronze/silver/gold
+            b'INFO: 1552513421.5377762 DEBUG BCO  VoodooContainer: /bronze/silver/gold/platinum
+
+        There is a tiny amount of caching involved - if we consider a path
+            show bronze silver gold platinum
+        We we only call __dir__() on the crux node and build the list once.
+
+        TODO: on backspace something needs to claer the last entry.
+        """
+
+        if purge:
+            self.current_completion_cmdstring = []
+            self.current_completion_obj = []
+
+        new_completions = []
+
+        # for x in self.current_completion_cmdstring:
+        #    self.log.debug('BCS  %s', str(x))
+        # for x in self.current_completion_obj:
+        #    self.log.debug('BCO  %s', str(repr(x)))
+
+        for index in range(len(current)):
+            if len(self.current_completion_cmdstring) > index:
+                self.log.debug('we already have index %s', index)
+            else:
+                # We don't have what we need to determine completions
+                if index == 0:
+                    """
+                    After this stage we should
+
+                    self.current_completion_obj and self.current_completion_cmdstring lists for
+                    the first index (the command) and the second index the thing that comes next.
+                    """
+                    for valid_command in [v for hide, v in self.allowed_commands if hide != 1]:
+                        new_completions.append(valid_command)
+                    new_completions.sort()
+
+                    self.current_completion_cmdstring.append(new_completions)
+                    self.current_completion_obj = [None, self.effective_root_obj]
+
+                    new_completions = self._get_completions_from_object(self.current_completion_obj[index+1])
+                    self.current_completion_cmdstring.append(new_completions)
+
+                if index > 0:
+                    if current[-1] == '':
+                        previous_text = current[-2]
+
+                        try:
+                            next_obj = getattr(self.current_completion_obj[-1], previous_text)
+                        except Exception as err:
+                            return False
+                        self.current_completion_obj.append(next_obj)
+
+                        new_completions = self._get_completions_from_object(next_obj)
+                        self.current_completion_cmdstring.append(new_completions)
+
+        return True
+
+    def _get_completions_from_object(self, obj):
+        new_completions = []
+        for command in obj.__dir__():
+            new_completions.append(command)
+        new_completions.sort()
+        return new_completions
+
+    def _split_with_quoted_escaped_strings(self, text):
+        """TODO: this isn't actually implemented!"""
+        return text.split(' ')
 
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -350,6 +367,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             self.OUR_PROMPT = self.OPER_OUR_PROMPT
             self.allowed_commands = self.OPER_ALLOWED_COMMANDS
             self.OUR_SESSION = self.OPER_SESSION
+            self._build_completion_objects('', purge=True)
 
     def do(self, command):
         if self.mode == 0:
@@ -365,6 +383,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.OUR_PROMPT = self.CONF_OUR_PROMPT
         self.allowed_commands = self.CONF_ALLOWED_COMMANDS
         self.OUR_SESSION = self.CONF_SESSION
+        self._build_completion_objects('', purge=True)
 
 
 if __name__ == '__main__':
