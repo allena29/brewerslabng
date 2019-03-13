@@ -157,13 +157,19 @@ Use `logsink.py` to see debugging.
 
 - Move logic for finding our place in the path outside of the completion function.
 - Need to implement some kind of list to support picking up older `_completer_obj as we back space. Right now we just bleach _completer_obj
-- backspace now resets the complete_obj to None which makes some of
-- using cursor keys/tab completion doesn't change child object - so autocomplete is stale (i.e. `                         self._complete_obj = child_obj` doesn't trigger
-- `show quad<backspace><backspace>rter` shows stale auto completes.
-- `set bronze bronze silver gold bronze silver platinum` gives stale auto completes.
-- `show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong. (although now we do get a 'not a valid choice')
+- ~~backspace now resets the complete_obj to None which makes some of~~
+- `Produced when we type  show bronze silver silver g` try/except as a lazy workaround
+- ~~Pasting in `set bronze bronze silver gold bronze silver platinum` results in a traceback.~~
 - Need to recognise list items and expand keys
 - Need to present configuration with a 'show' command in a pretty format.
 - Need to think about save/load
 - Need to confirm exit out of conf mode with unsaved changes.
 - Need to return results for tab complete in a sensible order.
+- Fix `completions_hack = self.current_completion_cmdstring[-2]`
+- Typing `show bronze silver gold platinum` followed by `show bronze` fails (validator claims this is garbage) - probably relates to the above.
+
+### Potentially Old issues
+- ~~using cursor keys/tab completion doesn't change child object - so autocomplete is stale (i.e. ` self.\_complete_obj = child_obj` doesn't trigger~~ *Note: this is fix by not appending a space*
+- ~~`show quad<backspace><backspace>rter` shows stale auto completes.~~
+- ~~`set bronze bronze silver gold bronze silver platinum` gives stale auto completes.~~
+- ~~`show bronze silver gold platinum deep` gives us a 'Stop Typing!' but `show bronze silver gold platinum dep dep dep dep deep` does but the middle bit is clearly wrong. (although now we do get a 'not a valid choice')~~

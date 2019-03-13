@@ -148,10 +148,10 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
         self.effective_root = ''        # lost track of this think it is now effectively _complete_obj
         self.effective_root_obj = init_voodoo_object
-        self._complete_terminated = -1
-        self._complete_obj = self.effective_root_obj
-        self._complete_command = ""
-        self.root = init_voodoo_object
+        # self._complete_terminated = -1
+        # self._complete_obj = self.effective_root_obj
+        # self._complete_command = ""
+        # self.root = init_voodoo_object
 
         self.OPER_SESSION = PromptSession()
         self.CONF_SESSION = PromptSession()
@@ -160,6 +160,7 @@ class alchemy_voodoo_wrapper(Validator, Completer):
         self.current = []
         self.current_completion_cmdstring = []
         self.current_completion_obj = [None, self.effective_root_obj]
+        self.valid = False
 
     def _get_bottom_bar(self):
         return HTML(self.CURRENT_CONTEXT._path)
@@ -173,10 +174,20 @@ class alchemy_voodoo_wrapper(Validator, Completer):
             raise StopIteration
 
         if self.valid:
-            for option in self.current_completion_cmdstring[len(self.current)-1]:
-                if option[:len(self.current_portion)] == self.current_portion:
-                    yield Completion(option, -len(self.current_portion))
-                #    self.log.debug('completion called %s (%s)', document.text, self.current_portion)
+            """
+            Lazy - ignoring
+              File "alchemy_cli.py", line 176, in get_completions
+                for option in self.current_completion_cmdstring[len(self.current)-1]:
+
+            Produced when we type  show bronze silver silver g
+            Valid command was: show bronze silver gold
+            """
+            try:
+                for option in self.current_completion_cmdstring[len(self.current)-1]:
+                    if option[:len(self.current_portion)] == self.current_portion:
+                        yield Completion(option, -len(self.current_portion))
+            except:
+                pass
 
         raise StopIteration
 
@@ -192,24 +203,32 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
         if len(current) < len(self.current):
             self.log.debug('We have used the backspace to remove an element')
+            if len(current) > 1:
+                self.current_completion_obj.pop()
+                self.current_completion_cmdstring.pop()
 
         if not self._build_completion_objects(current):
-            # this will trigger on space after tab completion
+            # this will trigger on space after tab completion\            self.valid = False
+            self.valid = False
             raise ValidationError(message="Invalid node")
 
         last_portion = current[-1]
         ok = False
-        for option in self.current_completion_cmdstring[-1]:
+        if len(current) == 1:
+            # on the first command we have the next list of auto completes ready to go.
+            # this might only apply in oper mode
+            completions_hack = self.current_completion_cmdstring[-2]
+        else:
+            completions_hack = self.current_completion_cmdstring[-1]
+        for option in completions_hack:
+            #    self.log.debug('v%s. %s==%s', option[:len(last_portion)] == last_portion, option[:len(last_portion)], last_portion)
             if option[:len(last_portion)] == last_portion:
                 ok = True
 
         if not ok:
             raise ValidationError(message='This is garbage')
-#        self.log.debug('we are sorting out element %s', current[-1])
-        self.valid = False
-
-        self.log.debug('validation called - %s', str(current))
-        self.log.debug('previous validation called - %s', str(current))
+            self.valid = False
+            return
 
         self.current_portion = current[-1]
         self.current = current
@@ -252,14 +271,15 @@ class alchemy_voodoo_wrapper(Validator, Completer):
 
         new_completions = []
 
-        # for x in self.current_completion_cmdstring:
-        #    self.log.debug('BCS  %s', str(x))
-        # for x in self.current_completion_obj:
-        #    self.log.debug('BCO  %s', str(repr(x)))
+        for x in self.current_completion_cmdstring:
+            self.log.debug('BCS  %s', str(x))
+        for x in self.current_completion_obj:
+            self.log.debug('BCO  %s', str(repr(x)))
 
         for index in range(len(current)):
             if len(self.current_completion_cmdstring) > index:
-                self.log.debug('we already have index %s', index)
+                self.log.debug('we have index %s', index)
+                pass
             else:
                 # We don't have what we need to determine completions
                 if index == 0:
