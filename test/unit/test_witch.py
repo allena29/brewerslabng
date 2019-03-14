@@ -19,7 +19,7 @@ class TestVoodoo(unittest.TestCase):
 
         old_root = old_session.get_root()
         old_root.morecomplex.leaf3 = 'sfd'
-
+        old_root.simpleenum = '235'
         root = session.get_root()
         root.simpleleaf = 'abc'
         root.bronze.silver
@@ -42,6 +42,7 @@ class TestVoodoo(unittest.TestCase):
 +     gold:
 +       platinum:
 +         deep down;
+- simpleenum 235;
 + simpleenum 234;
 - morecomplex:
 -   leaf3 sfd:

@@ -46,7 +46,8 @@ class Witch:
                     if cruxtype != 'leaf':
                         yield '  ' + indent + old_values[0].tag + ':'
                     else:
-                        yield '? ' + indent + old_values[0].tag
+                        yield '- ' + indent + old_values[0].tag + ' ' + old_values[0].text + ';'
+                        yield '+ ' + indent + old_values[0].tag + ' ' + values[0].text + ';'
                 elif len(values):
                     # New
                     if cruxtype != 'leaf':
@@ -60,4 +61,5 @@ class Witch:
                     else:
                         yield '- ' + indent + old_values[0].tag + ' ' + old_values[0].text + ':'
         b = time.time()
+        self.log.debug('Processing took %s seconds', str(b-a))
         yield '--- CONFIGURATION END ---'
