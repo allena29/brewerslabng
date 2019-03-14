@@ -2,6 +2,7 @@
 import syslog
 import time
 import logging
+import socket
 
 
 class LogHandler:
@@ -68,8 +69,6 @@ class LogWrap():
         format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
         logging.basicConfig(level=logging.DEBUG, format=format)
         self.log = logging.getLogger(component)
-        self.ENABLED = enable_terminal
-        self.ENABLED_REMOTE = enable_remote
 
         if self.ENABLED_REMOTE:
             self.log_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
