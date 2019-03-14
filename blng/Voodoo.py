@@ -275,6 +275,12 @@ class CruxVoodooBase:
             self.__dict__['_path'] = '/'
             self.__dict__['_thisschema'] = self.__dict__['_schema']
 
+        if self.__dict__['_type'] == 'Container':
+            # raise ValueError('trying to create node explciityl for %s' % (self.__dict__['_path']))
+            if not self._getxmlnode(valuepath):
+                new_node = self._find_longest_match_path(xmldoc, valuepath)
+                new_node.attrib['cruxpath'] = self.__dict__['_path']
+
         self._populate_children()
 
         # This is getting called qiute often (every str() or repr())
@@ -384,6 +390,8 @@ class CruxVoodooBase:
 
             new_node = self._find_longest_match_path(xmldoc, vpath)
             new_node.text = str(value)
+            new_node.attrib['cruxpath'] = this_schema.attrib['cruxpath']
+            new_node.attrib['cruxtype'] = this_schema.attrib['cruxtype']
             keystore_cache.add_entry(vpath, new_node)
 
         elif len(this_value) == 1:
@@ -393,6 +401,8 @@ class CruxVoodooBase:
             log.info('set %s %s <old-value:%s>', vpath, value, this_value[0].text)
             this_value[0].attrib['old_value'] = this_value[0].text
             this_value[0].text = str(value)
+            this_value[0].attrib['cruxpath'] = this_schema.attrib['cruxpath']
+            this_value[0].attrib['cruxtype'] = this_schema.attrib['cruxtype']
 
             keystore_cache.add_entry(vpath, this_value[0])
             return this_value[0]
