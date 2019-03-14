@@ -279,7 +279,7 @@ class Munger:
     def _inversion_recursor(self, xmldoc, newxmldoc):
         for child in xmldoc.getchildren():
             if 'name' in child.attrib:
-                newnode = etree.Element(str(child.attrib['name'].replace(':', '__')))
+                newnode = etree.Element(str(child.attrib['name'].replace(':','__')))
                 yin = etree.Element('yin-schema')
                 yin.append(etree.fromstring(etree.tostring(child)))
                 newnode.append(yin)
@@ -443,8 +443,8 @@ class Munger:
 
     def _lookup_method(self, child):
         if child.tag in ("{urn:ietf:params:xml:ns:yang:yin:1}organization",
-                         "{urn:ietf:params:xml:ns:yang:yin:1}contact",
-                         "{urn:ietf:params:xml:ns:yang:yin:1}revision"):
+"{urn:ietf:params:xml:ns:yang:yin:1}contact",
+"{urn:ietf:params:xml:ns:yang:yin:1}revision"):
             return self.handle_drop_from_newxmldoc
         elif child.tag == "{urn:ietf:params:xml:ns:yang:yin:1}leaf":
             return self.handle_leaf
