@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import libsysrepoPython3 as sr
+import sysrepo as sr
 import sys
 
 

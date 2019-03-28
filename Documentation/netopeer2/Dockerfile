@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM ubuntu:cosmic
 
 RUN \
       apt-get update && apt-get install -y \
@@ -8,7 +8,8 @@ RUN \
       curl \
       gnupg \
       apt-transport-https \
-      python3
+      python3 \
+      python3-pip
 
 RUN \
       apt-get update && apt-get install -y \
@@ -33,13 +34,13 @@ RUN \
       python-setuptools \
       libreadline-dev \
       python-libxml2 \
-      libprotobuf-dev \
-      doxygen-dbg  && \
+      libprotobuf-dev && \
       apt-get install -y libtool libtool-bin libxml2-dev libxslt1-dev libcurl4-openssl-dev xsltproc python-setuptools cmake zlib1g-dev libssl-dev pkg-config libreadline-dev && \ 
-      apt-get install -y bison libboost-thread-dev libboost-thread1.62-dev autoconf automake screen && \
+      apt-get install -y bison libboost-thread-dev libboost-thread1.67-dev autoconf automake screen && \
       apt-get install -y libffi-dev || echo 'livffi-dev does not exist'
 
-
+RUN \ 
+    pip3 install ipython ncclient
 
 # add netconf user
 RUN \
@@ -58,25 +59,26 @@ RUN mkdir /opt/dev
 WORKDIR /opt/dev
 
 # pyang
-RUN \
-      cd /opt/dev && \
-      git clone https://github.com/mbj4668/pyang.git && \
-      cd pyang && \
-      git checkout cca321ef0c6ddf82c77c12aca8301bcfdfd5b7d3 && \
-      python setup.py install
+#RUN \
+#      cd /opt/dev && \
+#      git clone https://github.com/mbj4668/pyang.git && \
+#      cd pyang && \
+#      git checkout cca321ef0c6ddf82c77c12aca8301bcfdfd5b7d3 && \
+#      python setup.py install
 
 # libssh
 RUN \
       cd /opt/dev && \
       git clone https://git.libssh.org/projects/libssh.git libssh && \
       cd libssh && \
-      git checkout afa4021ded6e58da4ee4d01dbf4e503d3711d002 && \
-#      git checkout 983d1189d08436ba818b591d7a0185927758349c && \
+      # git checkout afa4021ded6e58da4ee4d01dbf4e503d3711d002 && \
+      git checkout libssh-0.8.7 && \
       mkdir build && cd build && \
       cmake .. && \
       make -j6 && \
       make install && \
       ldconfig
+
 
 # libyang
 RUN \
@@ -84,6 +86,7 @@ RUN \
       git clone https://github.com/CESNET/libyang.git && \
       cd libyang && \
       git checkout 85d09f3bdf5ea01ea2e01deb384b2b0dde057e3f && \
+      git checkout v0.16-r3 && \
       mkdir build && cd build && \
       cmake .. && \
       make -j6  && \
@@ -123,7 +126,8 @@ RUN \
       cd /opt/dev && \
       git clone https://github.com/sysrepo/sysrepo.git && \
       cd sysrepo && \
-      git checkout 724a62fa830df7fcb2736b1ec41b320abe5064d2 && \
+      # git checkout 724a62fa830df7fcb2736b1ec41b320abe5064d2 && \
+      git checkout v0.7.7 && \
       mkdir build_python3 && \
       cd build_python3 && \
       cmake -DREPOSITORY_LOC=/sysrepo -DGEN_PYTHON_VERSION=3 .. && \
@@ -135,7 +139,8 @@ RUN \
 RUN \
       git clone https://github.com/CESNET/libnetconf2.git && \
       cd libnetconf2 && mkdir build && cd build && \
-      git checkout 54ba1c7a1dbd85f3e700c1629ced8e4b52bac4ec && \
+      # git checkout 54ba1c7a1dbd85f3e700c1629ced8e4b52bac4ec && \
+      git checkout v0.12-r1 && \
       cmake .. && \
       make -j6 && \
       make install && \
@@ -146,7 +151,8 @@ RUN \
       cd /opt/dev && \
       git clone https://github.com/CESNET/Netopeer2.git && \
       cd Netopeer2 && \
-      git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
+      # git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
+      git checkout v0.7-r1 && \
       cd keystored && mkdir build && cd build && \
       cmake .. && \
       make -j6  && \
@@ -157,7 +163,8 @@ RUN \
 RUN \
       cd /opt/dev && \
       cd Netopeer2/server && mkdir build && cd build && \
-      git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
+      #git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
+      git checkout v0.7-r1 && \
       cmake .. && \
       make -j6 && \
       make install && \
@@ -172,14 +179,11 @@ RUN \
     apt-get autoclean && \
     rm -fr /opt/dev
 
-RUN \ 
-    curl https://bootstrap.pypa.io/get-pip.py | python3 && \
-    pip install ptpython prompt-toolkit ncclient
-
 COPY start.sh /
 
 ENV EDITOR vim
 EXPOSE 830
 STOPSIGNAL SIGTERM
+WORKDIR /brewerslabng
 CMD [ "/start.sh" ]
 
