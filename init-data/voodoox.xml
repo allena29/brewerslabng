@@ -1,6 +1,16 @@
 <voodoox xmlns="http://brewerslabng.mellon-collie.net/yang/vododoox">
+  <bronze>
+    <silver>
+      <gold>
+        <platinum>
+          <deep>xxx</deep>
+        </platinum>
+      </gold>
+    </silver>
+  </bronze>
   <morecomplex>
     <leaf2>true</leaf2>
     <leaf4>A</leaf4>
   </morecomplex>
+  <simpleleaf>CASPER-THE</simpleleaf>
 </voodoox>

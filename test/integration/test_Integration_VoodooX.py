@@ -27,3 +27,20 @@ class TestVoodoo(unittest.TestCase):
                                    'thing_that_is_used_for_when', 'thing_to_leafref_against', 'twokeylist',
                                    'whencontainer']
         self.assertEqual(dir(root), expected_result_for_dir)
+
+    def test_get(self):
+
+        session = blng.VoodooX.VoodooX('crux-example.xml')
+        session.connect()
+        root = session.get_root('voodoox', 'http://brewerslabng.mellon-collie.net/yang/vododoox')
+
+        simpleleaf = root.simpleleaf
+        self.assertEqual(simpleleaf, 'CASPER-THE')
+
+        simpleenum = root.simpleenum
+        self.assertEqual(simpleenum, None)
+
+        morecomplex = root.morecomplex
+        self.assertEqual(dir(morecomplex), ['inner', 'leaf2', 'leaf3', 'leaf4', 'nonconfig'])
+
+        self.assertEqual(morecomplex.leaf2, True)

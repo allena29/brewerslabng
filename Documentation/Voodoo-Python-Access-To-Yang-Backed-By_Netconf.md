@@ -28,3 +28,11 @@ print(dir(root))
 
 - Root
   - \__dir__()
+  - \__getattr__() of a primitive *unit tests missing* ~~integration tests missing~~
+  - \__getattr__() of a container *unit tests missing* ~~integration tests missing~~
+  - \__getattr__() of a primitive from a container *unit tests missing* ~~integration tests missing~~
+
+
+# TODO:
+
+- ~~boolean leaf is returned as a string 'true' or 'false' which needs converting only if the type is Boolean~~

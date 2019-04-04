@@ -18,7 +18,8 @@ class VoodooXInternal:
         self.namespace = None
         self.basepath = ''
         self.log = LogWrap()
-        self.schema_cache = CruxVoodooCache(self.log)
+        self.schema_cache = CruxVoodooCache(self.log, 'schema')
+        self.value_cache = CruxVoodooCache(self.log, 'values')
 
         if schema_from_file:
             schema_to_load = etree.parse(schema_from_file).getroot()
@@ -145,12 +146,11 @@ class VoodooXnode:
         self.__dict__['_internal'] = internal
 
         if self.TYPE == 'root':
-            valuepath = '/' + internal.parentnode + ':' + internal.parentnode
+            valuepath = '//' + internal.parentnode + ':' + internal.parentnode
             schemapath = '/vooschema/' + internal.parentnode
             internal.basepath = valuepath
         self.__dict__['_vpath'] = valuepath
         self.__dict__['_spath'] = schemapath
-        self.__dict__['_elements'] = None
 
     def _cosmetic_path_name(self, path):
         internal = self.__dict__['_internal']
@@ -189,7 +189,14 @@ class VoodooXnode:
         internal.log.debug('_getschema: %s <miss:%s>', path.replace('_', '-'), str(this_schema[0]))
         return this_schema[0]
 
+    def _convert_to_correct_python_type(self, value, type):
+        if type == 'boolean':
+            return value == 'true'
+        else:
+            return value
+
     def _getchildren(self, object):
+        "Helper for unit tests so we can mock this out easily"
         return object.getchildren()
 
     def __repr__(self):
@@ -202,7 +209,6 @@ class VoodooXnode:
         internal = self.__dict__['_internal']
         vpath = self.__dict__['_vpath']
         spath = self.__dict__['_spath']
-        print('Get schema path', spath)
         schema = self._getschema(spath)
 
         listing = []
@@ -225,33 +231,57 @@ class VoodooXnode:
         return items
 
     def __getattr__(self, attr):
-        elements = self.__dict__['_elements']
-        vpath = self.__dict__['_vpath']
+        if attr in ('_ipython_canary_method_should_not_exist_', '_repr_mimebundle_'):
+            raise AttributeError('Go Away!')
         internal = self.__dict__['_internal']
+        spath = self.__dict__['_spath']
+        vpath = self.__dict__['_vpath']
 
-        print('getattr-called for', self, attr, vpath)
-        """
-        Very crude logic without a schema
-         1) if we have children we must be some kind of structure (like a list/container)
-         2) if we don't have children we return none
-        """
-        print(etree.tostring(internal.data))
-        if not elements:
-            vpath_to_find = '//' + internal.parentnode + ':' + internal.parentnode + '/' + internal.parentnode+':'+attr
-            print('xpath to find', vpath_to_find)
-            elements = internal.data.xpath(vpath_to_find, namespaces=internal.namespaces)
+        spath = spath + '/' + attr
+        vpath = vpath + '/' + internal.parentnode + ':' + attr
 
-            print(elements)
-        if attr in elements:
-            if len(elements[attr].getchildren()):
-                raise ValueError('todo')
+        this_schema = self._getschema(spath)
+
+        supported_types = {
+            'leaf': None,
+            'container': VoodooXcontainer
+        }
+
+        yang_type = this_schema.attrib['cruxtype']
+
+        if not yang_type:
+            raise BadVoodoo("Unknown type of node %s" % (spath))
+
+        if yang_type not in supported_types:
+            raise BadVoodoo("Unsupported type of node %s/%s" % (spath, yangtype))
+
+        # Deal with primitive nodes
+        if not supported_types[yang_type]:
+            if internal.value_cache.is_path_cached(vpath):
+                item = internal.value_cache.get_item_from_cache(vpath)
+                return self._convert_to_correct_python_type(item.text, this_schema.attrib['cruxleaftype'])
             else:
-                return elements[attr].text
+                results = internal.data.xpath(vpath, namespaces=internal.namespaces)
+                if len(results) == 0:
+                        # This means we did not get the data from the Netconf Get Request
+                    return None
+                elif len(results) == 1:
+                    internal.value_cache.add_entry(vpath, results[0])
+                    return self._convert_to_correct_python_type(results[0].text, this_schema.attrib['cruxleaftype'])
+                else:
+                    raise BadVoodoo('Should only ever get one entry of a yang primitive when doing a xpath search %s' % (vpath))
+
+        return supported_types[yang_type](internal, vpath, spath)
 
 
 class VoodooXroot(VoodooXnode):
 
     TYPE = 'root'
+
+
+class VoodooXcontainer(VoodooXnode):
+
+    TYPE = 'container'
 
 
 class BadVoodoo(Exception):
