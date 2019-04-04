@@ -1,5 +1,6 @@
 from ncclient import manager
 from ncclient.xml_ import *
+from lxml import etree
 import logging
 import sys
 import warnings
@@ -83,7 +84,7 @@ class VoodooXInternal:
 
         # we actually don't need namespaces when reading.
         xml = xml + """<%s xmlns="%s">""" % (path_nodes[0], self.namespace)
-        #xml = xml + """<%s>""" % (path_nodes[0])
+        # xml = xml + """<%s>""" % (path_nodes[0])
         idx = 0
         for path_node in path_nodes[1:]:
             xml = xml + "<%s>" % (path_node)
@@ -150,7 +151,7 @@ class VoodooXnode:
         self.__dict__['_internal'] = internal
         self.__dict__['_vpath'] = valuepath
         self.__dict__['_spath'] = schemapath
-        self.__dict__['_element'] = None
+        self.__dict__['_elements'] = None
 
     def __repr__(self):
         internal = self.__dict__['_internal']
@@ -173,6 +174,30 @@ class VoodooXnode:
 
         return items
 
+    def __getattr__(self, attr):
+        elements = self.__dict__['_elements']
+        vpath = self.__dict__['_vpath']
+        internal = self.__dict__['_internal']
+
+        print('getattr-called for', self, attr, vpath)
+        """
+        Very crude logic without a schema
+         1) if we have children we must be some kind of structure (like a list/container)
+         2) if we don't have children we return none
+        """
+        print(etree.tostring(internal.data))
+        if not elements:
+            vpath_to_find = '//' + internal.parentnode + ':' + internal.parentnode + '/' + internal.parentnode+':'+attr
+            print('xpath to find', vpath_to_find)
+            elements = internal.data.xpath(vpath_to_find, namespaces=internal.namespaces)
+
+            print(elements)
+        if attr in elements:
+            if len(elements[attr].getchildren()):
+                raise ValueError('todo')
+            else:
+                return elements[attr].text
+
 
 class VoodooXroot(VoodooXnode):
 
@@ -189,3 +214,4 @@ if __name__ == '__main__':
     root = session.get_root('voodoox', 'http://brewerslabng.mellon-collie.net/yang/vododoox')
     print(root)
     print(dir(root))
+    print(root.morecomplex)

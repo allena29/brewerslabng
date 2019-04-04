@@ -2,6 +2,120 @@
 <crux-schema>
   <crux-paths/>
   <inverted-schema>
+    <voodoox cruxpath="/voodoox" cruxtype="container">
+      <ghost cruxpath="/voodoox/ghost" cruxtype="leaf" cruxleaftype="string"/>
+      <simpleleaf cruxpath="/voodoox/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
+      <default cruxpath="/voodoox/default" cruxtype="leaf" cruxleaftype="string" cruxdefault="stausquo"/>
+      <whencontainer cruxpath="/voodoox/whencontainer" cruxtype="container" cruxcondition="../default=\\\'statusquo\\\'">
+        <then cruxpath="/voodoox/whencontainer/then" cruxtype="leaf" cruxleaftype="string" cruxdefault="thendefault"/>
+      </whencontainer>
+      <thing-that-is-lit-up-for-C cruxpath="/voodoox/thing-that-is-lit-up-for-C" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'C\\\'"/>
+      <thing-that-is-lit-up-for-B cruxpath="/voodoox/thing-that-is-lit-up-for-B" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'B\\\'"/>
+      <thing-that-is-lit-up-for-A cruxpath="/voodoox/thing-that-is-lit-up-for-A" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'A\\\'"/>
+      <thing-that-is-used-for-when cruxpath="/voodoox/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
+      <thing-to-leafref-against cruxpath="/voodoox/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
+      <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/voodoox/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
+      <quad cruxpath="/voodoox/quad" cruxtype="container">
+        <leafinquad cruxpath="/voodoox/quad/leafinquad" cruxtype="presence-container"/>
+      </quad>
+      <quarter cruxpath="/voodoox/quarter" cruxtype="container">
+        <leafinquarter cruxpath="/voodoox/quarter/leafinquarter" cruxtype="presence-container"/>
+      </quarter>
+      <bronze cruxpath="/voodoox/bronze" cruxtype="container">
+        <silver cruxpath="/voodoox/bronze/silver" cruxtype="container">
+          <gold cruxpath="/voodoox/bronze/silver/gold" cruxtype="container">
+            <platinum cruxpath="/voodoox/bronze/silver/gold/platinum" cruxtype="container">
+              <deep cruxpath="/voodoox/bronze/silver/gold/platinum/deep" cruxtype="leaf" cruxleaftype="string"/>
+            </platinum>
+          </gold>
+        </silver>
+      </bronze>
+      <psychedelia cruxpath="/voodoox/psychedelia" cruxtype="container">
+        <bands cruxpath="/voodoox/psychedelia/bands" cruxtype="list" cruxkey="band">
+          <band cruxpath="/voodoox/psychedelia/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+          <favourite cruxpath="/voodoox/psychedelia/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
+        </bands>
+        <psychedelic-rock cruxpath="/voodoox/psychedelia/psychedelic-rock" cruxtype="container">
+          <bands cruxpath="/voodoox/psychedelia/psychedelic-rock/bands" cruxtype="list" cruxkey="band">
+            <band cruxpath="/voodoox/psychedelia/psychedelic-rock/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+            <favourite cruxpath="/voodoox/psychedelia/psychedelic-rock/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
+          </bands>
+          <noise-pop cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop" cruxtype="container">
+            <bands cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/bands" cruxtype="list" cruxkey="band">
+              <band cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+              <favourite cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
+            </bands>
+            <dream-pop cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/dream-pop" cruxtype="container">
+              <bands cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands" cruxtype="list" cruxkey="band">
+                <band cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+                <favourite cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
+              </bands>
+            </dream-pop>
+            <shoe-gaze cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/shoe-gaze" cruxtype="container">
+              <bands cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands" cruxtype="list" cruxkey="band">
+                <band cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band" cruxtype="leaf" cruxleaftype="string"/>
+                <favourite cruxpath="/voodoox/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
+              </bands>
+            </shoe-gaze>
+          </noise-pop>
+        </psychedelic-rock>
+      </psychedelia>
+      <twokeylist cruxpath="/voodoox/twokeylist" cruxtype="list" cruxkey="primary secondary">
+        <primary cruxpath="/voodoox/twokeylist/primary" cruxtype="leaf" cruxleaftype="boolean"/>
+        <secondary cruxpath="/voodoox/twokeylist/secondary" cruxtype="leaf" cruxleaftype="boolean"/>
+        <tertiary cruxpath="/voodoox/twokeylist/tertiary" cruxtype="leaf" cruxleaftype="boolean"/>
+      </twokeylist>
+      <simplecontainer cruxpath="/voodoox/simplecontainer" cruxtype="presence-container"/>
+      <simpleenum cruxpath="/voodoox/simpleenum" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum="1"/>
+      <patternstr cruxpath="/voodoox/patternstr" cruxtype="leaf" cruxleaftype="string"/>
+      <hyphen-leaf cruxpath="/voodoox/hyphen-leaf" cruxtype="leaf" cruxleaftype="string"/>
+      <outsidelist cruxpath="/voodoox/outsidelist" cruxtype="list" cruxkey="leafo">
+        <leafo cruxpath="/voodoox/outsidelist/leafo" cruxtype="leaf" cruxleaftype="string"/>
+        <insidelist cruxpath="/voodoox/outsidelist/insidelist" cruxtype="list" cruxkey="leafi">
+          <leafi cruxpath="/voodoox/outsidelist/insidelist/leafi" cruxtype="leaf" cruxleaftype="string"/>
+        </insidelist>
+        <otherinsidelist cruxpath="/voodoox/outsidelist/otherinsidelist" cruxtype="list" cruxkey="otherlist1 otherlist2 otherlist3">
+          <otherlist1 cruxpath="/voodoox/outsidelist/otherinsidelist/otherlist1" cruxtype="leaf" cruxleaftype="string"/>
+          <otherlist2 cruxpath="/voodoox/outsidelist/otherinsidelist/otherlist2" cruxtype="leaf" cruxleaftype="string"/>
+          <otherlist3 cruxpath="/voodoox/outsidelist/otherinsidelist/otherlist3" cruxtype="leaf" cruxleaftype="string"/>
+          <otherlist4 cruxpath="/voodoox/outsidelist/otherinsidelist/otherlist4" cruxtype="leaf" cruxleaftype="string"/>
+          <otherlist5 cruxpath="/voodoox/outsidelist/otherinsidelist/otherlist5" cruxtype="leaf" cruxleaftype="string"/>
+          <language cruxpath="/voodoox/outsidelist/otherinsidelist/language" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="french" cruxenum1="german" cruxenum2="dutch" cruxenum3="swedish" cruxenum4="danish" cruxenum5="italian" cruxenum6="spanish" cruxenum="7"/>
+        </otherinsidelist>
+        <other cruxpath="/voodoox/outsidelist/other" cruxtype="leaf" cruxleaftype="string"/>
+      </outsidelist>
+      <container-and-lists cruxpath="/voodoox/container-and-lists" cruxtype="container">
+        <just-a-key cruxpath="/voodoox/container-and-lists/just-a-key" cruxtype="leaf" cruxleaftype="string"/>
+        <multi-key-list cruxpath="/voodoox/container-and-lists/multi-key-list" cruxtype="list" cruxkey="A B">
+          <A cruxpath="/voodoox/container-and-lists/multi-key-list/A" cruxtype="leaf" cruxleaftype="string"/>
+          <B cruxpath="/voodoox/container-and-lists/multi-key-list/B" cruxtype="leaf" cruxleaftype="string"/>
+          <inner cruxpath="/voodoox/container-and-lists/multi-key-list/inner" cruxtype="container">
+            <C cruxpath="/voodoox/container-and-lists/multi-key-list/inner/C" cruxtype="leaf" cruxleaftype="string"/>
+          </inner>
+        </multi-key-list>
+      </container-and-lists>
+      <lista cruxpath="/voodoox/lista" cruxtype="list" cruxkey="firstkey">
+        <firstkey cruxpath="/voodoox/lista/firstkey" cruxtype="leaf" cruxleaftype="string"/>
+      </lista>
+      <simplelist cruxpath="/voodoox/simplelist" cruxtype="list" cruxkey="simplekey">
+        <simplekey cruxpath="/voodoox/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
+        <nonleafkey cruxinfo="A non-leaf key" cruxpath="/voodoox/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
+      </simplelist>
+      <resolver cruxpath="/voodoox/resolver" cruxtype="container">
+        <leaf-a cruxpath="/voodoox/resolver/leaf-a" cruxtype="leaf" cruxleaftype="type-a"/>
+      </resolver>
+      <morecomplex cruxpath="/voodoox/morecomplex" cruxtype="container">
+        <nonconfig cruxinfo="A non-configuration node" cruxpath="/voodoox/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
+        <leaf2 cruxinfo="must be 1 or 0 dont sit on the fence" cruxpath="/voodoox/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
+        <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/voodoox/morecomplex/leaf3" cruxtype="leaf" cruxleaftype="type2"/>
+        <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/voodoox/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="type4"/>
+        <inner cruxpath="/voodoox/morecomplex/inner" cruxtype="presence-container">
+          <leaf5 cruxpath="/voodoox/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
+          <leaf6 cruxpath="/voodoox/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>
+          <leaf7 cruxpath="/voodoox/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
+        </inner>
+      </morecomplex>
+    </voodoox>
     <simpleleaf cruxpath="/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
     <default cruxpath="/default" cruxtype="leaf" cruxleaftype="string" cruxdefault="stausquo"/>
     <whencontainer cruxpath="/whencontainer" cruxtype="container" cruxcondition="../default=\\\'statusquo\\\'">
@@ -105,14 +219,13 @@
       <nonleafkey cruxinfo="A non-leaf key" cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
     </simplelist>
     <resolver cruxpath="/resolver" cruxtype="container">
-      <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
-      <a cruxtype="leaf" cruxleaftype="string"/>
+      <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="type-a"/>
     </resolver>
     <morecomplex cruxpath="/morecomplex" cruxtype="container">
       <nonconfig cruxinfo="A non-configuration node" cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
       <leaf2 cruxinfo="must be 1 or 0 dont sit on the fence" cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
-      <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
-      <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
+      <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/morecomplex/leaf3" cruxtype="leaf" cruxleaftype="type2"/>
+      <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="type4"/>
       <inner cruxpath="/morecomplex/inner" cruxtype="presence-container">
         <leaf5 cruxpath="/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
         <leaf6 cruxpath="/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>

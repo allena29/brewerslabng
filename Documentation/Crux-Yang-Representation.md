@@ -205,3 +205,8 @@ This is an example of `__crux-schema.xml` produced from the compile script.
   </morecomplex>
 </crux-schema>
 ```
+
+
+# TODO:
+
+- the mapping structure for inheritting yang assumes the prefix in the consuming yang modules matches the prefix(or perhaps module name) of the yang model we are trying to import.

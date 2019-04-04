@@ -89,11 +89,12 @@ module: voodoox
      |  +--rw a?        string
      |  +--rw leaf-a?   type-a
      +--rw morecomplex
-        +--ro nonconfig?   string
-        +--rw leaf2?       boolean
-        +--rw leaf3?       type2
-        +--rw leaf4?       type4
-        +--rw inner!
-           +--rw leaf5    string
-           +--rw leaf6?   string
-           +--rw leaf7?   string
+     |  +--ro nonconfig?   string
+     |  +--rw leaf2?       boolean
+     |  +--rw leaf3?       type2
+     |  +--rw leaf4?       type4
+     |  +--rw inner!
+     |     +--rw leaf5    string
+     |     +--rw leaf6?   string
+     |     +--rw leaf7?   string
+     +--rw ghost?                         string

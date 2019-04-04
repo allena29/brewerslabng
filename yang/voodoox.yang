@@ -4,9 +4,9 @@ module voodoox {
   prefix "voodoox";
 
   import crux { prefix crux; }
-  import integrationtest { prefix integration; }
+  import integrationtest { prefix integrationtest; }
   container voodoox {
-    uses integration:itest;
+    uses integrationtest:itest;
 
     leaf ghost { 
       type string;
