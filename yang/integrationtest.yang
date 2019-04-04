@@ -5,124 +5,126 @@ module integrationtest {
 
   import crux { prefix crux; }
 
-  leaf empty {
-    type empty;
-  }
-  leaf simpleleaf {
-    type string;
-  }
+  grouping itest {
 
-  leaf dirty-secret {
-    type string;
-    crux:hide true;
-  }
-
-  leaf default {
-    type string;
-    default "stausquo";
-  }
-
-  container whencontainer {
-    leaf then {
-      type string;
-      default "thendefault";
+    leaf empty {
+      type empty;
     }
-    when "../default='statusquo'";
-  }
 
-  leaf thing-that-is-lit-up-for-C {
-    type string;
-    when "../thing-that-is-used-for-when='C'";
-  }
-
-  leaf thing-that-is-lit-up-for-B {
-    type string;
-    when "../thing-that-is-used-for-when='B'";
-  }
-
-  leaf thing-that-is-lit-up-for-A {
-    type string;
-    when "../thing-that-is-used-for-when='A'";
-  }
-
-  leaf thing-that-is-used-for-when {
-    type enumeration {
-      enum A;
-      enum B;
-      enum C;
-    }
-  }
-
-  leaf thing-to-leafref-against {
-    type string;
-  }
-
-  list list-to-leafref-against {
-    key idle;
-
-    leaf idle {
+    leaf simpleleaf {
       type string;
     }
 
-    leaf wild {
+    leaf dirty-secret {
+      type string;
+      crux:hide true;
+    }
+
+    leaf default {
+      type string;
+      default "stausquo";
+    }
+
+    container whencontainer {
+      leaf then {
+        type string;
+        default "thendefault";
+      }
+      when "../default='statusquo'";
+    }
+
+    leaf thing-that-is-lit-up-for-C {
+      type string;
+      when "../thing-that-is-used-for-when='C'";
+    }
+
+    leaf thing-that-is-lit-up-for-B {
+      type string;
+      when "../thing-that-is-used-for-when='B'";
+    }
+
+    leaf thing-that-is-lit-up-for-A {
+      type string;
+      when "../thing-that-is-used-for-when='A'";
+    }
+
+    leaf thing-that-is-used-for-when {
+      type enumeration {
+        enum A;
+        enum B;
+        enum C;
+      }
+    }
+
+    leaf thing-to-leafref-against {
       type string;
     }
-  }
 
-  leaf thing-that-is-a-list-based-leafref {
-    crux:info "Should be constratined to the leaf ref";
-    description "We won't support crazy expressions, just somewhere to influence the CLI";
-    type leafref {
-      path "../list-to-leafref-against/wild";
+    leaf thing-that-is-leafref {
+      crux:info "Should be constratined to the leaf ref";
+      description "We won't support crazy expressions, just somewhere to influence the CLI";
+      type leafref {
+        path "../thing-to-leafref-against";
+      }
     }
-  }
 
-  leaf thing-that-is-leafref {
-    crux:info "Should be constratined to the leaf ref";
-    description "We won't support crazy expressions, just somewhere to influence the CLI";
-    type leafref {
-      path "../thing-to-leafref-against";
-    }
-  }
+    list list-to-leafref-against {
+     key idle;
 
-  grouping unused-grouping {
-    leaf unused-grouping-leaf {
-      type string;
-    }
-  }
+     leaf idle {
+       type string;
+     }
 
-  container quad {
-    container leafinquad {
-      presence true;
+     leaf wild {
+       type string;
+     }
+   }
+
+   leaf thing-that-is-a-list-based-leafref {
+     crux:info "Should be constratined to the leaf ref";
+     description "We won't support crazy expressions, just somewhere to influence the CLI";
+     type leafref {
+       path "../list-to-leafref-against/wild";
+     }
+   }
+
+   leaf thing-that-is-leafref {
+     crux:info "Should be constratined to the leaf ref";
+     description "We won't support crazy expressions, just somewhere to influence the CLI";
+     type leafref {
+       path "../thing-to-leafref-against";
+     }
+   }
+
+
+    grouping unused-grouping {
+      leaf unused-grouping-leaf {
+        type string;
+      }
     }
-  }
-  container quarter {
-    container leafinquarter {
-      presence true;
+
+    container quad {
+      container leafinquad {
+        presence true;
+      }
     }
-  }
-  container bronze {
-    container silver {
-      container gold {
-        container platinum {
-          leaf deep {
-            type string;
+    container quarter {
+      container leafinquarter {
+        presence true;
+      }
+    }
+    container bronze {
+      container silver {
+        container gold {
+          container platinum {
+            leaf deep {
+              type string;
+            }
           }
         }
       }
     }
-  }
-  container psychedelia {
-    list bands {
-      key band;
-      leaf band {
-        type string;
-      }
-      leaf favourite {
-        type boolean;
-      }
-    }
-    container psychedelic-rock {
+    container psychedelia {
       list bands {
         key band;
         leaf band {
@@ -132,7 +134,7 @@ module integrationtest {
           type boolean;
         }
       }
-      container noise-pop {
+      container psychedelic-rock {
         list bands {
           key band;
           leaf band {
@@ -142,8 +144,7 @@ module integrationtest {
             type boolean;
           }
         }
-
-        container dream-pop {
+        container noise-pop {
           list bands {
             key band;
             leaf band {
@@ -154,295 +155,308 @@ module integrationtest {
             }
           }
 
-        }
-        container shoe-gaze {
-          list bands {
-            key band;
-            leaf band {
-              type string;
+          container dream-pop {
+            list bands {
+              key band;
+              leaf band {
+                type string;
+              }
+              leaf favourite {
+                type boolean;
+              }
             }
-            leaf favourite {
-              type boolean;
+
+          }
+          container shoe-gaze {
+            list bands {
+              key band;
+              leaf band {
+                type string;
+              }
+              leaf favourite {
+                type boolean;
+              }
             }
           }
         }
       }
     }
-  }
 
-  list twokeylist {
-    key "primary secondary";
+    list twokeylist {
+      key "primary secondary";
 
-    leaf primary {
-      type boolean;
-    }
-    leaf secondary {
-      type boolean;
-    }
-    leaf tertiary {
-      type boolean;
-    }
-  }
-
-  container simplecontainer {
-    presence true;
-  }
-
-  leaf simpleenum {
-    type enumeration {
-      enum "A" {
-        value "1";
+      leaf primary {
+        type boolean;
       }
-    }
-  }
-
-  leaf patternstr {
-    type string {
-      pattern ".*Strasse" {
-        error-message "sdfsdf";
+      leaf secondary {
+        type boolean;
       }
-    }
-  }
-
-  leaf hyphen-leaf {
-    type string;
-  }
-
-  list outsidelist {
-    key "leafo";
-
-    leaf leafo {
-      type string;
-    }
-
-    list insidelist {
-      key "leafi";
-
-      leaf leafi {
-        type string;
+      leaf tertiary {
+        type boolean;
       }
     }
 
-    list otherinsidelist {
-      key "otherlist1 otherlist2 otherlist3";
-      leaf otherlist1 {
-        type string;
-      }
+    container simplecontainer {
+      presence true;
+    }
 
-      leaf otherlist2 {
-        type string;
-      }
-
-      leaf otherlist3 {
-        type string;
-      }
-
-      leaf otherlist4 {
-        type string;
-      }
-
-      leaf otherlist5 {
-        type string;
-      }
-
-      leaf language {
-        type enumeration {
-          enum french;
-          enum german;
-          enum dutch;
-          enum swedish;
-          enum danish;
-          enum italian;
-          enum spanish;
+    leaf simpleenum {
+      type enumeration {
+        enum "A" {
+          value "1";
         }
       }
     }
 
-    leaf other {
+    leaf patternstr {
+      type string {
+        pattern ".*Strasse" {
+          error-message "sdfsdf";
+        }
+      }
+    }
+
+    leaf hyphen-leaf {
       type string;
     }
-  }
 
-  container container-and-lists {
-    leaf just-a-key {
-      type string;
-    }
-    list multi-key-list {
-      key "A B";
+    list outsidelist {
+      key "leafo";
 
-      leaf "A" {
+      leaf leafo {
         type string;
       }
-      leaf "B" {
-        type string;
-      }
-      container inner {
-        leaf "C" {
+
+      list insidelist {
+        key "leafi";
+
+        leaf leafi {
           type string;
         }
       }
-    }
-  }
- //pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults integrationtest.yang | grep -v '<!-- # entries: ' | sed -e 's/<!-- # /</' | sed -e 's/<!-- /</' | sed -e 's/\.\. -->/"\/>/' | sed -e 's/: / val="/' | sed -e 's/ -->/"\/>/' | sed -e 's/-->/"\/>/' | xmllint --format - >integrationtest.sample.2.xml
- // this looked attractive as an option - however we already have a better option by inversion recursion
-  grouping secondlist {
-    list listb {
-      key "secondkey thirdkey";
-      leaf secondkey {
-        type string;
-      }
-      leaf thirdkey {
-        type string;
-      }
-      leaf nonkey {
-        type string;
-      }
-      // note the next two lines are invisible!
-      choice MAKEYOURMINDUP {
-        case OPTION1 {
-          leaf FIRSTOPTION {
-              type string;
-              crux:info "choice";
+
+      list otherinsidelist {
+        key "otherlist1 otherlist2 otherlist3";
+        leaf otherlist1 {
+          type string;
+        }
+
+        leaf otherlist2 {
+          type string;
+        }
+
+        leaf otherlist3 {
+          type string;
+        }
+
+        leaf otherlist4 {
+          type string;
+        }
+
+        leaf otherlist5 {
+          type string;
+        }
+
+        leaf language {
+          type enumeration {
+            enum french;
+            enum german;
+            enum dutch;
+            enum swedish;
+            enum danish;
+            enum italian;
+            enum spanish;
           }
         }
-        case OPTION2 {
-          leaf SECONDOPTION {
+      }
+
+      leaf other {
+        type string;
+      }
+    }
+
+    container container-and-lists {
+      leaf just-a-key {
+        type string;
+      }
+      list multi-key-list {
+        key "A B";
+
+        leaf "A" {
+          type string;
+        }
+        leaf "B" {
+          type string;
+        }
+        container inner {
+          leaf "C" {
             type string;
           }
         }
       }
-      container things {
-        leaf thing {
+    }
+   //pyang -f sample-xml-skeleton --sample-xml-skeleton-annotations --sample-xml-skeleton-defaults integrationtest.yang | grep -v '<!-- # entries: ' | sed -e 's/<!-- # /</' | sed -e 's/<!-- /</' | sed -e 's/\.\. -->/"\/>/' | sed -e 's/: / val="/' | sed -e 's/ -->/"\/>/' | sed -e 's/-->/"\/>/' | xmllint --format - >integrationtest.sample.2.xml
+   // this looked attractive as an option - however we already have a better option by inversion recursion
+    grouping secondlist {
+      list listb {
+        key "secondkey thirdkey";
+        leaf secondkey {
           type string;
         }
-        leaf musthave {
+        leaf thirdkey {
+          type string;
+        }
+        leaf nonkey {
+          type string;
+        }
+        // note the next two lines are invisible!
+        choice MAKEYOURMINDUP {
+          case OPTION1 {
+            leaf FIRSTOPTION {
+                type string;
+                crux:info "choice";
+            }
+          }
+          case OPTION2 {
+            leaf SECONDOPTION {
+              type string;
+            }
+          }
+        }
+        container things {
+          leaf thing {
+            type string;
+          }
+          leaf musthave {
+            type string;
+            mandatory true;
+          }
+        }
+        container nothings {
+
+        }
+      }
+    }
+
+    list lista {
+      key firstkey;
+      leaf firstkey {
+        type string;
+      }
+      uses secondlist;
+    }
+    list simplelist {
+      key simplekey;
+
+      leaf simplekey {
+        type string;
+      }
+
+      leaf nonleafkey {
+        type uint32;
+        description "ABC";
+        crux:info "A non-leaf key";
+      }
+    }
+
+    typedef type-a {
+      type uint32;
+    }
+
+    grouping group-a {
+      leaf a {
+        type string;
+      }
+    }
+
+    container resolver {
+      uses group-a;
+      leaf leaf-a {
+        type type-a;
+      }
+    }
+
+    container morecomplex {
+      leaf nonconfig {
+        config false;
+        crux:info "A non-configuration node";
+        type string;
+      }
+
+      leaf extraboolean {
+        type boolean;
+      }
+
+      leaf extraboolean2 {
+        type boolean;
+        default false;
+      }
+
+      leaf extraboolean3 {
+        type boolean;
+        default true;
+      }
+
+      leaf leaf2 {
+        crux:info "must be 1 or 0 dont sit on the fence";
+        type boolean;
+      }
+
+      leaf leaf3 {
+        crux:info "Should allow a string starting with brew - but no spaces";
+        type type2;
+      }
+
+      leaf leaf4 {
+        crux:info "Should allow A, B, C or a uint32";
+        type type4;
+      }
+
+      container inner {
+        presence true;
+        leaf leaf5 {
           type string;
           mandatory true;
         }
+
+        leaf leaf6 {
+          type string;
+          mandatory false;
+        }
+
+        leaf leaf7 {
+          type string;
+          default "this-is-a-default";
+        }
       }
-      container nothings {
+    }
 
+    typedef type1 {
+      type string {
+        pattern "brew[a-z]*" {
+          error-message "String must start with brew";
+        }
       }
     }
-  }
 
-  list lista {
-    key firstkey;
-    leaf firstkey {
-      type string;
-    }
-    uses secondlist;
-  }
-  list simplelist {
-    key simplekey;
-
-    leaf simplekey {
-      type string;
-    }
-
-    leaf nonleafkey {
+    typedef type2 {
       type uint32;
-      description "ABC";
-      crux:info "A non-leaf key";
-    }
-  }
-
-  typedef type-a {
-    type uint32;
-  }
-
-  grouping group-a {
-    leaf a {
-      type string;
-    }
-  }
-
-  container resolver {
-    uses group-a;
-    leaf leaf-a {
-      type type-a;
-    }
-  }
-
-  container morecomplex {
-    leaf nonconfig {
-      config false;
-      crux:info "A non-configuration node";
-      type string;
     }
 
-    leaf extraboolean {
-      type boolean;
-    }
-
-    leaf extraboolean2 {
-      type boolean;
-      default false;
-    }
-
-    leaf extraboolean3 {
-      type boolean;
-      default true;
-    }
-    
-    leaf leaf2 {
-      crux:info "must be 1 or 0 dont sit on the fence";
-      type boolean;
-    }
-
-    leaf leaf3 {
-      crux:info "Should allow a string starting with brew - but no spaces";
-      type type2;
-    }
-
-    leaf leaf4 {
-      crux:info "Should allow A, B, C or a uint32";
-      type type4;
-    }
-
-    container inner {
-      presence true;
-      leaf leaf5 {
-        type string;
-        mandatory true;
+    typedef type3 {
+      type enumeration {
+        enum A;
+        enum B;
+        enum C;
       }
+    }
 
-      leaf leaf6 {
-        type string;
-        mandatory false;
-      }
-
-      leaf leaf7 {
-        type string;
-        default "this-is-a-default";
+    typedef type4 {
+      type union {
+        type type3;
+        type type2;
       }
     }
   }
-
-  typedef type1 {
-    type string {
-      pattern "brew[a-z]*" {
-        error-message "String must start with brew";
-      }
-    }
-  }
-
-  typedef type2 {
-    type uint32;
-  }
-
-  typedef type3 {
-    type enumeration {
-      enum A;
-      enum B;
-      enum C;
-    }
-  }
-
-  typedef type4 {
-    type union {
-      type type3;
-      type type2;
-    }
-  }
+  uses itest;
 }

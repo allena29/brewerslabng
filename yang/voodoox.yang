@@ -1,0 +1,15 @@
+module voodoox {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/vododoox";
+  prefix "voodoox";
+
+  import crux { prefix crux; }
+  import integrationtest { prefix integration; }
+  container voodoox {
+    uses integration:itest;
+
+    leaf ghost { 
+      type string;
+    }
+  }
+}
