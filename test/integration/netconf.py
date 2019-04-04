@@ -10,7 +10,7 @@ logger = logging.getLogger('ncclient')
 logger.setLevel('WARNING')
 
 with manager.connect(host='localhost', port=830, username='netconf', password='netconf',
-                     hostkey_verify=False, allow_agent=False, unknown_host_cb=lambda x:True,
+                     hostkey_verify=False, allow_agent=False, unknown_host_cb=lambda x: True,
                      look_for_keys=False) as m:
 
     print('Capabilities')

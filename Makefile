@@ -16,5 +16,8 @@ crux-recompile:
 unittest:
 	test/run-unit.sh
 
+integration:
+	test/run-integration.sh
+
 lint:
 	test/run-lint.sh
