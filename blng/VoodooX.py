@@ -6,39 +6,33 @@ import sys
 import warnings
 import re
 warnings.simplefilter("ignore", DeprecationWarning)
-
-
-class LogWrap():
-
-    ENABLED = True
-    ENABLED_INFO = True
-    ENABLED_DEBUG = True
-
-    def __init__(self):
-        format = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
-        logging.basicConfig(level=logging.INFO, format=format)
-        self.log = logging.getLogger('voodoox')
-
-    def info(self, *args):
-        if self.ENABLED and self.ENABLED_INFO:
-            self.log.info(args)
-
-    def error(self, *args):
-        if self.ENABLED:
-            self.log.error(args)
-
-    def debug(self, *args):
-        if self.ENABLED and self.ENABLED_DEBUG:
-            self.log.debug(args)
+from Voodoo import BadVoodoo, CruxVoodooCache, LogWrap
 
 
 class VoodooXInternal:
 
-    def __init__(self):
+    def __init__(self, schema_from_file=None, schema_from_string=None):
         self.netconf = None
         self.data = None
-
+        self.schema = None
+        self.namespace = None
+        self.basepath = ''
         self.log = LogWrap()
+        self.schema_cache = CruxVoodooCache(self.log)
+
+        if schema_from_file:
+            schema_to_load = etree.parse(schema_from_file).getroot()
+        elif schema_from_string:
+            schema_to_load = etree.fromstring(schema_from_string)
+
+        for child in schema_to_load.getchildren():
+            if child.tag == 'inverted-schema':
+                self.schema = etree.Element('vooschema')
+                for grandchild in child.getchildren():
+                    self.schema.append(grandchild)
+
+        if self.schema is None:
+            raise BadVoodoo("Unable to find the schema")
 
     def _convert_path_to_xml_filter(self, path):
         """
@@ -140,26 +134,82 @@ class VoodooX(VoodooXInternal):
         self.parentnode = node
         self.data = self._netconf_get('/')
 
-        return VoodooXroot(self, '/', '/')
+        return VoodooXroot(self)
 
 
 class VoodooXnode:
 
     TYPE = 'node'
 
-    def __init__(self, internal, valuepath, schemapath):
+    def __init__(self, internal, valuepath='', schemapath=''):
         self.__dict__['_internal'] = internal
+
+        if self.TYPE == 'root':
+            valuepath = '/' + internal.parentnode + ':' + internal.parentnode
+            schemapath = '/vooschema/' + internal.parentnode
+            internal.basepath = valuepath
         self.__dict__['_vpath'] = valuepath
         self.__dict__['_spath'] = schemapath
         self.__dict__['_elements'] = None
 
+    def _cosmetic_path_name(self, path):
+        internal = self.__dict__['_internal']
+        return path[len(internal.basepath):]
+
+    def _getschema(self, path):
+        """
+        Get information from the schema, returning from the cache if we have previously accessed
+        it.
+
+        This will include leaves and yang elements including the addition 'yin-schema' element.
+        """
+        internal = self.__dict__['_internal']
+
+        if internal.schema_cache.is_path_cached(path):
+            this_schema = internal.schema_cache.get_item_from_cache(path)
+            internal.log.debug('_getschema: %s <hit|%s>', path, str(this_schema))
+            return this_schema
+
+        this_schema = internal.schema.xpath(path)
+        if not len(this_schema) and path.count('_'):
+            this_schema = internal.schema.xpath(path.replace('_', '-'))
+            if len(this_schema) == 0:
+                raise BadVoodoo("Unable to find '%s' in the schema" % (path[10:]))
+            internal.schema_cache.add_entry(path, this_schema[0])
+            internal.log.debug('_getschema: %s <miss:%s> <underscore_to_hyphen>', path.replace('_', '-'), str(this_schema[0]))
+            return this_schema[0]
+        if not len(this_schema):
+            internal.log.debug('_getschema: %s <miss:not-present>', path)
+            raise BadVoodoo("Unable to find '%s' in the schema" % (path[10:]))
+        elif len(this_schema) > 1:
+            internal.log.error('_getschema: %s <miss:too-many-hits> except schema to always give 1 or 0 results.', path)
+            raise BadVoodoo("Too many hits for '%s' in the schema" % (path[10:]))
+
+        internal.schema_cache.add_entry(path, this_schema[0])
+        internal.log.debug('_getschema: %s <miss:%s>', path.replace('_', '-'), str(this_schema[0]))
+        return this_schema[0]
+
+    def _getchildren(self, object):
+        return object.getchildren()
+
     def __repr__(self):
         internal = self.__dict__['_internal']
         vpath = self.__dict__['_vpath']
-        return 'VoodooX' + self.TYPE + '{' + internal.namespace + '}' + vpath
+        namespace = internal.namespace
+        return 'VoodooX' + self.TYPE + '{' + namespace + '}' + self._cosmetic_path_name(vpath)
 
     def __dir__(self):
         internal = self.__dict__['_internal']
+        vpath = self.__dict__['_vpath']
+        spath = self.__dict__['_spath']
+        print('Get schema path', spath)
+        schema = self._getschema(spath)
+
+        listing = []
+        for dchild in self._getchildren(schema):
+            listing.append(dchild.tag.replace('-', '_'))
+        return listing
+
         items = []
         """
         Each tagged XML node here will be namespace prefixes.
@@ -204,9 +254,15 @@ class VoodooXroot(VoodooXnode):
     TYPE = 'root'
 
 
+class BadVoodoo(Exception):
+
+    def __init__(self, message):
+        super().__init__(message)
+
+
 if __name__ == '__main__':
 
-    session = VoodooX()
+    session = VoodooX('crux-example.xml')
     session.connect()
     print(session)
     # root = session.get_root('morecomplex', 'http://brewerslabng.mellon-collie.net/yang/integrationtest')
