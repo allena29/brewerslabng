@@ -21,7 +21,7 @@ echo "Image $image" &>/dev/stderr
 
 pwd=`pwd`
 echo "Running in local dir $pwd" >/dev/stderr
-container=`docker run -i -d -p 830:830 -v $pwd:/brewerslabng:rw $image`
+container=`docker run -i -d -v $pwd:/brewerslabng:rw $image`
 
 echo "Container $container" >/dev/stderr
 

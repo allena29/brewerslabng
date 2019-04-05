@@ -1,6 +1,7 @@
 <morecomplex xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <leaf3>12345</leaf3>
   <inner>
-    <leaf5>fsf</leaf5>
+    <leaf5>Inside</leaf5>
   </inner>
+  <leaf2>true</leaf2>
 </morecomplex>
-
