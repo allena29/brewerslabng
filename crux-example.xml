@@ -12,6 +12,11 @@
     <thing-that-is-lit-up-for-A cruxpath="/thing-that-is-lit-up-for-A" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'A\\\'"/>
     <thing-that-is-used-for-when cruxpath="/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
     <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
+    <list-to-leafref-against cruxpath="/list-to-leafref-against" cruxtype="list" cruxkey="idle">
+      <idle cruxpath="/list-to-leafref-against/idle" cruxtype="leaf" cruxleaftype="string"/>
+      <wild cruxpath="/list-to-leafref-against/wild" cruxtype="leaf" cruxleaftype="string"/>
+    </list-to-leafref-against>
+    <thing-that-is-a-list-based-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-a-list-based-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../list-to-leafref-against/wild"/>
     <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
     <quad cruxpath="/quad" cruxtype="container">
       <leafinquad cruxpath="/quad/leafinquad" cruxtype="presence-container"/>

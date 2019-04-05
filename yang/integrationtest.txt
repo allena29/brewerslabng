@@ -1,15 +1,19 @@
 module: integrationtest
-  +--rw simpleleaf?                    string
-  +--rw dirty-secret?                  string
-  +--rw default?                       string
+  +--rw simpleleaf?                           string
+  +--rw dirty-secret?                         string
+  +--rw default?                              string
   +--rw whencontainer
   |  +--rw then?   string
-  +--rw thing-that-is-lit-up-for-C?    string
-  +--rw thing-that-is-lit-up-for-B?    string
-  +--rw thing-that-is-lit-up-for-A?    string
-  +--rw thing-that-is-used-for-when?   enumeration
-  +--rw thing-to-leafref-against?      string
-  +--rw thing-that-is-leafref?         -> ../thing-to-leafref-against
+  +--rw thing-that-is-lit-up-for-C?           string
+  +--rw thing-that-is-lit-up-for-B?           string
+  +--rw thing-that-is-lit-up-for-A?           string
+  +--rw thing-that-is-used-for-when?          enumeration
+  +--rw thing-to-leafref-against?             string
+  +--rw list-to-leafref-against* [idle]
+  |  +--rw idle    string
+  |  +--rw wild?   string
+  +--rw thing-that-is-a-list-based-leafref?   -> ../list-to-leafref-against/wild
+  +--rw thing-that-is-leafref?                -> ../thing-to-leafref-against
   +--rw quad
   |  +--rw leafinquad!
   +--rw quarter
@@ -44,9 +48,9 @@ module: integrationtest
   |  +--rw secondary    boolean
   |  +--rw tertiary?    boolean
   +--rw simplecontainer!
-  +--rw simpleenum?                    enumeration
-  +--rw patternstr?                    string
-  +--rw hyphen-leaf?                   string
+  +--rw simpleenum?                           enumeration
+  +--rw patternstr?                           string
+  +--rw hyphen-leaf?                          string
   +--rw outsidelist* [leafo]
   |  +--rw leafo              string
   |  +--rw insidelist* [leafi]

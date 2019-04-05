@@ -55,6 +55,26 @@ module integrationtest {
     type string;
   }
 
+  list list-to-leafref-against {
+    key idle;
+
+    leaf idle {
+      type string;
+    }
+
+    leaf wild {
+      type string;
+    }
+  }
+
+  leaf thing-that-is-a-list-based-leafref {
+    crux:info "Should be constratined to the leaf ref";
+    description "We won't support crazy expressions, just somewhere to influence the CLI";
+    type leafref {
+      path "../list-to-leafref-against/wild";
+    }
+  }
+
   leaf thing-that-is-leafref {
     crux:info "Should be constratined to the leaf ref";
     description "We won't support crazy expressions, just somewhere to influence the CLI";
@@ -62,6 +82,7 @@ module integrationtest {
       path "../thing-to-leafref-against";
     }
   }
+
   grouping unused-grouping {
     leaf unused-grouping-leaf {
       type string;
