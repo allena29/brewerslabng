@@ -69,6 +69,56 @@ sysrepocfg --import=../init-data/integrationtest.xml --format=xml --datastore=ru
 **NOTE:** sysrepo does not automatically copying running configuration into startup configuration.
 
 
+## Getting Data
+
+An alternative branch is considering trying to provide a python-object navigation, but at the moment it is required to navigate get xpath nodes explicitly. Sysrepo by default will return `<sysrepo.Val; proxy of <Swig Object of type 'sysrepo::S_Val *' at 0x7fc985bb23f0> >` - however our own `DataAccess` object will convert this to python primitives.
+
+```python
+session = datalayer.DataAccess()
+session.connect()
+value = session.get('/integrationtest:simpleleaf')
+```
+
+
+## Setting Data
+
+Unfortunately setting data requires types, as a covenience the default happens to be a string.
+
+**NOTE:** the commit method from python does not persist running configuration into startup configuration (see - https://github.com/sysrepo/sysrepo/issues/966). It may be we have to sort ourselves out with regards to copying running to startup from time to time.
+
+- SR_UINT32_T 20
+- SR_CONTAINER_PRESENCE_T 4
+- SR_INT64_T 16
+- SR_BITS_T 7
+- SR_IDENTITYREF_T 11
+- SR_UINT8_T 18
+- SR_LEAF_EMPTY_T 5
+- SR_DECIMAL64_T 9
+- SR_INSTANCEID_T 12
+- SR_TREE_ITERATOR_T 1
+- SR_CONTAINER_T 3
+- SR_UINT64_T 21
+- SR_INT32_T 15
+- SR_ENUM_T 10
+- SR_UNKNOWN_T 0
+- SR_STRING_T 17
+- SR_ANYXML_T 22
+- SR_INT8_T 13
+- SR_LIST_T 2
+- SR_INT16_T 14
+- SR_BOOL_T 8
+- SR_ANYDATA_T 23
+- SR_UINT16_T 19
+- SR_BINARY_T 6
+
+
+```python
+import sysrepo as sr
+session = datalayer.DataAccess()
+session.connect()
+value = session.set('/integrationtest:simpleleaf', 'BOO!', sr.SR_STRING_T)
+```
+
 
 # Reference:
 

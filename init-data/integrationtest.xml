@@ -5,3 +5,34 @@
   </inner>
   <leaf2>true</leaf2>
 </morecomplex>
+<simpleenum xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">A</simpleenum>
+<twokeylist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <primary>true</primary>
+  <secondary>true</secondary>
+  <tertiary>true</tertiary>
+</twokeylist>
+<twokeylist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <primary>true</primary>
+  <secondary>false</secondary>
+  <tertiary>true</tertiary>
+</twokeylist>
+<twokeylist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <primary>false</primary>
+  <secondary>true</secondary>
+  <tertiary>true</tertiary>
+</twokeylist>
+<twokeylist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <primary>false</primary>
+  <secondary>false</secondary>
+  <tertiary>false</tertiary>
+</twokeylist>
+<thing-that-is-leafref xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">GHI</thing-that-is-leafref>
+<thing-to-leafref-against xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">GHI</thing-to-leafref-against>
+<list-to-leafref-against xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <idle>i</idle>
+  <wild>I</wild>
+</list-to-leafref-against>
+<list-to-leafref-against xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <idle>w</idle>
+  <wild>W</wild>
+</list-to-leafref-against>

@@ -9,10 +9,17 @@ import time
 
 class DataAccess:
 
-    def connect(self):
-        self.conn = sr.Connection("%s" % (time.time()))
+    def connect(self, tag='client'):
+        self.conn = sr.Connection("%s%s" % (tag, time.time()))
         self.session = sr.Session(self.conn)
         #self.subscribe = sr.Subscribe(self.session)
+
+    def commit(self):
+        self.session.commit()
+
+    def set(self, xpath, value, valtype=sr.SR_STRING_T):
+        v = sr.Val(value, valtype)
+        self.session.set_item(xpath, v)
 
     def get(self, xpath):
         sysrepo_item = self.session.get_item(xpath)
