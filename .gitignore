@@ -1,3 +1,4 @@
+*.deb
 ncs
 *.pyc
 *.yin
