@@ -1,4 +1,5 @@
 module: integrationtest
+  +--rw empty?                                empty
   +--rw simpleleaf?                           string
   +--rw dirty-secret?                         string
   +--rw default?                              string

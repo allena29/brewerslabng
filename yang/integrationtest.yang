@@ -5,7 +5,9 @@ module integrationtest {
 
   import crux { prefix crux; }
 
-
+  leaf empty {
+    type empty;
+  }
   leaf simpleleaf {
     type string;
   }
