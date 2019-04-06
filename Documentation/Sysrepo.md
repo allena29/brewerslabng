@@ -116,7 +116,21 @@ Unfortunately setting data requires types, as a covenience the default happens t
 import sysrepo as sr
 session = datalayer.DataAccess()
 session.connect()
-value = session.set('/integrationtest:simpleleaf', 'BOO!', sr.SR_STRING_T)
+
+
+session.set("/integrationtest:simpleleaf", "BOO!", sr.SR_STRING_T)
+
+value = session.get("/integrationtest:simpleleaf", "BOO!")
+print(value)
+
+session.create("/integrationtest:simplelist[simplekey='abc123']")
+
+for item in session.gets("/integrationtest:simplelist"):
+  print(item)
+  value = session.get(item + "/simplekey")
+  print(value)
+
+session.commit()
 ```
 
 

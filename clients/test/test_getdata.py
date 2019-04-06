@@ -157,6 +157,24 @@ class test_getdata(unittest.TestCase):
         xpath = "/integrationtest:morecomplex/leaf3"
         self.subject.set(xpath, 123, sr.SR_UINT32_T)
 
+    def test_other_types(self):
+        xpath = "/integrationtest:morecomplex/leaf2"
+        value = self.subject.get(xpath)
+        self.assertTrue(value)
+
+        xpath = "/integrationtest:morecomplex/leaf2"
+        self.subject.set(xpath, False, sr.SR_BOOL_T)
+
+        value = self.subject.get(xpath)
+        self.assertFalse(value)
+
+        # this leaf is a union of two different typedef's
+        xpath = "/integrationtest:morecomplex/leaf4"
+        self.subject.set(xpath, 'A', sr.SR_ENUM_T)
+
+        xpath = "/integrationtest:morecomplex/leaf4"
+        self.subject.set(xpath, 23499, sr.SR_UINT32_T)
+
     def test_lists(self):
         """
         We can choose to create list entries or allow them to be created by setting something deeper.
@@ -182,7 +200,7 @@ class test_getdata(unittest.TestCase):
         self.subject.set(xpath,  None, sr.SR_LIST_T)
 
         xpath = "/integrationtest:container-and-lists/multi-key-list[A='aa'][B='bb']/inner/C"  # [B='b']"
-        self.subject.set(xpath,  'C', sr.SR_STRING_T)
+        self.subject.set(xpath,  'cc', sr.SR_STRING_T)
 
         xpath = "/integrationtest:container-and-lists/multi-key-list[A='xx'][B='xx']/inner/C"  # [B='b']"
         value = self.subject.get(xpath)
@@ -197,8 +215,27 @@ class test_getdata(unittest.TestCase):
         xpath = "/integrationtest:container-and-lists/multi-key-list"
         items = self.subject.gets(xpath)
         self.assertNotEqual(items, None)
-        self.assertEqual(next(items), "/integrationtest:container-and-lists/multi-key-list[A='a'][B='B']")
-        self.assertEqual(next(items), "/integrationtest:container-and-lists/multi-key-list[A='aa'][B='bb']")
+
+        expected = [
+            ["/integrationtest:container-and-lists/multi-key-list[A='a'][B='B']", 'a', 'B', None],
+            ["/integrationtest:container-and-lists/multi-key-list[A='aa'][B='bb']", 'aa', 'bb', 'cc']
+        ]
+
+        idx = 0
+        for item in items:
+            (expected_xpath, expected_a_val, expected_b_val, expected_c_val) = expected[idx]
+            self.assertEqual(expected_xpath, item)
+
+            item_xpath = item + "/A"
+            self.assertEqual(self.subject.get(item_xpath), expected_a_val)
+
+            item_xpath = item + "/B"
+            self.assertEqual(self.subject.get(item_xpath), expected_b_val)
+
+            item_xpath = item + "/inner/C"
+            self.assertEqual(self.subject.get(item_xpath), expected_c_val)
+
+            idx = idx + 1
         with self.assertRaises(StopIteration) as context:
             next(items)
 
