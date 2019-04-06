@@ -98,6 +98,7 @@ class test_getdata(unittest.TestCase):
 
         with self.assertRaises(RuntimeError) as context:
             self.subject.commit()
+        self.assertEqual(str(context.exception), 'Validation of the changes failed')
 
         self.subject = datalayer.DataAccess()
         self.subject.connect()
@@ -110,3 +111,98 @@ class test_getdata(unittest.TestCase):
         valid_value = 'W'
         self.subject.set(xpath, valid_value)
         self.subject.commit()
+
+    def test_non_existing_element(self):
+        with self.assertRaises(RuntimeError) as context:
+            xpath = "/integrationtest:thing-that-never-does-exist-in-yang"
+            self.subject.get(xpath)
+        self.assertEqual(str(context.exception), 'Request contains unknown element')
+
+    def test_containers_and_non_existing_data(self):
+        with self.assertRaises(datalayer.NodeHasNoValue) as context:
+            xpath = "/integrationtest:morecomplex"
+            self.subject.get(xpath)
+        self.assertEqual(str(context.exception), 'The node: container at /integrationtest:morecomplex has no value')
+
+        xpath = "/integrationtest:morecomplex/inner"
+        value = self.subject.get(xpath)
+        self.assertTrue(value)
+
+        xpath = "/integrationtest:simplecontainer"
+        value = self.subject.get(xpath)
+        self.assertEqual(value, None)
+
+        xpath = "/integrationtest:empty"
+        self.subject.set(xpath, None, sr.SR_LEAF_EMPTY_T)
+
+        with self.assertRaises(datalayer.NodeHasNoValue) as context:
+            xpath = "/integrationtest:empty"
+            self.subject.get(xpath)
+        self.assertEqual(str(context.exception), 'The node: empty-leaf at /integrationtest:empty has no value')
+
+    def test_numbers(self):
+        with self.assertRaises(RuntimeError) as context:
+            xpath = "/integrationtest:bronze/silver/gold/platinum/deep"
+            self.subject.set(xpath, 123, sr.SR_UINT16_T)
+        self.assertEqual(str(context.exception), "Invalid argument")
+
+        xpath = "/integrationtest:bronze/silver/gold/platinum/deep"
+        self.subject.set(xpath, "123", sr.SR_STRING_T)
+
+        with self.assertRaises(RuntimeError) as context:
+            xpath = "/integrationtest:morecomplex/leaf3"
+            self.subject.set(xpath, 123, sr.SR_UINT16_T)
+        self.assertEqual(str(context.exception), "Invalid argument")
+
+        xpath = "/integrationtest:morecomplex/leaf3"
+        self.subject.set(xpath, 123, sr.SR_UINT32_T)
+
+    def test_lists(self):
+        """
+        We can choose to create list entries or allow them to be created by setting something deeper.
+        <container-and-lists xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+          <multi-key-list>
+            <A>a</A>
+            <B>B</B>
+          </multi-key-list>
+          <multi-key-list>
+            <A>aa</A>
+            <B>bb</B>
+            <inner>
+              <C>C</C>
+            </inner>
+          </multi-key-list>
+        </container-and-lists>
+        """
+
+        xpath = "/integrationtest:container-and-lists/multi-key-list[A='a'][B='B']"  # [B='b']"
+        self.subject.create(xpath)
+
+        xpath = "/integrationtest:container-and-lists/multi-key-list[A='a'][B='B']"  # [B='b']"
+        self.subject.set(xpath,  None, sr.SR_LIST_T)
+
+        xpath = "/integrationtest:container-and-lists/multi-key-list[A='aa'][B='bb']/inner/C"  # [B='b']"
+        self.subject.set(xpath,  'C', sr.SR_STRING_T)
+
+        xpath = "/integrationtest:container-and-lists/multi-key-list[A='xx'][B='xx']/inner/C"  # [B='b']"
+        value = self.subject.get(xpath)
+        self.assertEqual(value, None)
+
+        # Missing key
+        with self.assertRaises(RuntimeError) as context:
+            xpath = "/integrationtest:twokeylist[primary='true']"
+            self.subject.set(xpath,  None, sr.SR_LIST_T)
+        self.assertEqual(str(context.exception), 'Invalid argument')
+
+        xpath = "/integrationtest:container-and-lists/multi-key-list"
+        items = self.subject.gets(xpath)
+        self.assertNotEqual(items, None)
+        self.assertEqual(next(items), "/integrationtest:container-and-lists/multi-key-list[A='a'][B='B']")
+        self.assertEqual(next(items), "/integrationtest:container-and-lists/multi-key-list[A='aa'][B='bb']")
+        with self.assertRaises(StopIteration) as context:
+            next(items)
+
+        with self.assertRaises(datalayer.NodeNotAList) as context:
+            xpath = "/integrationtest:simpleleaf"
+            items = next(self.subject.gets(xpath))
+        self.assertEqual(str(context.exception), "The path: /integrationtest:simpleleaf is not a list")
