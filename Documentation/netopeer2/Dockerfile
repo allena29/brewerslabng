@@ -58,28 +58,6 @@ RUN \
 RUN mkdir /opt/dev
 WORKDIR /opt/dev
 
-# pyang
-#RUN \
-#      cd /opt/dev && \
-#      git clone https://github.com/mbj4668/pyang.git && \
-#      cd pyang && \
-#      git checkout cca321ef0c6ddf82c77c12aca8301bcfdfd5b7d3 && \
-#      python setup.py install
-
-# libssh
-RUN \
-      cd /opt/dev && \
-      git clone https://git.libssh.org/projects/libssh.git libssh && \
-      cd libssh && \
-      # git checkout afa4021ded6e58da4ee4d01dbf4e503d3711d002 && \
-      git checkout libssh-0.8.7 && \
-      mkdir build && cd build && \
-      cmake .. && \
-      make -j6 && \
-      make install && \
-      ldconfig
-
-
 # libyang
 RUN \
       cd /opt/dev && \
@@ -135,6 +113,48 @@ RUN \
       make install && \
       ldconfig 
 
+RUN \ 
+      pip3 install libyang 
+
+# Optional build a deb
+RUN \ 
+      mkdir ~/sysrepo-python-bundle && \
+      cd / && \
+      tar cvpf /tmp/working.tar /usr/local /sysrepo  /usr/lib/python3/dist-packages/*sysrepo* && \
+      cd ~/sysrepo-python-bundle && \
+      tar xvf /tmp/working.tar && \
+      rm -fr usr/local/games && \
+      rm -fr usr/local/lib/python2.7 && \
+      tar cvpf /tmp/libyang.tar usr/local/lib/python3.6/dist-packages/*libyang* && \
+      rm -fr usr/local/lib/python3.6 && \
+      tar xvf /tmp/libyang.tar && \
+      mkdir ~/sysrepo-python-bundle/DEBIAN && \
+      echo "Package: sysrepo-libyang-python-bundle" >~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "Version: 0.7.7-04" >>~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "Architecture: amd64" >>~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "Depends: libev4,libprotobuf-c1" >>~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "Maintainer: allena29@noreply.user.github.com" >>~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "Description: sysrepo/libyang-python bundle without netconf support for local use." >>~/sysrepo-python-bundle/DEBIAN/control && \
+      echo "#!/bin/sh" >~/sysrepo-python-bundle/DEBIAN/postinst && \
+      echo "ldconfig" >>~/sysrepo-python-bundle/DEBIAN/postinst && \
+      echo "touch /tmp/pkginstall" >>~/sysrepo-python-bundle/DEBIAN/postinst && \
+      chmod 755 ~/sysrepo-python-bundle/DEBIAN/postinst && \
+      dpkg --build ~/sysrepo-python-bundle && \
+      mv /root/sysrepo-python-bundle.deb /sysrepo-python-bundle.0.7.7-04.amd64.deb
+
+# libssh
+RUN \
+      cd /opt/dev && \
+      git clone https://git.libssh.org/projects/libssh.git libssh && \
+      cd libssh && \
+      # git checkout afa4021ded6e58da4ee4d01dbf4e503d3711d002 && \
+      git checkout libssh-0.8.7 && \
+      mkdir build && cd build && \
+      cmake .. && \
+      make -j6 && \
+      make install && \
+      ldconfig
+
 # libnetconf2
 RUN \
       git clone https://github.com/CESNET/libnetconf2.git && \
@@ -172,7 +192,6 @@ RUN \
       cmake -DCMAKE_BUILD_TYPE:String="Debug" .. && \
       make  && \
       make install
-
 
 RUN \
     apt-get clean && \
