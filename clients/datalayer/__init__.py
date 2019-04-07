@@ -23,6 +23,38 @@ class Types:
     EMPTY = sr.SR_LEAF_EMPTY_T
     PRESENCE_CONTAINER = sr.SR_CONTAINER_PRESENCE_T
 
+    LIBYANG_MAPPING = {
+        'string': sr.SR_STRING_T,
+        'enumeration': sr.SR_ENUM_T
+    }
+
+
+class BlackHoleCache:
+
+    def __init__(self):
+        self.items = {}
+
+    def is_path_cached(self, path):
+        if path in self.items:
+            return True
+        return False
+
+    def get_item_from_cache(self, path):
+        return self.items[path]
+
+    def add_entry(self, path, cache_object):
+        """
+        Add an entry into the cache.
+
+        key = an XPATH path (e.g. /simpleleaf)
+        cache_object = Whatever it wants to be.
+        """
+
+        self.items[path] = cache_object
+
+    def empty(self):
+        self.items.clear()
+
 
 class BlackArtNode:
 
@@ -44,6 +76,20 @@ class BlackArtNode:
 
         print('want to get attr', attr)
 
+    def __setattr__(self, attr, val):
+        module = self.__dict__['_module']
+        path = self.__dict__['_path']
+        dal = self.__dict__['_dal']
+        xpath = path + attr
+
+        print(xpath)
+        node_schema = self._get_schema_of_path(xpath)
+
+        print(node_schema.type(), '<<<<libyangtype for ', xpath)
+        type = Types.LIBYANG_MAPPING[str(node_schema.type())]
+
+        return dal.set(xpath, val, type)
+
     def __dir__(self):
         schema = self.__dict__['_schema']
         answer = []
@@ -53,16 +99,29 @@ class BlackArtNode:
         return answer
         return ['todo']
 
+    def _get_schema_of_path(self, xpath):
+        schemacache = self.__dict__['_schemacache']
+        schemactx = self.__dict__['_schemactx']
+
+        if schemacache.is_path_cached(xpath):
+            return schemacache.get_item_from_cache(xpath)
+
+        schema_for_path = next(schemactx.find_path(xpath))
+        schemacache.add_entry(xpath, schema_for_path)
+        return schema_for_path
+
 
 class BlackArtRoot(BlackArtNode):
 
     NODE_TYPE = 'Root'
 
-    def __init__(self, module, data_access_layer, yang_schema, path=''):
+    def __init__(self, module, data_access_layer, yang_schema, yang_ctx, path=''):
         self.__dict__['_module'] = module
         self.__dict__['_path'] = "/" + module + ":" + path
         self.__dict__['_schema'] = yang_schema
+        self.__dict__['_schemactx'] = yang_ctx
         self.__dict__['_dal'] = data_access_layer
+        self.__dict__['_schemacache'] = BlackHoleCache()
 
 
 class DataAccess:
@@ -70,7 +129,7 @@ class DataAccess:
     def get_root(self, module, path=""):
         yang_ctx = libyang.Context('../yang/')
         yang_schema = yang_ctx.load_module(module)
-        return BlackArtRoot(module, self, yang_schema, path)
+        return BlackArtRoot(module, self, yang_schema, yang_ctx, path)
 
     def connect(self, tag='client'):
         self.conn = sr.Connection("%s%s" % (tag, time.time()))
