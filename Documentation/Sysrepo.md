@@ -114,6 +114,9 @@ Unfortunately setting data requires types, as a covenience the default happens t
 
 # XPATH based python access
 
+Note: when fetching data we need to provide to provide at least a top-level module prefix, however it is
+
+
 ```python
 import datalayer
 from datalayer import Types as types
@@ -165,3 +168,11 @@ session.commit()
 # Reference:
 
 - https://github.com/sysrepo/sysrepo/blob/master/swig/python/tests/SysrepoBasicTest.py
+
+
+# TODO:
+
+- enumeration test cases
+- underscore conversion
+- deletes (of non-primitives)
+- choices

@@ -1,10 +1,6 @@
 #!/usr/bin/python3
-import traceback as tb
-
-# import libsysrepoPython3 as sr
 import libyang
 import sysrepo as sr
-import sys
 import time
 
 
@@ -25,7 +21,8 @@ class Types:
 
     LIBYANG_MAPPING = {
         'string': sr.SR_STRING_T,
-        'enumeration': sr.SR_ENUM_T
+        'enumeration': sr.SR_ENUM_T,
+        'boolean': sr.SR_BOOL_T
     }
 
 
@@ -58,11 +55,49 @@ class BlackHoleCache:
 
 class BlackArtNode:
 
+    """
+    Constraints:
+
+    Node based access is provided for a particular yang module, whenever we run 'get_root'
+    we bind to a particular yang module.
+
+    At 10,000ft level this module acts as a facade around the DataAccess methods get(), gets()
+    set() and delete(). We depend heavily on libyang to inspect the schema on each method.
+
+    On calling __getatttr_
+      a) non-Primitives (i.e. Containers and Lists) return another Object
+      b) Primtiives return the value itself.
+
+    Each time we instantiate an object we store
+        - module (the name of the yang module - used when forming the xpath)
+        - path (the fully qualified path, maintaining reference to specific elements of lists)
+                i.e. /integrationtest:s
+
+
+    Internal Notes:
+
+      - module    = the name of the yang module (e.g integrationtest)
+      - path      = an XPATH expression for the path - with prefixes and values pointing to exact instances
+                    of data. This is used for fetching data.... e.g.
+                    integrationtest:outsidelist[leafo='its cold outside']/integrationtest:otherinsidelist
+                          [otherlist1='uno'][otherlist2='due'][otherlist3='tre']/integrationtest:language
+      - spath     = an XPATH expression for the path - with prefixes but no specific instances of data
+                    included. This is used for looking up schema definitions.... e.g.
+                    /integrationtest:outsidelist/integrationtest:otherinsidelist/integrationtest:language
+      - dal       = An instantiated object of DataAccess() - one object used for all access.
+      - schema    = A libyang object of the top-level yang module.
+      - schemactx = A libyang context object
+      - cache     = A cache object to store the schema (assumption here is libyang lookups are expesnive - but
+                    that may not be true. For sysrepo data lookup even if it's expensive we would never choose
+                    to cache that data.
+    """
+
     NODE_TYPE = 'Node'
 
-    def __init__(self, module, data_access_layer, yang_schema, yang_ctx, path='', cache=None):
+    def __init__(self, module, data_access_layer, yang_schema, yang_ctx, path='', spath='', cache=None):
         self.__dict__['_module'] = module
         self.__dict__['_path'] = path
+        self.__dict__['_spath'] = spath
         self.__dict__['_schema'] = yang_schema
         self.__dict__['_schemactx'] = yang_ctx
         self.__dict__['_dal'] = data_access_layer
@@ -103,39 +138,46 @@ class BlackArtNode:
     def __getattr__(self, attr):
         module = self.__dict__['_module']
         path = self.__dict__['_path']
+        spath = self.__dict__['_spath']
         dal = self.__dict__['_dal']
         xpath = self._form_xpath(path, attr)
+        spath = self._form_xpath(spath, attr)
+        module = self.__dict__['_module'] = module
+        schema = self.__dict__['_schema']
+        schemactx = self.__dict__['_schemactx']
+        cache = self.__dict__['_cache']
 
-        node_schema = self._get_schema_of_path(xpath)
+        node_schema = self._get_schema_of_path(spath)
         node_type = node_schema.nodetype()
 
         if node_type == 1:
             # assume this is a container (or a presence container)
-            module = self.__dict__['_module'] = module
-            schema = self.__dict__['_schema']
-            schemactx = self.__dict__['_schemactx']
-            cache = self.__dict__['_cache']
             new_xpath = self._form_xpath(path, attr)
-
+            new_spath = spath
             if node_schema.presence() is None:
-                return BlackArtContainer(module, dal, schema, schemactx, new_xpath, cache)
+                return BlackArtContainer(module, dal, schema, schemactx, new_xpath, new_spath, cache)
             else:
-                return BlackArtPresenceContainer(module, dal, schema, schemactx, new_xpath, cache)
+                return BlackArtPresenceContainer(module, dal, schema, schemactx, new_xpath, new_spath, cache)
         elif node_type == 4:
             # Assume this is always a primitive
-
-            print("GET-Primitive", xpath)
+            new_xpath = self._form_xpath(path, attr)
+            new_spath = self._form_xpath(spath, attr)
             return dal.get(xpath)
+        elif node_type == 16:
+            new_xpath = self._form_xpath(path, attr)
+            new_spath = spath
+            return BlackArtList(module, dal, schema, schemactx, new_xpath, new_spath, cache)
 
-        raise ValueError('Get - not sure what the type is')
+        raise ValueError('Get - not sure what the type is...%s' % (node_type))
 
     def __setattr__(self, attr, val):
-        module = self.__dict__['_module']
         path = self.__dict__['_path']
+        spath = self.__dict__['_spath']
         dal = self.__dict__['_dal']
         xpath = self._form_xpath(path, attr)
+        spath = self._form_xpath(spath, attr)
 
-        node_schema = self._get_schema_of_path(xpath)
+        node_schema = self._get_schema_of_path(spath)
         if val is None:
             print('SET-AUTO-DELETE', xpath)
             dal.delete(xpath)
@@ -148,10 +190,10 @@ class BlackArtNode:
         dal.set(xpath, val, type)
 
     def __dir__(self):
-        schema = self.__dict__['_schema']
         path = self.__dict__['_path']
-        print('DIR of', path)
-        node_schema = self._get_schema_of_path(path)
+        spath = self.__dict__['_spath']
+        print('DIR of', path, spath)
+        node_schema = self._get_schema_of_path(spath)
 
         answer = []
         for child in node_schema.children():
@@ -177,7 +219,104 @@ class BlackArtNode:
         return schema_for_path
 
 
+class BlackArtList(BlackArtNode):
+
+    """
+    Represents a list from a yang module.
+
+    New entries can be created on this object with the create object, each
+    key defined in the yang module should be passed in paying attention to
+    the order of the keys.
+        (e.g.
+        key1 = True
+        key2 = False
+        root.twokeylist.create(key1, key2)
+
+    To obtain a specific instance from the list call the get method, passing
+    each key from the yang module. It is not possible to provide partial keys
+    in a hope to get multiple records.
+
+    Note: values for the list keys should be provided as they would in an
+    XPATH express. i.e. python True > 'true', False > 'false'
+
+    TOOD: interator
+    """
+
+    NODE_TYPE = 'List'
+
+    def create(self, *args):
+        module = self.__dict__['_module']
+        path = self.__dict__['_path']
+        spath = self.__dict__['_spath']
+
+        dal = self.__dict__['_dal']
+        module = self.__dict__['_module'] = module
+        schema = self.__dict__['_schema']
+        schemactx = self.__dict__['_schemactx']
+        cache = self.__dict__['_cache']
+        conditional = self._get_keys(list(args))
+        new_xpath = path + conditional
+        new_spath = spath   # Note: we deliberartely won't use conditionals here
+
+        dal.create(new_xpath)
+        print('CREATING LIST ELEMENT WIHT SPATH for DIR', spath)
+        return BlackArtListElement(module, dal, schema, schemactx, new_xpath,  new_spath, cache)
+
+    def get(self, *args):
+        module = self.__dict__['_module']
+        path = self.__dict__['_path']
+        spath = self.__dict__['_spath']
+
+        dal = self.__dict__['_dal']
+        module = self.__dict__['_module'] = module
+        schema = self.__dict__['_schema']
+        schemactx = self.__dict__['_schemactx']
+        cache = self.__dict__['_cache']
+        conditional = self._get_keys(list(args))
+        new_xpath = path + conditional
+        new_spath = spath   # Note: we deliberartely won't use conditionals here
+        print('CREATING LIST ELEMENT WIHT SPATH for DIR', spath)
+        return BlackArtListElement(module, dal, schema, schemactx, new_xpath,  new_spath, cache)
+
+    def _get_keys(self, *args):
+        path = self.__dict__['_path']
+        spath = self.__dict__['_spath']
+        node_schema = self._get_schema_of_path(spath)
+        keys = list(node_schema.keys())
+
+        if not len(args[0]) == len(keys):
+            raise ListWrongNumberOfKeys(path, len(keys), len(args[0]))
+
+        conditional = ""
+        for i in range(len(keys)):
+            value = self._get_xpath_value_from_python_value(args[0][i], keys[i].type())
+
+            print(i, keys[i].type(), value)
+            conditional = conditional + "[%s='%s']" % (keys[i].name(), value)
+        return conditional
+
+    def _get_xpath_value_from_python_value(self, v, t):
+        if str(t) == 'boolean':
+            return str(v).lower()
+        else:
+            return str(v)
+
+
+class BlackArtListElement(BlackArtNode):
+
+    """
+    Represents a specific instance of a list element from a yang module.
+    The child nodes are accessible from this node.
+    """
+
+    NODE_TYPE = 'ListElement'
+
+
 class BlackArtContainer(BlackArtNode):
+    """
+    Represents a Container from a yang module, with access to the child
+    elements.
+    """
 
     NODE_TYPE = 'Container'
 
@@ -218,8 +357,28 @@ class BlackArtRoot(BlackArtNode):
 
 class DataAccess:
 
-    def get_root(self, module, path=""):
-        yang_ctx = libyang.Context('../yang/')
+    """
+    This module provides two methods to access data, either XPATH based (low-level) or
+    Node based (high-level).
+
+    The backend supported by this module is sysrepo (without netopeer2), however the
+    basic constructs decribed by this class could be ported to other backends.
+
+    Dependencies:
+     - sysrepo 0.7.7 python3  bindings (https://github.com/sysrepo/sysrepo)
+     - libyang 0.16.78 (https://github.com/rjarry/libyang-cffi/)
+    """
+
+    def get_root(self, module, path="", yang_location="../yang/"):
+        """
+        Instantiate Node-based access to the data stored in the backend defined by a yang
+        schema. The data access will be constraint to the YANG module chosen when invoking
+        this method.
+
+        We must have access to the same YANG module loaded within in sysrepo, which can be
+        set by modifying yang_location argument.
+        """
+        yang_ctx = libyang.Context(yang_location)
         yang_schema = yang_ctx.load_module(module)
         return BlackArtRoot(module, self, yang_schema, yang_ctx, path)
 
@@ -238,14 +397,14 @@ class DataAccess:
     def create(self, xpath):
         """
         Create a list item by XPATH including keys
-         e.g. /path/to/list[key1=''][key2=''][key3='']
+         e.g. / path/to/list[key1 = ''][key2 = ''][key3 = '']
         """
         self.set(xpath, None, sr.SR_LIST_T)
 
     def set(self, xpath, value, valtype=sr.SR_STRING_T):
         """
         Set an individual item by XPATH.
-          e.g. /path/to/item
+          e.g. / path/to/item
 
         It is required to provide the value and the type of the field.
         """
@@ -281,8 +440,8 @@ class DataAccess:
         exist becuase we never will get a valObject for it. Likewise boolean's and empties that dont' exist.
 
         This is a wrapped version of a Val Object object
-        http://www.sysrepo.org/static/doc/html/classsysrepo_1_1Data.html
-        http://www.sysrepo.org/static/doc/html/group__cl.html#ga5801ac5c6dcd2186aa169961cf3d8cdc
+        http: // www.sysrepo.org/static/doc/html/classsysrepo_1_1Data.html
+        http: // www.sysrepo.org/static/doc/html/group__cl.html  # ga5801ac5c6dcd2186aa169961cf3d8cdc
 
         These don't map directly to the C API
         SR_UINT32_T 20
@@ -369,3 +528,9 @@ class NodeNotAList(Exception):
 
     def __init__(self, xpath):
         super().__init__("The path: %s is not a list" % (xpath))
+
+
+class ListWrongNumberOfKeys(Exception):
+
+    def __init__(self, xpath, require, given):
+        super().__init__("The path: %s is a list requiring %s keys but was given %s keys" % (xpath, require, given))

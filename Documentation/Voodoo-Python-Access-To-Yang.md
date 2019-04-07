@@ -1,4 +1,9 @@
-# Python Access to Yang
+# Python Access to Yang  (TO DEPRECATE)
+
+see [Latest version of this](Sysrepo.md) which uses libyang/sysrepo together instead of the crux based approach here.
+
+This was good learning for the new approach.
+
 
 See.. [CRUX Format](Crux-Yang-Representation.md)
 

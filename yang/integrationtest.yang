@@ -268,6 +268,32 @@ module integrationtest {
     }
   }
 
+  container numberlist {
+    list integer {
+      key k;
+
+      leaf k {
+        type uint8;
+      }
+    }
+
+    list fraction {
+      key k;
+
+      leaf k {
+        type testchild:temperature;
+      }
+    }
+
+    list percentage {
+      key k;
+      leaf k {
+        type testchild:percent-dot1;
+      }
+    }
+  }
+
+  
   container container-and-lists {
     leaf just-a-key {
       type string;

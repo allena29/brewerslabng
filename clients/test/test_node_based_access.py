@@ -22,8 +22,13 @@ class test_node_based_access(unittest.TestCase):
     def test_root(self):
         self.assertEqual(repr(self.root), 'BlackArtRoot{}')
 
-        expected_children = ['bronze', 'container-and-lists', 'default', 'dirty-secret', 'empty', 'hyphen-leaf', 'imports-in-here', 'list-to-leafref-against', 'lista', 'morecomplex', 'outsidelist', 'patternstr', 'psychedelia', 'quad', 'quarter', 'resolver', 'simplecontainer', 'simpleenum',
-                             'simpleleaf', 'simplelist', 'thing-that-is-a-list-based-leafref', 'thing-that-is-leafref', 'thing-that-is-lit-up-for-A', 'thing-that-is-lit-up-for-B', 'thing-that-is-lit-up-for-C', 'thing-that-is-used-for-when', 'thing-to-leafref-against', 'twokeylist', 'whencontainer']
+        expected_children = ['bronze', 'container-and-lists', 'default', 'dirty-secret', 'empty',
+                             'hyphen-leaf', 'imports-in-here', 'list-to-leafref-against', 'lista', 'morecomplex',
+                             'numberlist', 'outsidelist', 'patternstr', 'psychedelia', 'quad', 'quarter',
+                             'resolver', 'simplecontainer', 'simpleenum', 'simpleleaf', 'simplelist',
+                             'thing-that-is-a-list-based-leafref', 'thing-that-is-leafref',
+                             'thing-that-is-lit-up-for-A', 'thing-that-is-lit-up-for-B', 'thing-that-is-lit-up-for-C',
+                             'thing-that-is-used-for-when', 'thing-to-leafref-against', 'twokeylist', 'whencontainer']
         self.assertEqual(dir(self.root), expected_children)
 
     def test_simplest_leaf(self):
@@ -63,3 +68,42 @@ class test_node_based_access(unittest.TestCase):
 
         simplecontainer.create()
         self.assertTrue(simplecontainer.exists())
+
+    def test_list(self):
+        twolist = self.root.twokeylist
+        self.assertEqual(repr(twolist), "BlackArtList{/integrationtest:twokeylist}")
+        self.assertEqual(twolist._path, '/integrationtest:twokeylist')
+
+        with self.assertRaises(datalayer.ListWrongNumberOfKeys) as context:
+            twolist.get('true')
+        self.assertEqual(str(context.exception), 'The path: /integrationtest:twokeylist is a list requiring 2 keys but was given 1 keys')
+
+        listelement = twolist.get(True, False)
+        expected_children = ['primary', 'secondary', 'tertiary']
+        self.assertEqual(repr(listelement), "BlackArtListElement{/integrationtest:twokeylist[primary='true'][secondary='false']}")
+        self.assertEqual(dir(listelement), expected_children)
+        self.assertEqual(listelement.tertiary, True)
+
+        listelement.tertiary = False
+        self.assertEqual(listelement.tertiary, False)
+
+        listelement = twolist.get(True, True)
+        expected_children = ['primary', 'secondary', 'tertiary']
+        self.assertEqual(repr(listelement), "BlackArtListElement{/integrationtest:twokeylist[primary='true'][secondary='true']}")
+        self.assertEqual(dir(listelement), expected_children)
+        self.assertEqual(listelement.tertiary, True)
+
+    def test_complex(self):
+        outside = self.root.outsidelist.create('its cold outside')
+        italian_numbers = outside.otherinsidelist.create('uno', 'due', 'tre')
+        italian_numbers.language = 'italian'
+
+        expected_children = ['language',  'otherlist1',  'otherlist2',  'otherlist3', 'otherlist4', 'otherlist5']
+        self.assertEqual(repr(
+            italian_numbers), "BlackArtListElement{/integrationtest:outsidelist[leafo='its cold outside']/integrationtest:otherinsidelist[otherlist1='uno'][otherlist2='due'][otherlist3='tre']}")
+        self.assertEqual(dir(italian_numbers), expected_children)
+        self.assertEqual(italian_numbers.language, 'italian')
+        value = self.subject.get(
+            "/integrationtest:outsidelist[leafo='its cold outside']/integrationtest:otherinsidelist[otherlist1='uno'][otherlist2='due'][otherlist3='tre']/language")
+        self.assertEqual(value, "italian")
+        self.subject.commit()
