@@ -7,16 +7,23 @@ import sys
 import time
 
 
-class DataAccess:
+class Types:
 
-    TYPE_UINT32 = sr.SR_UINT32_T
-    TYPE_UINT16 = sr.SR_UINT16_T
-    TYPE_UINT8 = sr.SR_UINT8_T
-    TYPE_INT32 = sr.SR_INT32_T
-    TYPE_INT16 = sr.SR_INT16_T
-    TYPE_INT8 = sr.SR_INT8_T
-    TYPE_STRING = sr.SR_STRING_T
-    TYPE_DECIMAL64 = sr.SR_DECIMAL64_T
+    UINT32 = sr.SR_UINT32_T
+    UINT16 = sr.SR_UINT16_T
+    UINT8 = sr.SR_UINT8_T
+    INT32 = sr.SR_INT32_T
+    INT16 = sr.SR_INT16_T
+    INT8 = sr.SR_INT8_T
+    STRING = sr.SR_STRING_T
+    DECIMAL64 = sr.SR_DECIMAL64_T
+    BOOLEAN = sr.SR_BOOL_T
+    ENUM = sr.SR_ENUM_T
+    EMPTY = sr.SR_LEAF_EMPTY_T
+    PRESENCE_CONTAINER = sr.SR_CONTAINER_PRESENCE_T
+
+
+class DataAccess:
 
     def connect(self, tag='client'):
         self.conn = sr.Connection("%s%s" % (tag, time.time()))

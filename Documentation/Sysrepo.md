@@ -113,12 +113,13 @@ Unfortunately setting data requires types, as a covenience the default happens t
 
 
 ```python
-import sysrepo as sr
+import datalayer
+from datalayer import Types as types
 session = datalayer.DataAccess()
 session.connect()
 
 
-session.set("/integrationtest:simpleleaf", "BOO!", sr.SR_STRING_T)
+session.set("/integrationtest:simpleleaf", "BOO!", types.SR_STRING_T)
 
 value = session.get("/integrationtest:simpleleaf", "BOO!")
 print(value)
