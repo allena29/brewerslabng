@@ -4,6 +4,11 @@ module integrationtest {
   prefix "integrationtest";
 
   import crux { prefix crux; }
+  import testchild { prefix testchild; }
+
+  container imports-in-here {
+    uses testchild:child;
+  }
 
   leaf empty {
     type empty;
@@ -384,7 +389,7 @@ module integrationtest {
       type boolean;
       default true;
     }
-    
+
     leaf leaf2 {
       crux:info "must be 1 or 0 dont sit on the fence";
       type boolean;

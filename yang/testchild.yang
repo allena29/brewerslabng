@@ -1,0 +1,17 @@
+module testchild {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/testchild";
+  prefix "testchild";
+
+
+  grouping child {
+    leaf name {
+      type string;
+      default 'foo';
+    }
+  }
+
+  leaf orphan-from-test-child {
+    type empty;
+  }
+}

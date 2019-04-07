@@ -13,6 +13,7 @@ print(root.simpleleaf)
 
 root.simpleenum = None
 print(root.simpleenum == 'A')
+print(root.morecomplex)
 session.commit()
 
 

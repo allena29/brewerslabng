@@ -60,7 +60,25 @@ class BlackArtNode:
 
     NODE_TYPE = 'Node'
 
+    def __init__(self, module, data_access_layer, yang_schema, yang_ctx, path='', cache=None):
+        self.__dict__['_module'] = module
+        self.__dict__['_path'] = path
+        self.__dict__['_schema'] = yang_schema
+        self.__dict__['_schemactx'] = yang_ctx
+        self.__dict__['_dal'] = data_access_layer
+        self.__dict__['_cache'] = cache
+        if cache is None:
+            self.__dict__['_schemacache'] = BlackHoleCache()
+        else:
+            self.__dict__['_schemacache'] = cache
+
+    def __name__(self):
+        return 'BlackArtNode'
+
     def __repr__(self):
+        return self._base_repr()
+
+    def _base_repr(self):
         module = self.__dict__['_module']
         path = self.__dict__['_path']
         return 'BlackArt%s{%s}' % (self.NODE_TYPE, path)
@@ -69,20 +87,53 @@ class BlackArtNode:
         path = self.__dict__['_path']
         print('wanting to delete item', path)
 
+    def _form_xpath(self, path, attr):
+        """
+        When using the schema xpath lookup we need to use the module prefix
+        across every part of the path.
+
+        Inside the integrationtest which imports from the yang module teschild we still
+        reference those imported elements by the parent module.
+         '/integrationtest:imports-in-here/integrationtest:name'
+        """
+        module = self.__dict__['_module']
+
+        return path + '/' + module + ":" + attr
+
     def __getattr__(self, attr):
         module = self.__dict__['_module']
         path = self.__dict__['_path']
         dal = self.__dict__['_dal']
-        xpath = path + attr
+        xpath = self._form_xpath(path, attr)
 
-        print("GET", xpath)
-        return dal.get(xpath)
+        node_schema = self._get_schema_of_path(xpath)
+        node_type = node_schema.nodetype()
+
+        if node_type == 1:
+            # assume this is a container (or a presence container)
+            module = self.__dict__['_module'] = module
+            schema = self.__dict__['_schema']
+            schemactx = self.__dict__['_schemactx']
+            cache = self.__dict__['_cache']
+            new_xpath = self._form_xpath(path, attr)
+
+            if node_schema.presence() is None:
+                return BlackArtContainer(module, dal, schema, schemactx, new_xpath, cache)
+            else:
+                return BlackArtPresenceContainer(module, dal, schema, schemactx, new_xpath, cache)
+        elif node_type == 4:
+            # Assume this is always a primitive
+
+            print("GET-Primitive", xpath)
+            return dal.get(xpath)
+
+        raise ValueError('Get - not sure what the type is')
 
     def __setattr__(self, attr, val):
         module = self.__dict__['_module']
         path = self.__dict__['_path']
         dal = self.__dict__['_dal']
-        xpath = path + attr
+        xpath = self._form_xpath(path, attr)
 
         node_schema = self._get_schema_of_path(xpath)
         if val is None:
@@ -98,16 +149,25 @@ class BlackArtNode:
 
     def __dir__(self):
         schema = self.__dict__['_schema']
+        path = self.__dict__['_path']
+        print('DIR of', path)
+        node_schema = self._get_schema_of_path(path)
+
         answer = []
-        for child in schema.children():
+        for child in node_schema.children():
             answer.append(child.name())
         answer.sort()
         return answer
         return ['todo']
 
     def _get_schema_of_path(self, xpath):
+
         schemacache = self.__dict__['_schemacache']
         schemactx = self.__dict__['_schemactx']
+
+        if xpath == "":
+            # Root object won't be a valid XPATH
+            return self.__dict__['_schema']
 
         if schemacache.is_path_cached(xpath):
             return schemacache.get_item_from_cache(xpath)
@@ -117,17 +177,43 @@ class BlackArtNode:
         return schema_for_path
 
 
+class BlackArtContainer(BlackArtNode):
+
+    NODE_TYPE = 'Container'
+
+
+class BlackArtPresenceContainer(BlackArtNode):
+
+    """
+    Represents a PresenceContainer from a yang module, with access to the child
+    elements. The exists() method will return True if this container exists
+    (either created implicitly because of children or explicitly).
+    """
+
+    NODE_TYPE = 'PresenceContainer'
+
+    def exists(self):
+        path = self.__dict__['_path']
+        dal = self.__dict__['_dal']
+        return dal.get(path) is True
+
+    def create(self):
+        path = self.__dict__['_path']
+        dal = self.__dict__['_dal']
+        dal.create_container(path)
+
+    def __repr__(self):
+        path = self.__dict__['_path']
+        dal = self.__dict__['_dal']
+        base_repr = self._base_repr()
+        if dal.get(path) is True:
+            return base_repr + " Exists"
+        return base_repr + " Does Not Exist"
+
+
 class BlackArtRoot(BlackArtNode):
 
     NODE_TYPE = 'Root'
-
-    def __init__(self, module, data_access_layer, yang_schema, yang_ctx, path=''):
-        self.__dict__['_module'] = module
-        self.__dict__['_path'] = "/" + module + ":" + path
-        self.__dict__['_schema'] = yang_schema
-        self.__dict__['_schemactx'] = yang_ctx
-        self.__dict__['_dal'] = data_access_layer
-        self.__dict__['_schemacache'] = BlackHoleCache()
 
 
 class DataAccess:
@@ -145,6 +231,9 @@ class DataAccess:
 
     def commit(self):
         self.session.commit()
+
+    def create_container(self, xpath):
+        self.set(xpath, None,  sr.SR_CONTAINER_PRESENCE_T)
 
     def create(self, xpath):
         """

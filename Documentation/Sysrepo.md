@@ -154,6 +154,10 @@ root.simpleleaf = 'abc'
 # Delete of a leaf
 root.simpleleaf = None
 
+# Access a leaf inside a container
+print(root.morecomplex.leaf3)
+
+
 session.commit()
 ```
 
