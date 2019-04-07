@@ -2,6 +2,7 @@
 import traceback as tb
 
 # import libsysrepoPython3 as sr
+import libyang
 import sysrepo as sr
 import sys
 import time
@@ -23,11 +24,58 @@ class Types:
     PRESENCE_CONTAINER = sr.SR_CONTAINER_PRESENCE_T
 
 
+class BlackArtNode:
+
+    NODE_TYPE = 'Node'
+
+    def __repr__(self):
+        module = self.__dict__['_module']
+        path = self.__dict__['_path']
+        return 'BlackArt%s{%s}' % (self.NODE_TYPE, path)
+
+    def __getattr__(self, attr):
+        module = self.__dict__['_module']
+        path = self.__dict__['_path']
+        dal = self.__dict__['_dal']
+        xpath = path + attr
+
+        print(xpath)
+        return dal.get(xpath)
+
+        print('want to get attr', attr)
+
+    def __dir__(self):
+        schema = self.__dict__['_schema']
+        answer = []
+        for child in schema.children():
+            answer.append(child.name())
+        answer.sort()
+        return answer
+        return ['todo']
+
+
+class BlackArtRoot(BlackArtNode):
+
+    NODE_TYPE = 'Root'
+
+    def __init__(self, module, data_access_layer, yang_schema, path=''):
+        self.__dict__['_module'] = module
+        self.__dict__['_path'] = "/" + module + ":" + path
+        self.__dict__['_schema'] = yang_schema
+        self.__dict__['_dal'] = data_access_layer
+
+
 class DataAccess:
+
+    def get_root(self, module, path=""):
+        yang_ctx = libyang.Context('../yang/')
+        yang_schema = yang_ctx.load_module(module)
+        return BlackArtRoot(module, self, yang_schema, path)
 
     def connect(self, tag='client'):
         self.conn = sr.Connection("%s%s" % (tag, time.time()))
         self.session = sr.Session(self.conn)
+
         # self.subscribe = sr.Subscribe(self.session)
 
     def commit(self):

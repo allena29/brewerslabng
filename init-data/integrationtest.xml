@@ -1,3 +1,4 @@
+<simpleleaf xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">duke</simpleleaf>
 <morecomplex xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
   <leaf3>12345</leaf3>
   <inner>
