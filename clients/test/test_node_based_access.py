@@ -26,5 +26,17 @@ class test_node_based_access(unittest.TestCase):
                              'simpleleaf', 'simplelist', 'thing-that-is-a-list-based-leafref', 'thing-that-is-leafref', 'thing-that-is-lit-up-for-A', 'thing-that-is-lit-up-for-B', 'thing-that-is-lit-up-for-C', 'thing-that-is-used-for-when', 'thing-to-leafref-against', 'twokeylist', 'whencontainer']
         self.assertEqual(dir(self.root), expected_children)
 
-    def test_get_simplest_leaf(self):
+    def test_simplest_leaf(self):
         self.assertEqual(self.root.simpleleaf, 'duke')
+
+        self.root.simpleleaf = 'spirit'
+        self.assertEqual(self.root.simpleleaf, 'spirit')
+
+        self.root.simpleleaf = None
+        # TODO: assert here that the leaf is not persisted in the sysrepo data.
+        # (The data access here will give us None if something doesn't exist, but
+        # it would also give us None if we have no lookup stuff)
+        # Ideally we would have the data access into sysrepo completely mocked.
+        self.assertEqual(self.root.simpleleaf, None)
+
+        self.subject.commit()

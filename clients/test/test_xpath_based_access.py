@@ -3,7 +3,7 @@ import os
 import datalayer
 import subprocess
 import sysrepo as sr
-
+from datalayer import Types
 
 process = subprocess.Popen(["bash"],
                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -17,6 +17,16 @@ class test_getdata(unittest.TestCase):
     def setUp(self):
         self.subject = datalayer.DataAccess()
         self.subject.connect()
+
+    def test_delete_and_get(self):
+        self.subject.set('/integrationtest:simpleenum', 'A', Types.ENUM)
+        value = self.subject.get('/integrationtest:simpleenum')
+        self.assertEqual(value, 'A')
+
+        self.subject.delete('/integrationtest:simpleenum')
+
+        value = self.subject.get('/integrationtest:simpleenum')
+        self.assertEqual(value, None)
 
     def test_get_leaf(self):
         xpath = "/integrationtest:morecomplex/inner/leaf5"

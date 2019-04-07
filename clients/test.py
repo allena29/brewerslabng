@@ -9,7 +9,10 @@ print(dir(root))
 print(root.simpleleaf)
 root.simpleleaf = 'abc'
 print(root.simpleleaf)
-root.simpleenum = 'A'
+
+
+root.simpleenum = None
+print(root.simpleenum == 'A')
 session.commit()
 
 

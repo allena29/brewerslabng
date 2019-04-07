@@ -112,6 +112,8 @@ Unfortunately setting data requires types, as a covenience the default happens t
 - SR_BINARY_T 6
 
 
+# XPATH based python access
+
 ```python
 import datalayer
 from datalayer import Types as types
@@ -130,6 +132,27 @@ for item in session.gets("/integrationtest:simplelist"):
   print(item)
   value = session.get(item + "/simplekey")
   print(value)
+
+session.delete("/integrationtest:simpleenum")
+
+session.commit()
+```
+
+# Node based python access
+
+**WORKING IN PROGRESS**
+
+```python
+import datalayer
+
+session = datalayer.DataAccess()
+session.connect()
+root = session.get_root('integrationtest')
+
+root.simpleleaf = 'abc'
+
+# Delete of a leaf
+root.simpleleaf = None
 
 session.commit()
 ```

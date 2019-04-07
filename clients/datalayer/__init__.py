@@ -65,16 +65,18 @@ class BlackArtNode:
         path = self.__dict__['_path']
         return 'BlackArt%s{%s}' % (self.NODE_TYPE, path)
 
+    def __del__(self):
+        path = self.__dict__['_path']
+        print('wanting to delete item', path)
+
     def __getattr__(self, attr):
         module = self.__dict__['_module']
         path = self.__dict__['_path']
         dal = self.__dict__['_dal']
         xpath = path + attr
 
-        print(xpath)
+        print("GET", xpath)
         return dal.get(xpath)
-
-        print('want to get attr', attr)
 
     def __setattr__(self, attr, val):
         module = self.__dict__['_module']
@@ -82,13 +84,17 @@ class BlackArtNode:
         dal = self.__dict__['_dal']
         xpath = path + attr
 
-        print(xpath)
         node_schema = self._get_schema_of_path(xpath)
+        if val is None:
+            print('SET-AUTO-DELETE', xpath)
+            dal.delete(xpath)
+            return
 
+        print("SET", xpath)
         print(node_schema.type(), '<<<<libyangtype for ', xpath)
         type = Types.LIBYANG_MAPPING[str(node_schema.type())]
 
-        return dal.set(xpath, val, type)
+        dal.set(xpath, val, type)
 
     def __dir__(self):
         schema = self.__dict__['_schema']
@@ -173,6 +179,9 @@ class DataAccess:
     def get(self, xpath):
         sysrepo_item = self.session.get_item(xpath)
         return self._get_python_datatype_from_sysrepo_val(sysrepo_item, xpath)
+
+    def delete(self, xpath):
+        self.session.delete_item(xpath)
 
     def _get_python_datatype_from_sysrepo_val(self, valObject, xpath=None):
         """
