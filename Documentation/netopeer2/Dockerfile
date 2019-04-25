@@ -130,10 +130,11 @@ RUN \
       git checkout v0.7.7 && \
       mkdir build_python3 && \
       cd build_python3 && \
-      cmake -DREPOSITORY_LOC=/sysrepo -DGEN_PYTHON_VERSION=3 .. && \
+      #cmake -DREPOSITORY_LOC=/sysrepo -DGEN_PYTHON_VERSION=3 .. && \
+      cmake -DGEN_LUA_BINDINGS=0 -DREPOSITORY_LOC=/sysrepo -DGEN_PYTHON_VERSION=3 .. && \
       make -j6 && \
       make install && \
-      ldconfig 
+      ldconfig
 
 # libnetconf2
 RUN \
@@ -153,6 +154,9 @@ RUN \
       cd Netopeer2 && \
       # git checkout d3ae5423847cbfc67c844ad19288744701bd47a4 && \
       git checkout v0.7-r1 && \
+      # This commit id is 0.7-r1 + a bit more it includes a fix
+      # for the dp_get_items original_xpath
+      git checkout 669bca57d3740b08b17896df824602fe76d24503 && \
       cd keystored && mkdir build && cd build && \
       cmake .. && \
       make -j6  && \
@@ -180,6 +184,9 @@ RUN \
     rm -fr /opt/dev
 
 COPY start.sh /
+
+RUN \ 
+    pip3 install netconf-console 
 
 ENV EDITOR vim
 EXPOSE 830
