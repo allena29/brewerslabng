@@ -1,0 +1,79 @@
+module brewerslab-ingredients {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/ingredients";
+  prefix "brewerslab-ingredients";
+
+  import brewerslab-types {
+    prefix brewerslab-types;
+  }
+
+  grouping ingredients {
+    list hops {
+      key name;
+
+      leaf name {
+        type string;
+      }
+
+      leaf alpha-acid {
+        type brewerslab-types:percent-dot1;
+      }
+
+      leaf usage {
+        description "Hop usage";
+        type enumeration {
+          enum bittering;
+          enum aroma;
+          enum dual-purpose;
+        }
+      }
+    }
+
+    list yeast {
+      key name;
+
+      leaf name {
+        type string;
+      }
+
+      leaf attenuation {
+        type brewerslab-types:percent-dot1;
+      }
+    }
+
+    list fermentables {
+      key name;
+
+      leaf name {
+        type string;
+      }
+
+      leaf adjunct {
+        type boolean;
+        default false;
+      }
+
+      leaf mash-required {
+        type boolean;
+        default true;
+      }
+
+      leaf hwe {
+        description "Hot Water Extract, often referred to as HWE, is an analytical measure derived on a laboratory scale of the quantity of
+        dissolved solids derived from malt or other materials used in the brewhouse. Hot water extract analysis is used to measure the brewing
+         value of different malts or adjuncts and can be used to compare cereal varieties and malting processes. See adjuncts. It is used by
+         brewers to compare malts and maltsters and as a measure to ensure malt delivered to a brewery is within a defined specification.
+         Measurement of hot water extract is obtained by measuring the specific gravity of wort derived from a fixed weight of malt (or other
+         material) that is ground in a specified manner at a fixed temperature for a specific time period. This process broadly mimics the
+         mashing process in a brewery. See mashing. The wort is filtered, the specific gravity measured, and the hot water extract of the
+         sample calculated. - https://beerandbrewing.com/dictionary/gPlMh2qEjm/";
+        type brewerslab-types:percent-dot3;
+      }
+
+      leaf extract {
+        type brewerslab-types:percent-dot3;
+      }
+
+    }
+  }
+}

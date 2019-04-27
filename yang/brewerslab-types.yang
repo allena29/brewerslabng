@@ -31,4 +31,13 @@ module brewerslab-types {
      }
      description "Percentage";
    }
+
+  typedef percent-dot3 {
+    type decimal64 {
+      fraction-digits 3;
+      range "0..384";
+    }
+    description "Percentage with higher precision";
+  }
+
 }

@@ -15,7 +15,17 @@ module brewerslab {
     prefix brewerslab-stores;
   }
 
+
+  import brewerslab-ingredients {
+    prefix brewerslab-ingredients;
+  }
+
   uses brewerslab-teststub:tests;
 
-  
+
+  container definitions {
+    uses  brewerslab-ingredients:ingredients;
+  }
+    
+
 }

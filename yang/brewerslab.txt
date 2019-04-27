@@ -1,7 +1,20 @@
 module: brewerslab
   +--rw tests
-     +--rw temperature
-        +--rw probes* [probeid]
-           +--rw probeid    brewerslab-types:temperature-probe
-           +--rw run?       boolean
-           +--rw value?     brewerslab-types:temperature
+  |  +--rw temperature
+  |     +--rw probes* [probeid]
+  |        +--rw probeid    brewerslab-types:temperature-probe
+  |        +--rw run?       boolean
+  |        +--rw value?     brewerslab-types:temperature
+  +--rw definitions
+     +--rw hops* [name]
+     |  +--rw name          string
+     |  +--rw alpha-acid?   brewerslab-types:percent-dot1
+     |  +--rw usage?        enumeration
+     +--rw yeast* [name]
+     |  +--rw name           string
+     |  +--rw attenuation?   brewerslab-types:percent-dot1
+     +--rw fermentables* [name]
+        +--rw name             string
+        +--rw adjunct?         boolean
+        +--rw mash-required?   boolean
+        +--rw hwe?             brewerslab-types:percent-dot1

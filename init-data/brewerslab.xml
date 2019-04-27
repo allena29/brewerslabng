@@ -1,0 +1,135 @@
+<definitions xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <fermentables>
+    <name>Maris Otter</name>
+    <hwe>315.648</hwe>
+    <extract>82.2</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Honey</name>
+    <hwe>291.84</hwe>
+    <extract>76.0</extract>
+    <mash-required>false</mash-required>
+    <adjunct>true</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Torrified Wheat</name>
+    <hwe>299.52</hwe>
+    <extract>78.0</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>CaraGold</name>
+    <hwe>284.16</hwe>
+    <extract>74.0</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Tipple</name>
+    <hwe>315.648</hwe>
+    <extract>82.2</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Crystal 80</name>
+    <hwe>280.32</hwe>
+    <extract>73.0</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Crystal 150</name>
+    <hwe>290.688</hwe>
+    <extract>75.7</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Belgian Biscuit Malt</name>
+    <hwe>299.136</hwe>
+    <extract>77.9</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Golden Syrup</name>
+    <hwe>384.0</hwe>
+    <extract>100.0</extract>
+    <mash-required>false</mash-required>
+    <adjunct>true</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Maple Syrup</name>
+    <hwe>257.664</hwe>
+    <extract>67.1</extract>
+    <mash-required>false</mash-required>
+    <adjunct>true</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Black Patent Malt</name>
+    <hwe>207.744</hwe>
+    <extract>54.1</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Corriander</name>
+    <hwe>0.0</hwe>
+    <extract>0.0</extract>
+    <mash-required>false</mash-required>
+    <adjunct>true</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Chocolate Malt</name>
+    <hwe>282.624</hwe>
+    <extract>73.6</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Roasted Barley</name>
+    <hwe>207.744</hwe>
+    <extract>54.1</extract>
+    <mash-required>false</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>2-Row Malt</name>
+    <hwe>299.136</hwe>
+    <extract>77.9</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Pilsner Malt</name>
+    <hwe>316.0</hwe>
+    <extract>82.32</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Wheat Malt</name>
+    <hwe>315.0</hwe>
+    <extract>82.059</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Munich Malt</name>
+    <hwe>307.2</hwe>
+    <extract>80.0</extract>
+    <mash-required>true</mash-required>
+    <adjunct>false</adjunct>
+  </fermentables>
+  <fermentables>
+    <name>Flaked Oats</name>
+    <hwe>315.648</hwe>
+    <extract>82.2</extract>
+    <mash-required>true</mash-required>
+    <adjunct>true</adjunct>
+  </fermentables>
+</definitions>

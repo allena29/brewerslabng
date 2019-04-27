@@ -124,6 +124,21 @@
       </temperature>
     </tests>
     <TODO-stores cruxpath="/TODO-stores" cruxtype="container"/>
+    <hops cruxpath="/hops" cruxtype="list" cruxkey="name">
+      <name cruxpath="/hops/name" cruxtype="leaf" cruxleaftype="string"/>
+      <alpha-acid cruxpath="/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+      <usage cruxpath="/hops/usage" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="bittering" cruxenum1="aroma" cruxenum2="dual-purpose" cruxenum="3"/>
+    </hops>
+    <yeast cruxpath="/yeast" cruxtype="list" cruxkey="name">
+      <name cruxpath="/yeast/name" cruxtype="leaf" cruxleaftype="string"/>
+      <attenuation cruxpath="/yeast/attenuation" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+    </yeast>
+    <fermentables cruxpath="/fermentables" cruxtype="list" cruxkey="name">
+      <name cruxpath="/fermentables/name" cruxtype="leaf" cruxleaftype="string"/>
+      <adjunct cruxpath="/fermentables/adjunct" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="false"/>
+      <mash-required cruxpath="/fermentables/mash-required" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="true"/>
+      <hwe cruxpath="/fermentables/hwe" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+    </fermentables>
     <definitions cruxpath="/definitions" cruxtype="container">
       <hops cruxpath="/definitions/hops" cruxtype="list" cruxkey="item">
         <item cruxinfo="The hop" cruxpath="/definitions/hops/item" cruxtype="leaf" cruxleaftype="string"/>
