@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+import IPython
+import yangvoodoo
+import sysrepo as sr
+import libyang
+
+session = yangvoodoo.DataAccess(remote_log=True)
+session.connect()
+root = session.get_root('brewerslab')
+backend = session.session
+yang = root._context.schema
+yangctx = root._context.schemactx
+
+print('Objects Ready to Play with')
+print('--------------------------')
+print('root << node based access')
+print('   ', root)
+print('sesssion << xpath based access (this is dal on root._context)')
+print('   ', session)
+print('backend << sysrepo session (this is what session wraps up for us)')
+print('   ', backend)
+print('yang    << libyang instance')
+print('yangctx << libyang context instance')
+print('   ', yangctx)
+IPython.embed(display_banner=False)
