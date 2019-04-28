@@ -14,74 +14,50 @@ module brewerslab-recipes {
 
 
   grouping recipes {
-    container recipes {
-      list recipes {
-        key "name version";
+    list recipes {
+      key "name version";
 
-        leaf name {
-          type string;
-        }
+      leaf name {
+        type string;
+      }
 
-        leaf version {
-          type string;
-        }
+      leaf id {
+        type string;
+      }
 
-        leaf author {
-          type string;
-        }
+      leaf summary {
+        type string;
+      }
 
-        leaf process {
-          type string;
-        }
+      leaf description {
+        type string;
+      }
 
-        container ingredients {
+      leaf version {
+        type string;
+      }
 
-          list fermentables {
-            key "name addat";
+      leaf author {
+        type string;
+      }
 
-            leaf name {
-              type leafref {
-                path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:fermentables/brewerslab-definitions:name";
-              }
-            }
+      leaf process {
+        type string;
+      }
 
-            leaf addat {
-              type brewerslab-types:fermentable-add-at;
-            }
+      container ingredients {
 
-            leaf qty {
-              type brewerslab-types:qty;
-              mandatory true;
-            }
-          }
-
-          list hops {
-            key "name addat";
-
-            leaf name {
-              type leafref {
-                path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:hops/brewerslab-definitions:name";
-              }
-            }
-
-            leaf addat {
-              type brewerslab-types:hop-add-at;
-            }
-
-            leaf qty {
-              type brewerslab-types:qty;
-              mandatory true;
-            }
-          }
-        }
-
-        list yeast {
-          key "name";
+        list fermentables {
+          key "name addat";
 
           leaf name {
             type leafref {
-              path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:yeast/brewerslab-definitions:name";
+              path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:fermentables/brewerslab-definitions:name";
             }
+          }
+
+          leaf addat {
+            type brewerslab-types:fermentable-add-at;
           }
 
           leaf qty {
@@ -90,7 +66,41 @@ module brewerslab-recipes {
           }
         }
 
+        list hops {
+          key "name addat";
+
+          leaf name {
+            type leafref {
+              path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:hops/brewerslab-definitions:name";
+            }
+          }
+
+          leaf addat {
+            type brewerslab-types:hop-add-at;
+          }
+
+          leaf qty {
+            type brewerslab-types:qty;
+            mandatory true;
+          }
+        }
       }
+
+      list yeast {
+        key "name";
+
+        leaf name {
+          type leafref {
+            path "/brewerslab-definitions:definitions/brewerslab-definitions:ingredients/brewerslab-definitions:yeast/brewerslab-definitions:name";
+          }
+        }
+
+        leaf qty {
+          type brewerslab-types:qty;
+          mandatory true;
+        }
+      }
+
     }
   }
   uses recipes;

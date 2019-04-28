@@ -1,0 +1,1044 @@
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Green</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5067.84</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>342.702</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>207.698</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Pure Green Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4871.15</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>321.496</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>730.672</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>389.692</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Nelson</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Tipple</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>NZdualHop</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6250.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Dark Green Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>680.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>333.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Yellow Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>230.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>3725.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>The Gold Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>3400.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>200.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Steam Ale</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4274.07</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 150</name>
+      <addat>mash</addat>
+      <qty>498.175</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>160.78</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>364.435</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>A Pair Of Pairs</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>3000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Belgian Biscuit Malt</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Golden Syrup</name>
+      <addat>start of boil</addat>
+      <qty>100.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Yellow Goose 2</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>336.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>256.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Citra13</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Green13</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>167.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>PacificGem</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>167.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Simcoe</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5750.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Mild</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>3000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>150.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maple Syrup</name>
+      <addat>start of boil</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Black Patent Malt</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Pure Gold Goose 2</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Orange River Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Corriander</name>
+      <addat>mash</addat>
+      <qty>10.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Simcoe The Brave</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Mild2</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>150.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maple Syrup</name>
+      <addat>start of boil</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Black Patent Malt</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Malt</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Mosaic</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Stout</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4750.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Black Patent Malt</name>
+      <addat>mash</addat>
+      <qty>100.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <addat>mash</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Malt</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Roasted Barley</name>
+      <addat>mash</addat>
+      <qty>340.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Nelson15</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>2-Row Malt</name>
+      <addat>mash</addat>
+      <qty>0.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Citra15</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>SuperGoose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Topaz</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Brown Ale</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>333.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <addat>mash</addat>
+      <qty>200.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Roasted Barley</name>
+      <addat>mash</addat>
+      <qty>100.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Malt</name>
+      <addat>mash</addat>
+      <qty>100.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>zzzz</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>4500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>100.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Pacific Rakau</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>100.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Saison</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Pilsner Malt</name>
+      <addat>mash</addat>
+      <qty>2000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Wheat Malt</name>
+      <addat>mash</addat>
+      <qty>1000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>2000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Mosaic2016</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Nelson16</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>170.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Wheat</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Wheat Malt</name>
+      <addat>mash</addat>
+      <qty>2500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Munich Malt</name>
+      <addat>mash</addat>
+      <qty>1500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>MongrelCrossbredPony</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Citra16</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>350.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>White Goose</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>5550.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Motueka</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>7000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <addat>mash</addat>
+      <qty>500.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>ScottishFiction</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6250.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>350.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>dbg</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>350.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Citra17</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Rudi</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <addat>start of boil</addat>
+      <qty>340.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>VicSecret</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Citra18</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Flaked Oats</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Nelson18</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6500.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>
+<recipes xmlns="http://brewerslabng.mellon-collie.net/yang/main">
+  <name>Galaxy</name>
+  <version>v1</version>
+  <ingredients>
+    <fermentables>
+      <name>Maris Otter</name>
+      <addat>mash</addat>
+      <qty>6000.0</qty>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <addat>mash</addat>
+      <qty>300.0</qty>
+    </fermentables>
+  </ingredients>
+</recipes>

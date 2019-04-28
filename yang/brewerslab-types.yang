@@ -25,7 +25,7 @@ module brewerslab-types {
 
   typedef qty {
     type decimal64 {
-      fraction-digits 2;
+      fraction-digits 3;
       range "0..100000";
     }
     description "Quantity";
