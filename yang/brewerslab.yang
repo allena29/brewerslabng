@@ -6,26 +6,18 @@ module brewerslab {
   import brewerslab-types {
     prefix brewerslab-types;
   }
-
+  import brewerslab-definitions {
+    prefix brewerslab-definitions;
+  }
+  import brewerslab-recipes {
+    prefix brewerslab-recipes;
+  }
   import brewerslab-teststub {
     prefix brewerslab-teststub;
   }
 
-  import brewerslab-stores {
-    prefix brewerslab-stores;
-  }
+  /* uses brewerslab-teststub:tests; */
 
-
-  import brewerslab-ingredients {
-    prefix brewerslab-ingredients;
-  }
-
-  uses brewerslab-teststub:tests;
-
-
-  container definitions {
-    uses  brewerslab-ingredients:ingredients;
-  }
-    
+  uses brewerslab-recipes:recipes;
 
 }

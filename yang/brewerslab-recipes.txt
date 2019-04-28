@@ -1,4 +1,4 @@
-module: brewerslab
+module: brewerslab-recipes
   +--rw recipes
      +--rw recipes* [name version]
         +--rw name           string

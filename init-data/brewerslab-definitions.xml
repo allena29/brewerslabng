@@ -1,0 +1,885 @@
+<definitions xmlns="http://brewerslabng.mellon-collie.net/yang/definitions">
+  <ingredients>
+    <fermentables>
+      <name>sdf</name>
+    </fermentables>
+    <fermentables>
+      <name>2-Row Malt</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>6-Row Malt</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Acid Malt</name>
+      <hwe>224.256</hwe>
+      <extract>58.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Amber Malt</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Belgian Aromatic</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Belgian Biscuit Malt</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Belgian Pilsner 2-Row</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Belgian Wheat</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Black Barley</name>
+      <hwe>207.744</hwe>
+      <extract>54.1</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Black Patent Malt</name>
+      <hwe>207.744</hwe>
+      <extract>54.1</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Briess Pale Ale Malt</name>
+      <hwe>0.0</hwe>
+      <extract>0.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Brown Malt</name>
+      <hwe>265.728</hwe>
+      <extract>69.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Brumalt</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraAroma</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Carafa I</name>
+      <hwe>265.728</hwe>
+      <extract>69.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Carafa II</name>
+      <hwe>265.728</hwe>
+      <extract>69.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Carafa III</name>
+      <hwe>265.728</hwe>
+      <extract>69.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraGold</name>
+      <hwe>284.16</hwe>
+      <extract>74.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Caramalt</name>
+      <hwe>288.0</hwe>
+      <extract>75.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Caramel Wheat Malt</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraMunich</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraPils</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraRed</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Carastan 15</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Carastan 35</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>CaraVienna</name>
+      <hwe>282.624</hwe>
+      <extract>73.6</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Malt</name>
+      <hwe>282.624</hwe>
+      <extract>73.6</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Rye Malt</name>
+      <hwe>257.664</hwe>
+      <extract>67.1</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Chocolate Wheat Malt</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Corriander</name>
+      <hwe>0.0</hwe>
+      <extract>0.0</extract>
+      <mash-required>true</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 10</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 120</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 150</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 20</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 30</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 40</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 60</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 80</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Crystal 90</name>
+      <hwe>280.32</hwe>
+      <extract>73.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Dark Wheat</name>
+      <hwe>324.096</hwe>
+      <extract>84.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Dextrine Malt</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>English Mild</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Flaked Oats</name>
+      <hwe>315.648</hwe>
+      <extract>82.2</extract>
+      <mash-required>true</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Gambrinus Honey Malt</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>German Pilsner 2-Row</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>German Wheat</name>
+      <hwe>324.096</hwe>
+      <extract>84.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Golden Syrup</name>
+      <hwe>384.0</hwe>
+      <extract>100.0</extract>
+      <mash-required>true</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Honey</name>
+      <hwe>291.84</hwe>
+      <extract>76.0</extract>
+      <mash-required>true</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Lager Malt</name>
+      <hwe>315.648</hwe>
+      <extract>82.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Malted Oats</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Maple Syrup</name>
+      <hwe>257.664</hwe>
+      <extract>67.1</extract>
+      <mash-required>true</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Maris Otter</name>
+      <hwe>315.648</hwe>
+      <extract>82.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Melanoidin Malt</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Munich 10</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Munich 20</name>
+      <hwe>290.688</hwe>
+      <extract>75.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Munich Malt</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Peated Malt</name>
+      <hwe>282.624</hwe>
+      <extract>73.6</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Pilsner Malt</name>
+      <hwe>316.0</hwe>
+      <extract>82.32</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Roasted Barley</name>
+      <hwe>207.744</hwe>
+      <extract>54.1</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Smoked Malt</name>
+      <hwe>307.2</hwe>
+      <extract>80.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Special B</name>
+      <hwe>249.216</hwe>
+      <extract>64.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Special Roast</name>
+      <hwe>274.176</hwe>
+      <extract>71.4</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Tipple</name>
+      <hwe>315.648</hwe>
+      <extract>82.2</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Toasted Malt</name>
+      <hwe>241.152</hwe>
+      <extract>62.8</extract>
+      <mash-required>false</mash-required>
+      <adjunct>false</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Torrified Wheat</name>
+      <hwe>299.52</hwe>
+      <extract>78.0</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>UK Pilsner 2-Row</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Victory Malt</name>
+      <hwe>282.624</hwe>
+      <extract>73.6</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Vienna Malt</name>
+      <hwe>299.136</hwe>
+      <extract>77.9</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>Wheat Malt</name>
+      <hwe>315.0</hwe>
+      <extract>82.059</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <fermentables>
+      <name>White Wheat</name>
+      <hwe>332.928</hwe>
+      <extract>86.7</extract>
+      <mash-required>false</mash-required>
+      <adjunct>true</adjunct>
+    </fermentables>
+    <hops>
+      <name>Amarillo</name>
+      <alpha-acid>9.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Aquila</name>
+      <alpha-acid>7.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Banner</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Bramling Cross</name>
+      <alpha-acid>6.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Bravo</name>
+      <alpha-acid>17.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Brewers Gold</name>
+      <alpha-acid>9.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Bullion</name>
+      <alpha-acid>7.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Cascade</name>
+      <alpha-acid>6.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Centennial</name>
+      <alpha-acid>10.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Challenger</name>
+      <alpha-acid>8.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Chinook</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Citra</name>
+      <alpha-acid>14.8</alpha-acid>
+    </hops>
+    <hops>
+      <name>Cluster</name>
+      <alpha-acid>6.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Columbus</name>
+      <alpha-acid>15.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Comet</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Crystal</name>
+      <alpha-acid>3.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Domesic Hallertau</name>
+      <alpha-acid>3.9</alpha-acid>
+    </hops>
+    <hops>
+      <name>Dr Rudi</name>
+      <alpha-acid>13.3</alpha-acid>
+    </hops>
+    <hops>
+      <name>East Kent Goldings</name>
+      <alpha-acid>5.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Eroica</name>
+      <alpha-acid>12.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>First Gold</name>
+      <alpha-acid>7.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Fuggles</name>
+      <alpha-acid>4.8</alpha-acid>
+    </hops>
+    <hops>
+      <name>Galaxy</name>
+      <alpha-acid>14.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Galena</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Glacier</name>
+      <alpha-acid>5.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Goldings</name>
+      <alpha-acid>5.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Green Bullet</name>
+      <alpha-acid>12.6</alpha-acid>
+    </hops>
+    <hops>
+      <name>Hallertau Hersbrucker</name>
+      <alpha-acid>2.3</alpha-acid>
+    </hops>
+    <hops>
+      <name>Hallertau Mittelfruh</name>
+      <alpha-acid>3.8</alpha-acid>
+    </hops>
+    <hops>
+      <name>Herald</name>
+      <alpha-acid>12.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Hersbrucker</name>
+      <alpha-acid>4.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Horizon</name>
+      <alpha-acid>12.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Hull Melon</name>
+      <alpha-acid>5.9</alpha-acid>
+    </hops>
+    <hops>
+      <name>Huller Bitterer</name>
+      <alpha-acid>5.8</alpha-acid>
+    </hops>
+    <hops>
+      <name>Kent Goldings</name>
+      <alpha-acid>5.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Liberty</name>
+      <alpha-acid>4.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Lublin</name>
+      <alpha-acid>4.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Magnum</name>
+      <alpha-acid>14.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Millenium</name>
+      <alpha-acid>15.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Mosaic</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Motueka</name>
+      <alpha-acid>7.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Mount Hood</name>
+      <alpha-acid>5.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Nelson Sauvin</name>
+      <alpha-acid>12.2</alpha-acid>
+    </hops>
+    <hops>
+      <name>Newport</name>
+      <alpha-acid>15.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Northdown</name>
+      <alpha-acid>8.6</alpha-acid>
+    </hops>
+    <hops>
+      <name>Northern Brewer</name>
+      <alpha-acid>8.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Nugget</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Olympic</name>
+      <alpha-acid>12.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Omega</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Orion</name>
+      <alpha-acid>7.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Pacific Gem</name>
+      <alpha-acid>15.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Pacific Jem</name>
+      <alpha-acid>0.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Parsley</name>
+      <alpha-acid>0.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Perle</name>
+      <alpha-acid>9.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Phoenix</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Pioneer</name>
+      <alpha-acid>9.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Pride of Ringwood</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Progress</name>
+      <alpha-acid>6.2</alpha-acid>
+    </hops>
+    <hops>
+      <name>Rakau</name>
+      <alpha-acid>10.1</alpha-acid>
+    </hops>
+    <hops>
+      <name>Record</name>
+      <alpha-acid>6.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Rosemary</name>
+      <alpha-acid>0.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Saaz</name>
+      <alpha-acid>3.8</alpha-acid>
+    </hops>
+    <hops>
+      <name>Sage</name>
+      <alpha-acid>0.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Santiam</name>
+      <alpha-acid>6.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Satus</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Simcoe</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Spalt*</name>
+      <alpha-acid>4.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Sterling</name>
+      <alpha-acid>5.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Sticklebract</name>
+      <alpha-acid>11.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Strisselspalt</name>
+      <alpha-acid>3.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Styrian Goldings</name>
+      <alpha-acid>5.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Super Alpha</name>
+      <alpha-acid>13.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Super Styrians</name>
+      <alpha-acid>9.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Talisman</name>
+      <alpha-acid>8.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Target</name>
+      <alpha-acid>11.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Tettnanger</name>
+      <alpha-acid>4.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Thyme</name>
+      <alpha-acid>0.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Tomahawk</name>
+      <alpha-acid>15.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Topaz</name>
+      <alpha-acid>16.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Ultra</name>
+      <alpha-acid>4.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Vanguard</name>
+      <alpha-acid>5.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Vic Secret</name>
+      <alpha-acid>15.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Warrior</name>
+      <alpha-acid>16.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Whitbread Golding</name>
+      <alpha-acid>6.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Willamette</name>
+      <alpha-acid>5.5</alpha-acid>
+    </hops>
+    <hops>
+      <name>Wye Target</name>
+      <alpha-acid>10.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Yakima Cluster</name>
+      <alpha-acid>7.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Yamhill Goldings</name>
+      <alpha-acid>4.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Yeoman</name>
+      <alpha-acid>7.2</alpha-acid>
+    </hops>
+    <hops>
+      <name>Zenith</name>
+      <alpha-acid>9.0</alpha-acid>
+    </hops>
+    <hops>
+      <name>Zeus</name>
+      <alpha-acid>15.0</alpha-acid>
+    </hops>
+    <yeast>
+      <name>Belle Saison</name>
+      <attenuation>80.0</attenuation>
+    </yeast>
+    <yeast>
+      <name>Safale S04</name>
+      <attenuation>73.0</attenuation>
+    </yeast>
+    <yeast>
+      <name>Safale US-05</name>
+      <attenuation>77.0</attenuation>
+    </yeast>
+    <yeast>
+      <name>Safbrew WB-06</name>
+      <attenuation>79.0</attenuation>
+    </yeast>
+    <yeast>
+      <name>Saflager W-34/70</name>
+      <attenuation>73.0</attenuation>
+    </yeast>
+    <yeast>
+      <name>Yeast Slurry</name>
+      <attenuation>73.0</attenuation>
+    </yeast>
+  </ingredients>
+</definitions>

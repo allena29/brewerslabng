@@ -23,6 +23,13 @@ module brewerslab-types {
     }
   }
 
+  typedef qty {
+    type decimal64 {
+      fraction-digits 2;
+      range "0..100000";
+    }
+    description "Quantity";
+  }
 
    typedef percent-dot1 {
      type decimal64 {
@@ -38,6 +45,46 @@ module brewerslab-types {
       range "0..384";
     }
     description "Percentage with higher precision";
+  }
+
+  typedef hop-add-at {
+    type enumeration {
+      enum "copper" {
+        description "60 min (start of regular boil - maximum Alpha Acid Isomerisation)";
+      }
+      enum "mid" {
+        description "30 min into boil";
+      }
+      enum "aroma" {
+        description "15 min Aroma Hops";
+      }
+      enum "finishing" {
+        description "5 min from end of boil";
+      }
+      enum "flameout" {
+        description "Flameout minimal alpha acid isomerisation";
+      }
+      enum "whirlpool" {
+        description "Whirlpool for extraction of volatile hop oils - best carried out in a closed loop.";
+      }
+      enum "first wort hop" {
+        description "Added as the mash is run off into the boiler - assumed 20% efficiency";
+      }
+      enum "dry hop" {
+        description "Post fermentation hop additions for aroma.";
+      }
+    }
+  }
+
+  typedef fermentable-add-at {
+    type enumeration {
+      enum "mash" {
+        description "Add to the mash";
+      }
+      enum "start of boil" {
+        description "Add to the start of the boil";
+      }
+    }
   }
 
 }

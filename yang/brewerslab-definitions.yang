@@ -1,0 +1,17 @@
+module brewerslab-definitions {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/definitions";
+  prefix "brewlab-definitions";
+
+  import brewerslab-ingredients {
+    prefix brewerslab-ingredients;
+  }
+
+  container definitions {
+    container ingredients {
+      uses brewerslab-ingredients:ingredients;
+    }
+  }
+
+
+}

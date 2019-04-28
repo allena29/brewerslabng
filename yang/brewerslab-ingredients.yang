@@ -27,6 +27,10 @@ module brewerslab-ingredients {
           enum dual-purpose;
         }
       }
+
+      leaf description {
+        type string;
+      }
     }
 
     list yeast {
@@ -38,6 +42,10 @@ module brewerslab-ingredients {
 
       leaf attenuation {
         type brewerslab-types:percent-dot1;
+      }
+
+      leaf description {
+        type string;
       }
     }
 
@@ -74,6 +82,9 @@ module brewerslab-ingredients {
         type brewerslab-types:percent-dot3;
       }
 
+      leaf description {
+        type string;
+      }
     }
   }
 }

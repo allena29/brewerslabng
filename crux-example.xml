@@ -2,150 +2,77 @@
 <crux-schema>
   <crux-paths/>
   <inverted-schema>
-    <simpleleaf cruxpath="/simpleleaf" cruxtype="leaf" cruxleaftype="string"/>
-    <default cruxpath="/default" cruxtype="leaf" cruxleaftype="string" cruxdefault="stausquo"/>
-    <whencontainer cruxpath="/whencontainer" cruxtype="container" cruxcondition="../default=\\\'statusquo\\\'">
-      <then cruxpath="/whencontainer/then" cruxtype="leaf" cruxleaftype="string" cruxdefault="thendefault"/>
-    </whencontainer>
-    <thing-that-is-lit-up-for-C cruxpath="/thing-that-is-lit-up-for-C" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'C\\\'"/>
-    <thing-that-is-lit-up-for-B cruxpath="/thing-that-is-lit-up-for-B" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'B\\\'"/>
-    <thing-that-is-lit-up-for-A cruxpath="/thing-that-is-lit-up-for-A" cruxtype="leaf" cruxleaftype="string" cruxcondition="../thing-that-is-used-for-when=\\\'A\\\'"/>
-    <thing-that-is-used-for-when cruxpath="/thing-that-is-used-for-when" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum1="B" cruxenum2="C" cruxenum="3"/>
-    <thing-to-leafref-against cruxpath="/thing-to-leafref-against" cruxtype="leaf" cruxleaftype="string"/>
-    <thing-that-is-leafref cruxinfo="Should be constratined to the leaf ref" cruxpath="/thing-that-is-leafref" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="../thing-to-leafref-against"/>
-    <quad cruxpath="/quad" cruxtype="container">
-      <leafinquad cruxpath="/quad/leafinquad" cruxtype="presence-container"/>
-    </quad>
-    <quarter cruxpath="/quarter" cruxtype="container">
-      <leafinquarter cruxpath="/quarter/leafinquarter" cruxtype="presence-container"/>
-    </quarter>
-    <bronze cruxpath="/bronze" cruxtype="container">
-      <silver cruxpath="/bronze/silver" cruxtype="container">
-        <gold cruxpath="/bronze/silver/gold" cruxtype="container">
-          <platinum cruxpath="/bronze/silver/gold/platinum" cruxtype="container">
-            <deep cruxpath="/bronze/silver/gold/platinum/deep" cruxtype="leaf" cruxleaftype="string"/>
-          </platinum>
-        </gold>
-      </silver>
-    </bronze>
-    <psychedelia cruxpath="/psychedelia" cruxtype="container">
-      <bands cruxpath="/psychedelia/bands" cruxtype="list" cruxkey="band">
-        <band cruxpath="/psychedelia/bands/band" cruxtype="leaf" cruxleaftype="string"/>
-        <favourite cruxpath="/psychedelia/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
-      </bands>
-      <psychedelic-rock cruxpath="/psychedelia/psychedelic-rock" cruxtype="container">
-        <bands cruxpath="/psychedelia/psychedelic-rock/bands" cruxtype="list" cruxkey="band">
-          <band cruxpath="/psychedelia/psychedelic-rock/bands/band" cruxtype="leaf" cruxleaftype="string"/>
-          <favourite cruxpath="/psychedelia/psychedelic-rock/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
-        </bands>
-        <noise-pop cruxpath="/psychedelia/psychedelic-rock/noise-pop" cruxtype="container">
-          <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands" cruxtype="list" cruxkey="band">
-            <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
-            <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
-          </bands>
-          <dream-pop cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop" cruxtype="container">
-            <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands" cruxtype="list" cruxkey="band">
-              <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/band" cruxtype="leaf" cruxleaftype="string"/>
-              <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/dream-pop/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
-            </bands>
-          </dream-pop>
-          <shoe-gaze cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze" cruxtype="container">
-            <bands cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands" cruxtype="list" cruxkey="band">
-              <band cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/band" cruxtype="leaf" cruxleaftype="string"/>
-              <favourite cruxpath="/psychedelia/psychedelic-rock/noise-pop/shoe-gaze/bands/favourite" cruxtype="leaf" cruxleaftype="boolean"/>
-            </bands>
-          </shoe-gaze>
-        </noise-pop>
-      </psychedelic-rock>
-    </psychedelia>
-    <twokeylist cruxpath="/twokeylist" cruxtype="list" cruxkey="primary secondary">
-      <primary cruxpath="/twokeylist/primary" cruxtype="leaf" cruxleaftype="boolean"/>
-      <secondary cruxpath="/twokeylist/secondary" cruxtype="leaf" cruxleaftype="boolean"/>
-      <tertiary cruxpath="/twokeylist/tertiary" cruxtype="leaf" cruxleaftype="boolean"/>
-    </twokeylist>
-    <simplecontainer cruxpath="/simplecontainer" cruxtype="presence-container"/>
-    <simpleenum cruxpath="/simpleenum" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="A" cruxenum="1"/>
-    <patternstr cruxpath="/patternstr" cruxtype="leaf" cruxleaftype="string"/>
-    <hyphen-leaf cruxpath="/hyphen-leaf" cruxtype="leaf" cruxleaftype="string"/>
-    <outsidelist cruxpath="/outsidelist" cruxtype="list" cruxkey="leafo">
-      <leafo cruxpath="/outsidelist/leafo" cruxtype="leaf" cruxleaftype="string"/>
-      <insidelist cruxpath="/outsidelist/insidelist" cruxtype="list" cruxkey="leafi">
-        <leafi cruxpath="/outsidelist/insidelist/leafi" cruxtype="leaf" cruxleaftype="string"/>
-      </insidelist>
-      <otherinsidelist cruxpath="/outsidelist/otherinsidelist" cruxtype="list" cruxkey="otherlist1 otherlist2 otherlist3">
-        <otherlist1 cruxpath="/outsidelist/otherinsidelist/otherlist1" cruxtype="leaf" cruxleaftype="string"/>
-        <otherlist2 cruxpath="/outsidelist/otherinsidelist/otherlist2" cruxtype="leaf" cruxleaftype="string"/>
-        <otherlist3 cruxpath="/outsidelist/otherinsidelist/otherlist3" cruxtype="leaf" cruxleaftype="string"/>
-        <otherlist4 cruxpath="/outsidelist/otherinsidelist/otherlist4" cruxtype="leaf" cruxleaftype="string"/>
-        <otherlist5 cruxpath="/outsidelist/otherinsidelist/otherlist5" cruxtype="leaf" cruxleaftype="string"/>
-        <language cruxpath="/outsidelist/otherinsidelist/language" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="french" cruxenum1="german" cruxenum2="dutch" cruxenum3="swedish" cruxenum4="danish" cruxenum5="italian" cruxenum6="spanish" cruxenum="7"/>
-      </otherinsidelist>
-      <other cruxpath="/outsidelist/other" cruxtype="leaf" cruxleaftype="string"/>
-    </outsidelist>
-    <container-and-lists cruxpath="/container-and-lists" cruxtype="container">
-      <just-a-key cruxpath="/container-and-lists/just-a-key" cruxtype="leaf" cruxleaftype="string"/>
-      <multi-key-list cruxpath="/container-and-lists/multi-key-list" cruxtype="list" cruxkey="A B">
-        <A cruxpath="/container-and-lists/multi-key-list/A" cruxtype="leaf" cruxleaftype="string"/>
-        <B cruxpath="/container-and-lists/multi-key-list/B" cruxtype="leaf" cruxleaftype="string"/>
-        <inner cruxpath="/container-and-lists/multi-key-list/inner" cruxtype="container">
-          <C cruxpath="/container-and-lists/multi-key-list/inner/C" cruxtype="leaf" cruxleaftype="string"/>
-        </inner>
-      </multi-key-list>
-    </container-and-lists>
-    <lista cruxpath="/lista" cruxtype="list" cruxkey="firstkey">
-      <firstkey cruxpath="/lista/firstkey" cruxtype="leaf" cruxleaftype="string"/>
-    </lista>
-    <simplelist cruxpath="/simplelist" cruxtype="list" cruxkey="simplekey">
-      <simplekey cruxpath="/simplelist/simplekey" cruxtype="leaf" cruxleaftype="string"/>
-      <nonleafkey cruxinfo="A non-leaf key" cruxpath="/simplelist/nonleafkey" cruxtype="leaf" cruxleaftype="uint32"/>
-    </simplelist>
-    <resolver cruxpath="/resolver" cruxtype="container">
-      <leaf-a cruxpath="/resolver/leaf-a" cruxtype="leaf" cruxleaftype="uint32"/>
-      <a cruxtype="leaf" cruxleaftype="string"/>
-    </resolver>
-    <morecomplex cruxpath="/morecomplex" cruxtype="container">
-      <nonconfig cruxinfo="A non-configuration node" cruxpath="/morecomplex/nonconfig" cruxtype="leaf" cruxconfig="no" cruxleaftype="string"/>
-      <leaf2 cruxinfo="must be 1 or 0 dont sit on the fence" cruxpath="/morecomplex/leaf2" cruxtype="leaf" cruxleaftype="boolean"/>
-      <leaf3 cruxinfo="Should allow a string starting with brew - but no spaces" cruxpath="/morecomplex/leaf3" cruxtype="leaf"/>
-      <leaf4 cruxinfo="Should allow A, B, C or a uint32" cruxpath="/morecomplex/leaf4" cruxtype="leaf" cruxleaftype="union"/>
-      <inner cruxpath="/morecomplex/inner" cruxtype="presence-container">
-        <leaf5 cruxpath="/morecomplex/inner/leaf5" cruxtype="leaf" cruxleaftype="string" cruxmandatory="yes"/>
-        <leaf6 cruxpath="/morecomplex/inner/leaf6" cruxtype="leaf" cruxleaftype="string"/>
-        <leaf7 cruxpath="/morecomplex/inner/leaf7" cruxtype="leaf" cruxleaftype="string" cruxdefault="this-is-a-default"/>
-      </inner>
-    </morecomplex>
-    <tests cruxpath="/tests" cruxtype="container">
-      <temperature cruxpath="/tests/temperature" cruxtype="container">
-        <probes cruxpath="/tests/temperature/probes" cruxtype="list" cruxkey="probeid">
-          <probeid cruxpath="/tests/temperature/probes/probeid" cruxtype="leaf" cruxleaftype="brewerslab-types__temperature-probe"/>
-          <run cruxpath="/tests/temperature/probes/run" cruxtype="leaf" cruxleaftype="boolean"/>
-          <value cruxpath="/tests/temperature/probes/value" cruxtype="leaf" cruxleaftype="brewerslab-types__temperature"/>
-        </probes>
-      </temperature>
-    </tests>
+    <recipes cruxpath="/recipes" cruxtype="container">
+      <recipes cruxpath="/recipes/recipes" cruxtype="list" cruxkey="name version">
+        <name cruxpath="/recipes/recipes/name" cruxtype="leaf" cruxleaftype="string"/>
+        <version cruxpath="/recipes/recipes/version" cruxtype="leaf" cruxleaftype="string"/>
+        <author cruxpath="/recipes/recipes/author" cruxtype="leaf" cruxleaftype="string"/>
+        <process cruxpath="/recipes/recipes/process" cruxtype="leaf" cruxleaftype="string"/>
+        <ingredients cruxpath="/recipes/recipes/ingredients" cruxtype="container">
+          <fermentables cruxpath="/recipes/recipes/ingredients/fermentables" cruxtype="list" cruxkey="name addat">
+            <name cruxpath="/recipes/recipes/ingredients/fermentables/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__fermentables/brewerslab-definitions__name"/>
+            <addat cruxpath="/recipes/recipes/ingredients/fermentables/addat" cruxtype="leaf" cruxleaftype="brewerslab-types__fermentable-add-at"/>
+            <qty cruxpath="/recipes/recipes/ingredients/fermentables/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+          </fermentables>
+          <hops cruxpath="/recipes/recipes/ingredients/hops" cruxtype="list" cruxkey="name addat">
+            <name cruxpath="/recipes/recipes/ingredients/hops/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__hops/brewerslab-definitions__name"/>
+            <addat cruxpath="/recipes/recipes/ingredients/hops/addat" cruxtype="leaf" cruxleaftype="brewerslab-types__hop-add-at"/>
+            <qty cruxpath="/recipes/recipes/ingredients/hops/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+          </hops>
+        </ingredients>
+        <yeast cruxpath="/recipes/recipes/yeast" cruxtype="list" cruxkey="name">
+          <name cruxpath="/recipes/recipes/yeast/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__yeast/brewerslab-definitions__name"/>
+          <qty cruxpath="/recipes/recipes/yeast/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+        </yeast>
+      </recipes>
+    </recipes>
     <TODO-stores cruxpath="/TODO-stores" cruxtype="container"/>
-    <hops cruxpath="/hops" cruxtype="list" cruxkey="name">
-      <name cruxpath="/hops/name" cruxtype="leaf" cruxleaftype="string"/>
-      <alpha-acid cruxpath="/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
-      <usage cruxpath="/hops/usage" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="bittering" cruxenum1="aroma" cruxenum2="dual-purpose" cruxenum="3"/>
-    </hops>
-    <yeast cruxpath="/yeast" cruxtype="list" cruxkey="name">
-      <name cruxpath="/yeast/name" cruxtype="leaf" cruxleaftype="string"/>
-      <attenuation cruxpath="/yeast/attenuation" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
-    </yeast>
-    <fermentables cruxpath="/fermentables" cruxtype="list" cruxkey="name">
-      <name cruxpath="/fermentables/name" cruxtype="leaf" cruxleaftype="string"/>
-      <adjunct cruxpath="/fermentables/adjunct" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="false"/>
-      <mash-required cruxpath="/fermentables/mash-required" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="true"/>
-      <hwe cruxpath="/fermentables/hwe" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
-    </fermentables>
+    <recipes cruxpath="/recipes" cruxtype="container">
+      <recipes cruxpath="/recipes/recipes" cruxtype="list" cruxkey="name version">
+        <name cruxpath="/recipes/recipes/name" cruxtype="leaf" cruxleaftype="string"/>
+        <version cruxpath="/recipes/recipes/version" cruxtype="leaf" cruxleaftype="string"/>
+        <author cruxpath="/recipes/recipes/author" cruxtype="leaf" cruxleaftype="string"/>
+        <process cruxpath="/recipes/recipes/process" cruxtype="leaf" cruxleaftype="string"/>
+        <ingredients cruxpath="/recipes/recipes/ingredients" cruxtype="container">
+          <fermentables cruxpath="/recipes/recipes/ingredients/fermentables" cruxtype="list" cruxkey="name addat">
+            <name cruxpath="/recipes/recipes/ingredients/fermentables/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__fermentables/brewerslab-definitions__name"/>
+            <addat cruxpath="/recipes/recipes/ingredients/fermentables/addat" cruxtype="leaf" cruxleaftype="brewerslab-types__fermentable-add-at"/>
+            <qty cruxpath="/recipes/recipes/ingredients/fermentables/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+          </fermentables>
+          <hops cruxpath="/recipes/recipes/ingredients/hops" cruxtype="list" cruxkey="name addat">
+            <name cruxpath="/recipes/recipes/ingredients/hops/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__hops/brewerslab-definitions__name"/>
+            <addat cruxpath="/recipes/recipes/ingredients/hops/addat" cruxtype="leaf" cruxleaftype="brewerslab-types__hop-add-at"/>
+            <qty cruxpath="/recipes/recipes/ingredients/hops/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+          </hops>
+        </ingredients>
+        <yeast cruxpath="/recipes/recipes/yeast" cruxtype="list" cruxkey="name">
+          <name cruxpath="/recipes/recipes/yeast/name" cruxtype="leaf" cruxleaftype="leafref" cruxleafref="/brewerslab-definitions__definitions/brewerslab-definitions__ingredients/brewerslab-definitions__yeast/brewerslab-definitions__name"/>
+          <qty cruxpath="/recipes/recipes/yeast/qty" cruxtype="leaf" cruxleaftype="brewerslab-types__qty" cruxmandatory="yes"/>
+        </yeast>
+      </recipes>
+    </recipes>
     <definitions cruxpath="/definitions" cruxtype="container">
-      <hops cruxpath="/definitions/hops" cruxtype="list" cruxkey="item">
-        <item cruxinfo="The hop" cruxpath="/definitions/hops/item" cruxtype="leaf" cruxleaftype="string"/>
-        <alpha-acid cruxpath="/definitions/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
-        <bittering cruxpath="/definitions/hops/bittering" cruxtype="leaf" cruxleaftype="boolean"/>
-        <aroma cruxpath="/definitions/hops/aroma" cruxtype="leaf" cruxleaftype="boolean"/>
-      </hops>
+      <ingredients cruxpath="/definitions/ingredients" cruxtype="container">
+        <hops cruxpath="/definitions/ingredients/hops" cruxtype="list" cruxkey="name">
+          <name cruxpath="/definitions/ingredients/hops/name" cruxtype="leaf" cruxleaftype="string"/>
+          <alpha-acid cruxpath="/definitions/ingredients/hops/alpha-acid" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+          <usage cruxpath="/definitions/ingredients/hops/usage" cruxtype="leaf" cruxleaftype="enumeration" cruxenum0="bittering" cruxenum1="aroma" cruxenum2="dual-purpose" cruxenum="3"/>
+          <description cruxpath="/definitions/ingredients/hops/description" cruxtype="leaf" cruxleaftype="string"/>
+        </hops>
+        <yeast cruxpath="/definitions/ingredients/yeast" cruxtype="list" cruxkey="name">
+          <name cruxpath="/definitions/ingredients/yeast/name" cruxtype="leaf" cruxleaftype="string"/>
+          <attenuation cruxpath="/definitions/ingredients/yeast/attenuation" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot1"/>
+          <description cruxpath="/definitions/ingredients/yeast/description" cruxtype="leaf" cruxleaftype="string"/>
+        </yeast>
+        <fermentables cruxpath="/definitions/ingredients/fermentables" cruxtype="list" cruxkey="name">
+          <name cruxpath="/definitions/ingredients/fermentables/name" cruxtype="leaf" cruxleaftype="string"/>
+          <adjunct cruxpath="/definitions/ingredients/fermentables/adjunct" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="false"/>
+          <mash-required cruxpath="/definitions/ingredients/fermentables/mash-required" cruxtype="leaf" cruxleaftype="boolean" cruxdefault="true"/>
+          <hwe cruxpath="/definitions/ingredients/fermentables/hwe" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot3"/>
+          <extract cruxpath="/definitions/ingredients/fermentables/extract" cruxtype="leaf" cruxleaftype="brewerslab-types__percent-dot3"/>
+          <description cruxpath="/definitions/ingredients/fermentables/description" cruxtype="leaf" cruxleaftype="string"/>
+        </fermentables>
+      </ingredients>
     </definitions>
   </inverted-schema>
 </crux-schema>

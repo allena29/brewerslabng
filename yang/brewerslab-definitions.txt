@@ -1,0 +1,19 @@
+module: brewerslab-definitions
+  +--rw definitions
+     +--rw ingredients
+        +--rw hops* [name]
+        |  +--rw name           string
+        |  +--rw alpha-acid?    brewerslab-types:percent-dot1
+        |  +--rw usage?         enumeration
+        |  +--rw description?   string
+        +--rw yeast* [name]
+        |  +--rw name           string
+        |  +--rw attenuation?   brewerslab-types:percent-dot1
+        |  +--rw description?   string
+        +--rw fermentables* [name]
+           +--rw name             string
+           +--rw adjunct?         boolean
+           +--rw mash-required?   boolean
+           +--rw hwe?             brewerslab-types:percent-dot3
+           +--rw extract?         brewerslab-types:percent-dot3
+           +--rw description?     string
