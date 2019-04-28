@@ -1,8 +1,0 @@
-module: crux
-  +--rw crux-cli
-     +--rw modules* [module]
-        +--rw module            string
-        +--rw namespace         string
-        +--rw revision?         string
-        +--rw top-level-tags* [tag]
-           +--rw tag    string
