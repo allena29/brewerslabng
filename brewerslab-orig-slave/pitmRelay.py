@@ -42,7 +42,7 @@ class pitmRelay:
         self.fermCoolActiveFor = -1
         self.fermHeatActiveFor = -1
 
-        self.fridgeCompressorDelay = 300
+        self.fridgeCompressorDelay = 120
         self.fridgeCool = False
         self.fridgeHeat = False
 
@@ -182,7 +182,7 @@ class pitmRelay:
             self.lcdDisplay.sendMessage("CRITICAL Temp Result Error", 2)
             self.gpio.output('fermCool', 0)
             self.gpio.output('recircfan', 0)
-            self.fridgeCompressorDelay = 300
+            self.fridgeCompressorDelay = 300 
             return False
 
         return True
@@ -206,7 +206,7 @@ class pitmRelay:
             self.groot.log("Cooling has been active for %s - resting fridge" % (time.time() - self.fermCoolActiveFor))
             self._turn_cooling_off()
             # we have a longer sleep if getting turn off because of long running
-            self.fridgeCompressorDelay = 601
+            self.fridgeCompressorDelay = 601 
             return True
 
         return False
@@ -271,7 +271,7 @@ class pitmRelay:
         if os.path.exists("ipc/disable-fermcool"):
             return False
 
-        if self.zoneTemp > self.zoneDownTarget and not self.fridgeCool:
+        if self.zoneTemp > self.zoneDownTarget:
             self.groot.log("Cooling Required %s > %s" % (self.zoneTemp, self.zoneDownTarget))
             return True
 
@@ -279,10 +279,8 @@ class pitmRelay:
 
     def _zone_ferm(self):
         self.fridgeCompressorDelay = self.fridgeCompressorDelay - 1
-
         safety_check_ok = self._safety_check_for_missing_readings()
         if not safety_check_ok:
-
             self.groot.log("Unrealistic readings!")
             # Cannot continue because we have no valid reading
             return
@@ -304,12 +302,12 @@ class pitmRelay:
             self.gpio.output('extractor', 0)
             self._gpioExtractor = False
 
+
         self._lastValidReading['ferm'] = time.time()
 #					self.lcdDisplay.sendMessage(" - Target %sC" %(self.zoneTarget),1)
 
         heating_required = self._is_heating_required()
         cooling_required = self._is_cooling_required()
-
         if heating_required:
             self._turn_cooling_off()
             self._turn_heating_on()
