@@ -1,0 +1,19 @@
+#!/bin/sh
+
+python -m unittest discover test/unit
+if [ $? == 0 ]
+then
+echo "Tests pass"
+else
+echo "Tests failed"
+exit 1
+fi
+
+pytest -vv test/pytest_unit
+if [ $? == 0 ]
+then
+echo "Tests pass"
+else
+echo "Tests failed"
+exit 1
+fi
