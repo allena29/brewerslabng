@@ -69,6 +69,9 @@ When operating correctly looking in `/sys/bus/w1/devices` should shown a number 
 
 In this case the temperature is 16.937, this can be found by taking `t=16937`, the resolution of the probes is limited based on the Analogue-Digital Conversion. A value of 85000 is an invalid reading and points to disruption on the 1-Wire bus - physical wiring should be checked.
 
+
+##### Multicast (TO BE DEPRECATED)
+
 Each time a temperature reading is taken it is published via a JSON string publised on the Multicast group 239.232.168.250 port 5087. This result is padded to 1200 bytes, however in future the configuration data will be moved out to a NETCONF data store. **The publishing of the temperatures themselves will remain** (i.e. `currentResult` and `_operation` keys)
 
 ```json
@@ -99,11 +102,18 @@ Each time a temperature reading is taken it is published via a JSON string publi
 }
 ```
 
+##### RabbitMQ
+
+Instead of using multicast things will start to move over to RabbitMq instead - (partly driven by a TP-LINK router which doesn't properly forward multicast traffic).
 
 
-#### Fermentation Monitoring 
+```
+docker run -d -t  --name rabbitmq --rm  -p  5671:5671 -p 15672:15672 -p 5672:5672 allena29/brewerslabng:rabbitmq /start.sh
+```
 
-An [iSpindel](https://github.com/universam1/iSpindel/blob/master/docs/README_en.md) can be used to provide an approximate the progress of fermentation, this is unlikely to be entirely accurate but provides a useful guide for the progress. The iSpindel can be configured to submit results to a service like Ubidots, or a Generic TCP server where we have a simpe JSON structure. 
+#### Fermentation Monitoring
+
+An [iSpindel](https://github.com/universam1/iSpindel/blob/master/docs/README_en.md) can be used to provide an approximate the progress of fermentation, this is unlikely to be entirely accurate but provides a useful guide for the progress. The iSpindel can be configured to submit results to a service like Ubidots, or a Generic TCP server where we have a simpe JSON structure.
 
 **Note: the iSpindle does not talk HTTP**
 
@@ -164,10 +174,10 @@ TODO... populate it.
 
 ## Graphical Dashbord
 
-The username is `beerng` and the password is `beerng`. 
+The username is `beerng` and the password is `beerng`.
 
 ```
-docker run --name grafana -i -d -p 3000:3000 -p 8086:8086 allena29/brewerslabng:grafana
+docker run --name grafana --rm -i -d -p 3000:3000 -p 8086:8086 allena29/brewerslabng:grafana
 ```
 
 For the dashboards to receive any stats the following processes need to run, they need to be able to successfully receive multicast and be able to make HTTP calls to the Influx DB port 8086.
