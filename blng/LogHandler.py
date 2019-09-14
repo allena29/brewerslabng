@@ -22,10 +22,11 @@ class LogHandler:
             3 = auto-reduce logging to syslog but always log to local logger
         """
         self.logging = 3
-        self.lastLog = ["", "", "", "", "", "", "", "", "", "", ""]
+        self.lastLog = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
         FORMAT = "%(asctime)-15s - %(name)-20s %(levelname)-12s  %(message)s"
-        logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+        logging.basicConfig(level=99, format=FORMAT)
         self.__logger = logging.getLogger(component)
+        self.__logger.setLevel(logging.DEBUG)
 
     def info(self, msg, importance=10):
         self.log(msg, importance, syslog_level=syslog.LOG_INFO, logger='info')
@@ -48,10 +49,10 @@ class LogHandler:
             logger_method(msg)
 
     def error(self, msg):
-        self.log(msg, importance=20, syslog_level=syslog.LOG_ERR, logger='error')
+        self.log(msg, importance=11, syslog_level=syslog.LOG_ERR, logger='error')
 
     def err(self, msg):
-        self.log(msg, importance=20, syslog_level=syslog.LOG_ERR, logger='error')
+        self.log(msg, importance=11, syslog_level=syslog.LOG_ERR, logger='error')
 
 
 class LogWrap():
