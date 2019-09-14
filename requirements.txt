@@ -21,8 +21,8 @@ docopt==0.6.2
 dpath==1.4.2
 enum34==1.1.6
 falcon==1.4.1
-Flask==1.0.2
-flask-restplus==0.12.1
+Flask==1.1.1
+flask-restplus==0.13.0
 future==0.16.0
 get==1.0.2
 gunicorn==19.7.1
@@ -33,7 +33,7 @@ ipython-genutils==0.2.0
 isort==4.3.4
 itsdangerous==1.1.0
 jedi==0.12.0
-Jinja2==2.10
+Jinja2==2.10.1
 jsonschema==2.6.0
 lazy-object-proxy==1.3.1
 lxml==4.2.1
@@ -50,6 +50,7 @@ parso==0.2.0
 pbr==4.0.1
 pexpect==4.5.0
 pickleshare==0.7.4
+pika==1.1.0
 pluggy==0.7.1
 post==1.0.1
 prompt-toolkit==2.0.9
@@ -83,7 +84,7 @@ snowballstemmer==1.2.1
 traitlets==4.3.2
 urllib3==1.22
 wcwidth==0.1.7
-Werkzeug==0.14.1
+Werkzeug==0.15.6
 wrapt==1.10.11
 xmltodict==0.11.0
 yapf==0.24.0
