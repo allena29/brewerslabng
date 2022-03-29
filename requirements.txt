@@ -43,7 +43,7 @@ mock==2.0.0
 ncclient==0.5.3
 netconf-console==2.0.1
 nose2==0.7.4
-paramiko==2.4.1
+paramiko==2.10.1
 parse==1.8.4
 parse-type==0.4.2
 parso==0.2.0
